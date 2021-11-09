@@ -44,6 +44,7 @@ import numpy as np
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.colors import LightSource
 """from matplotlib import colorbar
 from matplotlib import surf
 from matplotlib import ylabel
@@ -86,10 +87,11 @@ print(np.shape([1,2,3]))
 #print(V)
 
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.gca(projection='3d')
 T,S_depth = np.meshgrid(T,S_depth)
 ax.plot_surface(T, S_depth, V)#, edgecolor='none'
-
+ls = LightSource(azdeg=315, altdeg=45)
+sha = ls.shade(V,cmap=plt.cm.copper, blend_mode='overlay')
 #surf = plt.surf(T,S_depth,V,'edgecolor','none')
 #h = plt.colorbar(surf)
 #plt.ylim(-0.5,2.5)
@@ -97,8 +99,8 @@ ax.plot_surface(T, S_depth, V)#, edgecolor='none'
 #h = colorbar
 #plt.ylabel(h, 'Displacement(cm)','fontsize',16,'fontname','Times New Roman','LineWidth',1.5)
 #set(gca,'YDir','reverse'); 
-plt.gca().set(xlim=(0.0, 0.1), ylim=(-0.5,2.5),
-              xlabel=("Time (year/month)",'fontsize',14,'fontname','Times New Roman'), ylabel='reverse')
+#plt.gca().set(xlim=(0.0, 0.1), ylim=(-0.5,2.5),
+ #             xlabel=("Time (year/month)",'fontsize',14,'fontname','Times New Roman'), ylabel='reverse')
 #plt.set(plt.gca,'YDir','reverse')
 #plt.xticks(T)
 
@@ -106,7 +108,7 @@ plt.gca().set(xlim=(0.0, 0.1), ylim=(-0.5,2.5),
 plt.xlabel(T)
 
 plt.box(on=True)
-ax.pcolormesh(T, S_depth, V[:-1, :-1], shading='interp', vmin=V.min(), vmax=V.max())
+#ax.pcolormesh(T, S_depth, V[:-1, :-1], shading='interp', vmin=V.min(), vmax=V.max())
 plt.draw()
 
 #plt.xticklabels(num2cell(str(time.strftime('yyyy/mm',T))));
