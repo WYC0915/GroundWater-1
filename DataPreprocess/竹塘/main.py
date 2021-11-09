@@ -45,19 +45,11 @@ import time
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.colors import LightSource
+import matplotlib.colors as mcolors
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits import mplot3d
 from matplotlib import cm
-"""from matplotlib import colorbar
-from matplotlib import surf
-from matplotlib import ylabel
-from matplotlib import xticks
-from matplotlib import xticklabels
-from matplotlib import num2cell"""
-#read = pd.read_excel("竹塘(matlab2).xlsx")
-#A = np.array(read,dtype=np.float16)
 A = pd.read_excel("竹塘(matlab2).xlsx")
-#print(A)
 S_depth = A.iloc[0:, 0]
 S_depth = S_depth.values.round(3).tolist()
 T = list(A)
@@ -66,46 +58,49 @@ for i, t in enumerate(T):
     t=str(t)
     t = time.strptime(t, "%Y%m")
     t = time.strftime("%Y/%m",t)
-    #t = (time.mktime(t))
-    #T[i]=float(t)
-
 V=A.iloc[:,1:]
 V=V.values.round(3)
 V=V.tolist()
 #try to trans to np
 V=np.array(V)
-#V=np.transpose(V)
 T=np.array(T)
 S_depth=np.array(S_depth)
 
 
 #colorbar=plt.colorbar('YLim',[-1.5,2])
+
+
 print(np.shape(V),np.shape(np.transpose(V)),V.dtype)
 print(np.shape(T),T.dtype)
 print(np.shape(S_depth),S_depth.dtype)
 print(np.shape([1,2,3]))
-
-#print(T)
-#print(S_depth)
-#print(V)
-
+##init
 fig = plt.figure()
 ax = fig.gca(projection='3d')
+#camera init
+ax.view_init(elev=45,azim=0)
+#create
 T,S_depth = np.meshgrid(T,S_depth)
-surf = ax.plot_surface(T, S_depth, V)#, edgecolor='none'
-"""
-test
-"""
+
+#cmap = plt.get_cmap('jet')
+cNorm = mcolors.Normalize(vmin=-2, vmax=1)
+
+surf = ax.plot_surface(T, S_depth, V ,cmap='jet')
+#plt.pcolormesh(T, S_depth, V, vmin=-2, vmax=1, cmap="RdBu_r")
+#plt.colorbar(ax=None)
+
+plt.draw()
+
+
+
+###bar
+#fig.colorbar(surf, ax=ax, shrink=0.5)#, aspect=5
+
 #mycmap = plt.get_cmap('gist_earth')
 #ax.set_title('gist_earth color map')
 #surf = ax.plot_surface(X, Y, Z, cmap=mycmap)
-fig.colorbar(surf, ax=ax, shrink=0.5, aspect=5)
-"""
-test end
-"""
-plt.box(on=True)
-plt.draw()
-ls = LightSource(azdeg=315, altdeg=45)
+#plt.box(on=True)
+#ls = LightSource(azdeg=315, altdeg=45)
 #sha = ls.shade(V,cmap='viridis', blend_mode='overlay')
 #sha = ls.shade(V,cmap=plt.cm.copper, blend_mode='overlay')
 #surf = plt.surf(T,S_depth,V,'edgecolor','none')
