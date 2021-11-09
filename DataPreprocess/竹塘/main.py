@@ -61,15 +61,16 @@ T.pop(0)
 for i, t in enumerate(T):
     t=str(t)
     t = time.strptime(t, "%Y%m")
-    t = time.strftime("%Y-%m",t)
-    T[i]=str(t)
+    t = time.strftime("%Y/%m",t)
+    #t = (time.mktime(t))
+    #T[i]=float(t)
 
 V=A.iloc[:,1:]
 V=V.values.round(3)
 V=V.tolist()
 #try to trans to np
 V=np.array(V)
-V=np.transpose(V)
+#V=np.transpose(V)
 T=np.array(T)
 S_depth=np.array(S_depth)
 
@@ -79,20 +80,33 @@ print(np.shape(V),np.shape(np.transpose(V)),V.dtype)
 print(np.shape(T),T.dtype)
 print(np.shape(S_depth),S_depth.dtype)
 print(np.shape([1,2,3]))
+
 #print(T)
+#print(S_depth)
+#print(V)
+
 fig = plt.figure()
-ax = plt.axes(projection='3d')
-ax.plot_surface(T,S_depth, V,cmap='viridis', edgecolor='none')
+ax = fig.add_subplot(111, projection='3d')
+T,S_depth = np.meshgrid(T,S_depth)
+ax.plot_surface(T, S_depth, V)#, edgecolor='none'
+
 #surf = plt.surf(T,S_depth,V,'edgecolor','none')
 #h = plt.colorbar(surf)
-plt.ylim(-0.5,2.5)
+#plt.ylim(-0.5,2.5)
 
 #h = colorbar
 #plt.ylabel(h, 'Displacement(cm)','fontsize',16,'fontname','Times New Roman','LineWidth',1.5)
-plt.set(plt.gca,'YDir','reverse')
-plt.xticks(T)
-plt.xlabel(plt.num2cell(str(time.strftime('yyyy/mm',T))))
+#set(gca,'YDir','reverse'); 
+plt.gca().set(xlim=(0.0, 0.1), ylim=(-0.5,2.5),
+              xlabel=("Time (year/month)",'fontsize',14,'fontname','Times New Roman'), ylabel='reverse')
+#plt.set(plt.gca,'YDir','reverse')
+#plt.xticks(T)
 
+#plt.xlabel(plt.num2cell(str(time.strftime('yyyy/mm',T))))
+plt.xlabel(T)
+
+plt.box(on=True)
+ax.pcolormesh(T, S_depth, V[:-1, :-1], shading='interp', vmin=V.min(), vmax=V.max())
 plt.draw()
 
 #plt.xticklabels(num2cell(str(time.strftime('yyyy/mm',T))));
