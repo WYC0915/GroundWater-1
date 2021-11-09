@@ -45,6 +45,9 @@ import time
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.colors import LightSource
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits import mplot3d
+from matplotlib import cm
 """from matplotlib import colorbar
 from matplotlib import surf
 from matplotlib import ylabel
@@ -89,9 +92,22 @@ print(np.shape([1,2,3]))
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 T,S_depth = np.meshgrid(T,S_depth)
-ax.plot_surface(T, S_depth, V)#, edgecolor='none'
+surf = ax.plot_surface(T, S_depth, V)#, edgecolor='none'
+"""
+test
+"""
+#mycmap = plt.get_cmap('gist_earth')
+#ax.set_title('gist_earth color map')
+#surf = ax.plot_surface(X, Y, Z, cmap=mycmap)
+fig.colorbar(surf, ax=ax, shrink=0.5, aspect=5)
+"""
+test end
+"""
+plt.box(on=True)
+plt.draw()
 ls = LightSource(azdeg=315, altdeg=45)
-sha = ls.shade(V,cmap=plt.cm.copper, blend_mode='overlay')
+#sha = ls.shade(V,cmap='viridis', blend_mode='overlay')
+#sha = ls.shade(V,cmap=plt.cm.copper, blend_mode='overlay')
 #surf = plt.surf(T,S_depth,V,'edgecolor','none')
 #h = plt.colorbar(surf)
 #plt.ylim(-0.5,2.5)
@@ -105,11 +121,11 @@ sha = ls.shade(V,cmap=plt.cm.copper, blend_mode='overlay')
 #plt.xticks(T)
 
 #plt.xlabel(plt.num2cell(str(time.strftime('yyyy/mm',T))))
-plt.xlabel(T)
+#plt.xlabel(T)
 
-plt.box(on=True)
+#
 #ax.pcolormesh(T, S_depth, V[:-1, :-1], shading='interp', vmin=V.min(), vmax=V.max())
-plt.draw()
+#plt.draw()
 
 #plt.xticklabels(num2cell(str(time.strftime('yyyy/mm',T))));
 #%datetick('x','yyyy/mm')
