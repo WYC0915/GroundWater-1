@@ -76,19 +76,20 @@ print(np.shape(S_depth),S_depth.dtype)
 print(np.shape([1,2,3]))
 ##init
 fig = plt.figure()
+#gca為回傳座標軸，若無則創建
 ax = fig.gca(projection='3d')
-#camera init
+##camera init
 ax.view_init(elev=45,azim=0)
-#create
+#ax.view_init(elev=90,azim=0)
+##create
 T,S_depth = np.meshgrid(T,S_depth)
-
-#cmap = plt.get_cmap('jet')
-cNorm = mcolors.Normalize(vmin=-2, vmax=1)
-
 surf = ax.plot_surface(T, S_depth, V ,cmap='jet')
+
+plt.xticks(np.arange(len(T))[::30],T[::30])
+#ax.xticks(np.arange(len(T))[::30],T[::30])
 #plt.pcolormesh(T, S_depth, V, vmin=-2, vmax=1, cmap="RdBu_r")
 #plt.colorbar(ax=None)
-
+plt.show()
 plt.draw()
 
 
