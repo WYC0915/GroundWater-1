@@ -75,20 +75,32 @@ print(np.shape(T),T.dtype)
 print(np.shape(S_depth),S_depth.dtype)
 print(np.shape([1,2,3]))
 ##init
-fig = plt.figure()
+fig = plt.figure(figsize=(27,36))
 #gca為回傳座標軸，若無則創建
 ax = fig.gca(projection='3d')
+# 使figure間隔變多
+plt.xticks(np.arange(min(T), max(T), 10.0))
+plt.yticks(np.arange(min(S_depth), max(S_depth)+1, 50.0))# 以50為間隔，+1會多尾巴300的部分
+
 ##camera init
-ax.view_init(elev=45,azim=0)
+ax.view_init(elev=90,azim=0)
 #ax.view_init(elev=90,azim=0)
 ##create
 T,S_depth = np.meshgrid(T,S_depth)
 surf = ax.plot_surface(T, S_depth, V ,cmap='jet')
 
-plt.xticks(np.arange(len(T))[::30],T[::30])
+#plt.xticks(np.arange(len(T))[::30],T[::30])
 #ax.xticks(np.arange(len(T))[::30],T[::30])
+
+# 使figure間隔變多
+#plt.xticks(np.arange(min(T), max(T), 10.0))
+#plt.yticks(np.arange(min(S_depth), max(S_depth)+1, 50.0))# 以50為間隔，+1會多尾巴300的部分
+# 繪製 Colorbar 圖形
+fig.colorbar(surf, ax=ax, shrink=0.75, aspect=12)
 #plt.pcolormesh(T, S_depth, V, vmin=-2, vmax=1, cmap="RdBu_r")
 #plt.colorbar(ax=None)
+
+
 plt.show()
 plt.draw()
 
