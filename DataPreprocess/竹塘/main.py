@@ -41,8 +41,8 @@ ax=Axes3D(fig)
 # ax = fig.gca(projection='3d')
 
 # 使figure間隔變多
-plt.xticks(np.arange(min(T), max(T)+10, 10.0))
-plt.yticks(np.arange(min(S_depth), max(S_depth)+10, 10.0))
+plt.xticks(np.arange(min(T), max(T), 10.0))
+plt.yticks(np.arange(min(S_depth), max(S_depth)+1, 50.0))# 以50為間隔，+1會多尾巴300的部分
 
 #ax.xaxis.set_major_locator(ticker.MultipleLocator(T))
 #ax.yaxis.set_major_locator(ticker.MultipleLocator(S_depth))
@@ -53,26 +53,22 @@ T,S_depth = np.meshgrid(T,S_depth)
 
 # 繪製 3D 曲面圖形
 surf = ax.plot_surface(T, S_depth, V, rstride=1, cstride=1, cmap='jet')# viridis jet
-ax.view_init(elev=90,azim=0)
+ax.view_init(elev=90, azim=90)
 
-plt.xticks(rotation=320)
+plt.xticks(rotation=270)
 plt.yticks(rotation=0)
 
 # 繪製 Colorbar 圖形
 fig.colorbar(surf, ax=ax, shrink=0.75, aspect=12)
 
 # label字樣...
-ax.set_xlabel('Time (year/month)', fontsize = 14, fontfamily = 'Times New Roman', color = 'black')# sans-serif
-ax.set_ylabel('Depth(m)'         , fontsize = 14, fontfamily = 'Times New Roman', color = 'black')
-ax.set_zlabel('Displacement(cm)' , fontsize = 16, fontfamily = 'Times New Roman', color = 'black')
+#ax.set_xlabel('Time (year/month)', fontsize = 14, fontfamily = 'Times New Roman', color = 'black')# sans-serif
+#ax.set_ylabel('Depth(m)'         , fontsize = 14, fontfamily = 'Times New Roman', color = 'black')
+#ax.set_zlabel('Displacement(cm)' , fontsize = 16, fontfamily = 'Times New Roman', color = 'black')
 
 cmap = plt.cm.copper
 ls = LightSource(315, 45)
 rgb = ls.shade(V, cmap)
-#ax.imshow(rgb, interpolation='bilinear')
-#im = ax.imshow(V, cmap=cmap)
-#im.remove()
-#fig.colorbar(im)
 
 plt.box(on=True)
 
