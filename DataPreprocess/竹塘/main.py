@@ -49,6 +49,7 @@ import matplotlib.colors as mcolors
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits import mplot3d
 from matplotlib import cm
+
 A = pd.read_excel("竹塘(matlab2).xlsx")
 S_depth = A.iloc[0:, 0]
 S_depth = S_depth.values.round(3).tolist()
@@ -74,8 +75,18 @@ print(np.shape(V),np.shape(np.transpose(V)),V.dtype)
 print(np.shape(T),T.dtype)
 print(np.shape(S_depth),S_depth.dtype)
 print(np.shape([1,2,3]))
+
+from scipy import interpolate
+#import cv2 as cv
+kernel = np.ones((5,5),np.float32)/25
+#V = cv.filter2D(V, -1, kernel)
+f=interpolate.interp2d(T,S_depth, V, kind='quintic')
+V2 = f(T,S_depth)
+print("V2:",np.shape(V2),np.shape(np.transpose(V2)))
+V=V2
 ##init
-fig = plt.figure(figsize=(27,36))
+mul=2
+fig = plt.figure(figsize=(27*mul,36*mul))
 #gca為回傳座標軸，若無則創建
 ax = fig.gca(projection='3d')
 # 使figure間隔變多
@@ -83,12 +94,12 @@ plt.xticks(np.arange(min(T), max(T), 10.0))
 plt.yticks(np.arange(min(S_depth), max(S_depth)+1, 50.0))# 以50為間隔，+1會多尾巴300的部分
 
 ##camera init
-ax.view_init(elev=90,azim=0)
+ax.view_init(elev=45,azim=45)
 #ax.view_init(elev=90,azim=0)
 ##create
 T,S_depth = np.meshgrid(T,S_depth)
 surf = ax.plot_surface(T, S_depth, V ,cmap='jet')
-
+#plt.pcolor(T, S_depth, V,ax=ax, cmap='RdBu', shading='gouraud')
 #plt.xticks(np.arange(len(T))[::30],T[::30])
 #ax.xticks(np.arange(len(T))[::30],T[::30])
 
@@ -96,13 +107,22 @@ surf = ax.plot_surface(T, S_depth, V ,cmap='jet')
 #plt.xticks(np.arange(min(T), max(T), 10.0))
 #plt.yticks(np.arange(min(S_depth), max(S_depth)+1, 50.0))# 以50為間隔，+1會多尾巴300的部分
 # 繪製 Colorbar 圖形
-fig.colorbar(surf, ax=ax, shrink=0.75, aspect=12)
+
+#mesh = ax.pcolormesh(V, cmap = 'jet')
+#vmin=-0.6
+#vmax=0.3
+vmin = np.min(V)
+vmax = np.max(V)
+#mesh.set_clim(vmin,vmax)
+fig.colorbar(surf, ax=ax, shrink=0.5, aspect=24)
+#fig.set_clim(vmin,vmax)
 #plt.pcolormesh(T, S_depth, V, vmin=-2, vmax=1, cmap="RdBu_r")
 #plt.colorbar(ax=None)
 
-
+#ax.set_aspect('equal')
+#ax.imshow(plt,interpolation='hermite' )
 plt.show()
-plt.draw()
+#plt.draw()
 
 
 
