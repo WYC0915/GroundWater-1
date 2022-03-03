@@ -28,21 +28,28 @@ def main():
         token=token,
         org=org
     )
-    
+    """
     if not influxdb_client.BucketsApi(client).find_bucket_by_name(bucket_name):
         influxdb_client.BucketsApi(client).create_bucket(bucket_name=bucket_name, org_id=orgid, retention_rules=None, description=None)
-    write_api = client.write_api(write_options=WriteOptions(batch_size=500,
+    write_api = client.write_api(write_options=WriteOptions(batch_size=5000,
                                                       flush_interval=10_000,
                                                       jitter_interval=2_000,
                                                       retry_interval=5_000,
                                                       max_retries=5,
                                                       max_retry_delay=30_000,
                                                       exponential_base=2))
-    
+    """
 #(write_options=SYNCHRONOUS)
     #influx setup end
-
+    import copy
+    import json
+    import os
+    d = "彰化"
+    if not os.path.isdir(d):
+        os.makedirs(d)
     with open(file_path, newline='',encoding="Big5") as csvfile:
+        data = []
+        data.clear()
         #i=0
         rows = csv.reader(csvfile)
         header = next(rows,None)
@@ -52,6 +59,9 @@ def main():
             #print(i)
             #i=i+1
             #print(row[0])
+            rowdata={}
+            data = []
+            data.clear()
             rowdata["measurement"]="彰化_坐標_深度_電量"
             rowdata["tags"]={}
             rowdata["fields"]={}
@@ -71,13 +81,15 @@ def main():
                 #print(Year,",",month)
                 temptime=datetime.strptime(str(Year)+month, "%Y%m").isoformat()
                 rowdata["time"]=temptime
-                write_api.write(bucket=bucket_name, org=org, record=rowdata)
+                #write_api.write(bucket=bucket_name, org=org, record=rowdata)
                 index+=1
             #temptime=datetime.strptime(str(row[4]), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc).timestamp()
-            
+                data.append(copy.deepcopy(rowdata))
             
                 #print(rowdata)
-            
+            if not os.path.isfile("./"+d+'/'+rowdata["tags"]["LON"]+'_'+rowdata["tags"]["LAT"]+'.json'):
+                with open("./"+d+'/'+rowdata["tags"]["LON"]+'_'+rowdata["tags"]["LAT"]+'.json', 'w', encoding='utf-8') as f:
+                    json.dump(data, f, ensure_ascii=False)#, indent=4
 
 if __name__ == "__main__":
     start = timeit.default_timer()

@@ -50,7 +50,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits import mplot3d
 from matplotlib import cm
 
-A = pd.read_excel("竹塘(matlab2).xlsx")
+A = pd.read_excel("竹塘(matlab).xlsx")
 S_depth = A.iloc[0:, 0]
 S_depth = S_depth.values.round(3).tolist()
 T = list(A)
@@ -75,6 +75,65 @@ print(np.shape(V),np.shape(np.transpose(V)),V.dtype)
 print(np.shape(T),T.dtype)
 print(np.shape(S_depth),S_depth.dtype)
 print(np.shape([1,2,3]))
+
+import matplotlib
+import matplotlib.colors as colors
+import matplotlib.dates as mdates
+import matplotlib.ticker
+import matplotlib as mpl
+import datetime as dt
+x_lims = []
+for dat in T:
+    dat=str(dat)
+    x_lims.append(dt.datetime.strptime(dat, "%Y%m"))
+
+fig, ax = plt.subplots()
+x_lims = mdates.date2num(x_lims)
+
+y = np.arange(len(S_depth) )
+x = np.arange(len(T) )
+print(x)
+#ax.pcolormesh( x,y,V, shading='gouraud', vmin=V.min(), vmax=V.max())
+plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y/%m')) 
+
+methods = [None, 'none', 'nearest', 'bilinear', 'bicubic', 'spline16',
+           'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric',
+           'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos']
+
+cmap = 'jet_r'
+colors_map = plt.get_cmap(cmap) 
+cNorm = colors.Normalize(vmin=0, vmax=5)
+print(cNorm)
+scalarMap = matplotlib.cm.ScalarMappable(norm=cNorm, cmap=colors_map)
+
+plt.imshow(V, extent=( np.amin(x_lims), np.amax(x_lims), np.amax(S_depth)+1,np.amin(S_depth)),  
+           aspect = 'auto',cmap=cmap,interpolation='lanczos',vmax=0.3,vmin=-0.6)
+
+
+ax.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
+fig.autofmt_xdate(rotation=270)
+plt.ylabel('Deaph(m)')
+plt.xlabel('Time(year/month)')
+bar = plt.colorbar()
+
+#bar = plt.colorbar(norm=colors.PowerNorm(gamma=0.5))
+#plt.colorbar(V,fraction=0.046, pad=0.04)
+
+
+
+
+"""
+colors_map = plt.get_cmap('seismic')     # 选择色条方案
+
+cNorm = colors.Normalize(vmin=0, vmax=5)    # 选择对应色条的最小值和最大值
+
+print(cNorm)         # 保存为一个色彩Normalize的d对象
+
+scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=colors_map)  # 映射色彩对应值到具体的色条
+
+print(scalarMap.get_clim())     # 查看色条对应的数值范围
+
+
 
 from scipy import interpolate
 #import cv2 as cv
@@ -164,3 +223,4 @@ plt.show()
 #print(T)
 #print(V)
 #print(np.array(V).tolist())
+"""

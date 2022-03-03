@@ -53,6 +53,8 @@ kernel = np.array([
   [0, -1, 0]
 ])
 #hsv = cv2.filter2D(hsv,cv2.CV_8U,kernel)
+
+
 import matplotlib.pyplot as plt
 import matplotlib
 import matplotlib.dates as mdates
@@ -66,13 +68,14 @@ for dat in T:
 fig, ax = plt.subplots()
 x_lims = mdates.date2num(x_lims)
 plt.imshow(V, extent=( np.amin(x_lims), np.amax(x_lims), np.amax(S_depth)+1,np.amin(S_depth)),  aspect = 'auto',cmap='jet')
+ax.pcolormesh( T,S_depth, V, shading='interp', vmin=V.min(), vmax=V.max())
 plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y/%m')) 
 ax.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
 fig.autofmt_xdate(rotation=90)
 plt.ylabel('Deaph(m)')
 plt.xlabel('Time(year/month)')
 bar = plt.colorbar()
-plt.colorbar(V,fraction=0.046, pad=0.04)
+#plt.colorbar(V,fraction=0.046, pad=0.04)
 
 
 
