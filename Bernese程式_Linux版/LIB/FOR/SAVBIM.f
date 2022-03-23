@@ -1,0 +1,126 @@
+      MODULE s_SAVBIM
+      CONTAINS
+
+C*
+      SUBROUTINE SAVBIM(BIMFIL,MAXLIN,PGMSTR,AGESTR,DATSTR,TITTXT,
+     1                  COMTXT,WARTXT,BIMCOE)
+CC
+CC NAME       :  SAVBIM
+CC
+CC PURPOSE    :  SAVE BROADCAST IONOSPHERE MODEL (BIM) COEFFICIENTS
+CC
+CC PARAMETERS :
+CC         IN :  BIMFIL : EXTERNAL IONEX OUTPUT FILE NAME     CH*32
+CC               MAXLIN : MAXIMUM NUMBER OF COMMENT LINES     I*4
+CC               PGMSTR : PROGRAM                             CH*20
+CC               AGESTR : AGENCY                              CH*20
+CC               DATSTR : DATE AND TIME                       CH*20
+CC               TITTXT : TITLE LINE                          CH*60
+CC                        =' ': UNDEFINED
+CC               COMTXT(I),I=1,..,MAXLIN: MULTI-LINE COMMENT  CH*60(*)
+CC                        =' ': UNDEFINED
+CC               WARTXT : WARNING LINE                        CH*60
+CC                        =' ': NO WARNING
+CC               BIMCOE(I=1,2,J=1,..,4): BIM COEFFICIENTS     R*8(2,4)
+CC                        I=1: ION ALPHAS
+CC                        I=2: ION BETAS
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  S.SCHAER
+CC
+CC VERSION    :  4.3
+CC
+CC CREATED    :  22-JUN-00
+CC
+CC CHANGES    :  21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      2000     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE s_opnfil
+      USE s_opnerr
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , ILIN  , IOSTAT, IVER  , MAXLIN
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      CHARACTER*60  TITTXT,COMTXT(*),WARTXT
+      CHARACTER*32  BIMFIL
+      CHARACTER*20  PGMSTR,AGESTR,DATSTR,RNXREC(6),RNXLBL,SATSTR
+C
+      REAL*8        BIMCOE(2,4)
+C
+C
+      DATA IVER/2/
+C
+C SET RNXEX RECORDS
+C -----------------
+      DATA RNXREC/'RINEX VERSION / TYPE','PGM / RUN BY / DATE ',
+     1            'COMMENT             ','ION ALPHA           ',
+     2            'ION BETA            ','END OF HEADER       '/,
+     3     RNXLBL/'NAVIGATION DATA     '/,
+     4     SATSTR/'GPS                 '/
+C
+C OPEN RINEX NAV DATA OUTPUT FILE
+C -------------------------------
+      CALL OPNFIL(LFNLOC,BIMFIL,'UNKNOWN','FORMATTED',
+     1  ' ',' ',IOSTAT)
+      CALL OPNERR(LFNERR,LFNLOC,IOSTAT,BIMFIL,'SAVBIM')
+C
+C WRITE FIRST RINEX RECORD
+C ------------------------
+      WRITE(LFNLOC,911) IVER,RNXLBL,SATSTR,RNXREC(1)
+911      FORMAT(I6,14X,A20,A20,A20)
+C
+      WRITE(LFNLOC,912) PGMSTR,AGESTR,DATSTR,RNXREC(2)
+912      FORMAT(3A20,A20)
+C
+C WRITE TITLE
+C -----------
+      IF (TITTXT.NE.' ') WRITE(LFNLOC,921) TITTXT,RNXREC(3)
+921      FORMAT(A60,A20)
+C
+C WRITE MULTI-LINE COMMENT
+C ------------------------
+      DO ILIN=1,MAXLIN
+        IF (COMTXT(ILIN).EQ.' ') GOTO 110
+        WRITE(LFNLOC,922) COMTXT(ILIN),RNXREC(3)
+922     FORMAT(A60,A20)
+      ENDDO
+110   CONTINUE
+C
+C WRITE WARNING
+C -------------
+      IF (WARTXT.NE.' ') WRITE(LFNLOC,923) WARTXT,RNXREC(3)
+923      FORMAT(A60,A20)
+C
+C WRITE BIM COEFFICIENTS
+C ----------------------
+      WRITE(LFNLOC,931) (BIMCOE(1,I),I=1,4),RNXREC(4)
+931   FORMAT(2X,1P,4D12.4,10X,A20)
+C
+      WRITE(LFNLOC,932) (BIMCOE(2,I),I=1,4),RNXREC(5)
+932   FORMAT(2X,1P,4D12.4,10X,A20)
+
+C
+C WRITE RECORD CLOSING RINEX HEADER
+C ---------------------------------
+      WRITE(LFNLOC,991) RNXREC(6)
+991   FORMAT(60X,A20)
+C
+C CLOSE OUTPUT FILE
+C -----------------
+      CLOSE (UNIT=LFNLOC)
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

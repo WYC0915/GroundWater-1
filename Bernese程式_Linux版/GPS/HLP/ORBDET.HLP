@@ -1,0 +1,494 @@
+<html>
+<body>
+<center><big>
+<p><b>Program: ORBDET</b></p>
+</big></center>
+<hr WIDTH="100%">
+The program ORBDET may be used to <em>determine the orbits of </em> 
+<ul>
+<li>minor bodies in the planetary system and</li> 
+<li>artificial Earth satellites and space debris.</li> 
+</ul>
+ORBDET is an interactive program.
+The orbit determination is based on precise <em>astrometric positions</em> (accurate to a few arcseconds per angular component or better).<br> It is assumed that the observations were made from Earth-fixed observatories -- despite the fact that the algorithms would allow for a more general scenario by, e.g., allowing for observations made from LEOs (Low Earth Orbiters), from the Moon, etc. It is, however, important that the coordinates of the observing sites are known in the inertial system (may be calculated from the Earth-fixed station coordinates, which have to be provided in a file). The observations are usually angular coordinates <em>right ascension, declination</em> in the inertial system J2000.0 (more information provided below). Observations from one or several observatories may be used in the same orbit determination process.<br>
+Due to the (well known) fact that artificial satellites and space debris are (usually and hopefully) much closer to the Earth than minor planets and comets, different accuracy requirements concerning the station coordinates and the transformation between the Earth-fixed and the inertial system have to be met for the two applications (orbit determination for satellites and minor planets, respectively). This is why completely different formats are used for the station coordinates for the two applications. 
+<ul>
+<li>When determining the orbits of minor planets, the station coordinates have to be provided in the format defined and used by the <em>Minor Planet Center (MPC), (60 Garden St., Cambridge MA 02138 USA) of the International Astronomical Union (IAU).</em></li> 
+<li>When determining the orbits of artificial Earth satellites or of space debris, a format suitable for applications in satellite geodesy is used, namely the format of the Bernese GPS software [58].</li> 
+</ul>
+The transformation between the inertial and Earth-fixed system is simplified when dealing with orbit determination of minor planets by neglecting polar wobble and by setting UT1-UTC to zero.<br>
+The time argument to characterize the observation epochs is assumed to be UTC (Universal Time Coordinated). GPS-time is the independent argument of the determined orbits when dealing with Earth satellites, etc. The differences "UT1-UTC" and "GPS-UTC" are provided in a file for these applications. Ephemeris Time (ET) is the time argument of the orbital elements, ephemerides, etc. for orbit determination of minor planets, etc. The difference ET-UT has to be provided in a file for these applications.
+
+<p><b>Initial Parameter Settings</b></p>
+The parameter definitions provided on the CD allow it to determine the orbit of a geostationary satellite using astrometric positions made at the Zimmerwald observatory. The main program switch is thus set to "SATELLITE" and "OBS_SAT.CRD" was selected as coordinate file. The observed object is "97049B00" (MeteoSat 7). The observations are those analyzed in Chapter I, 8, see, e.g., Table I, 8.11. <br>
+ORBDET is an interactive program. When analyzing the file "97049B00.OBS" one should (at least initially) only use the first twenty astrometric positions (specify "1 20" and "1 20" in the first two interactive input requests). When asked to modify the defaults, just hit "RETURN". Subsequently the first (and only solution) must be accepted. Eventually, one may improve the orbit using the oblateness perturbations and the gravitational perturbations by Sun and Moon. When resetting all marks, rather big residuals (rms of about 4-6 arcseconds) will result. The orbit is, nevertheless, of sufficient quality to invoke a subsequent orbit improvement procedure using program SATORB, where a refined force field may be defined. The orbit based only on observations 1 to 20 would be good enough as an a priori orbit, as well (in this case the marks should not be reset). The osculating orbital elements corresponding to the first observation epoch as osculation epoch are stored in the file "97049B00.ELE", which may then be used as input file in program SATORB.
+<br> The interactive program ORBDET may be terminated at any time with the "ctrl break" command.
+
+
+<a name="PLA_SAT"></a>
+<p><b>Satellites or Minor Planets</b><br>
+This is the main switch of the program. When selecting "M_PLANET" astrometric observations of minor planets and/or comets are analyzed, when selecting "SATELLITE" astrometric observations of artificial satellites or space debris. Depending on the selection one has to provide different file types for station coordinates and different auxiliary files. The files, which are not used for the selected application are shaded (prohibited for selection) in the corresponding panel.
+</p>
+<p>
+<a name="CONST"></a>
+<p><b>General Constants</b><br>
+The file "CONST" contains constants like the speed of light. The file may be inspected in the GEN-subdirectory. CONST is the file used in the Bernese GPS-Software (see [58]). 
+</p>
+
+<a name="POLE"></a>
+<p><b>General Pole File</b><br>
+Name of the file containing the information about Earth rotation needed for analyzing the orbits of Earth satellites or of space debris. The most recent version for this file may be retrieved from the CODE Analysis Center of the IGS (www.aiub.unibe.ch). Details may be found under <a href="LEOKIN.html"> Download info from AIUB </a>. The file looks as follows:
+<font face="Courier" size="2" color="blue">
+<pre>
+BULLETIN A POLE                                                 01-JUN-03 18:35                                         
+------------------------------------------------------------------------------------------------------------------------
+NUTATION MODEL       : NO                       SUBDAILY POLE MODEL: RAY
+    DATE   TIME   X-POLE   Y-POLE   UT1-UTC GPS-UTC    RMS XP  RMS YP   RMS DT   DE-CPO   DP-CPO   RMS EP  RMS PS
+YYYY MM DD HH MM    (")      (")      (S)     (S) REM     (")     (")     (S)      (")     (")      (")      (")
+
+1992  5  1  0  0 -0.13310  0.23015 -0.438762   7. A    0.00032 0.00030 0.000013  0.00000  0.00000 0.00015 0.00069
+1992  5  2  0  0 -0.13503  0.23242 -0.441285   7. A    0.00030 0.00038 0.000012  0.00000  0.00000 0.00015 0.00064
+1992  5  3  0  0 -0.13712  0.23457 -0.443627   7. A    0.00029 0.00026 0.000012  0.00000  0.00000 0.00013 0.00041
+1992  5  4  0  0 -0.13923  0.23666 -0.445795   7. A    0.00029 0.00026 0.000010  0.00000  0.00000 0.00013 0.00039
+1992  5  5  0  0 -0.14119  0.23876 -0.447832   7. A    0.00028 0.00030 0.000012  0.00000  0.00000 0.00013 0.00035
+1992  5  6  0  0 -0.14285  0.24092 -0.449820   7. A    0.00028 0.00030 0.000012  0.00000  0.00000 0.00011 0.00035
+ ... .. .. .. .............................. .... .    ..........................................................
+</pre>
+</FONT>
+The content of the file is self-explanatory with the caption provided. Apart from the reference epoch, the polar motion, UT1-UTC, and GPS-UTC is required.
+</p>
+
+<a name="JPLEPH"></a>
+<p><b>JPL Ephemerides</b><br>
+Name of the file with JPL's planetary ephemerides DE-200 (see [106]). The file covers the time interval between 1981 and 2025. Other DE-files might be attached to the program to cover other time periods. We refer to [110] for more information. ORBDET uses the JPL ephemerides uniquely to calculate the coordinates of the perturbing planets (when determining the orbits of minor planets, comets, etc).
+</p>
+
+<a name="ET-UT"></a>
+<p><b>ET - UT</b><br>
+The file contains the differences "Ephemeris Time" - "Universal Time". The file is based on the information published in the astronomical almanacs. More information is available in [106]. The file should be updated from time to time and looks as follows:
+<font face="Courier" size="2" color="blue">
+<pre>
+TABLE ET-UT FROM 'THE ASTRONOMICAL ALMANACH' PAGE K9
+
+   J      ET-UT  Q(1:definitive, 0:extrapolated)
+
+ 1965.0   35.73  1
+ 1966.0   36.54  1
+ 1967.0   37.43  1
+ ......   .....  .
+ 1999.0   63.47  1
+ 2000.0   63.83  1
+ 2001.0   64.09  1
+ 2002.0   64.09  1
+ 2003.0   65.00  1
+ 2004.0   65.00  0
+ 2005.0   66.00  0
+ 2006.0   66.00  0
+ 2007.0   67.00  0
+ 2008.0   68.00  0
+</pre>
+</FONT>
+The difference ET-UTC is provided in seconds. The index "Q" says whether the value is firmly established (1) or extrapolated (0).
+</p>
+
+<a name="STACOO"></a>
+<p><b>Station Coordinates (PLA)</b><br>
+Name of the file containing the station coordinates for applications to minor planets, etc. The file format is that defined by the Minor Planet Center (MPC), (60 Garden St., Cambridge MA 02138 USA) of the International Astronomical Union (IAU). This coordinate file is frequently updated by the MPC. Only a small subset of this file (retrieved in summer 2003) is provided in the program system. The file looks as follows:
+<font face="Courier" size="2" color="blue">
+<pre>
+List Of Observatory Codes
+MPC obs. code, longitude, parallax constants, names
+Code  Long.   cos      sin    Name
+000   0.0000 0.62411 +0.77873 Greenwich
+009   7.4417 0.6838  +0.7272  Berne-Uecht
+026   7.4648 0.68489 +0.72640 Berne-Zimmerwald
+042  13.0661 0.61169 +0.78847 Potsdam
+094  33.9974 0.71565 +0.69620 Crimea-Simeis
+095  34.0159 0.71407 +0.69788 Crimea-Nauchnij
+</pre>
+</FONT>
+The station code may contain letters. The "parallax constants" are the equatorial z-component of the observatory (in units of Earth radii of ae=6378km), and the projection of the geocentric coordinate vector onto the equatorial plane (in the same units). This way of specifying the station coordinates can be explained by astronomical tradition.</p>
+
+<a name="COORD"></a>
+<p><b>Station Coordinates (SAT)</b><br>
+Name of the file containing the coordinates of stations observing artificial satellites and space debris. The format of the Bernese GPS software [58] is used for this purpose. The file looks as follows:
+<font face="Courier" size="2" color="blue">
+<pre>
+ITRF93 EPOCH 1993.0: ITRF97                                            23-DEC-94
+--------------------------------------------------------------------------      
+LOCAL GEODETIC DATUM: ITRF97            EPOCH: 1996-06-15  0:00:00              
+                                                                                
+NUM  STATION NAME           X (M)          Y (M)          Z (M)     FLAG        
+                                                                                
+000  Geocenter                0.0000         0.0000         0.0000              
+001  Zimmerwald         4331283.5610    567549.6610   4633140.0410              
+002  Herstmonceux       4033463.7650     23662.4200   4924305.1230              
+003  FGAN/TIRA          4023953.5500    503304.4900   4906853.3200              
+004  Grasse             4581691.7070    556159.4690   4389359.4530              
+005  Graz               4194426.5920   1162693.9740   4647246.6000              
+009  Dresden/Guensber   3900310.0000    963194.6000   4936741.5000              
+010  Tenerife/Teide     5390281.0000  -1597891.0000   3007078.0000              
+011  Gibraltar          5136160.9640   -480717.0460   3738636.3880              
+580  Graz BMK           4194439.6000   1162718.4000   4647224.5000              
+754  Matera             4641990.2430   1393042.3920   4133231.9160              
+759  Wetzell            4075582.5020    931837.2700   4801559.9090              
+999  Herstmonceux2      4033464.336      23671.341    4924297.653               
+...  .................        ...            ...            ...                 
+</pre>
+</FONT>
+The Cartesian coordinates refer to the ITRF, the International Terrestrial 
+Reference Frame as defined by the International Earth Rotation and Reference Systems Service (IERS). The stations are characterized by a number (three digits), a name, and the three equatorial geocentric coordinates (where the least significant digit corresponds to 0.1 mm (!) -- which is undoubtedly sufficient for all astrometric applications).</p>
+
+<a name="DATUM"></a>
+<p><b>Geodetic Datum</b><br>
+Name of the files containing different geodetic datums. The file looks as follows:
+<font face="Courier" size="2" color="blue">
+<pre>
+LOCAL GEODETIC DATA FOR BERNESE GPS SOFTWARE VERSION 4.3
+--------------------------------------------------------
+DATUM              ELLIPSOID          SHIFTS (M)         ROTATIONS (")
+
+ITRF97             AE = 6378137.000   DX =      0.0000   RX =    0.0000
+                   1/F= 298.2572221   DY =      0.0000   RY =    0.0000
+                   SC = 0.00000D+00   DZ =      0.0000   RZ =    0.0000
+
+WGS - 84           AE = 6378137.000   DX =      0.0000   RX =    0.0000
+                   1/F= 298.2572236   DY =      0.0000   RY =    0.0000
+                   SC = 0.00000D+00   DZ =      0.0000   RZ =    0.0000
+
+PZ - 90            AE = 6378137.000   DX =      0.0000   RX =    0.0000
+                   1/F= 298.2572236   DY =      0.0000   RY =    0.0000
+                   SC = 0.00000D+00   DZ =      0.0000   RZ =   -0.3345
+
+CH - 1903          AE = 6377397.200   DX =    679.0000   RX =    0.0000
+                   1/F= 299.1528000   DY =     -2.0000   RY =    0.0000
+                   SC = 0.00000D+00   DZ =    404.0000   RZ =    0.0000
+
+.........          ................   ................   ..............
+</pre>
+</FONT>
+A geodetic datum is characterized by a reference ellipsoid (of rotation) (defined by the equatorial radius "AE" and the flattening "F" ), three offset parameters in the three coordinate directions w.r.t. the geocenter (Earth's center of mass), and three rotations w.r.t. a reference system. The first three datums are nominally geocentric. The first may be viewed as a reference, the second (World Geodetic System 1984) is the system underlying the Global Positioning System, the third is the one used by the Russian GLONASS system (which is rotated about the polar axis w.r.t. the other systems). The fourth datum is the Swiss datum, which is (for historical reasons) not geocentric.</p>
+</p>
+
+<a name="SYSOUT"></a>
+<p><b>General Program Output</b><br>
+Name of the general output file. The file echoes the observations used, contains the relevant information displayed on the computer screen during the interactive orbit determination process, documents the results (orbital elements) with their mean errors (RMS errors of the least squares adjustment), and shows the residuals for each observation. The following example stems from an orbit determination process for minor planet "Silentium" (see section I, 8.3.4).
+<font face="Courier" size="2" color="blue">
+<pre>
+ ORBIT DETERMINATION FOR OBJECT                                                 
+ DATE: 04-OCT-03 TIME: 04:40                                                    
+ ----------------------------------------------------------------------------
+  OBSERVATIONS
+  ------------
+
+  NR   JJJJ MM DD.DDDDD  HH MM SS JB HH MM SS.SSS  VDD MM SS.SS    STA   M
+   1   1977  9 19.05254            1  1 57 57.05    13 56 03.2     095    
+   2   1977  9 22.04377            1  1 56 39.72    13 59 55.0     095    
+   3   1977 10 18.91701            1  1 33 44.13    13 24 10.9     026    
+   4   1977 10 19.98750            1  1 32 36.96    13 20 45.2     026    
+   5   1977 10 20.03750            1  1 32 33.76    13 20 37.1     026    
+   6   1977 11  3.78160            1  1 18 42.66    12 31 09.8     026    
+   7   1977 11  5.81667            1  1 17 09.84    12 24 55.5     026    
+   8   1977 11  9.00208            1  1 14 59.98    12 15 55.4     026    
+   9   1977 11  9.04514            1  1 14 58.47    12 15 49.8     026    
+  10   1977 11 10.91441            1  1 13 52.19    12 11 08.3     026    
+  11   1977 11 11.01111            1  1 13 48.79    12 10 55.2     026    
+  12   1993  9 19.92049            2  0 54 39.97     6 48 22.0     026    
+  13   1993  9 20.94375            2  0 53 48.30     6 46 40.0     026    
+  14   1993 10 10.92431            2  0 34 37.76     5 53 50.8     026    
+  15   1993 10 11.96181            2  0 33 39.08     5 50 44.6     026    
+ 
+ FIRST/LAST OBSERVATION USED                   1  11
+ ORBIT DETERMINATION USING BOUNDARY EPOCHS     3  11
+  
+ SEARCH FOR MINIMA IN RANGE:
+ TABLE START=    0.010000 END=    4.000000 INTERVAL=   0.010
+ NEW DEFAULTS ? (YES=Y)
+ R=  0.01000000 AU   RMS=   1569.14"  P=       1.013  E=   0.0135288
+ R=  0.02000000 AU   RMS=   1589.77"  P=       1.026  E=   0.0124653
+ R=  0.03000000 AU   RMS=   1571.52"  P=       1.039  E=   0.0132133
+        ...                   ...               ...          ...
+ R=  0.86999998 AU   RMS=     19.21"  P=       2.110  E=   0.1617397
+ R=  0.87999998 AU   RMS=     15.18"  P=       2.120  E=   0.1611856
+ R=  0.88999998 AU   RMS=     14.45"  P=       2.131  E=   0.1605857
+ R=  0.89999998 AU   RMS=     17.28"  P=       2.141  E=   0.1599402
+ R=  0.90999998 AU   RMS=     22.25"  P=       2.151  E=   0.1592496
+ R=  0.91999998 AU   RMS=     28.17"  P=       2.161  E=   0.1585141
+        ...                   ...               ...          ...
+        ...                   ...               ...          ...
+
+ ROOT # 1 TOP. DIST.1,2   0.88706   0.97371(AU)
+ ROOT #         1 SELECTED
+
+ ORBIT DETERMINATION FOR OBJECT 77 UP = 77.4                                    
+ ----------------------------------------------------------------------------
+    RESIDUALS IN ARCSECONDS              ELEMENTS
+    -----------------------              --------
+     I      RA        DE
+     1     -0.50      0.39     A    =     2.176556
+     2      0.78     -1.04     E    =     0.150683
+     3      0.32      0.14     I    =     3.376742
+     4     -1.20     -0.27     NODE =   358.556323
+     5     -0.38      1.48     PER  =     1.381679
+     6      3.64      1.09     TPER = 43371.149479
+     7     -1.78     -0.30   
+     8     -1.71     -2.59   
+     9      1.04     -1.11   
+    10     -0.64      0.44   
+    11      0.46      1.65   
+    12  -3363.85  -1565.13  *
+    13  -3376.08  -1571.86  *
+    14  -3409.80  -1616.60  *
+    15  -3397.41  -1613.64  *
+
+
+ ORBIT DETERMINATION FOR OBJECT 77 UP = 77.4                                    
+ ----------------------------------------------------------------------------
+ ORBIT DETERMINATION WITH PERTURBATIONS
+ --------------------------------------
+ # OBS         =  15
+ RMS           =      1.45 "
+ TIME INTERVAL =    5866.909 DAYS
+ # ITERATIONS  =   4
+
+ P    =        2.1271914498 +/-        0.0000437834 AU  
+ A    =        2.1765997511 +/-        0.0000013736 AU  
+ E    =        0.1506644095 +/-        0.0000647117
+ I    =           3.3775205 +/-           0.0002775 (DEG)
+ NODE =          -1.4365649 +/-           0.0021300 (DEG)
+ PER  =           1.3832090 +/-           0.0427373 (DEG)
+ TPER =       43371.1660014 +/-           0.0952690 DAYS
+
+ RESIDUALS IN RIGHT ASCENSION AND DECLINATION
+ --------------------------------------------
+   #             TIME          RA*COS(DE)     DE    MARK
+                                  (")         (")
+   1         43405.0530984       -1.26        1.55      
+   2         43408.0443285        0.13        0.09      
+   3         43434.9175693        0.17        0.59      
+   4         43435.9880594       -1.34        0.14      
+   5         43436.0380594       -0.51        1.88      
+   6         43450.7821598        3.72        0.96      
+   7         43452.8172299       -1.66       -0.50      
+   8         43456.0026400       -1.52       -2.89      
+   9         43456.0457000        1.23       -1.41      
+  10         43457.9149701       -0.41        0.08      
+  11         43458.0116701        0.69        1.29      
+  12         49249.9211814       -0.64       -1.36      
+  13         49250.9444414        1.74       -0.68      
+  14         49270.9250020       -0.09        0.43      
+  15         49271.9625020       -0.12       -0.23      
+ Program ORBDET terminated
+</pre>
+</FONT>
+The output file first lists all observations available. Then it tells which observations were used in the first orbit determination step and which epochs were used as boundary epochs (if a general orbit determination (as opposed to the determination of a circular orbit) was performed).<br>
+After the title "SEARCH FOR MINIMA IN RANGE:" the output file reproduces the essential part of the search for the orbit of interest by listing the fixed topocentric distance, the corresponding RMS of the observations used, and the corresponding parameter "p" and eccentricity "e" of the corresponding conic section (ellipses, parabolas, and hyperbolas may occur in this list).<br>
+The list of solutions and the root eventually selected are then listed in the program output. The orbital elements and the residuals are then displayed. If the residuals are marked with an asterisk "*", the corresponding observation was not used. The output is concluded by listing the orbit improvement step -- which may or may not include perturbations.<br> When calculating circular or parabolic orbits, the program output is slightly different.
+</p>
+
+<a name="SYSERR"></a>
+<p><b>Error Messages</b><br>
+The errors and/or warnings issued by ORBDET may be written into a separate file, the name of which may be specified here. If the name is left blank, the messages are written into the general output file.
+</p>
+
+<a name="CIRC_THREE"></a>
+<p><b>Initialize using</b><br>
+Either a circular orbit (exactly representing two observations) or a general two-body orbit may be determined. If the boundary value problem is selected, the next two options are activated.
+</p>
+
+<a name="ANALYTICAL_NUMERICAL"></a>
+<p><b>Analytical/Numerical Orbit</b><br>
+The first orbit determination may be performed by using the analytical theory developed in section I, 8.3.2 or it may be solved by numerical methods, based on the local boundary value problem introduced in sections I, 8.3.2 and I, 7.5.2.
+</p>
+
+<a name="PARABOLIC_SOLUTION"></a>
+<p><b>Look for Acceptable Parabolic Solution</b><br>
+A parabolic orbit may be determined with ORBDET using the procedure outlined in section I, 8.3.5. The method relies on the information p and e contained in Table <a href="#B_FUNC">Table of RMS</a>: If a transition from an ellipse to a parabola (or vice versa) is detected and if the corresponding RMS values are acceptable (below 20 arcsec), then a parabolic solution is proposed. It is then up to the program user to accept or refuse the proposed solution. For certain applications (e.g., the determination of NEO orbits) it makes sense to forbid the search for parabolic orbits.
+</p>
+
+<a name="OBSFIL"></a>
+<p><b>Observation File</b><br>
+This file contains the observations. Three formats are accepted by program ORBDET: 
+<ul>
+<li>for satellites: the format described in section II, 8, Table II, 8.4:</li>
+<font face="Courier" size="2" color="blue">
+<pre>
+ Tenerife/Teide    geo-0004:sv1-20020908-S-6-1B        52525.960917109  0.43026812   -11.5626736
+ Tenerife/Teide    geo-0004:sv1-20020908-S-6-1B        52525.961657776  0.43372378   -11.5557413
+ Tenerife/Teide    geo-0004:sv1-20020908-S-6-1B        52525.962398748  0.44117492   -11.5527736
+ ...
+</pre>
+<li>for minor planets: the format described in section II, 8, Table II, 8.5:</li>
+<font face="Courier" size="2" color="blue">
+</FONT>
+<pre>
+ NAME:   PANTHER               REF.:
+
+                UT             EQUINOX: 1950.0
+ JJJJ MM DD.DDDDD  HH MM SS  X HH MM SS.SSS  VDD MM SS.SS    STA
+
+ 1980 12 27.76076            1 18 47 55.60    39 22 27.5     026
+ 1980 12 28.40625            1 18 48 14.47    39 32 01.3     026
+ 1980 12 28.72986            1 18 48 24.52    39 36 55.2     026
+ 1980 12 29.42986            1 18 48 45.24    39 47 40.5     026
+ 1980 12 30.95234            1 18 49 32.25    40 11 53.0     026
+ 1980 12 31.06597            1 18 49 35.87    40 13 52.4     026
+ 1980 12 31.74792            1 18 49 57.37    40 24 53.0     026
+ 1981 01  8.22194            1 18 54 10.61    42 44 30.3     026
+ 1981 01 23.77500            1 19 04 20.58    49 25 27.3     026
+ 1981 01 28.77222            1 19 07 59.99    52 11 39.3     026
+ 1981 04  9.06250            1 07 59 31.09    59 29 06.4     026
+</pre>
+<li>for minor planets: the format used by the Minor Planet Center (MPC), (60 Garden St., Cambridge MA 02138 USA) of the International Astronomical Union (IAU).
+<font face="Courier" size="2" color="blue">
+</FONT>
+<pre>
+     K03S84O  C2003 09 20.35903 02 50 04.85 +06 49 54.3          16.2        704
+     K03S84O  C2003 09 20.37118 02 49 57.15 +06 47 45.0          16.4        704
+     K03S84O  C2003 09 20.38392 02 49 49.06 +06 45 29.6          16.4        704
+     K03S84O  C2003 09 20.39625 02 49 41.26 +06 43 18.6          16.3        704
+     K03S84O  C2003 09 20.39926 02 49 45.77 +06 43 09.4          16.8        608
+     K03S84O  C2003 09 20.40834 02 49 33.60 +06 41 10.3          16.4        704
+     K03S84O  C2003 09 20.40997 02 49 39.15 +06 41 16.4          16.8        608
+</pre>
+</FONT>
+The file contains the object identification in the first column, the time YYYY MM DD.ddddd, right ascension (hh mm ss.ss) and declination (dd mm ss.s)) in the next nine columns. The second last column gives the estimated magnitude of the object, the last column the observatory identification. No header is provided in this format.
+</li>
+</ul>
+</p>
+
+<a name="ELEFIL"></a>
+<p><b>Estimated Elements</b><br>
+Name of the file containing the orbital elements (with statistical information). For Earth satellites and space debris the elements in this file are used as a priori orbit elements for a refined orbit improvement using program SATORB. The file looks as follows (example SILENTIUM):
+<font face="Courier" size="2" color="blue">
+<pre>
+ ORBIT DETERMINATION FOR OBJECT 77 UP = 77.4                                    
+ ----------------------------------------------------------------------------
+
+ P    =        2.1271723352 +/-        0.0000437824 AU  
+ A    =        2.1765769143 +/-        0.0000013664 AU  
+ E    =        0.1506595246 +/-        0.0000647236
+ I    =           3.3775510 +/-           0.0002775 (DEG)
+ NODE =          -1.4363452 +/-           0.0021300 (DEG)
+ PER  =           1.3767474 +/-           0.0427362 (DEG)
+ TPER =       43371.1511561 +/-           0.0000438 DAYS
+</pre>
+</FONT>
+</p>
+
+<a name="RESIDU"></a>
+<p><b>File for Residuals</b><br>
+Name of the file with the residuals. The file looks as follows:
+<font face="Courier" size="2" color="blue">
+<pre>
+ RESIDUALS IN RIGHT ASCENSION AND DECLINATION
+ --------------------------------------------
+   #           TIME           RA*COS(DE)      DE    MARK       RA           DE            Top.Dist.     
+                                  (")         (")             (DEG)        (DEG)                        
+   1         43405.0530984       -1.26        1.55          30.1630370    14.1756861    0.1856100631D+01
+   2         43408.0443285        0.13        0.09          29.8406534    14.2408498    0.1857462256D+01
+   3         43434.9175693        0.17        0.59          24.1015516    13.6577526    0.1874573608D+01
+   4         43435.9880594       -1.34        0.14          23.8212607    13.6011591    0.1875430766D+01
+   5         43436.0380594       -0.51        1.88          23.8079086    13.5989349    0.1875471118D+01
+   6         43450.7821598        3.72        0.96          20.3398138    12.7809212    0.1888572976D+01
+   7         43452.8172299       -1.66       -0.50          19.9524899    12.6775865    0.1890564372D+01
+   8         43456.0026400       -1.52       -2.89          19.4106060    12.5284306    0.1893767355D+01
+   9         43456.0457000        1.23       -1.41          19.4043054    12.5268850    0.1893811364D+01
+  10         43457.9149701       -0.41        0.08          19.1277322    12.4491264    0.1895739915D+01
+  11         43458.0116701        0.69        1.29          19.1135453    12.4455097    0.1895840641D+01
+  12         49249.9211814       -0.64       -1.36          13.6665417     6.8061111    0.1847800252D+01
+  13         49250.9444414        1.74       -0.68          13.4512500     6.7777778    0.1847976649D+01
+  14         49270.9250020       -0.09        0.43           8.6573333     5.8974444    0.1854141717D+01
+  15         49271.9625020       -0.12       -0.23           8.4128333     5.8457222    0.1854601537D+01
+</pre>
+</FONT>
+Column 1 contains the observation number, column 2 the observation time (Modified Julian Day, UT for planets, comets, seconds relative to the first epoch for satellites and space debris), columns 3 and 4 the residuals in "RA*cos(DE)" and "DE". Column 5 contains an asterisk for observations not used for orbit determination. Columns 6 and 7 contain the right ascension and the declination, both in degrees. The last column contains the topocentric distance (of the celestial object to the observing site) in AU (for applications in the planetary system) and in meters for satellites and space debris, respectively.<br>
+The file is used for plotting the residuals when using the "Display Results" option of program ORBDET. The file may of course be used to plot the residuals or the other quantities with any generally available plotting tool (e.g., gnuplot).
+
+<a name="B_FUNC"></a>
+<p><b>B-Function</b><br>
+The name of the file containing the values of the B(Delta_1)-Function, the corresponding parameter "p" and eccentricity "e" (more precisely defined below). If a boundary value problem was solved, the file looks as follows:
+<font face="Courier" size="2" color="blue">
+<pre>
+ TABLE OF B-VALUES
+ -----------------
+
+    1            0.010000     0.306284D+01     0.101137D+01     0.151872D-01
+    2            0.020000     0.307806D+01     0.102287D+01     0.146532D-01
+    3            0.030000     0.307806D+01     0.103445D+01     0.148813D-01
+    4            0.040000     0.307268D+01     0.104610D+01     0.158435D-01
+    5            0.050000     0.306496D+01     0.105783D+01     0.174125D-01
+    6            0.060000     0.305602D+01     0.106962D+01     0.194331D-01
+    7            0.070000     0.304638D+01     0.108146D+01     0.217706D-01
+    8            0.080000     0.303630D+01     0.109337D+01     0.243242D-01
+    9            0.090000     0.302592D+01     0.110533D+01     0.270230D-01
+   10            0.100000     0.301533D+01     0.111735D+01     0.298182D-01
+   11            0.110000     0.300459D+01     0.112941D+01     0.326758D-01
+   ..            ........     ........         ........         ........
+</pre>
+</FONT>
+Column 1 just contains the line number, column 2 the (fixed) topocentric distance Delta_1, column 3 the <em>logarithm of the RMS error of one observation</em> when determining the second topocentric distance Delta_2 and keeping the first Delta_1 fixed. Column 4 contains the corresponding parameter "p" of the conic section and column 5 the eccentricity "e".<br> A slightly different format results, if a circular orbit was determined (see Chapter II, 8). </p>
+
+<a name="INC_MERCURY"></a>
+<p><b>Mercury</b><br>
+The planetary perturbations may be included when determining the orbit of a minor planet or comet. This option usually  only makes sense, if the time span covered by observations is long (one or several revolution periods of the observed object). The perturbations due to <em>Mercury </em> may be included here.
+</p>
+
+<a name="INC_VENUS"></a>
+<p><b>Venus</b><br>
+The planetary perturbations may be included when determining the orbit of a minor planet or comet. This option usually  only makes sense, if the time span covered by observations is long (one or several revolution periods of the observed object). The perturbations due to <em>Venus </em> may be included here.
+</p>
+
+<a name="INC_EARTH"></a>
+<p><b>Earth</b><br>
+The planetary perturbations may be included when determining the orbit of a minor planet or comet. This option usually  only makes sense, if the time span covered by observations is long (one or several revolution periods of the observed object). The perturbations due to the <em>Earth (center of mass Earth-Moon)</em> may be included here.
+
+</p>
+
+<a name="INC_MARS"></a>
+<p><b>Mars</b><br>
+The planetary perturbations may be included when determining the orbit of a minor planet or comet. This option usually  only makes sense, if the time span covered by observations is long (one or several revolution periods of the observed object). The perturbations due to <em>Mars </em> may be included here.
+</p>
+
+<a name="INC_JUPITER"></a>
+<p><b>Jupiter</b><br>
+The planetary perturbations may be included when determining the orbit of a minor planet or comet. This option usually  only makes sense, if the time span covered by observations is long (one or several revolution periods of the observed object). The perturbations due to <em>Jupiter </em> may be included here.
+</p>
+
+<a name="INC_SATURN"></a>
+<p><b>Saturn</b><br>
+The planetary perturbations may be included when determining the orbit of a minor planet or comet. This option usually  only makes sense, if the time span covered by observations is long (one or several revolution periods of the observed object). The perturbations due to <em>Saturn </em> may be included here.
+</p>
+
+<a name="INC_URANUS"></a>
+<p><b>Uranus</b><br>
+The planetary perturbations may be included when determining the orbit of a minor planet or comet. This option usually  only makes sense, if the time span covered by observations is long (one or several revolution periods of the observed object). The perturbations due to <em>Uranus </em> may be included here.
+</p>
+
+<a name="INC_NEPTUN"></a>
+<p><b>Neptune</b><br>
+The planetary perturbations may be included when determining the orbit of a minor planet or comet. This option usually  only makes sense, if the time span covered by observations is long (one or several revolution periods of the observed object). The perturbations due to <em>Neptune </em> may be included here.
+</p>
+
+<a name="INC_PLUTO"></a>
+<p><b>Pluto</b><br>
+The planetary perturbations may be included when determining the orbit of a minor planet or comet. This option usually  only makes sense, if the time span covered by observations is long (one or several revolution periods of the observed object). The perturbations due to <em>Pluto </em> may be included here.
+</p>
+
+<a name="INC_OBLATE"></a>
+<p><b>Oblateness (C<sub>20</sub>)</b><br>
+The oblateness perturbations (term C<sub>20</sub>) may be included when analyzing the orbit of a satellite or space debris.
+</p>
+
+<a name="INC_MOON"></a>
+<p><b>Lunar Gravity</b><br>
+The gravitational perturbations due to the Moon may be included when analyzing the orbit of a satellite or space debris.
+</p>
+
+<a name="INC_SUN"></a>
+<p><b>Solar Gravity</b><br>
+The gravitational perturbations due to the Sun may be included when analyzing the orbit of a satellite or space debris.
+</p>
+
+</html>
+</body>

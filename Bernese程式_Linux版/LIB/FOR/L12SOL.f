@@ -1,0 +1,83 @@
+      MODULE s_L12SOL
+      CONTAINS
+
+C*
+      SUBROUTINE L12SOL(SVN,RHS,N5,IWLSCR,AN1,XN1)
+CC
+CC NAME       :  L12SOL
+CC
+CC PURPOSE    :  GIVEN THE N5 AMBIGUITY
+CC               COMPUTE A REAL VALUED ESTIMATE FOR N1, AND ITS
+CC               NEAREST INTEGER.
+CC
+CC               N1*LAMBDA1/IWLSCR(1) +   I1 = R1
+CC               N2*LAMBDA2/IWLSCR(2) + F*I1 = R2, F=F1**2/F2**2
+CC               --------------------------------
+CC
+CC               N5=N1-N2, IF IWLSCR(I)=1,I=1,2, OR IF IWLSCR(I)=2,I=1,2
+CC               N5=2*N1-N2, IF IWLSCR(1)=1, IWLSCR(2)=2
+CC
+CC PARAMETERS :
+CC         IN :  SVN    : SATELLITE NUMBER                    I*4
+CC               RHS(I),I=1,2: R1, R2                         R*8
+CC               N5 : L5 AMBIGUITY (L5=WIDELANE)              R*8
+CC               IWLSCR(I),I=1,2: WAVELENGTH FACTOR FOR       I*4
+CC                        SCREENING
+CC        OUT :  AN1    : NEAREST INTEGER OF REAL VALUED      R*8
+CC                        ESTIMATE FOR N1
+CC               XN1    : REAL VALUED ESTIMATE OF N1          R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  88/11/14 17:47
+CC
+CC CHANGES    :  14-OCT-98 : MR: GLOANSS MODIFICATIONS
+CC               16-JUN-05 : MM: UNUSED COMCONST.inc REMOVED
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1988     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      REAL*8    AN1  , COE  , DENOM, XN1
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+C
+      INTEGER*4 IWLSCR(2),SVN
+C
+      REAL*8 RHS(2),N5
+      REAL*8 RHSLOC(2)
+C
+      INCLUDE 'COMFREQ.inc'
+C
+C DEFINE RIGHT HAND SIDES OF EQN
+C ------------------------------
+      RHSLOC(1)=RHS(1)
+      RHSLOC(2)=RHS(2)+N5*WLGT(2,SVN)/IWLSCR(2)
+C
+C COMPUTE REAL VALUED ESTIMATE FOR N1
+C -----------------------------------
+      COE=(FRQ(1,SVN)/FRQ(2,SVN))**2
+      DENOM=(WLGT(1,SVN)-WLGT(2,SVN)/COE)
+      XN1=(RHSLOC(1)-RHSLOC(2)/COE)/DENOM
+      IF (IWLSCR(1).EQ.2.AND.IWLSCR(2).EQ.2) XN1=2*XN1
+C
+C NEAREST INTEGER
+C ---------------
+      AN1=DNINT(XN1)
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

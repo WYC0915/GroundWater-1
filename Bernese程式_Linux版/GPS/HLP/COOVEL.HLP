@@ -1,0 +1,135 @@
+<html>
+<body>
+
+<center>
+<b>EXTRAPOLATE COORDINATES</b>
+<p>Program: COOVEL
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The purpose of program COOVEL is to propagate a given set of station
+coordinates from a reference epoch to the epoch of the GPS observations
+using the corresponding station velocities. The station velocities may
+stem from
+<ul>
+<li>an official reference frame (e.g., ITRF2000). A SINEX file with these
+    information may be transformed into Bernese format using the program
+    <a href="PGMLST.HLP#SNX2NQ0">SNX2NQ0</a>.</li>
+<li>a velocity estimation by program <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a>.
+    Make sure that you have velocities for all stations in the coordinate
+    file.</li>
+<li>the NUVEL-1 or NUVEL-1A no-net-rotation plate motion model provided by
+    the Bernese program <a href="PGMLST.HLP#NUVELO">NUVELO</a>.</li>
+</ul>
+If you have several sources of velocities you can use the program
+<a href="PGMLST.HLP#CRDMERGE">CRDMERGE</a> to merge them.
+
+<p><hr>
+
+<b>COOVEL 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+This program does not need general files. If you check this box, the currently
+active campaign, session and session table are displayed.
+
+<br><br>
+
+<a name="CRDINP" default=""></a>
+<p><b>INPUT FILE</b>
+<p><b>Input coordinate file:</b>
+Select the name of the input coordinate file.
+
+<p><i>Caution:</i>
+Please make sure that the input coordinate file contains
+the epoch information in its header.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="VELOCI" default=""></a>
+<p><b>Input velocity file:</b>
+Select the name of a velocity file which contains the velocities for the
+stations contained in the coordinate file specified above.
+
+<p><i>Remark:</i>
+For coordinates without velocities in this file the
+coordinates are propagated with zero velocity. The epoch of the resulting
+coordinate file may no longer correspond to the actual epoch of these
+coordinates.
+
+<p><a href="/$X/DOC/EXAMPLE.VEL">Example</a>
+
+<br><br>
+
+<a name="REFDAT" default="$YMD_STR+0"></a>
+<a name="REFTIM" default="00 00 00"></a>
+<p><b>REFERENCE EPOCH</b>
+<p>Specify the epoch to which the coordinates in the selected input coordinate
+file shall be propagated.
+
+<br><br>
+
+<a name="CRDOUT" default=""></a>
+<p><b>RESULT FILE</b>
+<p><b>Output coordinate file:</b>
+The resulting file will contain the station coordinates from the sites of
+the input coordinate file referring to the reference epoch specified above.
+The new epoch of the coordinates will be written into the header of the file.
+
+<p><i>Caution:</i>
+For coordinates without velocities specified in the
+velocity file the coordinates are propagated with zero velocity. The epoch
+of the resulting coordinate file may no longer correspond to the actual epoch
+of these coordinates.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="COOVEL"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<p><hr>
+
+</body>
+</html>

@@ -1,0 +1,129 @@
+
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+DATUM     1  "DATUM."
+
+MSG_DATUM 1  "Geodetic datum file"
+
+COORD     0
+  ## widget = selwin
+
+MSG_COORD 1  "Coordinate file"
+
+ECCENRS     0
+
+STASEL     0
+  ## widget = selwin; pointer = STALST; activeif = COORD /= _
+
+MSG_STASEL 1 "Station list for eccentricity file"
+
+ECCTYP     1  "LOCAL"
+  ## widget = combobox; cards = LOCAL GEOCENTRIC; editable = false
+
+MSG_ECCTYP 1 "Type of eccentricities"
+
+FILNAM1     0
+  ## widget = comment
+
+MSG_FILNAM1 1 "Filename"
+
+TITLE1     0
+  ## widget = lineedit
+
+MSG_TITLE1 1 "Title line"
+
+DATUM1_STRG     0
+  ## widget = lineedit; check_strlen = 16
+
+MSG_DATUM1_STRG 1 "Geodetic datum"
+
+STAHLP_NEU     1  "" "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = ECC_LIST
+  ## updateifsave = ECCTYP = LOCAL; menuauxkeys = ECCENRS STASEL
+
+STAECC_NEU     1  "" "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = ECC_LIST
+  ## menuauxkeys = ECCENRS STASEL; updateifsave = ECCTYP = LOCAL
+  ## updateifchanged = STAHLP_NEU
+  ## check_type.1 = integer; check_min.1 = 1; check_max.1 = 999
+  ## check_strlen.2 = 16; check_strlen.3 = 16
+  ## check_type.4 = real; check_type.5 = real; check_type.6 = real
+  ## numlines = 15
+
+MSG_STAECC_NEU 1 "Station name/Center name/dN (m)/dE (m)/dH (m)"
+
+FILNAM2     0
+  ## widget = comment
+
+MSG_FILNAM2 1 "Filename"
+
+TITLE2     0
+  ## widget = lineedit
+
+MSG_TITLE2 1 "Title line"
+
+DATUM2_STRG     0
+  ## widget = lineedit; check_strlen = 16
+
+MSG_DATUM2_STRG 1 "Geodetic datum"
+
+STAHLP_XYZ     1  "" "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = ECC_LIST
+  ## updateifsave = ECCTYP = GEOCENTRIC; menuauxkeys = ECCENRS STASEL
+
+STAECC_XYZ     1  "" "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = ECC_LIST
+  ## menuauxkeys = ECCENRS STASEL
+  ## updateifsave = ECCTYP = GEOCENTRIC; updateifchanged = STAHLP_XYZ
+  ## check_type.1 = integer; check_min.1 = 1; check_max.1 = 999
+  ## check_strlen.2 = 16; check_strlen.3 = 16
+  ## check_type.4 = real; check_type.5 = real; check_type.6 = real
+  ## numlines = 15
+
+MSG_STAECC_XYZ 1 "Station name/Center name/dX (m)/dY (m)/dZ (m)"
+
+NEWFILE     0
+  ## widget = lineedit; menuaux = MENUAUX; action = ADD_ONE
+  ## menuauxkeys = NEWFILE
+
+STALST     0
+  ## widget = selwin; menuaux = MENUAUX; action = STALST
+  ## menuauxkeys = CONST DATUM COORD
+
+
+# BEGIN_PANEL NEWFILE = one ####################################################
+# CREATE/UPDATE STATION ECCENTRICITIES - EDITECC                               #
+# CREATE A NEW STATION ECCENTRICITY FILE                                       #
+#                                                                              #
+# Station list for eccentricity file               > %%%%%%%%%%%%%%%%%%%% <    # STASEL
+#                                                                              #
+# Type of eccentricities                           > %%%%%%%%%%% <             # ECCTYP
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL ECCTYP = LOCAL #######################################################
+# EDIT STATION ECCENTRICITIES (local)                                              #
+#                                                                                  #
+#  Filename > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <     #  FILNAM1
+#  Title    > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   #  TITLE1
+#                                                                                  #
+#  Geodetic datum > %%%%%%%%%%%%%%%%% <           (from center to station)         #  DATUM1_STRG
+#                                                                                  #
+# > Num Station_name____ Center_name_____ dN_(meters) dE_(meters) dH_(meters)  <   #  STAECC_NEU
+#                                                                                  #
+# END_PANEL ########################################################################
+
+
+# BEGIN_PANEL ECCTYP = GEOCENTRIC ##################################################
+# EDIT STATION ECCENTRICITIES (geocentric)                                         #
+#                                                                                  #
+#  Filename > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <     #  FILNAM2
+#  Title  > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <     #  TITLE2
+#                                                                                  #
+#  Geodetic datum > %%%%%%%%%%%%%%%%% <           (from center to station)         #  DATUM2_STRG
+#                                                                                  #
+# > Num Station_name____ Center_name_____ dX_(meters) dY_(meters) dZ_(meters)  <   #  STAECC_XYZ
+#                                                                                  #
+# END_PANEL ########################################################################

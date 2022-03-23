@@ -1,0 +1,228 @@
+      MODULE s_GETPL1
+      CONTAINS
+
+C*
+      SUBROUTINE GETPL1(FILPOL,TREQ,T,X,Y,UT1UTC,GPSUTC,POLTYP,
+     1                  ISUBFL)
+CC
+CC NAME       :  GETPL1
+CC
+CC PURPOSE    :  GIVEN THE TIME TREQ, THE VALUES
+CC               XPOLE, YPOLE, UT1-UTC, GPS TIME - UTC
+CC               ARE EXTRACTED FOR  TIMES T(1), T(2) FROM
+CC               THE POLE FILE.
+CC               T(1) IS THE LARGEST TABULAR TIME
+CC               SMALLER THEN TREQ, T(2) THE SMALLEST TABULAR
+CC               TIME LARGER THEN TREQ.
+CC               IF T(2)-T(1) > 20, AN ERROR MESSAGE IS PRINTED,
+CC               PROCESSING IS STOPPED. IF A LEAP SECOND IS DE-
+CC               TECTED IN GPS TIME - UTC, THE VALUES UT1-UTC AND
+CC               GPS TIME - UTC ARE CORRECTED FOR T(2).
+CC
+CC PARAMETERS :
+CC         IN :  FILPOL : NAME OF POLE FILE                    CH*32
+CC               TREQ   : TIME OF REQUEST                       R*8
+CC        OUT :  T(I),I=1,2: TABULAR TIMES                      R*8
+CC               X(I),Y(I): POLE POSITIONS AT T(I)              R*8
+CC               UT1UTC(I),I=1,2 : UT1-UTC AT TIME T(I) (DAYS)  R*8
+CC               GPSUTC(I),I=1,2 : GPS TIME - UTC (DAYS)        R*8
+CC               POLTYP(I): I=1 NUTATION MODEL                  I*4(*)
+CC                              1=NO, 2=OBSERVED, 3=HERRING
+CC                          I=2 SUBDAILY POLE MODEL
+CC                              1=NO, 2=RAY
+CC               ISUBFL  0: DO NOT PERFORM CONSISTENCY CHECK    I*4
+CC                       1: PERFORM CONSISTENCY CHECK
+CC
+CC REMARKS    :  SR IS A MODIFICATION OF THE SR GETPOL
+CC               DIFFERENCE : THE POLE FILE NAME IS DEFINED VIA
+CC               SR PARAMETER LIST.
+CC
+CC AUTHOR     :  G.BEUTLER, S.FANKHAUSER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/02 11:10
+CC
+CC CHANGES    :  13-SEP-91 : ??: OPEN POLE FILE WITH "OPNFIL"
+CC               11-FEB-92 : ??: CHANGES DUE TO NEW POLE FILE FORMAT
+CC               06-JUL-92 : ??: ADD CHECK OF GPS-UT1. USE "TIMSTR"
+CC               18-JUL-92 : ??: CALL OF RDPOLH CHANGED
+CC               02-AUG-92 : ??: CHANGE IF STATEMENT FOR IEND=2 FROM
+CC                               SR RDPOLI
+CC               19-APR-94 : ??: CPO-MODEL INCLUDED
+CC               25-APR-94 : MR: CHANGE CHECK FROM "LE" TO "LT"
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               04-JUN-96 : TS: SUBDAILY POLE MODEL ADDED
+CC               06-DEC-02 : PS: CONSISTENCY CHECK SUBDAILY POLE
+CC               14-FEB-03 : PS: ADD FLAG ISUBFL FOR CONSISTENCY
+CC                               CHECK MODEL
+CC               08-MAR-03 : HU: INTERFACE FOR SUBPOL ADDED
+CC               21-JUN-05 : MM: COMLFNUM.INC REMOVED, M_BERN ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               28-FEB-07 : AG: USE 206264... FROM DEFCON
+CC               03-JUL-09 : SL: TIMSTR(1,.,.) CALL CORRECTED
+CC               26-MAR-12 : RD: USE TIMSTR AS MODULE NOW
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern,  ONLY: lfnloc,lfnerr
+      USE d_const, ONLY: ars
+      USE s_rdpolh
+      USE s_timstr
+      USE s_rdpoli
+      USE s_opnfil
+      USE s_subpol
+      USE s_exitrc
+      USE s_opnerr
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IEND    , IFORM , IOSTAT, IREAD , ISUBFL
+C
+      REAL*8    TEST  , TREQ
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      CHARACTER*80 DUMMYC
+      CHARACTER*36 TSTRNG
+      CHARACTER*32 FILPOL
+      CHARACTER*17 THLP
+      CHARACTER*3  REM
+      CHARACTER*16 NUTNAM, SUBNAM, SUBNA2
+C
+      REAL*8 T(2),X(2),Y(2),UT1UTC(2),GPSUTC(2)
+      REAL*8 POLCOO(5),RMSPOL(5),ERPSUB(3),ERPSUR(3)
+C
+      INTEGER*4 POLTYP(*)
+C
+
+      DATA IREAD /1/
+C
+C OPEN POLE FILE
+      CALL OPNFIL(LFNLOC,FILPOL,'OLD',' ','READONLY',' ',IOSTAT)
+      CALL OPNERR(LFNERR,LFNLOC,IOSTAT,FILPOL,'GETPL1')
+C
+C READ HEADER AND FIRST PARAMETER SET OF POLE FILE
+      CALL RDPOLH(LFNLOC,1,DUMMYC,POLTYP,IFORM,IEND,NUTNAM,SUBNAM)
+      CALL RDPOLI(LFNLOC,T(1),POLCOO,GPSUTC(1),REM,RMSPOL,IFORM,IEND)
+      IF (IEND.GT.0) GOTO 110
+      X(1)=POLCOO(1)
+      Y(1)=POLCOO(2)
+      UT1UTC(1)=POLCOO(3)
+C
+C ALLOW A REQUEST TIME OF ONE MINUTE BEFORE THE FIRST ENTRY OF THE TABLE
+      IF (TREQ.LT.T(1).AND.TREQ.GT.T(1)-1/1440.D0) THEN
+        T(2)=T(1)-1/1440.D0
+        X(2)=X(1)
+        Y(2)=Y(1)
+        UT1UTC(2)=UT1UTC(1)
+        GPSUTC(2)=GPSUTC(1)
+        GOTO 120
+      END IF
+C
+C READ THE TWO RECORDS NEXT TO TREQ
+      DO 100 I=1,100000
+        CALL RDPOLI(LFNLOC,T(2),POLCOO,GPSUTC(2),REM,RMSPOL,IFORM,IEND)
+        IF (IEND.GT.0) THEN
+C
+C ALLOW A REQUEST TIME OF ONE MINUTE AFTER THE LAST ENTRY OF THE TABLE
+          IF (TREQ.GE.T(1).AND.TREQ.LT.T(1)+1/1440.D0) THEN
+            T(2)=T(1)+1/1440.D0
+            X(2)=X(1)
+            Y(2)=Y(1)
+            UT1UTC(2)=UT1UTC(1)
+            GPSUTC(2)=GPSUTC(1)
+            GOTO 120
+          ELSE
+            GOTO 110
+          END IF
+        END IF
+        X(2)=POLCOO(1)
+        Y(2)=POLCOO(2)
+        UT1UTC(2)=POLCOO(3)
+        TEST=DABS(T(2)-T(1))
+        IF (TREQ.GE.T(1).AND.TREQ.LT.T(2).AND.TEST.LT.10.D0) THEN
+          GO TO 120
+        ELSE
+          T(1)=T(2)
+          X(1)=X(2)
+          Y(1)=Y(2)
+          UT1UTC(1)=UT1UTC(2)
+          GPSUTC(1)=GPSUTC(2)
+        END IF
+100   CONTINUE
+
+
+C CHECK IF NAME OF SUBDAILY POLE MODEL IN ERP FILE IS CONSISTENT
+C WITH CHOICE IN INPUT PANEL, IF NOT => WARNING
+C ----------------------------------------------------------------
+      IF(IREAD.EQ.1.AND.ISUBFL.EQ.1) THEN
+      IREAD=0
+      CALL SUBPOL(0.0D0,SUBNA2,ERPSUB,ERPSUR)
+
+       IF(SUBNAM.NE.SUBNA2) THEN
+        WRITE(LFNERR,375) SUBNAM,SUBNA2
+375       FORMAT(/,' ### SR GETPL1: DIFFERENT SUBDAILY POLE MODELS ',/,
+     1           16X,'ERP FILE     : ',A,/,
+     2           16X,'INPUT PANEL  : ',A,/)
+       ENDIF
+      ENDIF
+
+
+
+C
+C ERROR, STOP:
+110   CALL TIMSTR(1,(/TREQ/),THLP)
+      WRITE(LFNERR,115) THLP
+115   FORMAT(/,' *** SR GETPL1: NO SUITABLE EPOCHS IN POLE FILE',/,
+     1                     16X,'EPOCH: ',A,/)
+      CALL EXITRC(2)
+120   CONTINUE
+C
+C RETURN VALUES IN PROPER UNITS
+      DO 130 I=1,2
+        X(I)=X(I)/ars
+        Y(I)=Y(I)/ars
+        UT1UTC(I)=UT1UTC(I)/86400.D0
+        GPSUTC(I)=GPSUTC(I)/86400.D0
+130   CONTINUE
+C
+C LOOK FOR LEAP SECOND
+      TEST=DNINT((GPSUTC(2)-GPSUTC(1))*86400.D0)
+      IF (TEST.NE.0) THEN
+        CALL TIMSTR(2,T,TSTRNG)
+        IF (DABS(TEST).GT.1.D0) THEN
+          WRITE(LFNERR,140) TEST,TSTRNG
+140       FORMAT(/,' *** SR GETPL1: JUMP IN GPS-UTC',/,
+     1                         16X,'JUMP IN SEC        :',F10.0,/,
+     2                         16X,'EPOCHS IN POLE FILE: ',A,/)
+          CALL EXITRC(2)
+        ELSE
+          WRITE(LFNERR,150) TSTRNG
+150       FORMAT(/,' ### SR GETPL1: LEAP SECOND DETECTED',/,
+     1                         16X,'EPOCHS IN POLE FILE: ',A,/)
+          GPSUTC(2)=GPSUTC(2)-TEST/86400.D0
+          UT1UTC(2)=UT1UTC(2)-TEST/86400.D0
+        END IF
+      END IF
+C
+C CONSISTENCY BETWEEN UT1-UTC AND GPS-UTC
+      IF (DABS(UT1UTC(2)-UT1UTC(1)).GT.0.5) THEN
+        CALL TIMSTR(2,T,TSTRNG)
+        WRITE(LFNERR,151) TSTRNG
+151     FORMAT(/,' *** SR GETPL1: INCONSISTENCY BETWEEN UT1-UTC AND',
+     1           ' GPS-UTC',/,
+     2         16X,'PROBABLY LEAP SECOND PROBLEM',/,
+     3         16X,'EPOCHS IN POLE FILE: ',A,/)
+        CALL EXITRC(2)
+      END IF
+      CLOSE(UNIT=LFNLOC)
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

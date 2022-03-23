@@ -1,0 +1,156 @@
+<html>
+<body>
+
+<center>
+<b>CONVERT OBSERVATION FILES (ASCII TO BINARY)</b>
+<p>Program: FMTOBS
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The program FMTOBS converts formatted ASCII Bernese observation files
+back into binary observation files. The program allows the conversion of
+a number of observation files in one run and is mainly intended for observation
+file transfer between different computer systems using different binary
+formats: The files are first converted to ASCII using the program
+<a href="PGMLST.HLP#OBSFMT">OBSFMT</a>,
+then transferred to the target computer, and finally reconverted from ASCII
+into binary using this program.
+<br>
+Values in the ASCII observation file are written with a precision of a
+tenth of a millimeter for observations and one nanosecond for receiver clock
+values. As a consequence the content of observation files may be slightly
+different after a binary &gt; ASCII &gt; binary conversion. The program
+GPSEST may, e.g., estimate slightly different receiver clock corrections.
+Nevertheless the precision is high enough that no influence on the solution
+itself is expected.
+
+<p><hr>
+
+<p><b>FMTOBS 1: Input/Output Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="FCZFIL" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Zero difference observations</b> <b>code:</b>
+Select a list of ASCII code zero difference files to be converted into binary.
+The resulting binary header and observation data files will have the same
+filename as the input ASCII files but with different extensions.
+Leave this field empty if you don't want to convert observation
+files for this type.
+
+<a name="FPZFIL" default=""></a>
+<p><b>Zero difference observations</b> <b>phase:</b>
+Select a list of ASCII phase zero difference files to be converted into binary.
+The resulting binary header and observation data files will have the same
+filename as the input ASCII files but with different extensions.
+Leave this field empty if you don't want to convert observation
+files for this type.
+
+<a name="BOTHZERO" default=""></a>
+<p><b>Zero difference observations</b> <b>both:</b>
+Check this box if you have code and phase zero difference files with identical
+names that you like to convert to binary in one run. The selection lists from
+the ASCII code and phase zero difference files will be merged and the files
+for both types of observations will be converted into binary.
+
+<a name="FCSFIL" default=""></a>
+<p><b>Single difference observations</b> <b>code:</b>
+Select a list of ASCII code single difference files to be converted
+into binary.
+The resulting binary header and observation data files will have the same
+filename as the input ASCII files but with different extensions.
+Leave this field empty if you don't want to convert observation
+files for this type.
+
+<a name="FPSFIL" default=""></a>
+<p><b>Single difference observations</b> <b>phase:</b>
+Select a list of ASCII phase single difference files to be converted
+into binary.
+The resulting binary header and observation data files will have the same
+filename as the input ASCII files but with different extensions.
+Leave this field empty if you don't want to convert observation
+files for this type.
+
+<a name="BOTHSING" default=""></a>
+<p><b>Single difference observations</b> <b>both:</b>
+Check this box if you have code and phase single difference files with
+identical names that you like to convert to binary in one run. The selection
+lists from the ASCII code and phase single difference files will be merged
+and the files for both types of observations will be converted into binary.
+
+<a name="FRZFIL" default=""></a>
+<p><b>Range observations:</b>
+Select a list of ASCII range files to be converted into binary.
+The resulting binary header and observation data files will have the same
+filename as the input ASCII files but with different extensions.
+Leave this field empty if you don't want to convert observation
+files for this type.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="FMTOBS"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output.
+The title should characterize the program run.
+
+<p><hr>
+
+<p><b>FMTOBS 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used in the
+Bernese GNSS Software. Most probably you will never have to modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<p><hr>
+
+</body>
+</html>

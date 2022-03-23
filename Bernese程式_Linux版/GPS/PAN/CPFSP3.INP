@@ -1,0 +1,277 @@
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! General Setup: Title
+! --------------------
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1  "Specify a title"
+
+! Some title information
+! ----------------------
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+! Active Campaign
+! ---------------
+CAMPAIGN     0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+! General Constants
+! -----------------
+! Show general files
+! ------------------
+SHOWGEN     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+CONST     1  "CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_CONST 1  "General constants"
+
+! Local Geodetic Datum
+! --------------------
+DATUM     1  "DATUM."
+  ## widget = selwin; path = PTH_GEN; maxfiles = 1
+
+DESCR_DATUM 1  "Geodetic datum"
+
+! Difference of GPS-TIME - UTC-TIME
+! ---------------------------------
+GPSUTC     1  "GPSUTC."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_GPSUTC 1  "GPS-UTC seconds"
+
+! Satellite Information
+! ---------------------
+SATELL     1  "SATELLIT.I08"
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_SATELL 1  "Satellite information"
+
+! Satellite Problems
+! ------------------
+SATCRUX     1  "SAT_$Y+0"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_CRX; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_SATCRUX 1  "Satellite problems"
+
+! Input File: CPF files
+! ---------------------
+CPFFIL     0
+  ## widget = selwin; path = DIR_CPF; ext = EXT_CPF; maxfiles = 1
+
+MSG_CPFFIL 1  "CPF file"
+
+CPFFIL_TXT_COL_1 1  "CPF file"
+
+! Output File: SP3 file
+! ---------------------
+PREFIL     0
+  ## widget = lineedit; path = DIR_PRE; ext = EXT_PRE; emptyallowed = false
+
+DESCR_PREFIL 1  "Precise orbit file"
+
+! Program Output File
+! -------------------
+SYSODEF     1  "1"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "CPFSP3"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG     1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR     1  "ERROR"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+
+DESCR_SYSERR 1  "Error messages"
+
+
+! Sampling Rate
+! -------------
+SAMPLE     0
+  ## widget = lineedit; check_typ = int; check_min = 0
+
+MSG_SAMPLE 1  "Sampling interval"
+
+! Title
+! -----
+TITLE1     0
+  ## widget = lineedit
+
+MSG_TITLE1 1  "Title 1"
+
+TITLE2     0
+  ## widget = lineedit
+
+MSG_TITLE2 1  "Title 2"
+
+TITLE3     0
+  ## widget = lineedit
+
+MSG_TITLE3 1  "Title 3"
+
+TITLE4     0
+  ## widget = lineedit
+
+MSG_TITLE4 1  "Title 4"
+
+! Time System
+! -----------
+TIMESYS     1  "GPS"
+  ## widget = combobox; editable = false; cards = GPS UTC
+
+MSG_TIMESYS 1  "Time system"
+
+! Observation Window
+! ------------------
+RADIO_0     1  "0"
+  ## widget = radiobutton; group = OBSWIN
+
+MSG_RADIO_0 1  "Take all observations"
+
+RADIO_1     1  "1"
+  ## widget = radiobutton; group = OBSWIN
+  ## radiokeys = SESSION_YEAR SESSION_STRG WINDOW
+
+MSG_RADIO_1 1  "Observation window defined by year and session identifier"
+
+RADIO_2     1  "0"
+  ## widget = radiobutton; group = OBSWIN
+  ## radiokeys = STADAT STATIM ENDDAT ENDTIM
+
+MSG_RADIO_2 1  "Observation window defined by start and end times"
+
+SESSION_YEAR     1  "$Y+0"
+  ## widget = lineedit; multilineallowed = true; emptyallowed = false
+
+MSG_SESSION_YEAR 1  "Year for sessions def. the time window"
+
+SESSION_STRG     1  "$S+0"
+  ## widget = lineedit; multilineallowed = true; emptyallowed = false
+
+MSG_SESSION_STRG 1  "Sessions defining the time window"
+
+! Use Obs. Window
+! ---------------
+STADAT     1  "$YMD_STR+0"
+  ## widget = lineedit; emptyallowed = false; check_type = date
+
+MSG_STADAT 1  "Start of time window (year month day)"
+
+STATIM     1  "00 00 00"
+  ## widget = lineedit; emptyallowed = false; check_type = time
+
+MSG_STATIM 1  "Start of time window (hour min. sec.)"
+
+ENDDAT     1  "$YMD_STR+0"
+  ## widget = lineedit; emptyallowed = false; check_type = date
+
+MSG_ENDDAT 1  "End of time window (year month day)"
+
+ENDTIM     1  "23 59 59"
+  ## widget = lineedit; emptyallowed = false; check_type = time
+
+MSG_ENDTIM 1  "End of time window (hour min. sec.)"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CONVERT CPF TO PRECISE ORBIT FILES - CPFSP3 1: Files                         #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files   > % <                                             # SHOWGEN
+#                                                                              #
+# INPUT FILE                                                                   #
+#   CPF file                 > %%%%%%%%%% <                                    # CPFFIL
+#                                                                              #
+# OUTPUT FILE                                                                  #
+#   SP3 file                 > %%%%%%%% <                                      # PREFIL
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output           > % < use CPFSP3.Lnn            or > %%%%%%%% <   # SYSODEF SYSOUT
+#   Error messages           > % < merged to program output  or > %%%%%%%% <   # ERRMRG SYSERR
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <      # TITLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# CPFSP3 1.1: General Files                                                    #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants       > %%%%%%%%%%%% <                                   # CONST
+#   Geodetic datum          > %%%%%%%%%%%% <                                   # DATUM
+#   Satellite information   > %%%%%%%%%%%% <                                   # SATELL
+#   Satellite problems      > %%%%%%%%%%%% <                                   # SATCRUX
+#   GPS-UTC seconds         > %%%%%%%%%%%% <                                   # GPSUTC
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CPFSP3 2: Input options for new formatted precise orbit file                 #
+#                                                                              #
+#   Title 1    > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE1
+#   Title 2    > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE2
+#   Title 3    > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE3
+#   Title 4    > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE4
+#                                                                              #
+#   Time system       > %%%% <                                                 # TIMESYS
+#                                                                              #
+#   Sampling interval > %%%% <seconds                                          # SAMPLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CPFSP3 3: Observation Window                                                 #
+#                                                                              #
+# OBSERVATION WINDOW                                                           #
+#                                                                              #
+#   > % < Take all epochs from file                                            # RADIO_0
+#                                                                              #
+#   > % < Defined by Year and Session identifier                               # RADIO_1
+#         Year  > %%%% <   Session > %%%% <                                    # SESSION_YEAR SESSION_STRG
+#                                                                              #
+#   > % < Defined by Start and End times                                       # RADIO_2
+#                 yyyy mm dd     hh mm ss           yyyy mm dd     hh mm ss    #
+#         Start > %%%%%%%%%% < > %%%%%%%% <   End > %%%%%%%%%% < > %%%%%%%% <  # STADAT STATIM ENDDAT ENDTIM
+#                                                                              #
+# END_PANEL ####################################################################

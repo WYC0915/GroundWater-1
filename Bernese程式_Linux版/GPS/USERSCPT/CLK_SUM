@@ -1,0 +1,224 @@
+package CLK_SUM;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  CLK_SUM
+#
+# Purpose :  Create CLKDET BPE processing summary file
+#
+# PARAMs  :
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use File::Basename;
+
+use lib $ENV{BPE};
+use bpe_util qw(appFile timprt);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyssss, $yyyy, $yy, $ssss,
+      $b, $c, $e, $f, $g, $h, $i,
+      $obsSel, $rnxDir, $satInf, $pcvInf, $pcv, $satcrx,
+      $refDir, $refInf, $crdInf, $blqInf, $atlInf, $crxInf,
+      $hoiFil, $sampl, $updAtx,
+      $fixPth, $fixCrd, $fixTrp,
+      $satsys, $hrclk,  $sav,    $result,
+      $clu,    $cluCod, $cluPrp, $cluSol, $maxSol,
+      $dirOut, $dirDel, $dirSmc, $dirSum, $dirLst, $dirClb,
+      $extOut, $extDel, $extSmc, $extSum, $extLst, $extClb,
+      $dirCrd, $dirVel, $dirSta,          $dirBlq, $dirAtl,
+      $extCrd, $extVel, $extSta, $extCrx, $extBlq, $extAtl,
+      $dirTrp,
+      $extTrp) =
+    $bpe->getKeys(
+      '$YSS+0', '$Y+0', '$Y', '$S+0',
+      'V_B', 'V_C', 'V_E', 'V_F', 'V_G', 'V_H', 'V_I',
+      'V_OBSSEL', 'V_RNXDIR', 'V_SATINF', 'V_PCVINF', 'V_PCV', 'V_SATCRX',
+      'V_REFDIR', 'V_REFINF', 'V_CRDINF', 'V_BLQINF', 'V_ATLINF', 'V_CRXINF',
+      'V_HOIFIL', 'V_SAMPL', 'V_MYATX',
+      'V_FIXPTH','V_FIXCRD','V_FIXTRP',
+      'V_SATSYS', 'V_HRCLK',  'V_SAV',    'V_RESULT',
+      'V_CLU',    'V_CLUCOD', 'V_CLUPRP', 'V_CLUSOL', 'V_MAXSOL',
+      'DIR_OUT', 'DIR_DEL', 'DIR_SMC', 'DIR_SUM', 'DIR_LST', 'DIR_CLB',
+      'EXT_OUT', 'EXT_DEL', 'EXT_SMC', 'EXT_SUM', 'EXT_LST', 'EXT_CLB',
+      'DIR_CRD', 'DIR_VEL', 'DIR_STA',            'DIR_BLQ', 'DIR_ATL',
+      'EXT_CRD', 'EXT_VEL', 'EXT_STA', 'EXT_CRX', 'EXT_BLQ', 'EXT_ATL',
+      'DIR_TRP',
+      'EXT_TRP');
+
+  $refDir = '${D}/' . $refDir . '/';
+
+# Initialize processing summary file
+# ----------------------------------
+  my $prcFil = "${dirOut}CLK${yyssss}.PRC";
+  unlink $prcFil;
+  appFile("CLKDET BPE PROCESSING SUMMARY FOR YEAR-SESSION $yy-$ssss",
+    1,"",$prcFil,0);
+
+# Report the BPE settings
+# -----------------------
+  open(PRC,">> $prcFil");
+  print PRC "Summary file generated at ",timprt()," by CLK_SUM\n\n";
+  print PRC "General files:\n";
+  print PRC "   Antenna phase center eccentricity file:   ${pcvInf}.${pcv}\n";
+  print PRC "   Satellite information file:               ${satInf}.${pcv}\n";
+  print PRC "   Satellite problem file:                   ${satcrx}.${extCrx}\n";
+  print PRC "   Orbit, ERP and clock products used from:  \${D}/$b\n";
+  print PRC "\nObservation file selection:\n";
+  print PRC "   RINEX files copied from:                  \${D}/$rnxDir/\n";
+  print PRC "   Station selection:                        ${obsSel}\n";
+  print PRC "\nReference frame and station related files:\n";
+  print PRC "   Station related files used from:          ${refDir}\n";
+  print PRC "   External reference frame file series:     ",
+            $refInf ne "" ? "${refInf}_R.(${extCrd}|${extVel})" : "" ,"\n";
+  print PRC "   Project specific station file series:     ${crdInf}\n";
+  print PRC "      Station information file:              ",
+            $crdInf ne "" ? basename($dirSta)."/${crdInf}.${extSta}" : "", "\n";
+  print PRC "      RINEX inconsistency file:              ",
+            $crxInf ne "" ? basename($dirSta)."/${crxInf}.${extCrx}" : "", "\n";
+  print PRC "      Ocean tidal loading table:             ",
+            $blqInf ne "" ? basename($dirBlq)."/${blqInf}.${extBlq}" : "", "\n";
+  print PRC "      Atmosphere tidal loading table:        ",
+            $atlInf ne "" ? basename($dirAtl)."/${atlInf}.${extAtl}" : "", "\n";
+  if ( ${fixPth} ne "" ) {
+    print PRC "\nResult files from an external solution introduced:\n";
+    print PRC "   Coordinate file introduced:               ",
+              $fixCrd ne "" ? basename($dirCrd)."/${fixCrd}.${extCrd}" : "none", "\n";
+    print PRC "   Troposphere file introduced:              ",
+              $fixTrp ne "" ? basename($dirTrp)."/${fixTrp}.${extTrp}" : "none", "\n";
+    print PRC "   External solution files copied from:      $fixPth\n";
+  } else {
+    print PRC "\nNo result files from an external solution introduced.\n";
+  }
+  print PRC "\nOther options from PCF:\n";
+  if ( ${updAtx} ne "" ) {
+    print PRC "   Antenna phase center model updated with:  ",basename(${updAtx}),"\n";
+  } else {
+    print PRC "   Antenna phase center model was not updated.\n";
+  }
+  print PRC "   Satellite system(s) included:             ${satsys}\n";
+  print PRC "   Sampling rate for final solution:         ${sampl} seconds\n";
+  if ( ${hoiFil} ne "" ) {
+    print PRC "   Higher order ionosphere based on:         ",basename(${hoiFil}),"\n";
+  } else {
+    print PRC "   No higher order ionosphere corrections applied\n";
+  }
+  print PRC "   Session scheme:                           daily\n";
+  print PRC "   Maximum number of files per cluster:      ${clu}\n";
+  print PRC "   Num. of clusters in code pre-processing:  ${cluCod}\n";
+  print PRC "   Num. of clusters in code+phase pre-proc.: ${cluPrp}\n";
+  print PRC "   Num. of clusters in the final solution:   ${cluSol}\n";
+  print PRC "   Max. numb. of stations per final cluster: ${maxSol}\n";
+
+  print PRC "\nStoring the results:\n";
+  if ( uc $sav eq "Y" ) {
+    my $dirSav = '${S}/' . $result . "/$yyyy/";
+    print PRC "   Results files saved to:                   ${dirSav}\n";
+    print PRC "      Clock solution with related products:  ${i}${yyssss}\n";
+    print PRC "      Station observation weighting:         ${c}${yyssss}\n";
+    print PRC "      Bias result and NEQ:                   ${f}${yyssss}\n";
+  } else {
+    print PRC "   The results have not been copied into the product database.\n";
+  }
+
+  print PRC"\n\n";
+  close PRC;
+
+
+# Append protocol files
+# ---------------------
+# - Error/warning messages concerning RINEX inconsistencies
+  my $sumFil = "${dirOut}RNX${yyssss}.ERR";
+  if (-s $sumFil) {
+    appFile("PART 0: RINEX INCONSISTENCIES",2,$sumFil,$prcFil,1) }
+
+# - RINEX pseudo-graphics
+  $sumFil = "${dirSmc}GRA${yyssss}.${extSmc}";
+  appFile("PART 1: RINEX PSEUDO-GRAPHICS",2,$sumFil,$prcFil,1);
+
+  $sumFil = "${dirDel}GRA${yyssss}.${extDel}";
+  if (-s $sumFil) {
+    appFile("LIST OF REJECTED RINEX DATA FILES",2,$sumFil,$prcFil,1) }
+
+# - Orbit generation summary
+  $sumFil = "${dirLst}ORB${yyssss}.${extLst}";
+  appFile("PART 2: ORBIT GENERATION SUMMARY",2,$sumFil,$prcFil,1);
+
+# - Single-point-positioning summary
+  $sumFil = "${dirOut}SPP${yyssss}.${extOut}";
+  appFile("PART 3: SINGLE-POINT-POSITIONING SUMMARY",2,$sumFil,$prcFil,1);
+
+  $sumFil = "${dirDel}SPP${yyssss}.${extDel}";
+  if (-s $sumFil) {
+    appFile("LIST OF REJECTED BINARY DATA FILES",2,$sumFil,$prcFil,1) }
+
+# - Code weighting summary
+  $sumFil = "${dirOut}${c}R${yy}${ssss}.${extOut}";
+  appFile("PART 4: WEIGHTING OF THE CODE OBSERVATIONS",2,$sumFil,$prcFil,1);
+
+# - Code screening summary
+  $sumFil = "${dirSum}${e}G${yyssss}.${extSum}";
+  appFile("PART 5: SCREENING OF THE CODE OBSERVATIONS",1,$sumFil,$prcFil,1);
+
+  $sumFil = "${dirOut}COD${yyssss}.PRC";
+  appFile("",2,$sumFil,$prcFil,1);
+
+  $sumFil = "${dirSum}${e}_${yyssss}.${extSum}";
+  appFile("",2,$sumFil,$prcFil,1);
+
+# - Compute the interfrequency code biases
+  $sumFil = "${dirSum}${f}_${yyssss}.${extSum}";
+  unlink $sumFil;
+  map { appFile("",0,$_,$sumFil,1) } sort glob "${sumFil}.[0-9]";
+
+  appFile("PART 6: INTER-SATELLITE/P1-C1 CODE BIASES",1,$sumFil,$prcFil,1);
+
+
+# - Data screening summary (with MAUPRP)
+  if ( $hrclk ne "" && (uc substr($hrclk,0,1) eq "Y" || uc $hrclk eq "MAUPRP" )) {
+    $sumFil = "${dirOut}MPR${yyssss}.${extSum}";
+    appFile("PART 7: PREPROCESS PHASE OBSERVATIONS",2,$sumFil,$prcFil,1);
+
+# - Data screening summary (with RNXSMT)
+  } else {
+    $sumFil = "${dirSum}${g}_${yyssss}.${extSum}";
+    appFile("PART 7: DATA SCREENING SUMMARY (phase data screening with RNXSMT)",
+      2,$sumFil,$prcFil,1);
+  }
+
+# - Residual screening summary
+  $sumFil = "${dirSum}${h}G${yyssss}.${extSum}";
+  appFile("PART 8: CODE+PHASE RESIDUAL SCREENING SUMMARY",2,$sumFil,$prcFil,1);
+
+  $sumFil = "${dirOut}RES${yyssss}.PRC";
+  appFile("",2,$sumFil,$prcFil,1);
+
+  $sumFil = "${dirSum}${h}_${yyssss}.${extSum}";
+  appFile("",2,$sumFil,$prcFil,1);
+
+# - Cluster solution summary
+  $sumFil = "${dirSum}${i}G${yyssss}.${extSum}";
+  appFile("PART 9.1: CODE+PHASE CLUSTER SOLUTION SUMMARY",1,$sumFil,$prcFil,1);
+
+  $sumFil = "${dirSum}${i}A${yyssss}.${extSum}";
+  appFile("",2,$sumFil,$prcFil,1);
+
+# - Cluster solution residuals
+  $sumFil = "${dirSum}${i}_${yyssss}.${extSum}";
+  appFile("PART 9.2: CODE+PHASE CLUSTER SOLUTION RESIDUALS",1,$sumFil,$prcFil,1);
+
+# - Cluster solution clock statistics
+  $sumFil = "${dirOut}${i}_${yyssss}.${extOut}";
+  appFile("PART 9.3: CODE+PHASE CLUSTER SOLUTION CLOCK STATISTICS",1,$sumFil,$prcFil,1);
+
+}

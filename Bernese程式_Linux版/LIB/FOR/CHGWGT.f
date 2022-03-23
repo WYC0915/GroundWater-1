@@ -1,0 +1,1316 @@
+      MODULE s_CHGWGT
+      CONTAINS
+
+C*
+      SUBROUTINE CHGWGT(IADD,IADELI,OPTELI,IOPFRE,ISGPLL,ISGNUL,TPOLL,
+     .                  SIGPLL,ISGPOL,ISGNUT,SIGPOL,NPOLO,TPOL,NPOL,
+     1                  DAPRI,POLPAR,NDRIFT,IREBLK,NFIX,STFIX,NSTWGT,
+     2                  ISTWGT,STWGT,ICOADD,SCACEN,NCENM,CENMAS,SIGCEN,
+     3                  SIGOFF,PAROFF,PREC,NORB,SEQORB,STVEL,ISIVEL,
+     4                  NVEL,STVWGT,NFIXV,STFIXV,IOPFRV,IHELV,ISUVEL,
+     5                  TIMNEQ,SIGTRO,NSEFF,SVNEFF,NFIL,ARCNUM,TOSC,
+     6                  ELE,RPRESS,IORSYS,IAXIS,SCLORB,SIGORR,RADUSE,
+     7                  NSTWGL,ISTWGL,STWGTL,STNUMB,STNAME,
+     8                  SCACEL,SIGCEL,SIGOFL,PRECL,SIGTRS,ISGTRS,
+     9                  NSTAT,XSTAT,ICENTR,LOCQ,NPAR,S0,SIGAPL,
+     .                  AELL,BELL,XEL,XELA,IHELM,NSASTC,
+     1                  NUMSTC,SIGSTC,SCASTC,SCASTL,NSTCEP,FRCTYP,
+     2                  NSASTL,NUMSTL,SIGSTL,A,B,IDEL,XFREE,ETPE,
+     3                  EREST,WREST,DBNOR,DOMEG,IRCCRD,
+     4                  IRCVEL,XVEL,VELFLG,VFOUND,XSTDIF,TIMFIX,
+     5                  COVAPR,XSTREF)
+CC NAME       :  CHGWGT
+CC
+CC PURPOSE    :  CHANGE WEIGHTS OF THE NORMAL EQUATION SYSTEM
+CC               (SUBSTRACTION AND ADDITION)
+CC
+CC PARAMETERS :
+CC         IN :  IADD   : 2: ADD FOR FINAL RUN                I*4
+CC                        1: ONLY ADD WEIGHTS FROM INPUT OPT.
+CC                       -1: ONLY SUBSTRACT WEIGHTS FROM I.OPT.
+CC               IADELI : 0: DO NOTHING IN CASE OF IADD.EQ.1  I*4
+CC                        1: ADDITION ONLY FOR PREELIMINATION
+CC                           PARAMETER
+CC               OPTELI(I),I=1,..,MAXTYP: OPTION FOR PRE-     I*4
+CC                        ELIMINATION OF PARAMETER TYPES:
+CC                        =0 : NOT PRE-ELIMINATED
+CC                        =1 : PRE-ELIMINATED BEFORE INVERSION
+CC                        =2 : PRE-ELIMINATED AFTER  INVERSION
+CC                        =3 : PRE-ELIMINATED EPOCH-WISE
+CC               IOPFRE : 0: NO FREE SOLUTION                 I*4
+CC                        1: FREE SOLUTION (STFIX USED FOR
+CC                           DEFINITION OF RESTRICTION
+CC               ISGPLL : EARTH ROTATION PARAMETER SIGMAS :   I*4(*)
+CC                        =0 : APPLY FOR RELEVANT PARAMETER ONLY
+CC                             THE ABSOLUTE CONSTRAINTS GIVEN IN
+CC                             INPUT FILEL
+CC                        =1 : ENSURE CONTINUITY WITH RESPECT TO
+CC                             PREVIOUE POLYNOMIAL (IN ADDITION TO
+CC                             ABSOLUTE CONSTRAINTS)
+CC               ISGNUL : EARTH ORIENTATION PARAMETER SIGMAS: I*4(*)
+CC                        =0 : APPLY FOR RELEVANT PARAMETER ONLY
+CC                             THE ABSOLUTE CONSTRAINTS GIVEN IN
+CC                             INPUT FILEL
+CC                        =1 : ENSURE CONTINUITY WITH RESPECT TO
+CC                             PREVIOUE POLYNOMIAL (IN ADDITION TO
+CC                             ABSOLUTE CONSTRAINTS)
+CC                        =4 : CONSTRAIN DRIFTS TO ZERO
+CC                        =5 : ENSURE CONTINUITY WITH RESPECT
+CC                             TO PREVIOUS POLYNOMIAL AND
+CC                             CONSTRAIN DRIFTS TO ZERO
+CC               TPOLL  : INTERVAL BOUNDARIES FOR EARTH ROT.  R*8(2,*)
+CC                        MODELS
+CC               SIGPLL : A PRIORI SIGMA OF POLE PARAMETERS   R*8(5,*)
+CC                        1-3 := XP,YP,DT,
+CC                        4,5 CEL. POLE COORDINATES
+CC                        *:= 1..MAXPOL
+CC               ISGPOL : EARTH ROTATION PARAMETER SIGMAS :   I*4(*)
+CC                        =0 : APPLY FOR RELEVANT PARAMETER ONLY
+CC                             THE ABSOLUTE CONSTRAINTS GIVEN IN
+CC                             INPUT FILEL
+CC                        =1 : ENSURE CONTINUITY WITH RESPECT TO
+CC                             PREVIOUE POLYNOMIAL (IN ADDITION TO
+CC                             ABSOLUTE CONSTRAINTS)
+CC               ISGNUT : EARTH ORIENTATION PARAMETER SIGMAS: I*4(*)
+CC                        =0 : APPLY FOR RELEVANT PARAMETER ONLY
+CC                             THE ABSOLUTE CONSTRAINTS GIVEN IN
+CC                             INPUT FILEL
+CC                        =1 : ENSURE CONTINUITY WITH RESPECT TO
+CC                             PREVIOUS POLYNOMIAL (IN ADDITION TO
+CC                             ABSOLUTE CONSTRAINTS)
+CC                        =4 : CONSTRAIN DRIFTS TO ZERO
+CC                        =5 : ENSURE CONTINUITY WITH RESPECT
+CC                             TO PREVIOUS POLYNOMIAL AND
+CC                             CONSTRAIN DRIFTS TO ZERO
+CC               SIGPOL : A PRIORI SIGMA OF POLE PARAMETERS   R*8(5,*)
+CC                        1-3 := XP,YP,DT,
+CC                        4,5 CEL. POLE COORDINATES
+CC                        *:= 1..MAXPOL
+CC               NPOLO  : NUMBER OF POLE INTERVALS ALREADY    I*4
+CC                        USED
+CC               TPOL   : INTERVAL BOUNDARIES FOR EARTH ROT.  R*8(2,*)
+CC                        MODELS
+CC               DAPRI  : I=1,NPAR: DIFFERENCE IN A-PRIORI    R*8(*)
+CC                        VALUE (FROM CHANGING THE A PRIORI
+CC                        POLFILE) IN MILLIARCSECONDS
+CC               NFIX   : # STATIONS HELD FIXED               I*4
+CC               POLPAR : PARAMETERS TO BE ESTIMATED          I*4(3)
+CC                        (1)=XP, (2)=YP, (3)=DT
+CC                        >1 := POLDEG+1 0 := NOT ESTIMATED
+CC               NDRIFT(I), I=1,2: NUMBER OF SUBSEQUENT PARAM. I*4
+CC                        WITH EQUAL DRIFT
+CC                        = 0: DAYS ARE INDEPENDENT
+CC                        = 1: CONTINUITY ALSO BETWEEN DAYS
+CC                        > 1: NUMBER OF PARAMETERS WITH EQUAL
+CC                             DRIFT
+CC                        (1): X-POLE, Y-POLE, UT1
+CC                        (2): NUTATION OFFSETS
+CC               IREBLK : BLOCKING DAILY RETROGRADE FREQU.    I*4
+CC               STFIX  : NUMBERS OF THE STATIONS HELD FIXED  I*4(1)
+CC               NSTWGT : # STATIONS WITH A PRIORI WEIGHTS    I*4
+CC INPUT OPTION           FOR COORDINATES
+CC               ISTWGT : NUMBERS OF THE STATION WITH A       I*4(1)
+CC                        PRIORI WEIGHTS
+CC               STWGT  : STWGT(K,I) A PRIORI WEIGHT FOR      R*8(3,1)
+CC                        STATION I AND COORDINATE K
+CC               ICOADD : CORRECT STATION WEIGHTS ADDED ON    I*4
+CC                        NEQ (=1) OR UNCORRECT (PREVIOUS TO
+CC                        21-AUG-95) USING ONLY SPHERICAL
+CC                        APPROXIMATION (=0)
+CC               SCACEN : SCALE PAR. FOR CENTER OF MASS
+CC                        PARAMETER                           R*8
+CC               NCENM  : NUMBER OF CENTER OF MASS PARAMETER  I*4
+CC                        (1, 2, OR 3)
+CC               CENMAS : CORRESP. COORDINATE NUMBERS         I*4(*)
+CC               SIGCEN : CORRESP. A PRIORI SIGMAS            R*8(*)
+CC               SIGOFF(J,I),J=1,2,3,I=1,..,NANOFF: A PRIORI  R*8(*,*)
+CC                        SIGMAS FOR COMP. J AND ANT. GROUP I
+CC               PAROFF(K),K=1,2,3: ANTENNA OFFSET COMPONENTS I*4
+CC                        TO BE ESTIMATED (X,Y,Z IN SATELLITE
+CC                        REFERENCE FRAME
+CC                        =1: ESTIMATED
+CC                        =0: NOT ESTIMATED
+CC               PREC   : A PRIORI ORBITAL PRECISIONS         R*8(1)
+CC               NORB   : # ORBITAL PARAMETERS TO BE ESTIM.   I*4
+CC               SEQORB : SEQUENCE FOR ORBITAL ELEMENTS       I*4(1)
+CC               STVEL(I): I=1,NVEL STATION NUMBERS OF
+CC                         VELOCITIES                         I*4(*)
+CC               ISIVEL(I): I=1,NVEL SITE VELOCITY TO BE
+CC                         ESTIMATE (1) OR DIFFERENT SITE
+CC                         NAMES WILL MEAN DIFFERENT VELOC.
+CC                         (0)                                I*4(*)
+CC               NVEL : NUMBER OF VELOCITY STATIONS           I*4
+CC               STVWGT : STVWGT(K,I) A PRIORI WEIGHT FOR     R*8(3,1)
+CC                        STATION VELOCITIES IN (MM/YEAR) OF
+CC                        STATION I AND COORDINATE K
+CC               NFIXV  : # STATIONS VELOCITIES HELD FIXED    I*4
+CC               STFIXV : NUMBERS OF THE STATION VELOCITIES
+CC                        HELD FIXED                          I*4(1)
+CC               IOPFRV : SAME AS IOPFRE FOR VELOCITIES       I*4
+CC               IHELV(I),SAME AS IHELM FOR VELOCITIES        I*4
+CC               ISUVEL : SUBSTARCT A PRIORI VELOCITY MODEL   I*4
+CC                        0/1: NO/YES
+CC               TIMNEQ : TIME IN MJD OF INDIVIDUAL NORMAL    R*8
+CC                        EQUATION
+CC               SIGTRO(I): I=1,2 INPUT OPTION OF REL/ABS     R*8
+CC                         TROPOSPHERE
+CC               NSEFF   : NUMBER OF SATELLITES IN ARC               I*4
+CC               SVNEFF  : CORRESP. SATELLITE NUMBERS                I*4
+CC               NFIL    : NUMBER OF FILES                           I*4
+CC               ARCNUM  : ARRAY CHARACTERIZING ARC DEFINITION       I*4
+CC               TOSC    : OSCULATION EPOCHS FOR ALL FILES           R*8
+CC               ELE     : ORBITAL ELEMENTS                          R*8
+CC               RPRESS  : RADIATION PRESSURE PARAMETERS (APR, 1)    R*8
+CC               IORSYS  : TYPE OF INERTIAL (ORBIT) SYSTEM           I*4
+CC               IAXIS   : ROTATION OF THE ORBIT SYSTEM ABOUT AXIS   I*4
+CC                        NUMBER "IAXIS" OF EQUATORIAL SYSTEM
+CC               SCLORB  : SCALING OF ORBIT PARAMETERS               R*8
+CC               SIGORR  : A PRIORI RMS FOR LINEAR COMBINATION       R*8
+CC                         MAS/DAY TO BLOCK ORBIT ROTATION
+CC               RADUSE  : WHICH RPR TERMS ARE INCLUDED ?            I*4
+CC-----------------
+CC IND. CHOOSEN  NSTWGL : # STATIONS WITH A PRIORI WEIGHTS    I*4
+CC                        FOR COORDINATES
+CC               ISTWGL : NUMBERS OF THE STATION WITH A       I*4(1)
+CC                        PRIORI WEIGHTS
+CC               STWGTL : STWGT(K,I) A PRIORI WEIGHT FOR      R*8(3,1)
+CC                        STATION I AND COORDINATE K
+CC               SCACEL : SCALE PAR. FOR CENTER OF MASS
+CC                        PARAMETER                           R*8
+CC               SIGCEL : CORRESP. A PRIORI SIGMAS            R*8(*)
+CC               SIGOFL(J,I),J=1,2,3,I=1,..,NANOFF: A PRIORI  R*8(*,*)
+CC                        SIGMAS FOR COMP. J AND ANT. GROUP I
+CC               PRECL  : A PRIORI ORBITAL PRECISIONS         R*8(1)
+CC               SIGTRS(I),I=1,2,... : A PRIORI SIGMA FOR     R*8
+CC                        STATION SPECIFIC TROP. PARAMETER
+CC               ISGTRS(I),I=1,2,... : TYPE OF A PRIORI SIGMA I*4
+CC                        FOR TROP.PARAMETERS:
+CC                        =0: ABSOLUTE SIGMA
+CC                        =1: SIGMA RELATIVE TO THE PREVIOUS
+CC                            TROP.PARAMETER OF THE SAME SITE
+CC               STNUMB(I),I=1,2,..,NSTAT  : STATION NUMBERS  I*4
+CC               STNAME(I),I=1,2,..,NSTAT  : STATION NAMES    I*4
+CC               NSTAT  : NUMBER OF STATIONS
+CC               XSTAT(K,I),K=1,2,3;I=1,..,NSTAT: RECTANGULAR R*8
+CC                        STATION COORDINATES (WGS-84)
+CC               ICENTR(I),I=1,..,NSTAT: NUMBER OF THE CENTER I*4
+CC                        STATION FOR STATION I
+CC               LOCQ(K,I),K=1,..,MAXLCQ, I=1,2,...,NPAR:     I*4
+CC                        CHARACTERISTICS FOR EACH PARAMETER
+CC               NPAR   : NUMBER OF PARAMETERS (WITHOUT PRE-  I*4
+CC                        ELIMINATED PARAMETERS)
+CC               S0     : APRIORI SIGMA USED IN COMBINED      R*8
+CC                        SOLUTION
+CC               SIGAPL : APRIORI SIGMA USED IN INDIVIDUAL    R*8
+CC                        SOLUTION
+CC               XEL(I,K),I=1,2,3 , K=1,NSTAT  ELLIPSOIDAL    R*8
+CC                        COORDINATES IN INDIVIDUAL SOLUTIONS
+CC               XELA(I,K),I=1,2,3 , K=1,NSTAT  ELLIPSOIDAL    R*8
+CC                        COORDINATES IN INDIVIDUAL SOLUTIONS
+CC                        BUT TRANSFORMED TO FIRST APRIORI
+CC                        COORDINATE SET
+CC               AELL,BELL: SEMIMAJOR/MINOR AXES OF ELLIPSOID R*8
+CC               IHELM(I),I=1,7: I=1,3: TRANSLATION,          I*4
+CC                               I=4,6: ROTATION
+CC                               I=7: SCALE (0:NO, 1:YES)
+CC               NSASTC : NUMBER OF SATELLITES WITH STOCHAST. I*4
+CC                        ORBITS
+CC               NUMSTC : CORRESPONDING SATELLITE NUMBERS     I*4(*)
+CC               SIGSTC : A PRIORI SIGMAS FOR STOCHASTIC      R*8(3,*)
+CC               SCASTC : SCALING FACTOR FOR STOCH. ORBIT     R*8
+CC                        PARAMETERS
+CC               SCASTL : SCALING FACTOR FOR STOCH. ORBIT     R*8
+CC                        PARAMETERS  (OF INDIVIDUAL NEQ)
+CC               NSTCEP : NUMBER OF STOCHASTIC FORCES PER     I*4
+CC                        EPOCH
+CC               FRCTYP : STOCHASTIC FORCE TYPES FOR MAX      I*4(*)
+CC                        3 FORCES PER EPOCH
+CC                     (L)=1 FORCE = R : RADIAL
+CC                     (L)=2 FORCE = S : NORMAL TO R IN ORB. PLANE
+CC                     (L)=3 FORCE = W : NORMAL TO ORB PLANE
+CC                     (L)=4 FORCE = DIRECTION SUN --> SATELLITE
+CC                     (L)=5 FORCE = Y DIRECTION OF SPACE CRAFT
+CC                     (L)=6 FORCE = X DIRECTION OF SPACE CRAFT
+CC               NSASTL : NUMBER OF SATELLITES WITH STOCHAST. I*4
+CC                        ORBITS (OF INDIVIDUAL NEQ)
+CC               NUMSTL : CORRESPONDING SATELLITE NUMBERS     I*4(*)
+CC                        (OF INDIVIDUAL NEQ)
+CC               SIGSTL : A PRIORI SIGMAS FOR STOCHASTIC      R*8(3,*)
+CC                        (OF INDIVIDUAL NEQ)
+CC-----------------
+CC     IN/OUT :  A(I),I=1,2,..,NPAR*(NPAR+1)/2: INVERSE OF    R*8
+CC                        NORMAL EQUATION MATRIX (UPPER
+CC                        TRIANGLE ONLY, COLUMNWISE LINEAR.)
+CC               B(I),I=1,2,..,NPAR: RIGHT HAND SIDE OF       R*8
+CC                        NORMAL EQUATION
+CC               IDEL(I),I=1,NPAR : INDEX FOR FIXSTATION      I*4
+CC                        (ELIMINATED IN THIS SR)
+CC        OUT:   XFREE(I): I=1,3 : FIX COORDINATES IN FREE    R*8
+CC                        SOLUTION
+CC               ETPE(K),K=1,NSTAT*(NSTAT-1)/2 COLUMNWISE
+CC                        LINEARISED
+CC                        PART OF THE NORMALEQATION WHICH
+CC                        FIXES THE DATUM OF THE NETWORK FOR
+CC                        TOTALLY FREE SOLUTIONS              R*8
+CC               EREST(I,J),I=1,6:3 TRANSLATION, 3 ROTATIONS,
+CC                        1 SCALE,
+CC                        J=1,3*NSTAT: RESTRICTION MATRIX     R*8
+CC               WREST(I),I=1,7:3 TRANSLATION, 3 ROTATIONS,
+CC                        1 SCALE, RIGHT HAND RESTRICTION
+CC               DBNOR(I),I=1,2,..,: ADDITION                 R*8
+CC                        OF WEIGHTS TO RIGHT SIDE OF
+CC                        NORMAL EQUATION MATRIX
+CC                        DUE TO INPUT OPTIONS
+CC               DOMEG : CORRECTION OF RMS DUE TO SPECIAL     R*8
+CC                       RESTRICTIONS WITH W.NE.0.D0
+CC               IRCCRD : 0/1 APRIORI COORDINATE FILE YES/NO  I*4
+CC               IRCVEL : 0/1 APRIORI VELOCITY MODEL YES/NO   I*4
+CC               XVEL(I,K),I=1,3,K=1,NSTAT APRIORI VELOCITIES R*8(*,*)
+CC                        SORTED ACCORDING XSTAT
+CC               VELFLG(K),K=1,NSTAT: VELOCITY FLAG           CH*1
+CC               VFOUND(I),I=1,..,NSTAT: VELOCITY FOUND OR NOT L(*)
+CC               XSTDIF(I,K),I=,3,K=1,NSTAT: DIFFERENCIES FROM
+CC                        APRIORI TO REFERENCE COORDINATES    R*8
+CC               TIMFIX : TIME OF FIXCOORDINATES IN MJD       R*8
+CC               COVAPR(I,K),I=1,2,K=1,3*NSTAT*(3*NSTAT-1)/2  R*8
+CC                        I=1:COORD., I=2:VELOCITIES,
+CC                        APRIORI COVARIANCE INFORMATION
+CC               XSTREF(K,I),K=1,2,3;I=1,..,NSTAT: RECT.      R*8
+CC                        REFERENCE STATION COORDINATES  (REF.
+CC                        VELOCITIES ALSO APPLIED); USED ONLY
+CC                        FOR FIXED AND FOR FREE NETWORK SITES
+CC                        AS REFERENCE
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  E.BROCKMANN
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  24-MAY-93
+CC
+CC CHANGES    :  20-JUN-94 : EB: INCLUDED STOCHASTIC CHANGE,
+CC                               WEIGHTING ERP CHANGED: NOW ADDITION OF OLD
+CC                               WEIGHT IN CASE OF PREELIMINATION
+CC               28-OCT-94 : EB: IREQ RELATIVE TROP. WARNING
+CC               03-NOV-94 : EB: FIXING NOT FOR SUBSTRACTION
+CC                               MAXSTA ARRAY CONSISTENT
+CC               17-MAR-95 : EB: CALL WGTER2 IN CASE OF IADD=-1
+CC                               MODIFIED
+CC               07-APR-95 : EB: SAVING OF APRIORI COVARIANCE MATRIX
+CC               25-JUN-95 : EB: BLOCKING RETROGRADE FREQUENCIES
+CC               31-JUL-95 : EB: NEW LOGIC FOR TROPOSPHERE PARAMETERS
+CC               21-AUG-95 : EB: CORRECT ADDITION OF STATION WEIGHTS
+CC               17-OCT-95 : EB: MAXSTA FROM 120 TO 200
+CC               24-OCT-95 : EB: HELMERT PARAMETER (25)
+CC               31-OCT-95 : SS: NO WEIGHTS FOR ION. PARAMETERS
+CC               01-FEB-96 : MR: USE CORRECT INDEX FOR "PREC"
+CC               19-FEB-96 : EB: NEW CALL GTVELO
+CC               25-MAR-96 : EB: ORBIT BLOCKING POSSIBLE
+CC               10-MAY-96 : EB: NO APRIORI WEIGHTS FOR FREE SOLUTIONS
+CC               17-JUL-96 : EB: SUBSTRACTION OF ORBITAL WEIGHTS CORRECTED
+CC               13-MAY-97 : MR: HANDLE TROPOSPHERE PARAM. OF STATIONS
+CC                               EXCLUDED WITH STACRUX FILE
+CC               14-AUG-97 : SS: NEW PARAMETER TYPE 8
+CC               23-JUL-98 : MR: ADD PARAMETER "NDRIFT"
+CC               04-AUG-99 : PF: USE NEW VERSION OF GETCOO
+CC               28-Jan-02 : CU: Increase maxsta: 300 -> 500
+CC               27-AUG-03 : HU: SHARED DO LABELS REMOVED
+CC               28-JUN-04 : RD: USE MAXCRD FROM M_MAXDIM INSTEAD OF MAXSTA
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               26-JUL-05 : HU: DECLARATION OF ICENTR AND IHELV
+CC               18-OCT-06 : MP: COMMENT BLKROT, SECTION NOT USED ANYMORE
+CC               28-FEB-07 : AG: USE 206264... FROM DEFCON
+CC               19-JAN-11 : RD: FLAG ADDED TO GTVELO
+CC               15-FEB-11 : RD: MXCSTA AND MAXCRD ARE NOT NEEDED ANYMORE
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1989     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE d_const,  ONLY: ars
+C
+      USE f_ikf
+      USE s_restin
+      USE s_crdvel
+      USE s_gtvelo
+      USE s_err3d
+      USE s_blkret
+      USE s_getco3
+      USE s_relvel
+      USE s_dminv
+      USE s_exitrc
+      USE s_wgter2
+      USE s_gtflna
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I        , IADD     , IADELI   , IAC      , IC       ,
+     1          ICOADD   , ICOR     , IDEG     , IHLP     ,
+     2          II       , IK       , IKL      , INDEX    ,
+     3          INTER    , INTERT   , INUV1A   , IOFF     , IOPFRE   ,
+     4          IOPFRV   , IORB     , IORL     , IORSYS   , IP       ,
+     5          IPAR     , IPE      , IPIP     , IPIP1    , IPIP2    ,
+     6          IRCCRD   , IRCVEL   , IREBLK   , IREQ     , IS       ,
+     7          ISEQ     , IST      , ISTA     , ISTC     , ISUVEL   ,
+     8          IYES     , J        , JPAR     , K        , KPAR     ,
+     9          MAXLCQ   , MXCDYN   , MXCLCQ   , MXCSAT   ,
+     1          NCENM    , NDEG     , NDEL     , NFIL     ,
+     2          NFIX     , NFIXV    , NFLGAP   , NORB     , NPAR     ,
+     3          NPOL     , NPOLO    , NSASTC   , NSASTL   , NSEFF    ,
+     4          NSTAPR   , NSTAT    , NSTCEP   , NSTWGL   , NSTWGT   ,
+     5          NVEL
+C
+      REAL*8    AELL     , BELL     , DEN      , DET      , DOMEG    ,
+     1          E2       , FAK      , FIXSTC   ,
+     2          RELWGT   , RESROT   , RFAK     , RM       ,
+     3          RN       , S0       , SCACEL   , SCACEN   , SCASTC   ,
+     4          SCASTL   , SIGAPL   , SIGFIX   , SIGORB   , SIGORR   ,
+     5          SIGROT   , SP       , TIMFIX   , TIMNEQ   , WABS     ,
+     6          WABS2    , WDIF     , WDIF2    , WEIGHT   , WEIGHTM  ,
+     7          WEIGHTP
+C
+CCC       IMPLICIT REAL*8(A-H,O-Z)
+C
+      CHARACTER*32  FILCRD
+      CHARACTER*16  STNAME(*)
+      CHARACTER*7   FILKEY
+      CHARACTER*6   MXNLCQ,MXNSAT,MXNDYN
+      CHARACTER*1   FLGAPR(1)
+      CHARACTER*1   VELFLG(*)
+C
+      REAL*8        STWGT(3,*),STWGTL(3,*),XELA(3,*)
+      REAL*8        XEL(3,*),A(*),B(*),DAPRI(*),ETPE(*),EREST(7,*)
+      REAL*8        XSTAT(3,*),XFREE(3),DBNOR(*),WREST(*)
+      REAL*8        COVXYZ1(3,3),COVXYZ2(3,3),COVPLH(3,3)
+      REAL*8        TPOL(2,*),SIGPOL(5,*),SIGPLL(5,*),XSTDIF(:,:)
+      REAL*8        SIGCEN(*),SIGCEL(*),SIGOFF(3,*),SIGOFL(3,*)
+      REAL*8        PREC(*),PRECL(*),STVWGT(3,*),XVEL(3,*)
+      REAL*8        SIGTRS(*),SIGTRO(*),XSTREF(3,*)
+      REAL*8        SIGSTC(3,*),SIGSTL(3,*),TPOLL(2,*),COVAPR(2,*)
+      REAL*8        ELE(7,MXCSAT,*),RPRESS(MXCDYN,MXCSAT,*),TOSC(*)
+      REAL*8        SCLORB(*)
+CCC      REAL*8     TIMWGT(2,*),WGTWGT(*)
+C
+      INTEGER*4     STVEL(*),STFIXV(*),ISIVEL(*),ICENTR(*)
+      INTEGER*4     ISTWGT(*),STFIX(*)
+      INTEGER*4     ISTWGL(*),STNUMB(*)
+      INTEGER*4     LOCQ(MXCLCQ,*)
+      INTEGER*4     L1(3),L2(3),IDEL(*),IHELM(*),IHELV(*)
+      INTEGER*4     ISGPLL(*),ISGPOL(*),POLPAR(*),ISGNUL(*),ISGNUT(*)
+      INTEGER*4     CENMAS(*),PAROFF(*),SEQORB(*)
+      INTEGER*4     ISGTRS(*)
+      INTEGER*4     NUMSTC(*),NUMSTL(*),FRCTYP(*)
+      INTEGER*4     OPTELI(*),SVNEFF(*),ARCNUM(MXCSAT,*),RADUSE(*)
+      INTEGER*4     IAXIS(*),NDRIFT(2)
+C
+      LOGICAL       VFOUND(*)
+C
+C LOKAL
+      CHARACTER*16, DIMENSION(:),   POINTER :: STNAAP
+      REAL(r8b),    DIMENSION(:,:), POINTER :: XSTHLP
+      REAL*8        XCOHLP(3,NSTAT)
+      REAL*8        RDIFF(3)
+      REAL*8        XVELAP(3,NSTAT)
+C
+C COMMON FOR LOGICAL FILE NUMBERS
+C
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+      COMMON/MCMSAT/MXCSAT,MXNSAT
+      COMMON/MCMDYN/MXCDYN,MXNDYN
+C
+      MAXLCQ=MXCLCQ
+C
+C INITIALISATION
+C --------------
+      NULLIFY(STNAAP)
+      NULLIFY(XSTHLP)
+C
+C SIGMA FOR FIX STATIONS
+      SIGFIX=1.D-5
+C SIGMA FOR FIX STATIONS
+      SIGORB=1.D-3
+C SIGMA FOR FIX STOCHASTIC PARAMETERS
+      FIXSTC=1.D-9
+C
+      NDEL=0
+      NDEG=0
+      DO 10 IPAR=1,NPAR
+        IDEL(IPAR)=0
+        DBNOR(IPAR)=0.D0
+10    CONTINUE
+      XSTDIF=0.D0
+C
+C DEFINITION OF SUBSTARCTION OR ADDITION
+      IF (IADD.EQ.-1) THEN
+        RFAK=-1.D0
+      ELSE
+        RFAK=1.D0
+      ENDIF
+C
+C SEARCH FOR SPECIAL COORDINATE FILE TO FIX COORDINATES ON
+C SPECIAL VALUES
+C ---------------------------------------------------------
+      CALL GTFLNA(0,'FIXCRD ',FILCRD,IRCCRD)
+      IF (IRCCRD.EQ.0) THEN
+C
+        NFLGAP=1
+        FLGAPR(1)='@'
+        CALL GETCO3(FILCRD,NFLGAP,FLGAPR,NSTAPR,STNAAP,
+     1              xstat=XSTHLP,timcrd=TIMFIX)
+C
+C SORT XSTHLP IN ARRAY XSTREF IN THE SAME ORDER RESPECT TO XSTAT
+        DO 16 IST=1,NSTAT
+          DO 17 K=1,3
+            XSTREF(K,IST)=0.D0
+17        CONTINUE
+          DO 15 IS=1,NSTAPR
+            IF (STNAAP(IS).EQ.STNAME(IST))THEN
+              DO 14 K=1,3
+                XSTREF(K,IST)=XSTHLP(K,IS)
+14            CONTINUE
+            ENDIF
+15        CONTINUE
+16      CONTINUE
+        DEALLOCATE(STNAAP,STAT=IAC)
+        DEALLOCATE(XSTHLP,STAT=IAC)
+      ENDIF
+C
+C GET VELOCITIES /VELOCITY MODEL IF SPECIFIED IN N-FILE WITH
+C FIXVEL (VELOCITY FILE) TO TRANSFORM SPECIAL FIXING FILE TO EPOCH
+C OF OBSERVATION
+C ---------------------------------------------------------------
+      NFLGAP=1
+      FLGAPR(1)='@'
+      FILKEY='FIXVEL '
+      INUV1A=0
+      CALL GTVELO(FILKEY,INUV1A,NFLGAP,FLGAPR,NSTAT,XSTAT,STNAME,
+     1            XVEL,VELFLG,VFOUND,IRCVEL)
+C
+C APPLY VELOCITIES TO FIXCRD (IF BOTH ARE SPECIFIED)
+C --------------------------------------------------
+      IF (IRCVEL.EQ.0.AND.IRCCRD.EQ.0) THEN
+        CALL CRDVEL(NSTAT,XSTREF,XVEL,VFOUND,TIMNEQ,TIMFIX)
+        DO 28 IST=1,NSTAT
+          DO 29 K=1,3
+            IF (XSTREF(K,IST).NE.0.D0) THEN
+              XSTDIF(K,IST)=XSTREF(K,IST)-XSTAT(K,IST)
+C             WRITE(*,*)'DIF',STNAME(IST),XSTREF(K,IST)-XSTAT(K,IST),
+C     1                       XSTREF(K,IST),XSTAT(K,IST),XVEL(K,IST)
+            ELSE
+              XSTDIF(K,IST)=0.D0
+            ENDIF
+29        CONTINUE
+28      CONTINUE
+      ENDIF
+C
+C REFERENCE COORDINATES ARE CHANGED ONLY FOR FIXED / FREE NET STATIONS
+C
+      IF(IADD.EQ.2) THEN
+        DO IST=1,NSTAT
+          IYES=0
+          DO II=1,NFIX
+            IF(STNUMB(IST).EQ.STFIX(II).OR.STFIX(II).EQ.-99) IYES=1
+          ENDDO
+          IF (XSTREF(1,IST).EQ.0.D0.AND.XSTREF(2,IST).EQ.0.D0.AND.
+     1        XSTREF(2,IST).EQ.0.D0) IYES=0
+          IF (IYES.EQ.0) THEN
+              DO K=1,3
+                XSTREF(K,IST)=XSTAT(K,IST)
+            ENDDO
+          ENDIF
+       ENDDO
+      ENDIF
+C
+C GET VELOCITIES /VELOCITY MODEL IF SPECIFIED IN N-FILE WITH
+C FIXVEL (VELOCITY FILE) OR VELTRN(NUVEL MODEL) TO FIX ON SPECIAL
+C VELOCITIES OR TO INTRODUCE IN NORMALEQUATIONS
+C ---------------------------------------------------------------
+      NFLGAP=1
+      FLGAPR(1)='@'
+      FILKEY='       '
+      INUV1A=0
+      CALL GTVELO(FILKEY,INUV1A,NFLGAP,FLGAPR,NSTAT,XSTAT,STNAME,
+     1            XVEL,VELFLG,VFOUND,IRCVEL)
+      DO 25 I=1,NSTAT
+        DO 26 K=1,3
+          IF (ISUVEL.EQ.1) THEN
+            XVELAP(K,I)=0.D0
+          ELSE
+            XVELAP(K,I)=XVEL(K,I)
+          ENDIF
+26      CONTINUE
+25    CONTINUE
+C
+C LOOP OVER ALL PARAMTER
+C
+      DO 500 IP=1,NPAR
+      WEIGHT=0.D0
+      WEIGHTP=0.D0
+      WEIGHTM=0.D0
+C
+      IF (IADD.EQ.1.AND.IADELI.EQ.1.AND.(OPTELI(LOCQ(1,IP)).EQ.0.OR.
+     1    OPTELI(LOCQ(1,IP)).EQ.2)) THEN
+C
+C ALLOW FOR TROPOSPHERE PARAMETERS OF EXCLUDED SITES (STACRUX)
+        IF (LOCQ(1,IP).NE.6 .OR. LOCQ(3,IP).NE.-1) GOTO 500
+      ENDIF
+C
+      GO TO (100,200,300,500,500,600,21,21,900,1000,1100,1200,
+     1       1300,1400,1500,1600,21,21,21,2000,21,21,21,21,21)
+     2       LOCQ(1,IP)
+      WRITE(LFNERR,20) LOCQ(1,IP)
+20    FORMAT(/,'*** SR CHGWGT: WARNING: PARAMETER TYPE NOT DEFINED',
+     1                    16X,'TYPE:',I3,/)
+21      GOTO 500
+C
+C A PRIORI WEIGHTS FOR STATION COORDINATES
+100   IST=LOCQ(2,IP)
+      K=LOCQ(3,IP)
+      IF(K.NE.1) GO TO 500
+C
+CC      WRITE(*,*)'IST',IST
+      DO 70 I=1,3
+        DO K=1,3
+          COVXYZ1(I,K)=0.D0
+          COVXYZ2(I,K)=0.D0
+        ENDDO
+70    CONTINUE
+C
+C RECOMPUTE CORRESPONDING WEIGHT (IF DEFINED) IN INDIVIDUAL SOLUTION
+      IF (IADD.GE.1) GOTO 80
+      DO 30 II=1,NSTWGL
+        IF(ISTWGL(II).EQ.IST)GO TO 40
+        IF(ISTWGL(II).LE.0)GO TO 80
+30    CONTINUE
+      GOTO 80
+40    IF (ICOADD.EQ.0) THEN
+        RN=6378000.D0-XEL(3,IST)
+        RM=6378000.D0-XEL(3,IST)
+      ELSE
+        E2=(AELL**2-BELL**2)/(AELL**2)
+        SP=DSIN(XEL(1,IST))
+        DEN=DSQRT(1.D0-E2*SP**2)
+        RN=AELL/DEN
+        RM=AELL*(1.D0-E2)/DEN**3
+      ENDIF
+      DO 50 I=1,3
+        IF(I.EQ.1)FAK=(RM+XEL(3,IST))
+        IF(I.EQ.2)FAK=(RN+XEL(3,IST))
+        IF(I.EQ.3)FAK=1.D0
+        DO K=1,3
+          COVPLH(I,K)=0.D0
+          IF(I.EQ.K)COVPLH(I,K)=(STWGTL(K,II)/FAK/SIGAPL)**2
+          IF(I.EQ.2.AND.K.EQ.2)COVPLH(I,K)=
+     1                         COVPLH(I,K)/DCOS(XEL(1,IST))**2
+        ENDDO
+50    CONTINUE
+      CALL ERR3D(XEL(1,IST),XEL(2,IST),XEL(3,IST),AELL,BELL,
+     1           +1,COVXYZ1,COVPLH)
+      CALL DMINV(COVXYZ1,3,DET,L1,L2)
+CC      WRITE(*,*)'WEIGT SUB',II,ISTWGL(II),STWGTL(3,II),COVPLH(2,2),
+CC     1                      XEL(1,IST)
+C
+C FIND CORRESPONDING WEIGHT (IF DEFINED) ACCORDING INPUT OPTION
+80    IF (IADD.EQ.-1)GOTO 90
+      DO 31 II=1,NSTWGT
+        IF(STNUMB(IST).EQ.ISTWGT(II)) GOTO 41
+31    CONTINUE
+      GOTO 90
+CC
+41    E2=(AELL**2-BELL**2)/(AELL**2)
+      SP=DSIN(XELA(1,IST))
+      DEN=DSQRT(1.D0-E2*SP**2)
+      RN=AELL/DEN
+      RM=AELL*(1.D0-E2)/DEN**3
+      DO 51 I=1,3
+        IF(I.EQ.1)FAK=(RM+XELA(3,IST))
+        IF(I.EQ.2)FAK=(RN+XELA(3,IST))
+        IF(I.EQ.3)FAK=1.D0
+        DO K=1,3
+          COVPLH(I,K)=0.D0
+          IF(I.EQ.K)COVPLH(I,K)=(STWGT(K,II)/FAK/S0)**2
+          IF(I.EQ.2.AND.K.EQ.2)COVPLH(I,K)=
+     1                         COVPLH(I,K)/DCOS(XELA(1,IST))**2
+        ENDDO
+51    CONTINUE
+      CALL ERR3D(XELA(1,IST),XELA(2,IST),XELA(3,IST),AELL,BELL,
+     1           +1,COVXYZ2,COVPLH)
+C
+      IF (IADD.EQ.2) THEN
+        DO I=1,3
+          DO K=1,I
+            IHLP=(IST-1)*3+1
+            IK=IKF(IHLP+I-1,IHLP+K-1)
+            COVAPR(1,IK)=COVAPR(1,IK)+COVXYZ2(I,K)
+          ENDDO
+        ENDDO
+      ENDIF
+C
+      CALL DMINV(COVXYZ2,3,DET,L1,L2)
+CC      WRITE(*,*)'WEIGT add',II,COVPLH(2,2),
+CC     1                      XELA(1,IST)
+CC      WRITE(*,*)'WEIGT ADD',STNUMB(IST),II,IST,ISTWGT(II),STWGT(1,II)
+C
+C SUBSTRACTION OF OLD WEIGHT AND ADDITION OF NEW WEIGHT
+90    DO 60 I=1,3
+        DO 65 K=1,I
+          IK=IKF(I+IP-1,K+IP-1)
+          A(IK)=A(IK)+(-COVXYZ1(I,K)+COVXYZ2(I,K))
+CC        WRITE(*,*)'ADD TOT-',COVXYZ1(I,K),'+',COVXYZ2(I,K)
+CC        A(IK)=A(IK)+COVXYZ2(I,K)
+65      CONTINUE
+60    CONTINUE
+C
+C IF FIX STATION THEN SETUP BIG A-PRIORI WEIGHT
+C ---------------------------------------------
+      IF (IADD.EQ.-1)GOTO 500
+      IF (IOPFRE.EQ.1) GOTO 500
+C
+      DO 95 II=1,NFIX
+        IF(STNUMB(IST).EQ.STFIX(II).OR.STFIX(II).EQ.-99) GOTO 42
+95    CONTINUE
+      GOTO 500
+C
+C ELIMINATE PARAMETER OF FIX STATION
+C ----------------------------------
+CC42    DO 96 I=1,3
+CC        NDEL=NDEL+1
+CC        IDEL(IP+I-1)=1
+CC96    CONTINUE
+C
+C FIX THIS PARAMETER ON A SPECIAL
+C COORDINATE (IF KEYWORD FIXCRD) OR ON ZERO IMPROVEMENT
+C
+C
+42    DO 96 I=1,3
+        RDIFF(I)=0.D0
+CCC        IF (IRCCRD.EQ.0.AND.IOPFRE.EQ.0.AND.ISUVEL.EQ.0) THEN
+        IF (IRCCRD.EQ.0.AND.IOPFRE.EQ.0) THEN
+          IF (XSTREF(1,IST).EQ.0.D0.AND.XSTREF(2,IST).EQ.0.D0
+     1        .AND.XSTREF(3,IST).EQ.0.D0) THEN
+            WRITE(LFNERR,902)FILCRD,STNAME(IST)
+902         FORMAT(/,' *** SR CHGWGT: WARNING: FIXSTATION NOT FOUND',/,
+     1           16X,'IN SPECIAL COORDINATE FILE ',A32,/,
+     2           16X,'STATION ',A16,' NOT USED FOR RESTRICTIONS',/)
+            GOTO 500
+          ENDIF
+          RDIFF(I)=XSTREF(I,IST)-XSTAT(I,IST)
+        ENDIF
+C SAVE FIXING WEIGHT LIKE AN LARGE INPUT WEIGHT
+        IF (IADD.EQ.2.AND.I.EQ.1) THEN
+          NSTWGT=NSTWGT+1
+          ISTWGT(NSTWGT)=STNUMB(IST)
+          STWGT(1,NSTWGT)=SIGFIX
+          STWGT(2,NSTWGT)=SIGFIX
+          STWGT(3,NSTWGT)=SIGFIX
+        ENDIF
+C
+        B(I+IP-1)=B(I+IP-1)+(S0/SIGFIX)**2*RDIFF(I)
+        DBNOR(I+IP-1)=DBNOR(I+IP-1)+(S0/SIGFIX)**2*RDIFF(I)
+        DOMEG=DOMEG+(S0/SIGFIX)**2*RDIFF(I)**2
+        IK=IKF(I+IP-1,I+IP-1)
+CC SIGFIX WEIGHT
+        A(IK)=A(IK)+(S0/SIGFIX)**2
+C
+        IF (IADD.EQ.2) THEN
+          IHLP=(IST-1)*3+1
+          IK=IKF(IHLP+I-1,IHLP+I-1)
+          COVAPR(1,IK)=COVAPR(1,IK)+1.D0/(S0/SIGFIX)**2
+        ENDIF
+C
+96    CONTINUE
+CC      WRITE(*,*)'FIX WEIGT ADD',STNUMB(IST),STNAME(IST),RDIFF(1),IST
+      GOTO 500
+C
+C CLOCK PARAMETERS
+200   IST=LOCQ(2,IP)
+      IREQ=LOCQ(3,IP)
+      K=LOCQ(4,IP)
+CC      IF(CW(K,IREQ).EQ.0.D0)GO TO 500
+CC      WEIGHT=(S0/CW(K,IREQ))**2
+      GO TO 400
+C
+C ORBIT PARAMETER
+300   ISEQ=LOCQ(4,IP)
+      IPIP=IP*(IP+1)/2
+C SUBSTRACT OLD WEIGHT
+      DO IORL=1,NORB
+C ASSUMING THAT SEQORB IN EACH INDIV. NEQ IS ORDERED IN THE SAME (STRANGE) WAY
+C AS SEQORB
+        IF (SEQORB(IORL).EQ.ISEQ) THEN
+          IF (IADD.EQ.-1) THEN
+            IF (PRECL(IORL).NE.0.D0) THEN
+              WEIGHTM=-(SIGAPL/PRECL(IORL))**2
+              IF(ISEQ.GT.1.AND.ISEQ.LE.6)
+     1           WEIGHTM=-(SIGAPL/PRECL(IORL)/ars)**2
+            ENDIF
+          ENDIF
+        ENDIF
+      ENDDO
+C ADD NEW WEIGHT
+      DO 310 IORB=1,NORB
+        IF (SEQORB(IORB).EQ.ISEQ) GOTO 320
+310   CONTINUE
+C NOT TO ESTIMATE ANY MORE
+      IF (IADD.GE.1) THEN
+        WEIGHTP=(S0/SIGFIX)**2
+      ENDIF
+      A(IPIP)=A(IPIP)+WEIGHTM+WEIGHTP
+CC      WRITE(LFNERR,*)'orbwgt+',SIGFIX,(LOCQ(K,IP),K=1,7)
+C SAVE THIS FIXING AS LIKE AN INPUT OPTION
+C ONLY ONCE
+      NORB=NORB+1
+      SEQORB(NORB)=ISEQ
+      PREC(NORB)=SIGFIX
+C
+      GOTO 500
+C
+320   IF(PREC(IORB).NE.0.D0.AND.IADD.GE.1) THEN
+        WEIGHTP=(S0/PREC(IORB))**2
+        IF(ISEQ.GT.1.AND.ISEQ.LE.6)
+     1       WEIGHTP=(S0/PREC(IORB)/ars)**2
+      END IF
+      A(IPIP)=A(IPIP)+WEIGHTM+WEIGHTP
+CC      WRITE(LFNERR,*)'orbwgt+-',PREC(IORB),(LOCQ(K,IP),K=1,7),
+CC     1                  WEIGHTM,WEIGHTP
+      GO TO 500
+C
+C LOCAL TROPOSPHERE MODEL
+900   KPAR=LOCQ(3,IP)
+CC      WEIGHT=1.D20
+CC      IF(SIGTRP(KPAR).NE.0.D0)WEIGHT=(S0/SIGTRP(KPAR))**2
+      GO TO 400
+C
+C EARTH ROTATION PARAMETER
+1000  CONTINUE
+C
+C DO NOT USE POLE PARAMETER LARGER THAN IN POLPAR SPECIFIED
+C ---------------------------------------------------------
+      IF(LOCQ(2,IP).EQ.1) THEN
+        IHLP=0
+        INTER=LOCQ(3,IP)
+        INTERT=INTER+NPOLO
+        IKL  =LOCQ(4,IP)
+        IDEG =LOCQ(5,IP)
+        IF (IDEG.GT.NDEG)NDEG=IDEG
+        IF (IKL.LE.3) THEN
+C NOT CONTINOUS - IF POLE JUMP (STORED IN DAPRI)
+C (ONLY FOR IADD=1 POSSIBLE)
+CC          IF ((ISGPLL(INTER).EQ.2.OR.ISGPLL(INTER).EQ.1)
+CC     1          .AND.DABS(DAPRI(IP)).GT.0.05D0.AND.IDEG.EQ.1) THEN
+CC            ISGPLL(INTER)=0
+CC            ISGPOL(INTERT)=0
+C            WRITE(LFNERR,903)TPOLL(1,INTER),DAPRI(IP)
+C903         FORMAT(/,' *** SR CHGWGT: WARNING:',/,
+C     1        16X,'JUMP IN A PRIORI POLE ',/,
+C     2        16X,'TIME (MJD): ',F10.1,/,
+C     3        16X,'JUMP (IN POLECOORDINATE X) IN MAS: ',F10.4,/,
+C     4        16X,'NEW OFFSET ESTIMATED')
+CC          ENDIF
+          IF (IADD.EQ.2) THEN
+            CALL WGTER2(RFAK,IHLP,ISGPOL(INTER),NDRIFT(1),IP,LOCQ,TPOL,
+     1                  S0,SIGPOL(IKL,INTER),DAPRI,B,A,DBNOR,DOMEG)
+          ENDIF
+          IF (IADD.EQ.-1) THEN
+            CALL WGTER2(RFAK,IHLP,ISGPLL(INTER),NDRIFT(1),IP,LOCQ,TPOLL,
+     1           SIGAPL,SIGPLL(IKL,INTER),DAPRI,B,A,DBNOR,DOMEG)
+          ENDIF
+          IF (IADD.EQ.1) THEN
+C NOT REALLY EXACT: NO ADDITION OF THE NEW WEIGHTS: ONLY OLD WEIGHTS
+            CALL WGTER2(RFAK,NPOLO,ISGPOL(INTERT),NDRIFT(1),IP,LOCQ,
+     1           TPOL,S0,SIGPOL(IKL,INTERT),DAPRI,B,A,DBNOR,DOMEG)
+          ENDIF
+        ELSE
+          IF (IADD.EQ.2) THEN
+            CALL WGTER2(RFAK,IHLP,ISGNUT(INTER),NDRIFT(2),IP,LOCQ,
+     1           TPOL,S0,SIGPOL(IKL,INTER),DAPRI,B,A,DBNOR,DOMEG)
+          ENDIF
+          IF (IADD.EQ.-1) THEN
+            CALL WGTER2(RFAK,IHLP,ISGNUL(INTER),NDRIFT(2),IP,LOCQ,TPOLL,
+     1           SIGAPL,SIGPLL(IKL,INTER),DAPRI,B,A,DBNOR,DOMEG)
+          ENDIF
+C NOT REALLY EXACT: NO ADDITION OF THE NEW WEIGHTS: ONLY OLD WEIGHTS
+          IF (IADD.EQ.1) THEN
+            CALL WGTER2(RFAK,NPOLO,ISGNUT(INTERT),NDRIFT(2),IP,LOCQ,
+     1           TPOL,S0,SIGPOL(IKL,INTERT),DAPRI,B,A,DBNOR,DOMEG)
+          ENDIF
+        ENDIF
+        GOTO 500
+      ELSE
+        WRITE(LFNERR,1010) LOCQ(2,IP)
+1010    FORMAT(/,'*** SR CHGWGT: POLAR WOBBLE MODEL NOT DEFINED',
+     1                      16X,'MODEL:',I3,/)
+        CALL EXITRC(2)
+      END IF
+C
+C STOCHASTIC ORBIT PARAMETERS
+1100  CONTINUE
+      IPIP=IP*(IP+1)/2
+      IPE=LOCQ(6,IP)
+C
+C SUBSTRCT OLD WEIGHT
+      IF (IADD.EQ.-1) THEN
+        DO 1110 ISTC=1,NSASTL
+          IF(LOCQ(3,IP).EQ.NUMSTL(ISTC).OR.NUMSTL(ISTC).EQ.99)
+     1    GO TO 1120
+1110    CONTINUE
+1120    CONTINUE
+        IF(SIGSTL(IPE,ISTC).NE.0.D0)THEN
+          WEIGHTM=-(SIGAPL/SIGSTL(IPE,ISTC)/SCASTL)**2
+        END IF
+      ENDIF
+C ADD NEW WEIGHT
+      DO 1130 INDEX=1,NSTCEP
+        IF (FRCTYP(INDEX).EQ.LOCQ(5,IP)) GOTO 1150
+1130  CONTINUE
+C NOT TO ESTIMATE ANY MORE
+1180  IF (IADD.GE.1) THEN
+        WEIGHTP=(S0/FIXSTC/SCASTC)**2
+      ENDIF
+      A(IPIP)=A(IPIP)+WEIGHTM+WEIGHTP
+C SAVE THIS FIXING AS LIKE AN INPUT OPTION
+      DO 1170 ISTC=1,NSASTC
+        IF(LOCQ(3,IP).EQ.NUMSTC(ISTC).OR.NUMSTC(ISTC).EQ.99) THEN
+          SIGSTC(IPE,ISTC)=FIXSTC
+          GOTO 500
+        ENDIF
+1170  CONTINUE
+C APPEND SATELLITE NOT NECESSARY
+      GOTO 500
+C
+1150  DO 1140 ISTC=1,NSASTC
+        IF(LOCQ(3,IP).EQ.NUMSTC(ISTC).OR.NUMSTC(ISTC).EQ.99)GOTO 1160
+1140  CONTINUE
+C IF SATELLITE NOT SPECIFIED: FIXING
+      GOTO 1180
+1160  CONTINUE
+      IF(SIGSTC(IPE,ISTC).NE.0.D0.AND.IADD.GE.1)THEN
+        WEIGHTP=(S0/SIGSTC(IPE,ISTC)/SCASTC)**2
+      END IF
+      A(IPIP)=A(IPIP)+WEIGHTM+WEIGHTP
+      GO TO 500
+C
+C SATELLITE ANTENNA OFFSETS
+1200  CONTINUE
+      IOFF=LOCQ(2,IP)
+      ICOR=LOCQ(3,IP)
+      IPIP=IP*(IP+1)/2
+C SUBSTRACT OLD WEIGHT
+      IF (IADD.EQ.-1) THEN
+        IF (SIGOFL(ICOR,IOFF).NE.0) THEN
+          WEIGHTM=-(SIGAPL/SIGOFL(ICOR,IOFF))**2
+        ELSE
+C WEIGTH ARE NOT SAVED FOR SOLUTIONS UPTO 10.OCT.1993
+CCCCC
+          WEIGHTM=-(SIGAPL/2.D0)**2
+CCCCC
+        ENDIF
+      ENDIF
+C ADD NEW WEIGHT
+      DO 1210 IC=1,3
+        IF (PAROFF(IC).EQ.1.AND.IC.EQ.LOCQ(3,IP)) GOTO 1220
+1210  CONTINUE
+C NOT TO ESTIMATE ANY MORE
+      IF (IADD.GE.1) THEN
+        WEIGHTP=(S0/SIGFIX)**2
+      ENDIF
+      A(IPIP)=A(IPIP)+WEIGHTM+WEIGHTP
+C SAVE THIS FIXING AS LIKE AN INPUT OPTION
+C ONLY ONCE
+      IF (IADD.EQ.1) SIGOFF(ICOR,IOFF)=SIGFIX
+C
+      GOTO 500
+1220  IF(SIGOFF(ICOR,IOFF).NE.0.D0.AND.IADD.GE.1) THEN
+        WEIGHTP=(S0/SIGOFF(ICOR,IOFF))**2
+      END IF
+      A(IPIP)=A(IPIP)+WEIGHTM+WEIGHTP
+      GO TO 500
+C
+C EARTH POTENTIAL TERMS
+1300  CONTINUE
+      INDEX=LOCQ(7,IP)
+C      IF(SIGPOT(INDEX).NE.0.D0)THEN
+C        WEIGHT=(S0/SIGPOT(INDEX)/SCAPOT)**2
+C      ELSE
+C        WEIGHT=0.D0
+C      END IF
+      GO TO 400
+C
+C HILL'S RESONANCE TERMS
+1400  CONTINUE
+      INDEX=LOCQ(7,IP)
+C      IF(SIGHIL(INDEX).NE.0.D0)THEN
+C        WEIGHT=(S0/SIGHIL(INDEX)/SCAHIL)**2
+C      ELSE
+C        WEIGHT=0.D0
+C      END IF
+      GO TO 400
+C
+C ALBEDO PARAMETERS
+1500  CONTINUE
+      INDEX=LOCQ(7,IP)
+C      IF(SIGALB(INDEX).NE.0.D0)THEN
+C        WEIGHT=(S0/SIGALB(INDEX)/SCAALB)**2
+C      ELSE
+C        WEIGHT=0.D0
+C      END IF
+      GO TO 400
+C
+C CENTER OF MASS COORDINATES
+1600  INDEX=LOCQ(7,IP)
+      IPIP=IP*(IP+1)/2
+C SUBSTRACT OLD WEIGHT
+      IF (IADD.EQ.-1) THEN
+        IF(SIGCEL(INDEX).NE.0.D0)THEN
+          WEIGHTM=-(SIGAPL/SIGCEL(INDEX)/SCACEL)**2
+        ENDIF
+      ENDIF
+C ADD NEW WEIGHT
+      DO 1610 INDEX=1,NCENM
+        IF (CENMAS(INDEX).EQ.LOCQ(2,IP)) GOTO 1620
+1610  CONTINUE
+C NOT TO ESTIMATE ANY MORE
+      IF (IADD.GE. 1) THEN
+        WEIGHTP=(S0/SIGFIX/SCACEN)**2
+      ENDIF
+      A(IPIP)=A(IPIP)+WEIGHTM+WEIGHTP
+C SAVE THIS FIXING AS LIKE AN INPUT OPTION
+C ONLY ONCE
+      IF (IADD.GE.1) SIGCEN(INDEX)=SIGFIX
+      GOTO 500
+C
+1620  IF(SIGCEN(INDEX).NE.0.D0.AND.IADD.GE.1)THEN
+        WEIGHTP=(S0/SIGCEN(INDEX)/SCACEN)**2
+      END IF
+      A(IPIP)=A(IPIP)+WEIGHTM+WEIGHTP
+      GO TO 500
+C
+C STATION SPECIFIC TROPOSPHERE PARAMETER
+600   IREQ=LOCQ(2,IP)
+      ISTA=LOCQ(3,IP)
+      IPIP=IP*(IP+1)/2
+C
+C SUBSTRACT OLD WEIGHT
+C --------------------
+      IF (IADD.EQ.-1) THEN
+        IF(SIGTRS(IREQ).NE.0.D0) THEN
+C
+C ABSOLUTE A PRIORI SIGMA
+          IF(ISGTRS(IREQ).EQ.0) THEN
+            WABS=-(SIGAPL/SIGTRS(IREQ))**2
+            A(IPIP)=A(IPIP)+WABS
+C
+          ELSE
+C
+C SEARCH LAST OCCURANCE OF A RELATIVE TROPOSPHERE PARAMETER
+C (ASSUMED TO BE ORDERED IN TIME)
+C
+            DO KPAR=IP-1,1,-1
+              IF (LOCQ(1,KPAR).EQ.6.AND.LOCQ(3,KPAR).EQ.ISTA) THEN
+                WDIF=-(SIGAPL/SIGTRS(IREQ))**2
+                IPIP1=IKF(KPAR,KPAR)
+                IPIP2=IKF(KPAR,IP)
+                A(IPIP)=A(IPIP)+WDIF
+                A(IPIP1)=A(IPIP1)+WDIF
+                A(IPIP2)=A(IPIP2)-WDIF
+C SEARCH LAST OCCURANCE OF AN ABSOLUT TROPOSPHERE PARAMETER
+                DO JPAR=IP-1,1,-1
+                  IF (LOCQ(1,KPAR).EQ.6.AND.LOCQ(3,JPAR).EQ.ISTA.AND.
+     1              ISGTRS(LOCQ(2,JPAR)).EQ.0) THEN
+                    IF (SIGTRS(LOCQ(2,JPAR)).NE.0.D0)THEN
+                      WABS=-(SIGAPL/SIGTRS(LOCQ(2,JPAR)))**2
+                      A(IPIP)=A(IPIP)+WABS
+                    ENDIF
+                    GOTO 500
+                  ENDIF
+                ENDDO
+                A(IPIP)=A(IPIP)+WABS
+                GOTO 500
+              ENDIF
+            ENDDO
+            WRITE(LFNERR,601) IREQ
+601         FORMAT(/,' *** SR CHGWGT: WARNING: INVALID RELATIVE ',
+     1               'A PRIORI SIGMA: NO ABSOLUT VALUE FOUND',/,
+     2        16X,'FOR INDIVIDUAL TROPOSPHERE PARAMETER',/,
+     3        16X,'TROPOS. PARAMETER NUMBER:',I5,/,
+     4        16X,'CORRELATION TO PREVIOUS ARC IS NEGLECTED DUE',/,
+     5        16X,'TO PREELIMINATION OPTION FOR TROPOS-PAR. (BI)',/)
+          ENDIF
+        ENDIF
+      ENDIF
+C
+C ADD NEW WEIGHT
+C --------------
+C
+C IN CASE OF PREELIMINATION IT IS NOT REALLY EXACT: CONTINUITY BETWEEN SETS
+C NOT POSSIBLE!
+C
+      IF (IADD.GE.1) THEN
+        IF(SIGTRO(1).NE.0.D0) THEN
+          WABS2=(S0/SIGTRO(1))**2
+        ELSE
+          WABS2=0.D0
+        ENDIF
+        IF((SIGTRO(2).NE.0.D0.AND.ISGTRS(IREQ).EQ.1).OR.
+     1     (SIGTRO(1).NE.0.D0.AND.ISGTRS(IREQ).EQ.0)) THEN
+C
+C ABSOLUTE A PRIORI SIGMA
+          IF(ISGTRS(IREQ).EQ.0) THEN
+            WABS2=(S0/SIGTRO(1))**2
+            A(IPIP)=A(IPIP)+WABS2
+CC              WRITE(LFNERR,*)'trop add0',WABS2
+          ELSE
+C
+C SEARCH LAST OCCURANCE OF A RELATIVE TROPOSPHERE PARAMETER
+C (ASSUMED TO BE ORDERED IN TIME)
+C
+            DO KPAR=IP-1,1,-1
+              IF (LOCQ(1,KPAR).EQ.6.AND.LOCQ(3,KPAR).EQ.ISTA) THEN
+                WDIF2=(S0/SIGTRO(2))**2
+                IPIP1=IKF(KPAR,KPAR)
+                IPIP2=IKF(KPAR,IP)
+                A(IPIP)=A(IPIP)+WDIF2
+                A(IPIP1)=A(IPIP1)+WDIF2
+                A(IPIP2)=A(IPIP2)-WDIF2
+CC                WRITE(LFNERR,*)'trop add1',WDIF2
+C SEARCH LAST OCCURANCE OF AN ABSOLUT TROPOSPHERE PARAMETER
+                DO JPAR=IP-1,1,-1
+                  IF (LOCQ(1,KPAR).EQ.6.AND.LOCQ(3,JPAR).EQ.ISTA.AND.
+     1              ISGTRS(LOCQ(2,JPAR)).EQ.0) THEN
+                    IF (SIGTRO(1).NE.0.D0)THEN
+                      WABS2=(S0/SIGTRO(1))**2
+                      A(IPIP)=A(IPIP)+WABS2
+CC                WRITE(LFNERR,*)'trop add2',WABS2
+                    ENDIF
+                    GOTO 500
+                  ENDIF
+                ENDDO
+                A(IPIP)=A(IPIP)+WABS2
+CC                WRITE(LFNERR,*)'trop add3',WABS2
+                GOTO 500
+              ENDIF
+            ENDDO
+            WRITE(LFNERR,601) IREQ
+          ENDIF
+        ENDIF
+      ENDIF
+      GO TO 500
+C
+C STATION VELOCITIES (ADD ONLY FOR IADD=1)
+C ----------------------------------------
+C FIND CORRESPONDING WEIGHT (IF DEFINED) ACCORDING INPUT OPTION
+2000  IF (IADD.EQ.2) THEN
+        IST=LOCQ(2,IP)
+        K=LOCQ(3,IP)
+        IF(K.NE.1) GO TO 500
+C
+        DO 2070 I=1,3
+          DO K=1,3
+            COVXYZ2(I,K)=0.D0
+          ENDDO
+2070    CONTINUE
+        DO 2031 II=1,NVEL
+          IF(STNUMB(IST).EQ.STVEL(II)) GOTO 2041
+2031    CONTINUE
+        GOTO 2090
+2041    E2=(AELL**2-BELL**2)/(AELL**2)
+        SP=DSIN(XELA(1,IST))
+        DEN=DSQRT(1.D0-E2*SP**2)
+        RN=AELL/DEN
+        RM=AELL*(1.D0-E2)/DEN**3
+        DO 2051 I=1,3
+C INPUT (STVWGT) IS IN MM/YEAR - TRANSFORM TO M/YEAR (DIMENSION OF PARA.)
+          IF(I.EQ.1)FAK=(RM+XELA(3,IST))*1000.D0
+          IF(I.EQ.2)FAK=(RN+XELA(3,IST))*1000.D0
+          IF(I.EQ.3)FAK=1000.D0
+          DO K=1,3
+            COVPLH(I,K)=0.D0
+            IF(I.EQ.K)COVPLH(I,K)=(STVWGT(K,II)/FAK/S0)**2
+            IF(I.EQ.2.AND.K.EQ.2)COVPLH(I,K)=
+     1                         COVPLH(I,K)/DCOS(XELA(1,IST))**2
+          ENDDO
+2051    CONTINUE
+        CALL ERR3D(XELA(1,IST),XELA(2,IST),XELA(3,IST),AELL,BELL,
+     1             +1,COVXYZ2,COVPLH)
+C
+        DO I=1,3
+          DO K=1,I
+            IHLP=(IST-1)*3+1
+            IK=IKF(IHLP+I-1,IHLP+K-1)
+            COVAPR(2,IK)=COVAPR(2,IK)+COVXYZ2(I,K)
+          ENDDO
+        ENDDO
+C
+        CALL DMINV(COVXYZ2,3,DET,L1,L2)
+C
+C ADDITION OF NEW WEIGHT
+        DO 2060 I=1,3
+          DO 2065 K=1,I
+            IK=IKF(I+IP-1,K+IP-1)
+            A(IK)=A(IK)+COVXYZ2(I,K)
+2065      CONTINUE
+2060    CONTINUE
+C
+C IF FIX VELOCITY THEN SETUP BIG A-PRIORI WEIGHT
+C ----------------------------------------------
+C RESTRICTIONS ALREADY IN SR RESTIN INTRODUCED WITH STATIONS NSTFIXV
+2090    IF (IOPFRV.EQ.1) GOTO 500
+C
+        DO 2095 II=1,NFIXV
+          IF(STNUMB(IST).EQ.STFIXV(II).OR.STFIXV(II).EQ.-99) GOTO 2042
+2095    CONTINUE
+        GOTO 500
+C
+C FIX THIS PARAMETER ON ZERO IMPROVEMENT / IF KEYWORD FIXVEL IS FOUND FIX
+C TO SPECIAL VALUE
+2042    DO 2096 I=1,3
+C
+          RDIFF(I)=0.D0
+          IF (IOPFRV.EQ.0.AND.IRCVEL.EQ.0) THEN
+            IF (XVEL(1,IST).EQ.0.D0.AND.XVEL(2,IST).EQ.0.D0
+     1          .AND.XVEL(3,IST).EQ.0.D0) THEN
+              WRITE(LFNERR,904)STNAME(IST)
+904           FORMAT(/,' *** SR CHGWGT: WARNING: STATION ',A16,/,
+     1             16X,'WAS FIXED ON ZERO (MAY BE VELOCITY NOT',
+     2                 ' FOUND)',/)
+            ENDIF
+            RDIFF(I)=XVELAP(I,IST)
+C
+          ENDIF
+          FAK=1.D0
+          B(I+IP-1)=B(I+IP-1)+(S0/SIGFIX/FAK)**2*RDIFF(I)
+          DBNOR(I+IP-1)=DBNOR(I+IP-1)+(S0/SIGFIX/FAK)**2*RDIFF(I)
+          DOMEG=DOMEG+(S0/SIGFIX/FAK)**2*RDIFF(I)**2
+          IK=IKF(I+IP-1,I+IP-1)
+          A(IK)=A(IK)+(S0/SIGFIX/FAK)**2
+C
+          IHLP=(IST-1)*3+1
+          IK=IKF(IHLP+I-1,IHLP+I-1)
+          COVAPR(2,IK)=COVAPR(2,IK)+1.D0/(S0/SIGFIX/FAK)**2
+C
+2096    CONTINUE
+C
+        GOTO 500
+C ENDIF OF (IADD.EQ.2)
+      ENDIF
+C
+C
+C INTRODUCE WEIGHT
+400   IPIP=IP*(IP+1)/2
+      A(IPIP)=A(IPIP)+WEIGHT
+500   CONTINUE
+C
+      IF ((IADD.EQ.1.AND.IADELI.EQ.1).OR.IADD.EQ.-1) RETURN
+C
+C INTRODUCE BLOCKING DAILY RETROGRADE FREQUENCIES
+C
+      IF (IADD.EQ.2.AND.IREBLK.EQ.1) THEN
+        CALL BLKRET(1,NPOL,NDEG,NPAR,LOCQ,TPOL,S0,A)
+      ENDIF
+C
+C
+C INTRODUCE BLOCKING ROTATION OF THE ORBITAL NODES
+C
+c      DO I=1,3
+c        IF (IADD.EQ.2.AND.IAXIS(I).NE.0) THEN
+c          CALL BLKROT(1,NSEFF,SVNEFF,NFIL,ARCNUM,TOSC,ELE,RPRESS,
+c     1              NPAR,LOCQ,IORSYS,I,S0,SCLORB,
+c     2              SIGORR,RADUSE,A,B,DOMEG,RESROT,SIGROT)
+c        ENDIF
+c      ENDDO
+C
+C INTRODUCE FREE NETWORK RESTRICTIONS
+C -----------------------------------
+C
+C ADD/(SUBSTRACT NOT USED) RESTRICTIONS FOR FREE SOLUTIONS: VELOCITIES
+C --------------------------------------------------------------------
+      IF(IOPFRV.EQ.1.AND.IADD.EQ.2) THEN
+        DO 19 I=1,NSTAT
+          DO 18 K=1,3
+            XCOHLP(K,I)=0.D0
+18        CONTINUE
+19      CONTINUE
+        CALL RESTIN(20,IRCVEL,RFAK,NSTAT,STNUMB,ICENTR,XCOHLP,
+     &              XVELAP,
+     1              NFIXV,STFIXV,S0,LOCQ,NPAR,IHELV,A,B,XFREE,
+     2              ETPE,EREST,WREST,DBNOR,DOMEG)
+C        DO I=1,3*NSTAT
+C          IST=(I-MOD(I-1,3))/3+1
+C          DO J=1,I
+C            IJ=IKF(I,J)
+C            COVAPR(2,IJ)=COVAPR(2,IJ)+RFAK*ETPE(IJ)
+C          ENDDO
+C        ENDDO
+      ENDIF
+C
+C ADD RELATIVE SITE VELOCITIES
+C
+      IF (IADD.EQ.2) THEN
+        FAK=1.D0
+        RELWGT=SIGFIX*FAK
+        CALL RELVEL(RFAK,RELWGT,S0,STVEL,STNUMB,ISIVEL,NVEL,NPAR,
+     1              LOCQ,A,COVAPR)
+      ENDIF
+C ADD/(SUBSTRACT NOT USED) RESTRICTIONS FOR FREE SOLUTIONS: COORDINATES
+C OUTPUT: EREST,WREST FOR COORDINATES USED FOR TESTS LATER ON
+C ---------------------------------------------------------------------
+      IF(IOPFRE.EQ.1.AND.IADD.GE.1) THEN
+        CALL RESTIN(1,IRCCRD,RFAK,NSTAT,STNUMB,ICENTR,XSTAT,XSTREF,
+     1              NFIX,STFIX,S0,LOCQ,NPAR,IHELM,A,B,XFREE,
+     2              ETPE,EREST,WREST,DBNOR,DOMEG)
+C        IF (IADD.EQ.2) THEN
+C          DO I=1,3*NSTAT
+C            IST=(I-MOD(I-1,3))/3+1
+C            DO J=1,I
+C              IJ=IKF(I,J)
+C              COVAPR(1,IJ)=COVAPR(1,IJ)+RFAK*ETPE(IJ)
+C            ENDDO
+C          ENDDO
+C        ENDIF
+      ENDIF
+C
+C
+C DO NOT USE POLE PARAMETER LARGER THAN IN POLPAR SPECIFIED
+C ---------------------------------------------------------
+      DO 2200 IP=1,NPAR
+        IF (LOCQ(1,IP).EQ.10) THEN
+          INTER= LOCQ(3,IP)
+          ICOR = LOCQ(4,IP)
+          IDEG = LOCQ(5,IP)
+          IF (IDEG.GT.POLPAR(ICOR).AND.
+CC     1      IADD.NE.1.AND.ISGPLL(INTER).EQ.0) THEN
+CC     1      IADD.NE.1) THEN
+     1      IADD.EQ.2) THEN
+CCCC            B(IP)=0.D0
+            DO 91 J=1,NPAR
+              IK=IKF(J,IP)
+              IF (IP.EQ.J) THEN
+C 1D-6 MAS WEIGHT
+                A(IK)=A(IK)+(S0/1.D-6)**2
+CCCC              ELSE
+CCCC                A(IK)=0.D0
+              ENDIF
+91          CONTINUE
+          ENDIF
+        ENDIF
+2200  CONTINUE
+C REDUCTION OF ARRAYS (FIX STATIONS ARE ELIMINATED FROM LOCQ)
+C -----------------------------------------------------------
+C      CALL DMATRD('S',NPAR,NPAR,IDEL,A,NPNEW,NPNEW)
+C      CALL DMATRD('R',NPAR,1,IDEL,B,NPNEW,IONE)
+C      CALL IMATRD('C',MAXLCQ,NPAR+NDEL,IDEL,LOCQ,ISIX,NPNEW)
+C      NPAR=NPAR-NDEL
+C
+C      IF (NDEL.NE.0) THEN
+C        WRITE(LFNERR,902) NDEL
+C902     FORMAT(/,' *** SR CHGWGT: # PARAM. OF FIX STATIONS:',I5,/)
+C      ENDIF
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

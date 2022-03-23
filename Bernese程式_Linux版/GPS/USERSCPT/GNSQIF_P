@@ -1,0 +1,56 @@
+package GNSQIF_P;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  GNSQIF_P
+#
+# Purpose :  Execute GPSEST for QIF ambiguity resolution
+#
+# Remark  :  Using the variable V_GNSSAR = ALL/GPS is defined whether a
+#            also GLONASS or only GPS ambiguities are resolved.
+#
+#            The QIF strategy is only applied to those ambiguities not
+#            yet resolved by other strategies
+#
+# PARAMs  :  PARAM1 - 4-character baseline name
+#
+# Author  :  S. Schaer
+# Created :  30-Mar-2005
+#
+# Changes :  11-Aug-2011 RD: Updated for version 5.2
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtMess setUserVar);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($ssss,
+      $param1, $gnssar) =
+  $bpe->getKeys(
+      '$S+0',
+      'PARAM1', 'V_GNSSAR');
+
+# Set filename variable
+# ---------------------
+  setUserVar($bpe,"FFFF",$param1);
+
+# Select specific processing options, if desired
+# ----------------------------------------------
+  unless ($gnssar eq "") {
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","SATSYS",$gnssar);
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","SATSYS_AR",$gnssar);
+    prtMess($bpe,"GNSS selection for ambiguity resolution QIF: $gnssar");
+  }
+
+# Run program
+# -----------
+  my $PGMNAM = "GPSEST";
+  $bpe->RUN_PGMS($PGMNAM);
+
+}

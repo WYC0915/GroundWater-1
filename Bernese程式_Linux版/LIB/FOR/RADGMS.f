@@ -1,0 +1,103 @@
+      MODULE s_RADGMS
+      CONTAINS
+
+C*
+      SUBROUTINE RADGMS(I,ARC,VORZ,IG,M,S)
+CC
+CC NAME       :  RADGMS
+CC
+CC PURPOSE    :  TRANSFORMS AN ANGLE IN RADIANS INTO
+CC                (A) SIGN,HOURS,MINUTES,SECONDS     FOR I=0
+CC                (B) SIGN,DEG,MIN,SEC (SEXAGESIMAL) FOR I=1
+CC                (C) SIGN,DEG,MIN,SEC (CENTESIMAL)  FOR I=2
+CC               RADGMS MAY ALSO BE USED WITH            I=3
+CC               TO COMPUTE HOURS,MINUTES,SECONDS
+CC               OF A DAY-FRACTION. THE SIGN-VARIABLE
+CC               VORZ IS MEANINGLESS IN THIS CASE
+CC               THE SIGN IS EDITED IN THE VARIABLE VORZ
+CC
+CC               I=I+10: ROUNDING AT 1D-14 INSTEAD OF 1D-6
+CC
+CC PARAMETERS :  I      : TRANSFORMATION TYPE (SEE ABOVE)     I*4
+CC               ARC    : ANGLE IN RADIANS                    R*8
+CC               VORZ   : SIGN OF ANGLE:  " " FOR POSITIVE,   CH*1
+CC                        "-" FOR NEGATIVE ANGLES
+CC               IG,M   : DEGREES(HOURS),MINUTES              I*4
+CC               S      : SECONDS                             R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  W.GURTNER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/03 08:45
+CC
+CC CHANGES    :  10-AUG-94 : MR: CALL EXITRC
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               01-AUG-05 : HU: NO ROUNDING FOR I=I+10
+CC               28-FEB-07 : AG: USE PI FROM DEFCON
+CC               04-MAY-12 : RD: USE DMOD FROM MODULE, USE M_BERN WITH ONLY
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern,   ONLY: lfnerr
+      USE d_const,  ONLY: pi
+      USE l_basfun, ONLY: dmod
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IG    , M     , I1
+C
+      REAL*8    ARC   , DELTA , S     , SEC   , SECNOG, SPM
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+      CHARACTER*1 VORZ
+C      PI=3.1415926535897932D0
+      IF (I .GE. 10) THEN
+        I1=MOD(I,10)
+        DELTA=1.D-14
+      ELSE
+        I1=I
+        DELTA=1.D-6
+      ENDIF
+      GOTO (1,2,3,4),I1+1
+      WRITE(LFNERR,11) I1
+11    FORMAT(/,' *** SR RADGMS: ILLEGAL TRANSFORMATION TYPE',/,
+     1                     16X,'TRANS. TYPE:',I2,/)
+      CALL EXITRC(2)
+C  H,M,S
+1     SEC=DABS(ARC)*4.32D4/PI+DELTA
+      SPM=60.D0
+      GOTO 5
+C  G,M,S
+2     SEC=DABS(ARC)*6.48D5/PI+DELTA
+      SPM=60.D0
+      GOTO 5
+C  GRADS
+3     SEC=DABS(ARC)*2.D6/PI+DELTA
+      SPM=100.D0
+      GOTO 5
+C  FRACTIONAL PART OF DAY IN H,M,S
+4     SEC=DMOD(ARC,1.D0)*86400.D0+DELTA
+      SPM=60.D0
+C
+5     IG=INT(SEC/(SPM*SPM))
+      SECNOG=SEC-IG*SPM*SPM
+      M=INT(SECNOG/SPM)
+      S=SECNOG-M*SPM-DELTA
+      IF(S.LT.0.D0) S=0.D0
+      IF(I1.NE.3) THEN
+        VORZ=' '
+        IF(ARC.LT.0)VORZ='-'
+      END IF
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

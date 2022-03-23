@@ -1,0 +1,141 @@
+      MODULE s_BASSEL
+      CONTAINS
+
+C*
+      SUBROUTINE BASSEL(MAXFIL,NNAM,NBAS,BASLIS,BASLEN,DIST,FLAG)
+CC
+CC NAME       :  BASSEL
+CC
+CC PURPOSE    :  SELECT THE BEST SET OF LINEAR INDEPENDENT BASELINES
+CC               (THE BEST BASELINE IS THE FIRST ONE)
+CC               AND COMPUTE THE SHORTEST WAYS BETWEEN STATIONS
+CC
+CC
+CC PARAMETERS :
+CC         IN :  MAXFIL: MAX. NUMBER OF FILES                   I*4
+CC               NNAM ... NUMBER OF STATIONS                     I*4
+CC               NBAS ... NUMBER OF BASELINES IN THE LIST        I*4
+CC               BASLIS(I,IBAS) ... LIST OF BASELINES            I*4
+CC                   I=1 ... THE FIRST  STATION
+CC                   I=2 ... THE SECOND STATION
+CC               BASLEN(IBAS) ... BASELINE LENGTH                R*8
+CC        OUT :  DIST(IKF(I,J)) ... DISTANCE BETWEEN 2 STATIONS  R*8
+CC               FLAG(IBAS)=.TRUE. ... THE BASELINE IS IN        LOG
+CC                                     THE OPTIMAL SELECTION
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  L.MERVART
+CC
+CC VERSION    :  3.4
+CC
+CC CREATED    :  30-JUN-92
+CC
+CC CHANGES    :  01-APR-93 : ??: COMPUTE THE SHORTEST WAYS
+CC                               BETWEEN BASELINES
+CC               14-APR-93 : ??: CORRECT DIMENSIONS
+CC               06-APR-94 : MR: DECLARATION OF "MXNFIL"
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               17-SEP-95 : JJ: INCREASE MAXFIL TO 200
+CC               29-SEP-95 : JJ: EXPLICITLY DECLARE FLAG AS L*4
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               09-JUL-08 : RD: GET MAXFIL FROM THE MAIN PROGRAM
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+C DECLARATIONS
+C ------------
+      USE f_ikf
+      USE s_maxtst
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IBAS  , ICL1  , ICL2  , ICLNEW, ICLSTM, IRC   ,
+     1          ISTA  , ISTA1 , ISTA2 , JSTA  , MAXFIL, MXCFIL, NBAS  ,
+     2          NNAM
+C
+      REAL*8    DISTAL
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+c      PARAMETER (MAXFIL=200)
+C
+      INTEGER*4   BASLIS(2,*), CLUSTR(MAXFIL)
+      REAL*8      BASLEN(*), DIST(*)
+      CHARACTER*6 MXNFIL
+      LOGICAL*4   FLAG(*)
+C
+      COMMON/MCMFIL/MXCFIL,MXNFIL
+C
+C CHECK MAXIMAL LOCAL DIMENSIONS
+C ------------------------------
+      CALL MAXTST(1,'BASSEL',MXNFIL,MAXFIL,MXCFIL,IRC)
+      IF (IRC.NE.0) CALL EXITRC(2)
+C
+C INITIALIZATION
+C --------------
+      ICLSTM = 1
+C
+      DO 100 IBAS=1,NBAS
+        FLAG(IBAS) = .FALSE.
+100   CONTINUE
+C
+      DO 200 ISTA=1,MAXFIL
+        CLUSTR(ISTA) = 0
+        DIST(IKF(ISTA,ISTA)) = 0
+        DO 250 JSTA=ISTA+1,MAXFIL
+          DIST(IKF(ISTA,JSTA)) = 1.D10
+250     CONTINUE
+200   CONTINUE
+C
+C OPTIMAL SELECTION
+C -----------------
+      DO 300 IBAS=1,NBAS
+        ISTA1 = BASLIS(1,IBAS)
+        ISTA2 = BASLIS(2,IBAS)
+        ICL1 = CLUSTR(ISTA1)
+        ICL2 = CLUSTR(ISTA2)
+        IF (ICL1 .NE. ICL2) THEN
+          ICLNEW = AMAX0(ICL1,ICL2)
+          CLUSTR(ISTA1) = ICLNEW
+          CLUSTR(ISTA2) = ICLNEW
+          FLAG(IBAS) = .TRUE.
+          DIST(IKF(ISTA1,ISTA2)) = BASLEN(IBAS)
+          DO 400 ISTA=1,MAXFIL
+            IF ((CLUSTR(ISTA).EQ.ICL1.OR.CLUSTR(ISTA).EQ.ICL2) .AND.
+     1          (CLUSTR(ISTA).NE.0)) CLUSTR(ISTA) = ICLNEW
+400       CONTINUE
+C
+C COMPUTE THE SHORTEST WAY
+          DO 500 ISTA=1,NNAM
+            DO 600 JSTA=ISTA+1,NNAM
+              DISTAL = DMIN1(DIST(IKF(ISTA,ISTA1))  +
+     1                       DIST(IKF(ISTA1,ISTA2)) +
+     2                       DIST(IKF(JSTA,ISTA2))  ,
+     3                       DIST(IKF(ISTA,ISTA2))  +
+     4                       DIST(IKF(ISTA1,ISTA2)) +
+     5                       DIST(IKF(JSTA,ISTA1)))
+              IF (DIST(IKF(ISTA,JSTA)).GT.DISTAL)
+     1          DIST(IKF(ISTA,JSTA)) = DISTAL
+600         CONTINUE
+500       CONTINUE
+C
+        ELSE
+          IF (ICL1.EQ.0) THEN
+            CLUSTR(ISTA1) = ICLSTM
+            CLUSTR(ISTA2) = ICLSTM
+            FLAG(IBAS) = .TRUE.
+            DIST(IKF(ISTA1,ISTA2)) = BASLEN(IBAS)
+            ICLSTM = ICLSTM + 1
+          END IF
+        END IF
+300   CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

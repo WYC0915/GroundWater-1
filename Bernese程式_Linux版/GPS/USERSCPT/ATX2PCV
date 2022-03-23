@@ -1,0 +1,65 @@
+package ATX2PCV;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  ATX2PCV
+#
+# Purpose :  Execute ATX2PCV
+#            Update phase eccenter file in $X/GEN if required
+#
+# PARAMs  :
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use File::Copy;
+use File::Compare;
+use lib "$ENV{BPE}";
+use bpe_util qw(prtMess);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($myAtx, $pcvInf, $pcv,
+      $dirGen, $dirOut) =
+    $bpe->getKeys(
+      'V_MYATX', 'V_PCVINF', 'V_PCV',
+      'PTH_GEN', 'DIR_OUT');
+
+# Was an ATX specified?
+# ---------------------
+  if ( $myAtx eq "" || ! -e "${dirGen}/${myAtx}" ) {
+    prtMess($bpe,"No ANTEX file for update");
+  } else {
+    prtMess($bpe,"Use file $myAtx for update");
+    copy("${dirGen}/${myAtx}","${dirOut}");
+
+# Run program
+# -----------
+    my $PGMNAM = "ATX2PCV";
+    $bpe->RUN_PGMS($PGMNAM);
+
+
+# Update the fiel in $X/GEN if requested
+# --------------------------------------
+    my $pcvOld = "${dirGen}/${pcvInf}.${pcv}";
+    my $pcvNew = $bpe->getKey("$ENV{U}/INP/ATX2PCV.INP","PHASRSG");
+
+    if (compare("$pcvOld","$pcvNew",   # Copare but remove the creation date
+        sub {my $a = $_[0]; my $b = $_[1];
+             $a =~ s/[0-9][0-9]-[A-Z][A-Z][A-Z]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]$//;
+             $b =~ s/[0-9][0-9]-[A-Z][A-Z][A-Z]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]$//;
+             $a ne $b} ) != 0) {
+      copy("$pcvNew","$pcvOld");
+      prtMess($bpe,"Copy new Bernese phase eccenter file: ${pcvOld}");
+    }
+  }
+
+}

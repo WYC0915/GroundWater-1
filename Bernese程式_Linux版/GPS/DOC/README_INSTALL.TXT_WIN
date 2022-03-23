@@ -1,0 +1,466 @@
+======================================================================
+Bernese GNSS Software, Version 5.2              Last mod.: 14-Nov-2012
+----------------------------------------------------------------------
+Installation guide for Windows platforms
+======================================================================
+
+
+----------------------------------------------------------------------
+System requirements
+----------------------------------------------------------------------
+- Windows version
+  All current Windows versions are supported. A detailed list of
+  successful tested Windows revisions is available on our website
+  (http://www.bernese.unibe.ch/support).
+
+- Perl 5, recent version (check with 'perl -v' on a command line)
+  It is freely available from http://www.activestate.com
+  Perl installation requires about 80 MB of disk space.
+
+- A modern PC with a dual- or quad-core processor allows the parallel
+  processing of several BPE jobs. A fast access to the data on the
+  hard disk is important for an efficient processing.
+
+- Disk space: the installation itself only requires about 500 Mb.
+  Provide sufficient space for your own data later on (GPSDATA).
+  Temporary scratch files in GPSTEMP generated during processing can
+  reach several GB depending on the corresponding task.
+
+
+----------------------------------------------------------------------
+Installation of the software
+----------------------------------------------------------------------
+
+Depending on your Windows version the installation of the Bernese 
+GNSS Software setup wizards will need administrator privileges. 
+In this case we recommend to proceed as follows:
+0) Let's assume that the user "bsw" shall use the Bernese GNSS 
+   Software on this Windows computer.
+1) The system administrator gives administrator privileges to user
+   "bsw".
+2) All setup wizards for the Bernese GNSS Software are executed
+   by user "bsw".
+3) The system administrator removes the administrator privileges 
+   for user "bsw".
+ATTENTION: Run the setup wizards only as the user "Administrator"
+if you will really work with this account with the Bernese GNSS
+Software (which is of course not recommended).
+
+Note: Only the user "bsw" can run the Bernese GNSS Software after 
+this installation procedure even if on some Windows versions the 
+icons may appear also for other users! You can either remove these
+icons from the desktop or establish the user environment variables 
+from user "bsw" also to the other users.
+
+Remark: For installation of Bernese on a Windows Vista, Windows 7,
+Windows 8 operating system a User Account Control message (UAC) may
+appear. But this is not critical and can be ignored.
+
+The Bernese GNSS Software, Version 5.2, setup wizards in
+SETUP directory of your CD-ROM should be installed in the following
+order:
+
+- BERN52
+- GPSUSER52   (also runs GPSTEMP installation)
+  . GPSTEMP
+- CAMPAIGN52  (also runs DATAPOOL and SAVEDISK installation)
+  . DATAPOOL
+  . SAVEDISK
+
+Each of the above setup wizards can be installed individually.
+
+Each of these setup wizards copies the corresponding directory tree
+on you harddisk and establishes Environment variables for the user
+(HKEY_CURRENT_USER\Environment).
+
+PLEASE NOTE:
+Even if the setup wizard proposes drive C:\ for the installation we
+strongly recommend to install the software and the other components
+on another partition (drive) of your computer.
+(We have only used drive C:\ because this is the only drive that must
+exist as a hard disk in all Windows systems).
+
+Typically the Bernese GNSS Software is used only by one user
+per computer on Windows platforms. Nevertheless, a multi-user
+environment can be established based on network drives provided
+by a Windows server to the desktop PCs of the users. In that case
+the BERN52 and GPSDATA (with DATAPOOL, CAMPAIGN52, and SAVEDISK)
+should be installed on a network drive whereas GPSUSER52 and GPSTEMP
+are recommended to be located on the local desktop PCs of the users.
+Note that the environment variables have to be defined on all
+computers that want to use the software (take care that you do not
+generate any interferences if you run the setup wizards from
+different PCs to the same target area; we think it is more save to
+copy the Bernese-related environment variables manually instead).
+
+
+1. Installation of the main program tree
+
+Change into the SETUP-directory of your CD-ROM.
+Start the installation by double-clicking on BERN52.EXE.
+
+This setup wizard will allow you to select the destination for the
+Bernese GNSS Software main program tree:
+
+...\BERN52\BPE  : Main BPE Perl modules and scripts
+          \GPS  : General files, help, documentation, master input
+                  panels, scripts, etc.
+          \INC  : Fortran include files and modules
+          \LIB  : Fortran subroutines and modules
+          \MENU : User interface (menu program)
+          \PGM  : Fortran main processing programs
+
+The installation sets up new user-specific environment variables in
+the windows registry. These variables are:
+
+BERNESE_VARIABLES  : "P T X U USER"
+BPE                : Location of BERN52\BPE, according to your choice
+                     during installation
+BPE_SERVER_HOST    : "localhost"  (name of host for BPE, i.e. this
+                     machine)
+C                  : Location of BERN52, according to your choice
+                     during installation
+CGROUP             : Only for testing purposes at AIUB
+F_VERS             : "AIUB" (change to your compiler name, if you 
+                     want to compile the source by yourown)
+F_VERS_LIST        : List of additional Fortran compilers
+FG                 : Location of main program sources BERN52\PGM\FOR
+I                  : Location of Fortran include modules BERN52\INC\FOR
+JPLEPH             : Identifier of the JPL ephemerides file
+LG                 : Location of Fortran library module routines
+                     BERN52\LIB\FOR
+OS_NAME            : "WIN32" (operating system name for compilation)
+QTBERN             : Path to QT library (only used for compiling the
+                     menu)
+USER               : Value of the windows USER_NAME variable (it will
+                     be displayed in the header of the program output
+                     files)
+VERSION            : Bernese release version number
+X                  : Location of general files and scripts
+XG                 : Location of the main program executables
+                     BERN52\PGM\EXE_AIUB
+                     (to be adapted if other executables shall be used)
+XQ                 : Location of the menu executable BERN52\MENU
+
+These variables are written to the HKEY_CURRENT_USER\Environment
+registry key, and are therefore valid for the installing user only.
+If you wish to change any of these variables after the installation
+(particularly the X variable), go to Windows Control Panel > System
+> Advanced > Environment Variables and adapt the settings in the User
+variables part.
+
+After a successful installation, a new "Bernese 5.2" icon should appear
+on your desktop.
+
+Remark for 64-bit systems:
+The setup wizard has installed 32-bit executables on your system so 
+far. Executabels for a 64-bit system are distributed as a zip-archive
+exe_aiub_64.zip on the CD-ROM in the directory "ZIPEXE". You can copy
+these files into the %XG% (BERN52\PGM\EXE_AIUB)-directory and replace
+the 32-bit executables.
+
+
+2. Installation of the GPSUSER52 tree
+
+Change into the SETUP-directory of your CD-ROM.
+Start the installation by double-clicking on GPSUSER52.EXE.
+
+This setup wizard will allow you to select the destination directory
+for the user-specific configuration of the Bernese GNSS Software,
+the GPSUSER52 area.
+
+It will contain all files that are needed to run the example BPE.
+
+The installation defined the user-specific environment variable U in
+the windows registry to the location of the user-specific environment
+GPSUSER52.
+
+It is not necessary to install GPSUSER52 as a subdirectory of BERN52.
+
+After successful installation, a new "GPSUSER52" icon should appear
+on your desktop.
+
+
+3. Installation of the GPSTEMP tree
+
+By default the setup wizard for installing the temporary user
+environment of the Bernese GNSS Software is started automatically by
+the GPSUSER52.EXE wizard. But it can be launched manually as well by
+double-clicking on GPSTEMP.EXE in the SETUP-directory of the CD-ROM.
+
+The setup wizard asks you to select the location of the GPSTEMP
+directory. The installation defines the user-specific environment
+variable T for the location of the temporary user environment.
+
+REMARK: If no BPE is running all subdirectories from GPSTEMP can
+be removed.
+
+
+4. Installation of the CAMPAIGN52 tree
+
+Change into the SETUP-directory of your CD-ROM.
+Start the installation by double-clicking on CAMPAIGN52.EXE.
+
+This wizard will allow you to select the destination directory for
+the Bernese GPSDATA areas
+  - CAMPAIGN52: Processing area of the GNSS data
+  - DATAPOOL:   Location of all external input files
+  - SAVEDISK:   Archive of the result files
+This setup wizard is designed to establish the CAMPAIGN52 directory
+that initially contains the campaign ${P}/EXAMPLE.
+(Please note the UNIX-syntax that is used for all variables in the
+Bernese environment also on Windows platforms.)
+
+The installation defines the user-specific environment variable P
+for the processing campaign location.
+
+After successful installation, a new "CAMPAIGN52" icon should appear
+on your desktop. Over time, this area can take up a lot of disk
+space, so make sure to install it on a suitable disk/partition.
+In particular the GPSDATA area should not be located on C:\ partition.
+
+If you don't want to install the data for the example campaign for any
+reason you can create the directory CAMPAIGN52 manually and set the
+environment variable P to the location of CAMPAIGN52 instead.
+
+
+5. Installation of the DATAPOOL tree
+
+By default the DATAPOOL tree will be installed at the end of the
+CAMPAIGN52.EXE wizard. But it can be installed manually as well by
+double-clicking on DATAPOOL.EXE.
+
+The installation defines the user-specific environment variable D
+for the location of the datapool area. After the installation it
+contains all files that are needed to run through the example BPE
+distributed together with the software.
+
+After successful installation, a new "DATAPOOL" icon should appear
+on your desktop.
+
+The content of the DATAPOOL tree is described in a separate README
+file. If you open the folder by double-click on the "DATAPOOL" icon
+on your desktop you can find the README_DATAPOOL.TXT file.
+
+
+6. Installation of the SAVEDISK tree
+
+By default the SAVEDISK tree will be installed at the end of the
+CAMPAIGN52.EXE wizard. But it can be installed manually as well by
+double-clicking on SAVEDISK.EXE.
+
+The installation defines the user-specific environment variable S
+for the location of the savedisk area. After the installation it
+contains the files from the reference solution of the example BPEs.
+
+After successful installation, a new "SAVEDISK" icon should appear
+on your desktop.
+
+The content of the SAVEDISK tree is described in a separate README
+file. If you open the folder by double-click on the "SAVEDISK" icon
+on your desktop you can find the README_SAVEDISK.TXT file.
+
+
+
+At this point, in order to complete the installation of the Bernese
+GNSS Software, a reboot of your system is required to make the
+newly defined environment variables available. Afterwards the Bernese
+GNSS Software will be ready to run.
+
+
+----------------------------------------------------------------------
+Installing the ephemeris from JPL
+----------------------------------------------------------------------
+The planetary and lunar ephemeris from JPL are used to compute the
+gravitational attraction of Sun, Moon and planets for satellite orbit
+determination.
+
+You find the installation description in the "README/JPL_EPH.TXT" file
+on the CD-ROM or at "%X%\DOC\README_JPL_EPH.TXT" on your computer.
+
+Remark:
+  Please be aware that you cannot use the "DE200.EPH" file from a
+  previous version of the Bernese GNSS Software ("%X%\GEN" directory)
+  because the DE number changed to 405.
+
+
+----------------------------------------------------------------------
+Additional software tools
+----------------------------------------------------------------------
+The following tools are needed to manage RINEX data from IGS related
+sources. Note, that they are also used to run the example BPEs:
+
+  . gzip (file compression/decompression tool)
+      e.g. from www.gzip.org
+
+  . the Hatanaka RINEX file compression/decompression utilities from
+      http://terras.gsi.go.jp/ja/crx2rnx.html
+
+Note, that these programs must be included in the %PATH% variable to
+become executable without the full path.
+
+
+----------------------------------------------------------------------
+Getting started
+----------------------------------------------------------------------
+To get started with the new version of the Bernese GNSS Software,
+please consult the "FIRST_STEPS.TXT" file from the CDROM\README
+directory on your CD-ROM. The same file is available at
+"%X%\DOC\README_FIRST_STEPS.TXT".
+
+
+----------------------------------------------------------------------
+Update your installation of the software
+----------------------------------------------------------------------
+Online updates are downloaded and installed until no further update is
+available. If this cannot be done automatically, the corresponding
+information for a manual update is prompted to the screen.
+
+Please read the file "README\UPDATE.TXT" on the installation CD-ROM
+(or "%X%\DOC\README_UPDATE.TXT") for further instructions.
+
+
+----------------------------------------------------------------------
+Compilation of individual modules and programs
+----------------------------------------------------------------------
+The installation files contain the fully compiled source code in the
+%C%\PGM\EXE_AIUB directory. Therefore, for Windows, it is not
+necessary to have a Fortran compiler installed on your machine.
+However, if you want to adapt some declarations, or to change the
+Fortran source code for any other reason, you will need to recompile
+the source code.
+
+We have used the Portland Fortran 95 Compiler pgf90 version 12.10-0 
+to compile the Fortran part of the Bernese GNSS Software, Version 5.2
+on a 64-bit Windows 7 system.
+
+For the compilation of the Fortran source you need:
+- a Fortran compiler either the Portland compiler or
+  the G95 (http://www.g95.org) compiler (other compilers 
+  have not been tested by AIUB, but you may inspect
+  http://www.bernese.unibe.ch/support whether users have 
+  reported the successful installation with other compilers;
+  note, the restrictions with the Lahey compiler).
+- the "make"-tool (e.g., from
+  http://gnuwin32.sourceforge.net/packages/make.htm)
+Note, that these programs must be included in the %PATH% variable to
+become executable without the full path. Depending on your Fortran
+compiler possibly some more environment variables are necessary.
+
+Starting with version 5.2 the compilation of the Fortran processing
+programs is based on Makefile(s). The Makefile(s) are generated by the
+tool "perl %X%\EXE\makemake.pl -r %C%" to be started from the command
+line.
+
+The Makefile is located in the directory "%C%\LIB\OBJ_xxx" where xxx
+stands for the compiler name from variable %F_VERS% (e.g., G95).
+You can go into this directory and directly execute the "make"-command.
+
+For your convenience we have also established a script to compile the
+source code (it executes the make command internally with the correct
+options):
+
+1) 'perl %X%\EXE\cbern.pl LIB'
+       This command compiles all modified Fortran modules and
+       creates/updates the Bernese core library.
+       Note that the programs are not compiled!
+
+2) 'perl %X%\EXE\cbern.pl ALL'
+       This command also compiles the modified Fortran programs and
+       links all programs to the Bernese core library.
+
+3) 'perl %X%\EXE\cbern.pl COMPLINK'
+       This command re-compiles all Fortran source files, creates
+       the Bernese core library and links all programs.
+
+4) 'perl %X%\EXE\cbern.pl  <SRNAME>'
+       This command compiles only the component SRNAME.
+       If other components that are needed by SRNAME have been also
+       changed they are also compiled.
+
+Note, that the compilation process is locked by the existence of the
+file %C%\BERN.lock. If you have interrupted the compilation process
+for any reasons you have also to delete this file before you can
+start a new attempt to compile any routine.
+
+The configuration tool configure.pm allows you to recompile the full
+source code in one step. You may start it on the command line by
+typing 'perl %X%\EXE\configure.pm'. Select step "5 ... Compile the
+programs".
+
+Your compiled executables will be directed in the directory
+"%C%\PGM\EXE_xxx" where xxx stands again for the compiler name
+from variable %F_VERS% (e.g., G95). The environment variable pointing
+to the executables from the Fortran programs is %XG%. In the default
+installation it points to the directory "%C%\PGM\EXE_AIUB" where the
+executables from the installation CD-ROM are located. To use your own
+set of executables you must redefine the variable %XG% in the
+registry and enable the new value by rebooting your system.
+
+Remark:
+  The processing will always be done taking the executables from the
+  path in "${XG}" or the default program path set in the panel of
+
+    Menu >Configure >Program names
+
+
+----------------------------------------------------------------------
+Unknown Fortran compiler
+----------------------------------------------------------------------
+A list of tested Fortran compilers can be found at
+
+  http://www.bernese.unibe.ch/support/cmp_all_list.php.
+
+If you wish to implement a new Fortran compiler, you will need to
+adapt the file "${X}/EXE/Makefile.template" where the compilers and
+their options are defined.
+You can use the settings of compiler "OTHER" as a template.
+
+Remark:
+  You should have your compiler manual ready to specify the individual
+  options.
+
+
+Procedure for unknown compiler:
+
+- When you are asked by the configuration tool to give the compiler
+  name select "OTHER".
+- Adapt the file "Makefile.template" in the main software tree
+  "BERN52\GPS\EXE" for your compiler filling out the options for
+  the compiler "OTHER" (part "ifeq ($(F_VERS),OTHER)").
+- After the compilation the path "${XG}" to the program executables
+  will end with "EXE_OTHER".
+
+
+----------------------------------------------------------------------
+Uninstall the Bernese GNSS Software
+----------------------------------------------------------------------
+There is no wizard to uninstall for the Bernese GNSS Software.
+
+If you want to uninstall the software from your system, you first have
+to remove the environment variables from the registry. For this purpose,
+type "perl %X%\EXE\configure.pm" in a command window. Select step
+"7 ... Remove BSW keys from environment".
+
+After that you can remove all the individual Bernese-related directory
+trees:
+
+- %U% (user environment)
+- %T% (temporary user environment)
+
+Note: if more than one user has been installed, %U% and %T% have to be
+removed for all users.
+
+- %P% (campaign area)
+- %D% (datapool area)
+- %S% (savedisk area)
+
+- %C% (main software tree)
+
+Take care that you have archived all relevant files before you delete
+the directory trees.
+
+Remove the Bernese desktop shortcuts and the Bernese start menu
+from the "Start Menu >All Programs" list.
+
+======================================================================

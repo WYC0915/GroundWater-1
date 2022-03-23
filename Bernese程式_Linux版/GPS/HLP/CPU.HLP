@@ -1,0 +1,171 @@
+<html>
+<body>
+
+<center>
+<b>BERNESE PROCESSING ENGINE</b>
+<p>Format: CPU
+</center>
+<hr width="100%">
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This file contains the list of CPUs that may be used by the Bernese Processing
+Engine (BPE). It specifies the system command to start a BPE client on a CPU
+and some characterization of the CPU used in the Process Control File (PCF).
+<br>
+An additional section allows to force BPEs to suspend the start
+of new jobs.
+
+<p><hr>
+
+<p><a name="LIST_OF_CPUS" default="%% %% %% %% %% %%"></a>
+<b>LIST OF CPUS</b>
+<p>
+Enter a  list of CPUs which may be used by the Bernese Processing Engine
+(BPE) to run the scripts. For each CPU the following items have to be
+specified:
+<ul>
+<li><b>CPU:</b> Enter a 'nickname' for the CPU. This name will be reported
+    in the protocol file of the BPE as the CPU on which a script
+    has been running. You may specify this name in the PCF to
+    force a script to this particular queue.
+    <br>
+    <i>On WINDOWs</i> platforms the name is <tt>localhost</tt> in any case.
+<li><b>Command to call:</b> Specify the system command which has to be used
+    to start a program (client script of the BPE) on the CPU.
+    The entry has to contain the following keywords at the
+    correct location in the command string:
+    <br>
+    <tt>&lt;COMMAND&gt;</tt>: when starting the BPE client
+    this keyword will be replaced by the command to start
+    the BPE client on the remote host.
+    <br>
+    <tt>&lt;ARGV&gt;</tt>: when starting the BPE client
+    this keyword will be replaced by the arguments necessary
+    to run the BPE client.
+    <br>
+    Optional <tt>&lt;LOG&gt;</tt>: when starting the BPE
+    client this keyword will be replaced by the name of the
+    log file for the standard output and the standard error of
+    the BPE client.
+    <br>
+    (see below for more details and examples)
+<li><b>Speed:</b> Any string (except of <tt>ANY</tt>) may be entered in
+    this field. This string can
+    be used to define groups of CPUs. If you specify this string
+    as 'CPU' for a script in the PCF you can be sure that the
+    script will run on one of the CPUs of this group only.
+    <br>Leave this field empty if the CPU does not belong to
+    any group. It may then be addressed in the PCF only directly
+    by the nickname (<tt>CPU</tt>) or by the keyword <tt>ANY</tt>.
+    <br>
+    On <i>WINDOWs</i> platforms this field has to be empty in any case.
+<li><b>Maxj:</b> Enter the maximum number of jobs allowed to run on this
+    CPU simultaneously. You can enter <tt>0</tt> to suspend
+    the CPU from the processing without removing the line
+    from the CPU file.
+    <br>
+    On <i>WINDOWs</i> platforms it is usually <tt>1</tt> or
+    corresponds to the number of computing cores in your machine.
+    <br>
+    On <i>UNIX</i> platforms this number should not be
+    larger than the number of computing cores available on the
+    corresponding computer. Otherwise the processing is not
+    efficient anymore.
+<li><b>Jobs:</b> This field is currently not in use but kept for 
+    compatibility reasons.
+<li><b>Wait:</b> The BPE server starts a client script on the remote CPU
+    to run a BPE script. When the client has become 'alive'
+    on the remote host it opens a TCP/IP connection to the
+    server.
+    <br>
+    You may specify a time out (in seconds) in this
+    field. If the client did not establish the TCP/IP
+    connection within this time interval after being started
+    the BPE server will stop with an error.
+    It may be assumed that, e.g., the remote host
+    is not alive or the network connection does not work
+    correctly.
+    <br>
+    To set this time interval to infinite enter <tt>0</tt>
+    in this field.
+</ul>
+
+<p><i>Example for WINDOWs: </i><!-- $X/PAN/WIN32.CPU -->
+For WINDOWs platforms the CPU file contains only one line:
+<pre>
+LIST OF CPUS
+  CPU        Command to call                                      Speed    Maxj Jobs Wait 
+  localhost  perl &lt;COMMAND&gt; &lt;ARGV&gt; -stdout=&lt;LOG&gt; -stderr=&lt;LOG&gt;             2    0    0
+</pre>
+(assuming a dual core machine).
+
+<p><i>Remarks for UNIX:</i>
+For UNIX platforms you can use remote shell,
+secure shell, or any queuing tool to start the BPE client on a remote host.
+The authentication needs to be established <b>without any interactions</b>
+(e.g., no prompting for the password).
+<br>
+Make sure that you specify the commands in a way that the BPE client is
+running in the <b>background</b> ('<tt>&</tt>' character terminating
+the command).
+<br>
+The remote host you are going to use for running BPE clients needs to
+have access to the campaign directory, to the user's home directory, and to
+the Bernese GNSS Software.
+
+<p><i>Example for UNIX:</i><!-- $X/PAN/UNIX.CPU -->
+<pre>
+LIST OF CPUS
+  CPU        Command to call                                      Speed    Maxj Jobs Wait 
+  local_sh   &lt;COMMAND&gt; &lt;ARGV&gt; &gt;&gt; &lt;LOG&gt; 2&gt;&1 &                               2    0    0
+  rsh_host1  rsh -n host1 &lt;COMMAND&gt; &lt;ARGV&gt; &gt;&gt; &lt;LOG&gt; 2&gt;&1 &         SLOW     3    0    0
+  ssh_host1  ssh -n host1 &lt;COMMAND&gt; &lt;ARGV&gt; &gt;&gt; &lt;LOG&gt; 2&gt;&1 &         FAST     3    0    0
+</pre>
+
+<p><hr>
+
+<p><a name="SUSPEND_PCF" default="%% %% %%"></a>
+<b>LIST OF SUSPENDED PROCESS CONTROL FILES</b>
+<p>
+Enter the name of one or more Process Control Files (PCF) including the
+extension in the first column (PCF name). All BPE servers running one of
+the PCF in this list will not start new clients anymore until the particular
+PCF has been removed from this list. The BPE program output will report the
+'suspended' status.
+<br>
+For more advanced users the suspension can be assigned to special
+conditions managing priorities between different BPEs:
+<ul>
+<li>A PCF (given in the first column) is suspended if a certain file
+    (given in the second column) exists. If you add a time in seconds
+    in the third column, not only the existence of the file is tested,
+    but also its age. The PCF is only suspended if the file in the
+    second column is younger than the number of seconds set in the
+    third column.
+    <br>
+    A typical application is to give for instance near-real time
+    applications priority with respect to non-time critical
+    applications (like, e.g., a reprocessing). In that case you can
+    suspend the PCF for the reprocessing (PCF name in the first column)
+    if the BPE status file given in the second column (updated by a
+    running BPE server every 5 seconds) is younger than 10 seconds (to
+    be defined in the third column).
+    <br>
+    If a suspension condition is valid already when the BPE starts
+    (either manually or non-interactive by a script), the BPE server
+    starts, issues a message and does not submit any jobs until the
+    suspension condition is not fulfilled anymore (this behaviour
+    differs from version 5.0).
+</ul>
+
+<p><i>Remark:</i>
+During the 'suspended' status of a PCF, changes in
+user scripts, in the program options, or in the campaign may be performed.
+Changes in the PCF will not effect the current BPE run because it will
+not be refreshed.
+
+<p><hr>
+
+</body>
+</html>

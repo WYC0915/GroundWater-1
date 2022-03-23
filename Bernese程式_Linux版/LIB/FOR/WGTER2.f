@@ -1,0 +1,282 @@
+      MODULE s_WGTER2
+      CONTAINS
+
+C*
+      SUBROUTINE WGTER2(RFAK,NPOLO,ISGPOL,NDRIFT,NPAR,LOCQ,TPOL,S0,
+     1                  SIGACT,DAPRI,BNOR,ANOR,DBNOR,DOMEG)
+CC
+CC NAME       :  WGTER2
+CC
+CC PURPOSE    :  COMPUTE A PRIORI OCCUPATION OF NORMAL EQUATION MATRIX
+CC               FOR ERP PARAMETERS, IF NOT THE SAME APRIORI POLE
+CC               CORRECTION OF BNOR, TOO.
+CC
+CC PARAMETERS :
+CC         IN :  RFAK   : -1: SUBSTRACT
+CC                         1: ADD RELATIVE WEIGHTS            R*8
+CC               NPOLO  : NUMBER OF POLE INTERVALS ALREADY    I*4
+CC                        USED
+CC               ISGPOL : =0 : APPLY ONLY ABSOLUTE SIGMAS     I*4
+CC                        =1 : ESTABLISH CONTINUITY WITH
+CC                             RESPECT
+CC                             TO PREVIOUS SET OF ERPS.
+CC                        =3 : SPECIAL OPTION FOR REDUCING
+CC                             FROM 2P/DAY  TO 2P/3DAY
+CC                        =4 : CONSTRAIN DRIFTS TO ZERO
+CC                        =5 : ENSURE CONTINUITY WITH RESPECT
+CC                             TO PREVIOUS POLYNOMIAL AND
+CC                             CONSTRAIN DRIFTS TO ZERO
+CC               NDRIFT : NUMBER OF SUBSEQUENT PARAMETERS[B   I*4
+CC                        WITH EQUAL DRIFT
+CC                        = 0: DAYS ARE INDEPENDENT
+CC                        = 1: CONTINUITY ALSO BETWEEN DAYS
+CC                        > 1: NUMBER OF PARAMETERS WITH EQUAL
+CC                             DRIFT
+CC               NPAR   : CURRENT PARAMETER NUMBER            I*4
+CC               LOCQ   : PARAMETER DESCRIPTION               I*4(*,*)
+CC               TPOL   : INTERVAL BOUNDARIES FOR ERPS        R*8(2,*)
+CC               S0     : WEIGHT UNIT                         R*8
+CC               SIGACT : SIGMA OF CURRENT INTERVAL/COMPONENT R*8
+CC                        COMBINATION
+CC               DAPRI  : I=1,NPAR: DIFFERENCE IN A-PRIORI    R*8(*)
+CC                        VALUE (FROM CHANGING THE A PRIORI
+CC                        POLFILE) IN MILLIARCSECONDS
+CC    IN/OUT :   BNOR   : RIGHT SIDE OF NORMAL EQUATION       R*8(*)
+CC               ANOR   : UPDATED NEQ MATRIX                  R*8(*)
+CC               DBNOR(I),I=1,2,..,: ADDITION                 R*8
+CC                        OF WEIGHTS TO RIGHT SIDE OF
+CC                        NORMAL EQUATION MATRIX
+CC                        DUE TO INPUT OPTIONS
+CC               DOMEG : CORRECTION OF RMS DUE TO SPECIAL     R*8
+CC                       RESTRICTIONS WITH W.NE.0.D0
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G. BEUTLER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  27-JAN-93
+CC
+CC CHANGES    :  12-AUG-93 : EB: CONTINUOUS POLE POSSIBLE IN THE CASE
+CC                               OF DIFFETERNT A PRIORI VALUES
+CC               23-SEP-97 : TS: SMALL CHANGES FOR "ISGPOL.EQ.3"
+CC               23-JUL-98 : MR: NEW PARAMETER NDRIFT
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1993     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE f_ikf
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , ICOR  , IDEG  , IK    , INTACT, INTER ,
+     1          IPAR  , IPIP  , ISGPOL, ITERM , K     , KTERM , MAXPTM,
+     2          MXCLCQ, NDEG  , NDRIFT, NPAR  , NPOLO , NTERM
+C
+      REAL*8    CORRT , DOMEG , RFAK  , S0    , SIGACT, SIGDRF, SIGREL,
+     1          TIMINT, WEIGHT
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      PARAMETER (MAXPTM=200)
+C
+C GLOBAL DECLARATION
+C ------------------
+      CHARACTER*6  MXNLCQ
+      REAL*8       ANOR(*),BNOR(*),DAPRI(*),TPOL(2,*),DBNOR(*)
+      INTEGER*4    LOCQ(MXCLCQ,*)
+C
+C INTERNAL DECLARATION
+C --------------------
+      INTEGER*4    IELE(MAXPTM)
+      REAL*8       COE(MAXPTM),CORR(MAXPTM)
+C
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+C
+C
+C DEFINE CURRENT REQUEST
+C ----------------------
+      INTACT=LOCQ(3,NPAR)
+      ICOR  =LOCQ(4,NPAR)
+      NDEG  =LOCQ(6,NPAR)
+      IDEG  =LOCQ(5,NPAR)
+      NTERM =NDEG+1
+C
+C SIGMA TO ENSURE CONTINUITY, SIGMA TO CONSTRAIN DRIFT TO ZERO
+C ------------------------------------------------------------
+      IF (ISGPOL.EQ.3) THEN
+        SIGREL=1.D-5
+      ELSE
+        SIGREL=1.D-6
+        SIGDRF=1.D-6
+      ENDIF
+C
+C RETURN, IF DEGREE OF COEFFICIENT IS NOT ZERO
+C --------------------------------------------
+      IF(IDEG.GT.1)THEN
+        IF (IDEG.EQ.2 .AND. ISGPOL.EQ.3)THEN
+          NTERM=0
+          GO TO 400
+        ELSE IF (IDEG.EQ.2 .AND. ISGPOL.GE.4) THEN
+            GOTO 600
+        ELSE
+          GOTO 999
+        ENDIF
+      ENDIF
+      IF(SIGACT.NE.0.D0)THEN
+        IPIP=IKF(NPAR,NPAR)
+        WEIGHT=RFAK*(S0/SIGACT)**2
+C        IF (RFAK.EQ.1.D0)ANOR(IPIP)=WEIGHT
+        ANOR(IPIP)=ANOR(IPIP)+WEIGHT
+C
+      END IF
+      IF(ISGPOL.EQ.0.OR.INTACT.EQ.1) GOTO 999
+C
+C DEFINE LINEAR COMBINATION, COMPUTE MODEL VALUES AT TIME TSAV,
+C AND ASSOCIATED RMS ERRORS
+C -------------------------------------------------------------
+      IF((ISGPOL.EQ.1.OR.ISGPOL.EQ.2.OR.ISGPOL.EQ.3.OR.ISGPOL.EQ.5)
+     1                  .AND.INTACT.NE.1)THEN
+        ITERM=0
+        INTER=INTACT-1
+        TIMINT=TPOL(2,INTER+NPOLO)-TPOL(1,INTER+NPOLO)
+        DO 210 IPAR=1,NPAR
+          IF(LOCQ(1,IPAR).EQ.10.AND.LOCQ(4,IPAR).EQ.ICOR.AND.
+     1       LOCQ(3,IPAR).EQ.INTER)THEN
+            ITERM=ITERM+1
+            IDEG=LOCQ(5,IPAR)
+            IF(ITERM.GT.MAXPTM)THEN
+              WRITE(LFNERR,205) ITERM,MAXPTM
+205           FORMAT(/,' *** SR WGTER2: TOO MANY EARTH ROTATION',
+     1                 ' PARAMETERS',/,
+     2                             16X,'NUMBER OF PARAMETERS >=',I4,/,
+     3                             16X,'MAXIMUM NUMBER ALLOWED:',I4,/,
+     4                             16X,'INCREASE PARAMETER "MAXPTM"',/)
+              CALL EXITRC(2)
+            END IF
+            IELE(ITERM)=IPAR
+            IF(IDEG.NE.1)THEN
+              COE(ITERM) =TIMINT**(IDEG-1)
+            ELSE
+              COE(ITERM) =1.D0
+            END IF
+          END IF
+210     CONTINUE
+C
+C CURRENT TERM :
+        ITERM=ITERM+1
+        IF(ITERM.GT.MAXPTM)THEN
+          WRITE(LFNERR,205) ITERM,MAXPTM
+          CALL EXITRC(2)
+        END IF
+        COE(ITERM)=-1.D0
+        IELE(ITERM)=NPAR
+C
+        IF(ITERM.NE.NTERM)THEN
+          WRITE(LFNERR,240)
+240       FORMAT(/,' *** SR WGTER2: NUMBER OF TERMS NOT O.K.',/)
+C DO NOTHING
+          GOTO 999
+        END IF
+C
+C COMPUTE W=CORRT (FOR H'PW)
+        CORRT=0.D0
+C DAPRI ALREADY DIFFERENTLY USED IN CASE ISGPOL.EQ.3, NOT USED IN CASE
+C OF SUBSTRACTION OF OLD WEIGHT!
+C ONLY USED IN CASE OF ISGPOL.EQ.1/2
+        IF (ISGPOL.NE.3.AND.RFAK.GT.0.D0) CORRT=DAPRI(NPAR)
+C
+        IF (CORRT.NE.0.D0) THEN
+C TO AVOID NUMERICAL PROBLEMS IN RMS COMPUTATION IF RESTRICTION
+C ON THE RIGHT SIDE IS .NE. ZERO!
+C SIGREL=1.D-3
+            SIGREL=1.D-3
+            WRITE(LFNERR,903)TPOL(1,INTER+NPOLO),DAPRI(NPAR)
+903         FORMAT(/,' *** SR WGTER2: WARNING:',/,
+     1        16X,'JUMP IN A PRIORI POLE ',/,
+     2        16X,'TIME (MJD): ',F10.1,/,
+     3        16X,'JUMP IN MAS: ',F10.4,/,
+     4        16X,'INTRODUCED')
+        ENDIF
+C
+        GOTO 500
+      ENDIF
+C
+C DEFINE LINEAR COMBINATION ..., FOR THE CASE: SAME DRIFT AS IN
+C THE INTERVAL BEFORE
+C -------------------------------------------------------------
+400   IF(ISGPOL.EQ.3 .AND. MOD(INTACT,NDRIFT).NE.1) THEN
+CC        NTERM=2
+        NTERM=NTERM+2
+        ITERM=0
+        INTER=INTACT-1
+        IF(LOCQ(5,NPAR).NE.2) GOTO 999
+        DO 220 IPAR=1,NPAR
+          IF(LOCQ(1,IPAR).EQ.10.AND.LOCQ(4,IPAR).EQ.ICOR.AND.
+     1       LOCQ(3,IPAR).EQ.INTER.AND.LOCQ(5,IPAR).EQ.2)THEN
+            ITERM=ITERM+1
+            IDEG=LOCQ(5,IPAR)
+            IF(ITERM.GT.MAXPTM)THEN
+              WRITE(LFNERR,205) ITERM,MAXPTM
+              CALL EXITRC(2)
+            END IF
+            IELE(ITERM)=IPAR
+            COE(ITERM) =1.D0
+            CORR(ITERM)=-DAPRI(IPAR)
+          END IF
+220     CONTINUE
+C
+C CURRENT TERM :
+        ITERM=ITERM+1
+        IF(ITERM.GT.MAXPTM)THEN
+          WRITE(LFNERR,205) ITERM,MAXPTM
+          CALL EXITRC(2)
+        END IF
+        COE(ITERM) = -1.D0
+        IELE(ITERM)=NPAR
+        CORR(ITERM)=-DAPRI(NPAR)
+C
+        IF(ITERM.NE.NTERM)THEN
+          WRITE(LFNERR,240)
+        END IF
+C
+C COMPUTE W=CORRT (FOR H'PW)
+        CORRT=0.D0
+        DO 260 ITERM=1,NTERM
+          CORRT=CORRT+COE(ITERM)*CORR(ITERM)
+260     CONTINUE
+      ENDIF
+C
+C
+C DEFINE NON-ZERO ELEMENTS OF MATRIX A :
+500    DO 300 ITERM=1,NTERM
+        I=IELE(ITERM)
+C SET INCONSISTENCY ONLY ONCE
+        BNOR(I)=BNOR(I)+(S0/SIGREL)**2*COE(ITERM)*CORRT
+C
+        DO 300 KTERM=1,ITERM
+          K=IELE(KTERM)
+          IK=IKF(I,K)
+          ANOR(IK)=ANOR(IK)+RFAK*(S0/SIGREL)**2*COE(ITERM)*COE(KTERM)
+300   CONTINUE
+      DOMEG=DOMEG+(S0/SIGREL)**2*(CORRT)**2
+      GOTO 999
+C
+C CONSTRAIN DRIFTS TO ZERO IF "ISGPOL=4"
+C --------------------------------------
+600   IPIP=IKF(NPAR,NPAR)
+      WEIGHT=RFAK*(S0/SIGDRF)**2
+      ANOR(IPIP)=ANOR(IPIP)+WEIGHT
+C
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

@@ -1,0 +1,127 @@
+      MODULE s_GTSTAB4
+      CONTAINS
+
+C*
+      SUBROUTINE GTSTAB4(PANNAM,MAXSTA,NSTA,STNAME,ABBRE4,ABBRE2,IRCODE)
+CC
+CC NAME       :  GTSTAB
+CC
+CC PURPOSE    :  GET ALL STATION ABBREVIATIONS
+CC               (GPS MENU PROGRAMS)
+CC
+CC PARAMETERS :
+CC         IN :  PANNAM : PANEL FILENAME                        CH*80
+CC               MAXSTA : MAXIMUM NUMBER OF STATIONS ALLOWED     I*4
+CC        OUT :  NSTA   : NUMBER OF STATIONS                     I*4
+CC               STNAME : LIST OF STATION NAMES                 CH*16(*)
+CC               ABBRE4 : 4-CHAR ABBREVIATIONS                  CH*4(*)
+CC               ABBRE2 : 2-CHAR ABBREVIATIONS                  CH*2(*)
+CC               IRCODE : RETURN CODE                            I*4
+CC                        2: ERROR DETECTED
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  W. GURTNER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  18-AUG-89
+CC
+CC CHANGES    :  27-AUG-94 : MR: NO PROMP1 FOR NON-INTERACTIVE MODE
+CC               24-APR-03 : RD: DO NOT USE GTINTR ANYMORE
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1989     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE s_promp1
+      USE s_gtkeyw
+      USE s_ptkeyw
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IFIRST, IKEYWD, IRC   , ISTA  , NOINTR
+C
+CCC       IMPLICIT REAL*8(A-H,O-Z)
+C
+C  GLOBAL PARAMETERS
+      INTEGER*4    IRCODE,NSTA,MAXSTA
+      CHARACTER    STNAME(MAXSTA)*16,ABBRE4(MAXSTA)*4,ABBRE2(MAXSTA)*2
+      CHARACTER*80 PANNAM
+C
+C  LOCAL PARAMETERS
+      CHARACTER*80 PANLOC,VALKEY,a_valkey(1)
+      CHARACTER*80 STRG(1)
+      CHARACTER*2  CHR2
+      CHARACTER*8  KYWORD, a_kyword(1)
+C
+      DATA IFIRST/1/
+C
+C GET INTERACTION MODE
+      IF (IFIRST.EQ.1) THEN
+CC        CALL GTINTM(NOINTR)
+        NOINTR=1
+        IFIRST=0
+      ENDIF
+C
+      PANLOC=PANNAM
+      IKEYWD=0
+      DO 210 ISTA=1,MAXSTA+1
+        CALL GTKEYW(PANLOC,'STANAM  ',VALKEY,IRC)
+        IF(IRC.EQ.3) GOTO 220
+        IF(IRC.NE.0) THEN
+          IKEYWD=-ISTA
+          KYWORD='STANAM  '
+          VALKEY=' '
+          GOTO 920
+        END IF
+        IF(ISTA.EQ.MAXSTA+1) THEN
+          WRITE(*,211) MAXSTA
+211       FORMAT(/,' *** SR GTSTAB: TOO MANY STATIONS IN STATION ABBRE',
+     1             'VIATION LIST',
+     2           /,16X,'INCREASE "MAXSTA" IN CALLING ROUTINE OR',
+     3           /,16X,'DELETE STATIONS IN ABBREV. LIST (MENU 1.4.3)',
+     4           /,16X,'MAX. NUMBER OF STATIONS ALLOWED:',I5,/)
+          IF (NOINTR.NE.1) THEN
+            STRG(1)='TYPE <ENTER> TO CONTINUE'
+            CALL PROMP1(1,STRG)
+            READ(*,'(A)') CHR2
+          ENDIF
+          GOTO 920
+        END IF
+        STNAME(ISTA)=VALKEY
+        CALL GTKEYW(PANLOC,'CHAR4   ',VALKEY,IRC)
+        IF(IRC.NE.0) THEN
+          IKEYWD=-ISTA
+          KYWORD='CHAR4   '
+          VALKEY=' '
+          GOTO 920
+        END IF
+        ABBRE4(ISTA)=VALKEY
+        CALL GTKEYW(PANLOC,'CHAR2   ',VALKEY,IRC)
+        IF(IRC.NE.0) THEN
+          IKEYWD=-ISTA
+          KYWORD='CHAR2   '
+          VALKEY=' '
+          GOTO 920
+        END IF
+        ABBRE2(ISTA)=VALKEY
+        PANLOC='FOLLOW-UP'
+210   CONTINUE
+220   NSTA=ISTA-1
+      IRCODE=0
+      GOTO 999
+C
+920   IRCODE=2
+      a_kyword(1) = kyword
+      a_valkey(1) = valkey
+      CALL PTKEYW(PANNAM,IKEYWD,a_KYWORD,a_VALKEY,IRC)
+      GOTO 999
+C
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

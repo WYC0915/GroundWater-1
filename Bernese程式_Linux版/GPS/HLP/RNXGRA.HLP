@@ -1,0 +1,308 @@
+<html>
+<body>
+
+<center>
+<b>CREATE OBSERVATION STATISTICS</b>
+<p>Program: RNXGRA
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+Use this program to generate a simple ASCII graphic file with information
+about the observed satellites in RINEX observation files. The program output
+gives you a summary of the observation material available in the selected
+RINEX files. For time bins of 20 minutes the program output displays
+<ul>
+<li>the observed satellites for each individual station ('<tt>*</tt>' indicates that
+    data for the bin are available; '-' indicates that a number of epochs
+    is missing for the bin),</li>
+<li>the number of stations which observed a particular satellite in the time bin
+    ('<tt>*</tt>' if more than 9 stations),</li>
+<li>the number of satellites observed by a station in the time bin
+    ('<tt>*</tt>' if more than 9 satellites);
+    <br>
+    GPS and GLONASS are displayed in different graphs if the RINEX files
+    contain observations from both satellite systems,</li>
+<li>the number of stations providing an 'anti-spoofing' flag for the observations
+    to the particular satellite in the time bin
+    ('<tt>*</tt>' if more than 9 stations).</li>
+</ul>
+The program assumes that the observations from all RINEX files cover up to
+24&nbsp;hours. The median of the first epoch from all RINEX files defines the
+start epoch for all graphs.
+<br>
+The program may also be used to list poorly behaving stations based on
+user-defined criteria, an option which is particularly useful for automatic
+processing.
+
+<p><hr>
+
+<p><b>RNXGRA 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES:</b>
+<p><b>Show all general files:</b>
+If you check this box, the currently
+active campaign, session and session table are displayed.
+
+<br><br>
+
+<a name="OBSFIL" default="????$S+0"></a>
+<p><b>INPUT FILES:</b>
+<p><b>Original RINEX observation files:</b>
+Selection of one or more RINEX observation files. The RINEX files you
+select should not cover more than 24&nbsp;hours of data and should all
+belong to the same session. Leave the field blank if you want to create
+the graphics from "Smoothed RINEX observation files" only.
+<br>
+Select the value for the two digit year in the extension for raw RINEX
+observation files using the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>.
+
+<p><i>Default value:</i> <tt>????$S+0</tt>
+
+<a name="SMTFIL" default="????$S+0"></a>
+<p><b>Smoothed RINEX observation files:</b>
+Selection of one or more smoothed RINEX files created by the program
+<a href="PGMLST.HLP#RNXSMT">RNXSMT</a>. The smoothed RINEX files you
+select should not cover more than 24&nbsp;hours of data and should all
+belong to the same session. Leave the field blank if you want to create
+the graphics from "Original RINEX observation files" only.
+
+<p><i>Default value:</i> <tt>????$S+0</tt>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="RNXGRA"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="SUMMARY" default=""></a>
+<p><b>OUTPUT FILE</b>
+<p><b>Summary file:</b>
+Specify the name of the file where you want to have the summary printed.
+It repeats a number of the graphs from the program output in an alternative
+file (default extension SMC):
+<ul>
+<li>Number of stations that observed a particular satellite in the time bin
+    ('<tt>*</tt>' if more than 9 stations).</li>
+<li>Number of satellites observed by a station in the time bin
+    ('<tt>*</tt>' if more than 9 satellites);
+    <br>
+    GPS and GLONASS are displayed in different graphs if the RINEX files
+    contain observations from both satellite systems.</li>
+<li>Number of stations providing an 'anti-spoofing' flag for the observations
+    to the particular satellite in the time bin
+    ('<tt>*</tt>' if more than 9 stations).</li>
+</ul>
+
+<p><hr>
+
+<p><b>RNXGRA 2: Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+and will be saved in all the result files to document the program run.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="MEATYP" default="PHASE"></a>
+<p><b>OBSERVATION SELECTION</b>
+<p><b>Measurement type:</b>
+In this field you enter the measurement type (<b>PHASE</b> or <b>CODE</b>)
+you would like to get statistical information about.
+
+<a name="FREQ" default="BOTH"></a>
+<p><b>Frequencies:</b>
+Select the frequency (<b>L1</b>, <b>L2</b>, or <b>BOTH</b>) you would like
+to get a summary of.
+With the option <b>BOTH</b> the information will be displayed for both
+frequencies which corresponds to the availability of observations when
+forming linear combinations.
+
+<a name="MINSIG" default="0"></a>
+<p><b>Minimum s/n ratio requested:</b>
+An observation in the RINEX file is only considered for the pseudo-graphic
+and the statistics if its signal-to-noise-ratio is bigger than the value
+specified in this input field. The intention of this option is that
+the program <a href="PGMLST.HLP#RNXSMT">RNXSMT</a> uses the s/n-ratio to
+flag bad observations (s/n-ratio=1 for bad observations, s/n-ratio=9 for
+good observations).
+
+<p><i>Default value:</i> <tt>0</tt> for original RINEX observation files, and
+                         <tt>2</tt> for smoothed RINEX observation files
+
+<a name="CYCGRA" default="0"></a>
+<p><b>Print cycle slip flags:</b>
+If there are cycle slip flags in the RINEX observation file a
+<tt>C</tt>-character may be printed into the corresponding position in the
+pseudo-graphic of the program output.
+The cycle slip flags from the smoothed RINEX files (result of the
+program <a href="PGMLST.HLP#RNXSMT">RNXSMT</a>) indicate the epochs where
+ambiguities need to be setup.
+
+<p><i>Default value:</i> unmarked
+
+<br><br>
+
+<a name="IOBTOL" default="2"></a>
+<p><b>MAXIMUM NUMBER OF MISSING EPOCHS</b>
+<p><b>Allowed per character:</b>
+The observations are grouped in bins of 20 minutes length, represented by a
+character. With this option you specify a maximum number of missing
+observations per satellite within a bin. As long as this number is not exceeded
+the bin is marked as completely observed ('<tt>*</tt>'), otherwise the bin is
+marked as incompletely observed ('-') in the graphic output.
+
+<p><i>Default value:</i> 2
+
+<br><br>
+
+<a name="STAINFO" default=""></a>
+<p><b>STATION NAME TRANSLATION</b>
+<p><b>Station information file:</b>
+You may use a station information file to translate the station names given
+in the <tt>MARKER NAME</tt> header record of the RINEX observation files to make
+sure that in the graphic output file you will
+have correct station names. For this purpose the section <tt>TYPE 001: RENAMING
+OF STATIONS</tt> in the station information file is used only. Wildcards may be
+used in the file. If you leave this field blank, the station names will be
+taken from the RINEX file(s) without any check or translation.
+
+<p><a href="/$X/DOC/EXAMPLE.STA">Example</a>
+
+<!--
+<a name="USEFLG" default="0"></a>
+<a name="FLG001" default="999"></a>
+<p><b>Flags to be used:</b>
+<p>
+All entries of the station information file have flags to switch the use
+on or off easily for different programs. Specify here the flag to be used
+for the station name translation in the file above. Put flag 999 to use
+all flags in the file.
+
+<p><i>Recommended value:</i> 999
+-->
+
+<a name="STNMSTOP" default="0"></a>
+<p><b>Stop if station name not found:</b>
+This option defines whether the program should stop if the station in
+the RINEX file is not present in the renaming section (TYPE 001) of
+the station information file or whether it should continue, just using
+the RINEX station name without translation.
+
+<p><i>Default value:</i> unmarked
+
+<br><br>
+
+<a name="GETLST" default="0"></a>
+<p><b>LIST OF RINEX FILES</b>
+<p><b>Get a list of RINEX files:</b>
+Here you may switch on an option to build a list of RINEX files which
+meet conditions to be specified in the following panel. This list
+of RINEX observation files may be useful for automatic processing.
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+<p><b>RNXGRA 3: Options for RINEX File Selection</b>
+
+<a name="LSTFILE" default=""></a>
+<p><b>FILENAMES</b>
+<p><b>File with the list of selected RINEX files:</b>
+In this file the list of RINEX filenames will be written which meet the
+conditions specified below. The file contains the full path of the RINEX
+files. The information can be used to build up a list of selected files
+for program <a href="PGMLST.HLP#RXOBV3">RXOBV3</a> in an automatic processing.
+
+<a name="DELFILE" default=""></a>
+<p><b>File with the list of unselected RINEX files:</b>
+In this file the list of RINEX filenames will be written which do not meet
+the conditions specified below. The file contains the full path of the RINEX
+files. The information can be used to delete the corresponding files.
+
+<br><br>
+
+<a name="MAXSTA" default="200"></a>
+<p><b>FILE SELECTION OPTIONS</b>
+<p><b>Maximum number of selected files:</b>
+The maximum number of RINEX observation files to be selected can be
+specified in this field. If more than this number of RINEX files meet the
+conditions below the files with the biggest numbers of observations will
+be selected.
+
+<p><i>Default value:</i> <tt>200</tt>
+
+<a name="MINOBS" default="200"></a>
+<p><b>Minimum number of observations per file:</b>
+The number of satellites observed from a station in each time bin of the
+'graphic' is summed up for the observation period. If this sum is smaller than
+the specified value the RINEX observation file will be added to the list of
+unselected files.
+<br>
+Marked epochs (character '-' in the graphic) and epochs with no data
+(character '&nbsp;' in the graphic) are counted as 0. The observations
+to GPS and GLONASS satellites are added in the case of stations with
+combined receivers.
+
+<p><i>Default value:</i> <tt>200</tt>
+
+<a name="MAXBAD" default="10"></a>
+<p><b>Maximum number of bad epochs per file allowed:</b>
+The number of 'bad epochs' (definition see below) per observation period is
+specified in this field. If more than the specified number are found the
+RINEX observation file will be added to the list of unselected files.
+
+<p><i>Default value:</i> <tt>10</tt>
+
+<a name="BADOBS" default="3"></a>
+<p><b>Maximum number of observations to define a bad epoch:</b>
+The number of satellites observed from a station in a time bin of the
+'graphic' is checked. If less than the specified number of satellites are
+observed the time bin will be considered as 'bad epoch'. Marked epochs
+(character '-' in the graphic) and epochs with no data (character '&nbsp;' in
+the graphic) are also counted as 'bad epoch'.
+
+<p><i>Default value:</i> <tt>3</tt>
+
+<p><hr>
+
+</body>
+</html>

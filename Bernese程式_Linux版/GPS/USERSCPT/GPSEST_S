@@ -1,0 +1,60 @@
+package GPSEST_S;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  GPSEST_S
+#
+# Purpose :  Compute SLR range residuals to given orbits / ERPs / coordinates
+#            Program GPSEST
+#
+# PARAMs  :
+#
+# Author  :  D. Thaller
+# Created :  10-Feb-2012
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util;
+
+
+sub run{
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyssss,
+      $LEO, $LSTD) =
+  $bpe->getKeys
+     ('$YSS+0',
+      'V_LEO','V_LSTD');
+
+
+# Settings for non-LEO processing (e.g. GNSS satellites)
+# ------------------------------------------------------
+  if (uc $LEO eq "N") {
+
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","LEOPROC","0");
+
+  }
+
+
+# Settings for LEO processing
+# ---------------------------
+  else {
+
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","LEOPROC","1");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","STDORB","${LSTD}${yyssss}");
+
+  }
+
+
+# Run program
+# -----------
+  my $PGMNAM = "GPSEST";
+  $bpe->RUN_PGMS($PGMNAM);
+
+}

@@ -1,0 +1,64 @@
+package OBSMRG_P;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  OBSMRG_P
+#
+# Purpose :  Parallel CCRINEXO
+#            (e.g., to merge hourly files)
+#
+# PARAMs  :  PARAM1 - temporary file for parallel processing
+#
+# Author  :  M. Meindl
+# Created :  23-Jul-2003
+#
+# Changes :  11-Aug-2011 RD: Updated for version 5.2
+#
+# ============================================================================
+use strict;
+
+
+use lib $ENV{BPE};
+use bpe_util qw(isHourly replaceSel setMinusPlus prtBPEfile);
+
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($ssss, $hourly) = $bpe->getKeys('$S+0', 'V_HOURLY');
+
+
+# Define variables
+# ----------------
+  my $param1  = $$bpe{PARAM1};
+  if ($param1 ne "PARALLEL") {  # just make sure that there is a PARALLEL run
+
+
+# Replace selected with station list
+# ----------------------------------
+    replaceSel($bpe,"CCRINEXO","FILELIST",$param1);
+
+# Hourly processing
+# -----------------
+  if (isHourly($ssss)) {
+    setMinusPlus($bpe,-$hourly,0)
+  } else {
+    setMinusPlus($bpe,0,0)
+  }
+
+
+# Run program
+# -----------
+    my $PGMNAM = "CCRINEXO";
+    $bpe->RUN_PGMS($PGMNAM);
+
+
+# Print processed stations BPE file
+# ---------------------------------
+    prtBPEfile($param1,1);
+
+  }
+
+}

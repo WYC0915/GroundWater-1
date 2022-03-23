@@ -1,0 +1,153 @@
+      MODULE s_SUNEFF
+      CONTAINS
+C*
+      SUBROUTINE SUNEFF(IORSYS,TABINT,T,SUNPOS,SUNVEL)
+CC
+CC NAME       :  SUNEFF
+CC
+CC PURPOSE    :  EFFICIENT COMPUTATION OF SOLAR POSITION
+CC               USING QUADRATIC INTERPOLATION
+CC
+CC PARAMETERS :
+CC         IN :  IORSYS : INERTIAL SYSTEM                     I*4
+CC                        =1: B1950.0
+CC                        =2: J2000.0
+CC               TABINT : TABULAR INTERVAL(IN HOURS)          R*8
+CC               T      : TIME OF REQUEST                     R*8
+CC        OUT :  SUNPOS(K),K=1,2,3,4:POSITION AND RADIUS-     R*8
+CC                        VECTOR OF SUN IN SYSTEM DEFINED
+CC                        BY "IORSYS" (METERS)
+CC               SUNVEL : VELOCITY VECTOR OF SUN [M/S]      R*8(3)
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.3
+CC
+CC CREATED    :  87/11/16 11:02
+CC
+CC CHANGES    :  31-MAY-92 : ??: OPTION J2000.0
+CC               27-MAR-93 : ??: OPTION JPL EPHEMERIS DE200
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               28-SEP-95 : JJ: DECLARE KM AS L*4 INSTEAD OF L*1
+CC               28-SEP-95 : JJ: DECLARE BARY AS L*4 INSTEAD OF L*1
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               16-OCT-06 : AG: TAKE AU FROM CONST.
+CC               30-MAY-07 : AG: CHANG TO MODULE
+CC               01-OCT-10 : CR: RETURN SUN VELOCITY FROM JPL EPHEMERIS
+CC               21-SEP-11 : RD: UPDATE TABLE ALSO IF THE RESOLUTION CHANGES
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE d_const,  ONLY: AU
+      USE s_jepeph
+      USE s_qitpol
+      USE s_exitrc
+      USE s_gtflna
+      USE s_sun
+      USE s_sun20
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IDE200, IFIRST, IORSYS, IRC   , K     , L     , LEFT
+C
+      REAL*8    BB    , RR    , T     , T0    , TABEFF, TABINT, XJD   ,
+     1          XLL
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+C
+      CHARACTER*32 FILEPH
+      REAL*8       TABTIM(3),SUNPOS(4),SUNTAB(6,3),POSTAB(4,3)
+      REAL*8       VELTAB(3,3),SUNVEL(3)
+C
+C
+C COMMON BLOCKS FOR JPL EPHEMERIS DE200
+C
+      LOGICAL*4 KM
+      LOGICAL*4 BARY
+      REAL*8    PVSUN(6)
+      COMMON/STCOMM/PVSUN,KM,BARY
+C
+      INTEGER*4 IPV
+      COMMON/PLECOM/IPV
+C
+      DATA IFIRST/1/
+C
+C INITIALIZATION
+C --------------
+      IF (IFIRST.EQ.1) THEN
+        IFIRST=0
+        T0=T
+        TABTIM(1)=0.D0
+        TABTIM(3)=-1.D0
+C
+C JPL EPHEMERIS INITIALIZATION
+        CALL GTFLNA(0,'JPLEPH ',FILEPH,IRC)
+        IF (IRC.EQ.0) THEN
+          IDE200=1
+C          IPV=1
+C          Change IPV to return also velocities
+          IPV=2
+          KM=.FALSE.
+        ELSE
+          IDE200=0
+        ENDIF
+      END IF
+C
+C NEW TIME INTERVALL?
+      IF (T.LT.TABTIM(1) .OR. T.GT.TABTIM(3) .OR. TABEFF.NE.TABINT) THEN
+        IF (TABEFF.NE.TABINT) T0=T
+        TABEFF=TABINT
+        LEFT=DABS(T-T0)/(TABEFF/24.D0)
+        IF (T.LT.T0) LEFT=-LEFT-1
+        DO 10 K=1,3
+          TABTIM(K)=T0+(LEFT+K-1)*TABEFF/24.D0
+          IF (IORSYS.EQ.1) THEN
+            CALL SUN(TABTIM(K),SUNTAB(1,K),RR,XLL,BB)
+          ELSEIF (IDE200.EQ.0) THEN
+            CALL SUN20(TABTIM(K),SUNTAB(1,K),RR,XLL,BB)
+          ELSE
+            XJD=2400000.5D0+TABTIM(K)
+            CALL JEPEPH(XJD,11,3,SUNTAB(1,K),*901)
+            RR=DSQRT(SUNTAB(1,K)**2+SUNTAB(2,K)**2+SUNTAB(3,K)**2)
+            VELTAB(1,K)=AU*SUNTAB(4,K)/(24D0*3600D0)
+            VELTAB(2,K)=AU*SUNTAB(5,K)/(24D0*3600D0)
+            VELTAB(3,K)=AU*SUNTAB(6,K)/(24D0*3600D0)
+          ENDIF
+          DO 5 L=1,3
+C            SUNTAB(L,K)=1.49597870D11*SUNTAB(L,K)
+C            SUNTAB(L,K)=AU*SUNTAB(L,K)
+            POSTAB(L,K)=AU*SUNTAB(L,K)
+5         CONTINUE
+C          SUNTAB(4,K)=1.49597870D11*RR
+C          SUNTAB(4,K)=AU*RR
+          POSTAB(4,K)=AU*RR
+10      CONTINUE
+      END IF
+C
+C COMPUTE RESULT BY LINEAR INTERPOLATION
+C      CALL QITPOL(3,4,TABTIM,SUNTAB,T,SUNPOS)
+      CALL QITPOL(3,4,TABTIM,POSTAB,T,SUNPOS)
+      IF((IORSYS.EQ.1).OR.(IDE200.EQ.0))THEN
+         SUNVEL(1)=0D0
+         SUNVEL(2)=0D0
+         SUNVEL(3)=0D0
+      ELSE
+         CALL QITPOL(3,3,TABTIM,VELTAB,T,SUNVEL)
+      ENDIF
+      GOTO 999
+C
+C ERROR DETECTED
+901   CALL EXITRC(2)
+C
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

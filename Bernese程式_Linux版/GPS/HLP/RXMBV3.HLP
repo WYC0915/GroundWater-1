@@ -1,0 +1,144 @@
+<html>
+<body>
+
+<center>
+<b>TRANSFER RINEX METEO FILES TO BERNESE FORMAT</b>
+<p>Program: RXMBV3
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+Use this program to transfer RINEX meteorological files into the Bernese
+meteo file format.
+
+<p><hr>
+
+<p><b>RXMBV3 1: Input/Output Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+If you check this box, the currently active campaign, session and session
+table are displayed.
+
+<br><br>
+
+<a name="OBSFIL" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>RINEX meteo file(s):</b>
+Select RINEX meteorological files to
+be imported into Bernese meteo file format. More than one file may be
+selected per program run, but only files of <i>one</i> site may be combined
+in the same run.
+<br>
+The input files have the
+default extension <tt>yyM</tt> where yy is the two digit year of the default
+session. Select the default session in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>.
+
+<br><br>
+
+<a name="NEWOLD" default="APPEND"></a>
+<a name="METEON" default=""></a>
+<a name="METEOA" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>NEW/APPEND</b> <b>Bernese meteo file:</b>
+You may either append the RINEX meteo data
+to an already existing Bernese meteo file (<b>APPEND</b>) or create a new
+Bernese meteo file (<b>NEW</b>).
+<ul>
+<li><b>NEW:</b> Enter the Bernese meteo output filename if you
+    have selected <b>NEW</b>. An empty input field means that
+    the name of the first RINEX meteo file will be used as output name.
+    <br>
+    <i>Caution:</i> Existing files with the same name will be overwritten.
+<li><b>APPEND:</b>
+    Enter the Bernese meteo output filename where the
+    meteo data should be appended if you have selected <b>APPEND</b>.
+    <br>
+    <i>Remark:</i> The file with the specified name has to already exist.
+</ul>
+
+<br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="RXMBV3"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>RXMBV3 2: Station Name Translation</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+and will be saved in all the result files to document the program run.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="STAINFO" default=""></a>
+<p><b>STATION NAME TRANSLATION</b>
+<p><b>Station information file:</b>
+In this input field you may supply the name of a station information
+file. The first section (<tt>TYPE001: Station renaming</tt>) will then be used
+to translate the marker names in the RINEX meteo files before being
+written to the Bernese meteo file. With <i>blank</i> no translation takes
+place and the site name given in the RINEX file(s) will be used also
+in the Bernese format.
+
+<p><a href="/$X/DOC/EXAMPLE.STA">Example</a>
+
+<!-- This panel will not be displayed
+<a name="USEFLG" default="0"></a>
+<a name="FLG001" default="999"></a>
+<p><b>Flags to be used</b>
+Specify the flags used from the first section (TYPE 001: Station renaming)
+of the station information file for this program run. Select the flag
+<tt>999</tt> activate all entries from this section of the station problem
+file.
+-->
+
+<a name="STNMSTOP" default="0"></a>
+<p><b>Stop if station name not found: </b>
+This option defines whether the program should stop if the station in
+the RINEX file is not present in the station name translation table or
+whether it should continue, just using the RINEX station name without
+translation.
+
+<p><hr>
+
+</body>
+</html>

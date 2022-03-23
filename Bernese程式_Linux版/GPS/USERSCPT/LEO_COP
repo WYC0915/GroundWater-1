@@ -1,0 +1,98 @@
+package LEO_COP;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  LEO_COP
+#
+# Purpose :  Copy required files for LEOPOD.PCF
+#
+# PARAMs  :
+#
+# Author  :  H. Bock
+# Created :  22-Feb-2012
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use File::Copy;
+
+use lib $ENV{BPE};
+use bpe_util qw(copyRef);
+
+sub run{
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($wwwwd,$wwww,$yymm,$yyssss,
+      $v_b, $v_g,
+      $refDir, $crdInf, $blqInf, $atlInf,
+      $dirCrd, $dirAbb, $dirSta, $dirCrx, $dirBlq, $dirAtl,
+      $extCrd, $extAbb, $extSta, $extCrx, $extBlq, $extAtl,
+      $dirPre, $dirErp, $dirIep, $dirClk, $dirDcb, $dirOut,
+      $extPre, $extErp, $extIep, $extClk, $extDcb ) =
+
+
+  $bpe->getKeys
+     ('$WD+0','$W+0','$M+0','$YSS+0',
+      'V_B','V_G',
+      'V_REFDIR','V_CRDINF','V_BLQINF','V_ATLINF',
+      'DIR_CRD','DIR_ABB','DIR_STA','DIR_STA','DIR_BLQ','DIR_ATL',
+      'EXT_CRD','EXT_ABB','EXT_STA','EXT_CRX','EXT_BLQ','EXT_ATL',
+      'DIR_PRE','DIR_ERP','DIR_IEP','DIR_RXC','DIR_DCB','DIR_OUT',
+      'EXT_PRE','EXT_ERP','EXT_IEP','EXT_RXC','EXT_DCB');
+
+
+
+# Construct list of reference files
+# ---------------------------------
+  my @filLst = ();
+
+  # Station related input files:
+  push @filLst,"${dirCrd}${crdInf}.${extCrd} 1";
+  push @filLst,"${dirAbb}${crdInf}.${extAbb} 1";
+  push @filLst,"${dirSta}${crdInf}.${extSta} 1";
+  push @filLst,"${dirBlq}${blqInf}.${extBlq} 1" if (${blqInf} ne "");
+  push @filLst,"${dirAtl}${atlInf}.${extAtl} 1" if (${atlInf} ne "");
+
+# Copy Reference Files
+# --------------------
+  $refDir = "$ENV{D}/" . $refDir;
+  copyRef($refDir,@filLst);
+
+# Construct list of external product files
+# ----------------------------------------
+  @filLst = ();
+    push @filLst,"${dirPre}${v_b}${wwwwd}.${extPre} 1";
+    push @filLst,"${dirClk}${v_b}${wwwwd}.${extClk} 1";
+    push @filLst,"${dirClk}${v_b}${wwwwd}.${extClk}_30S 0";
+    push @filLst,"${dirIep}${v_b}${wwww}7.${extIep} 1";
+
+# Copy External Product Files
+# ---------------------------
+  $refDir = "$ENV{D}/" . ${v_b};
+  copyRef($refDir,@filLst);
+
+# Rename clock file
+# -----------------
+  if (${v_b} eq "IGS" && -e "${dirClk}${v_b}${wwwwd}.${extClk}_30S"){
+    rename ("${dirClk}${v_b}${wwwwd}.${extClk}_30S",
+            "${dirClk}${v_b}${wwwwd}.${extClk}")  }
+  rename ("${dirClk}${v_b}${wwwwd}.${extClk}",
+        "${dirClk}${v_b}${yyssss}.${extClk}" );
+
+
+# Construct list of BSW-formatted input files
+# -------------------------------------------
+  @filLst = ();
+  push @filLst,"${dirDcb}P1C1${yymm}.${extDcb} 1";
+  push @filLst,"${dirDcb}P1P2${yymm}.${extDcb} 0";
+
+# Copy BSW-formatted input Files
+# ------------------------------
+  $refDir = "$ENV{D}/BSW52";
+  copyRef($refDir,@filLst);
+
+}

@@ -1,0 +1,51 @@
+      MODULE s_DMLMTV
+      CONTAINS
+
+C*
+      SUBROUTINE DMLMTV(X,T,Y)
+CC
+CC NAME       :  DMLMTV
+CC
+CC PURPOSE    :  MULTIPLY TRANSPOSE OF MATRIX T WITH VECTOR X:
+CC                    T
+CC               Y = T * X
+CC
+CC PARAMETERS :
+CC         IN :  X(K),K=1,2,3: COMPONENT OF VECTOR X          R*8
+CC               T(I,K), I=1,2,3, K=1,2,3: MATRIX T           R*8
+CC        OUT :  Y(K), K=1,2,3: RESULTING MATRIX              R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/30 08:11
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I, K
+C
+      REAL*8 T(3,3),X(3),Y(3),Z(3)
+      DO 1 I=1,3
+       Z(I)=0
+       DO 1 K=1,3
+         Z(I)=Z(I)+T(K,I)*X(K)
+1     CONTINUE
+      DO 2 I=1,3
+        Y(I)=Z(I)
+2     CONTINUE
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

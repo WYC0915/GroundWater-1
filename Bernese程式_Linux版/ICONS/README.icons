@@ -1,0 +1,43 @@
+======================================================================
+Bernese GNSS Software, Version 5.2              Last mod.: 01-Nov-2012
+----------------------------------------------------------------------
+Icons for X-Windows
+======================================================================
+
+
+----------------------------------------------------------------------
+Content of directory ICONS
+----------------------------------------------------------------------
+README.icons - This file
+G_16.xpm     - Bitmap files with the icon in 16x16
+G_22.xpm                                     22x22
+G_32.xpm                                     32x32
+G_48.xpm                                     48x48
+
+With these files you have the possibility to include the Bernese GNSS
+Software into your X-Windows environment.
+
+
+----------------------------------------------------------------------
+Including the software into the application menu
+----------------------------------------------------------------------
+The procedure how to implement the application depends on the
+X-Windows manager you are working on and whether you have
+installed the software locally on your machine or not.
+
+In general you should use the menu editor for your application menu
+(typically available with he right mouse button on the menu). Here
+we recommend to insert:
+   Name:    Bernese GNSS Software
+   Command: $X/EXE/G
+   Icon:    (Choose the icon file)
+
+If the software is available in the application menu, it can be put
+to the desktop or applciation panels.
+
+Note: it is important that the Bernese environment is already loaded
+($X/EXE/LOADGPS.setvar) if you launch the Bernese menu program. This
+can for instance be achieved if you load the the environement file
+$X/EXE/LOADGPS.setvar directly on login.
+
+======================================================================

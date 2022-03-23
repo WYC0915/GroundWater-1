@@ -1,0 +1,80 @@
+package GPSESTAP;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  GPSESTAP
+#
+# Purpose :  Prepare parallel GPSEST run
+#
+# PARAMs  :  PARAM2 - output file identifier (default: EST)
+#            PARAM3 - empty: stop if no PSH files are found
+#
+# Author  :  S. Schaer
+# Created :  22-Mar-2004
+#
+# Changes :  31-Jan-2005 mm: New initPar call (w/o tmpFil)
+#            11-Aug-2011 RD: Updated for version 5.2
+#
+# ============================================================================
+use strict;
+
+use File::Basename;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtErr initPar_Bl initPar_Cl);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($ssss    , $yyssss  ,
+      $param2  , $param3  , $clu     , $dirBpe,
+      $dirPsh  , $dirOut  , $dirRes  , $dirCrd, $dirTrp, $dirNeq,
+      $extPsh  , $extOut  , $extRes  , $extCrd, $extTrp, $extNeq) =
+  $bpe->getKeys
+     ('$S+0'   , '$YSS+0' ,
+      'PARAM2' , 'PARAM3' , 'V_CLU'  , 'DIR_BPEPRT',
+      'DIR_PSH', 'DIR_OUT', 'DIR_RES', 'DIR_CRD', 'DIR_TRP', 'DIR_NEQ',
+      'EXT_PSH', 'EXT_OUT', 'EXT_RES', 'EXT_CRD', 'EXT_TRP', 'EXT_NEQ');
+
+# Delete old files (OUT, SMC)
+# ---------------------------
+  my $est = "EST";
+  if ( $param2 ne "" ) {
+    $est = defined $$bpe{$param2} ? $$bpe{$param2} : $param2;
+  }
+  if ($clu ne "") {
+    unlink glob("${dirOut}${est}${ssss}???.${extOut}");
+    unlink glob("${dirRes}${est}${ssss}???.${extRes}");
+    unlink glob("${dirCrd}${est}${ssss}???.${extCrd}");
+    unlink glob("${dirTrp}${est}${ssss}???.${extTrp}");
+    unlink glob("${dirNeq}${est}${ssss}???.${extNeq}");
+  } else {
+    unlink glob("${dirOut}${est}${ssss}????.${extOut}");
+    unlink glob("${dirRes}${est}${ssss}????.${extRes}");
+    unlink glob("${dirCrd}${est}${ssss}????.${extCrd}");
+    unlink glob("${dirTrp}${est}${ssss}????.${extTrp}");
+    unlink glob("${dirNeq}${est}${ssss}????.${extNeq}");
+  }
+
+# Initialize parallel run
+# -----------------------
+  my $bpeFil = "${dirBpe}EST${ssss}";
+  my @pshFil = glob("${dirPsh}????${ssss}.${extPsh}");
+
+  if ($clu ne "") {
+    initPar_Cl($bpe,$bpeFil,@pshFil,0,$clu,0);
+  } else {
+    @pshFil = map { substr(basename($_),0,4) } @pshFil;
+    initPar_Bl($bpe,@pshFil);
+  }
+
+# Stop if no PSH files found
+# --------------------------
+  if (@pshFil == 0 && $param3 eq "") {
+    prtErr($bpe,"No PSH files found") and
+      die "No PSH files found for session ${ssss}";
+  }
+
+}

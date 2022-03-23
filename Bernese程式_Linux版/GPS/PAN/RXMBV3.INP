@@ -1,0 +1,185 @@
+
+! Some keywords for automatic output
+! ----------------------------------
+CAMPAIGN     0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! Selection of Rinex Input File(s)
+! --------------------------------
+OBSFIL     0
+  ## widget = selwin; path = DIR_RXM; ext = EXT_RXM; maxfiles = 999
+
+OBSFIL_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_MET
+
+OBSFIL_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_MET
+
+MSG_OBSFIL 1 "RINEX meteo file(s)"
+
+! Station Name Translation Table
+! ------------------------------
+STAINFO     0
+  ## widget = selwin; path = DIR_STA; ext = EXT_STA; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_STAINFO 1 "Station information"
+
+! Use station information file flags
+! ----------------------------------
+USEFLG     1  "0"
+  ## widget = checkbox; activeif = STAINFO /= _
+
+MSG_USEFLG 1  "Consider flags in sta-info file"
+
+! Flag to use in STAINFO: type 001
+! --------------------------------
+FLG001     1  "999"
+  ## widget = lineedit; activeif = STAINFO /= _ AND USEFLG = 1
+
+MSG_FLG001 1 "Flag to be used"
+
+! Stop if Station Name not found in Translation Table
+! ---------------------------------------------------
+STNMSTOP     1  "0"
+  ## widget = checkbox; activeif = STAINFO /= _
+
+MSG_STNMSTOP 1 "Stop if station name not found "
+
+! NEW/APPEND
+! ----------
+NEWOLD     1  "APPEND"
+  ## widget = combobox; editable = false; cards = NEW APPEND
+
+MSG_NEWOLD  1 "NEW/APPEND"
+
+! Bernese Met.Files
+! -----------------
+METEON     0
+  ## widget = lineedit; activeif = NEWOLD = NEW; path = DIR_MET; ext = EXT_MET; maxfiles = 1
+
+DESCR_METEON 1 "Bernese meteo file (NEW)"
+
+METEOA     0
+  ## widget = selwin; activeif = NEWOLD = APPEND; path = DIR_MET; ext = EXT_MET; maxfiles = 1
+
+DESCR_METEOA 1 "Bernese meteo file (APPEND)"
+
+! Program Output File
+! -------------------
+SYSODEF     1  "1"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "RXMBV3"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG     1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR     1  "ERROR"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+
+DESCR_SYSERR 1  "Error messages"
+
+! Title Line
+! ----------
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1 "Title line"
+
+SHOWGEN     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# TRANSFER RINEX METEO FILES TO BERNESE FORMAT - RXMBV3 1: Input/Output Files  #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files  > % <                                              # SHOWGEN
+#                                                                              #
+# INPUT FILES                                                                  #
+#   RINEX meteo file(s)> %%%%%%%% <                                            # OBSFIL
+#                                                                              #
+# RESULT FILES                                                                 #
+#   NEW/APPEND         > %%%%%%% <                                             # NEWOLD
+#                                                                              #
+#   Bernese meteo file > %%%%%%%% <    (blank: for same name as 1st RINEX file)# METEON
+#   Bernese meteo file > %%%%%%%% <                                            # METEOA
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output     > % < use RXMBV3.Lnn            or > %%%%%%%% <         # SYSODEF SYSOUT
+#   Error messages     > % < merged to program output  or > %%%%%%%% <         # ERRMRG SYSERR
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# RXMBV3 1.1: General Files                                                    #
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# RXMBV3 2: Station Name Translation                                           #
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE
+#                                                                              #
+# STATION NAME TRANSLATION                                                     #
+#   Station information file        > %%%%%%%% <                               # STAINFO
+#   Stop if station name not found  > % <                                      # STNMSTOP
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL STAINFO / _ AND USEFLG == 999 ####################################
+# RXMBV3 2.1: Select Flags from Station Information File to be Used            #
+#                                                                              #
+# ATTENTION!!!!    THIS PANEL IS DUMMY AT THE MOMENT!!!!                       #
+# To make the flag handling active, please modify SR GTSTAFLG.f90              #
+#                                                                              #
+#   Consider flags in sta-info file > % <                                      # USEFLG
+#            Flags to be used       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <    # FLG001
+#                                     Flag 999: Any flag will be considered    #
+#                                                                              #
+# END_PANEL ####################################################################
+
+

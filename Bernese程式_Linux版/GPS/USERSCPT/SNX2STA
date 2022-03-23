@@ -1,0 +1,28 @@
+package SNX2STA;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  SNX2STA
+#
+# Purpose :  Execute SNX2STA
+#
+# PARAMs  :
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+sub run {
+  my $bpe = shift;
+
+
+# Run program
+# -----------
+  my $PGMNAM = "SNX2STA";
+  $bpe->RUN_PGMS($PGMNAM);
+
+}

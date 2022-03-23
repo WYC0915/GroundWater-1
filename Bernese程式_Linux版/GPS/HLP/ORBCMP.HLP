@@ -1,0 +1,336 @@
+<html>
+<body>
+
+<center>
+<b>COMPARE PRECISE ORBITS</b>
+<p>Program: ORBCMP
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+The program ORBCMP compares satellite orbits contained in different precise ephemeris
+files. If you specify more than two files the orbits from each file will be
+compared with the orbits in all other files. Between the orbits of different
+files a set of Helmert parameters may be estimated. The comparison may be
+performed in the Earth-fixed or in the inertial system.
+<br>
+The precise ephemeris files are compared for orbit positions at common
+epochs. Make sure that the tabular intervals in the files are equal.
+
+<p><hr>
+
+<p><b>ORBCMP 1: Input / Output Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="PREINP" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Precise orbit files:</b>
+Select the input precise ephemeris files. The orbits in each file will be
+compared with those in all other files. Internally, the files are ordered in
+alphabetic order.
+
+<p><i>Remark:</i>
+Make sure that the files have enough common epochs to
+allow for a comparison.
+
+<a name="POLE" default=""></a>
+<p><b>Pole file:</b>
+A pole file is required in case the comparison is not performed in the
+Earth-fixed system. The same pole file is used for the transformation of the
+orbits from all files.
+<br>
+<a href="/$X/DOC/EXAMPLE.ERP">Example</a>
+
+<a name="STDORB" default=""></a>
+<p><b>Standard orbit file:</b>
+A standard orbit file may be specified to compare orbital residuals in the
+orbit oriented RSW system. The velocities from standard orbit have priority
+over velocities contained in precise files to compute the orientation of the
+RSW system. The standard orbit has to cover the entire comparison interval.
+
+<p><i>Remark:</i>
+Do not forget to specify the corresponding satellite problem
+file (enable "Show all general files" and specify the filename in "Satellite
+problems").
+
+<br><br>
+
+<a name="OUTPUT" default=""></a>
+<p><b>RESULT FILE</b>
+<p><b>Result file:</b>
+Specify the name of a result file. Depending on the option specified in
+"Content of the result file" in the section "GENERAL COMPARISON SETTINGS"
+you will get a summary or orbit differences written to this file.
+
+<p><i>Remark:</i>
+Specify the filename including its extension.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="ORBCMP"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+year and day of year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>ORBCMP 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+<br>
+Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="SUBMOD" default="IERS2010XY"></a>
+<p><b>Subdaily pole model:</b>
+This file contains the parameters for the subdaily pole model. It is
+required as soon as the orbits are not compared in the Earth-fixed system.
+<br>
+Example: <a href="/$X/GEN/IERS2010XY.SUB">$X/GEN/IERS2010XY.SUB</a>
+
+<a name="NUTMOD" default="IAU2000R06"></a>
+<p><b>Nutation model:</b>
+This file contains the parameters for the nutation model. It is
+required as soon as the orbits are not compared in the Earth-fixed system.
+<br>
+Example: <a href="/$X/GEN/IAU2000R06.NUT">$X/GEN/IAU2000R06.NUT</a>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems concerning modeling.
+It may also contain (mean) epochs of GPS repositioning events.
+These entries are necessary for a correct reading of the standard orbit
+file.
+
+<p><i>Note:</i>
+Corresponding year-specific files are maintained by AIUB/CODE.
+You can get the latest version of the current file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+<br>
+Example: <a href="/$X/GEN/SAT_2003.CRX">$X/GEN/SAT_2003.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<a name="GPSUTC" default="GPSUTC."></a>
+<p><b>GPS-UTC seconds:</b>
+Select the file with GPS-UTC values here. You have to update this file each
+time a leap second is introduced.
+<br>
+Example: <a href="/$X/GEN/GPSUTC.">$X/GEN/GPSUTC.</a>
+
+<p><hr>
+
+<p><b>ORBCMP 2: General Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<br><br>
+
+<a name="SYSTEM" default="EARTH-FIXED"></a>
+<p><b>GENERAL COMPARISON SETTINGS</b>
+<p><b>System for comparison:</b>
+Specify in which system the comparison should be performed. Residuals and
+Helmert transformation parameters will refer to this system. Possible systems are:
+<ul>
+<li><b>EARTH-FIXED:</b> The satellite positions in the precise ephemeris files
+    are compared directly. Helmert transformation parameters and orbit
+    differences refer to the Earth-fixed coordinate system. Coordinate axes
+    are aligned to ITRF.
+<li><b>INERTIAL:</b> The satellite positions are first transformed into the
+    inertial system using pole file information, nutation, and precession. The
+    resulting orbits are compared. Helmert transformation parameters and orbit
+    differences refer to the inertial system. Coordinate axes are aligned to
+    J2000.
+<li><b>RSW:</b> The satellite positions are first transformed into the
+    inertial system using pole file information, nutation, and precession.
+    Helmert transformation parameters and orbit differences refer to the
+    inertial system. Coordinate axes are aligned to J2000. The resulting
+    residuals are transformed to RSW using velocities from standard orbit or
+    from precise files.
+</ul>
+
+<a name="PRTLEV" default="SUMMARY"></a>
+<p><b>Content of the result file:</b>
+You may select between three different levels for printing the results of the
+comparisons into the output file specified in "Result file":
+<ul>
+<li><b>NONE:</b> The result file is not created.
+<li><b>SUMMARY:</b> The result file will contain Helmert parameters and
+    orbit difference RMS values for each pair of input precise files.
+<li><b>RESIDUALS:</b> The result file will contain in addition orbit
+    difference values for all common satellites in each pair of input precise
+    files.
+</ul>
+<p><i>Remark:</i>
+Independently from your setting a summary line containing
+the estimated Helmert parameters is written to the program output file for each
+pair of input precise files.
+
+<br><br>
+
+<a name="ISAMP" default="1"></a>
+<p><b>SELECT COMPARISON EPOCHS</b>
+<p><b>Sampling rate of coordinates:</b>
+You may select the sampling rate for the positions in the precise orbit files.
+1: use all epochs, 2: use every second epoch, etc.
+
+<p><i>Default values:</i> <tt>1</tt>
+
+<a name="MINCOO" default="1"></a>
+<p><b>Minimum number of common coordinates:</b>
+You may select the minimum number of common coordinates (same satellite at
+same epoch) which have to be available in a pair of precise files. If the
+number of common positions is lower than the specified value the content of
+the two files is not compared.
+
+<a name="USEWIN" default="0"></a>
+<p><b>Use comparison time window:</b>
+Usually the satellite positions for all common epochs are compared.
+Mark this checkbox to enter a time window specifying the epochs within which
+the comparison shall apply.
+
+<p><i>Remark:</i>
+The time window has to overlap with the time interval
+covered by the precise ephemeris files. Otherwise output will be written.
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+<a name="USESAT" default="EXCLUDED"></a>
+<a name="SATLST" default=""></a>
+<p><b>SATELLITE SELECTION</b>
+<p><b>The satellites in the following list will be :</b>
+INCLUDED or EXCLUDED. Specify the interpretation of the satellite numbers
+entered in the following field.
+
+<p><b>Satellite list:</b> You may specify a (blank or comma separated) list of
+satellites which you either want to INCLUDE in or EXCLUDE from the orbit
+comparison.
+
+<p><hr>
+
+<b>ORBCMP 2.1: Comparison Time Window</b>
+
+<a name="RADIO_1" default="1"></a>
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>COMPARISON TIME WINDOW</b>
+<p>
+This panel allows to specify a comparison time window. Only satellite
+positions within this time window will be compared.
+<br>
+You may define the time window either by using session definitions, or by
+explicitly specifying start and end times.
+
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the comparison time window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the comparison time window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: 00&nbsp;00&nbsp;00, end date: <tt>$YMD_STR+0</tt>,
+end time: 23&nbsp;59&nbsp;59
+
+<p><hr>
+
+<p><b>ORBCMP 3: Helmert Transformation</b>
+
+<a name="OFFSETX" default="0"></a>
+<a name="OFFSETY" default="0"></a>
+<a name="OFFSETZ" default="0"></a>
+<a name="ROTX" default="0"></a>
+<a name="ROTY" default="0"></a>
+<a name="ROTZ" default="0"></a>
+<a name="SCALE" default="0"></a>
+<p><b>HELMERT TRANSFORMATION PARAMETER</b>
+<p>
+You may choose which of the seven Helmert Transformation parameter
+(3&nbsp;translations in x,y,z and 3&nbsp;rotations about x,y,z and a scale) you want to
+set up. The axes x,y,z refer to the coordinate system specified in the field
+"System for comparison" in the section "GENERAL COMPARISON SETTINGS",
+i.e., to either the EARTH-FIXED or the INERTIAL reference frame.
+
+<br><br>
+<a name="DCOMAX" default=""></a>
+<p><b>OUTLIER REJECTION</b>
+<p><b>Maximum coordinate difference allowed:</b>
+You may select the maximum coordinate difference which is allowed. Common
+satellite positions are compared before applying any Helmert transformation.
+If one component exceeds the specified threshold a warning message is issued
+and the two positions are not used for the comparison and computation of
+Helmert transformation parameters.
+
+<p><i>Default values:</i> blank to compare all pairs of positions
+
+<p><hr>
+
+</body>
+</html>

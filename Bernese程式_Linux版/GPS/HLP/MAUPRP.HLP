@@ -1,0 +1,1275 @@
+<html>
+<body>
+
+<center>
+<b>PHASE PREPROCESSING</b>
+<p>Program: MAUPRP
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="DELETE_FILES"  default="%AUXFIL%\n%OBCOPY%"></a>
+<a name="IAUTO"         default="AUTOMATIC">
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The main purpose of program MAUPRP is the preprocessing of the phase
+observations on the zero- resp. <nobr>single-difference</nobr> level.
+The program scans the observations looking for cycle slips.
+If a cycle slip is found, the program will try to correct the observations.
+However, if the size of the cycle slip could not be determined reliably the
+program will remove the data point as an outlier or introduce a new ambiguity
+parameter.
+<br>
+The program MAUPRP is able to preprocess GPS-only, GLONASS-only, as well
+as GPS/GLONASS-combined data.
+
+<p><i>Remark:</i>
+Use this program with single-difference files when ever
+possible because for zero-difference files the quality of the screening of the
+phase observation files depends on the accuracy of the introduced satellite
+clocks. You will need an epoch to epoch accuracy level of about
+0.1&nbsp;nanosecond for the satellite clocks to be able to detect all
+cycle slips.
+
+<p><hr>
+
+<p><b>MAUPRP 1: Input Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RADIO_Z" default="0"></a>
+<a name="PZFILES" default="????$S+0"></a>
+<p><b>INPUT FILES</b>
+<p><b>Zero-difference observation files:</b>
+Select the zero-difference phase observation files to be preprocessed.
+Several files may be preprocessed in the same program run.
+
+<p><i>Default value:</i> <tt>????$S+0</tt>
+
+<a name="RADIO_S" default="1"></a>
+<a name="OBSFIL" default="????$S+0"></a>
+<p><b>Single-difference observation files:</b>
+Select the single-difference phase observation files to be preprocessed.
+Several files may be preprocessed in the same program run.
+
+<p><i>Default value:</i> <tt>????$S+0</tt>
+
+<a name="COORD" default=""></a>
+<p><b>A priori coordinates:</b>
+Select an a priori coordinate file. This coordinate file must contain all
+the sites you are processing. The a priori coordinates should be accurate to
+about 1 m or better.
+<br>
+Otherwise a new set of coordinates should be estimated by an epoch
+difference solution and saved in a "Coordinate results" file (see
+section "RESULT FILES"). For this special MAUPRP run - to perform the epoch
+difference solution - the option "Save screened observation files" (see
+section "GENERAL SETTINGS") may be disabled in order to keep the phase
+observation files unchanged. Use the updated coordinate file to rerun
+MAUPRP in order to perform the screening of the phase observation files.
+
+<p><i>Remark:</i>
+A more convenient way to get good a priori coordinates is
+to use the 'Precise Point Positioning' example (DOCU_PPP).
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="ECCENT" default=""></a>
+<p><b>Site eccentricities:</b>
+Optionally, a site coordinate eccentricity file may be specified
+containing local ties between markers.
+
+<p><a href="/$X/DOC/EXAMPLE.ECC">Example</a>
+
+<a name="KININP" default=""></a>
+<p><b>Kinematic input coordinates:</b>
+If an observation file contains one (or more) moving stations (may be even a
+LEO satellite) these epoch-wise kinematic coordinates may be used as a
+priori information instead of the constant "A priori coordinates" specified
+above. Usually such a file is the result of the program
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> from a previous iteration. At the
+moment MAUPRP is not able to store kinematic positions in an output file.
+
+<p><i>Remark:</i>
+Please be aware that only epochs with 'good' kinematic
+positions flagged by letter <tt>K</tt> in the kinematic coordinate file are
+introduced. All observations of the other epochs are marked. All
+entries are used as a priori if the "Kinematic coordinate estimation"
+(see section "EPOCH-DIFFERENCE SOLUTION") is enabled for the current
+program run.
+
+<p><a href="/$X/DOC/EXAMPLE.KIN">Example</a>
+
+<a name="STDORB" default=""></a>
+<p><b>GNSS standard orbits:</b>
+Exactly one GNSS standard orbit file covering the desired observation interval
+has to be selected (LEO orbits have to be specified by a separate standard
+orbit file, see section "INPUT FILES FOR LEO PROCESSING"). Be sure
+to specify the pole information corresponding to the standard orbit as the
+"Pole file" below.
+
+<a name="POLE" default=""></a>
+<p><b>Pole file:</b>
+This file contains the Earth rotation parameters (ERP's). It is used for
+the transformations between the International Celestial Reference Frame
+(ICRF) and the International Terrestrial Reference Frame (ITRF). This
+file has to be identical to the one used for the computation of the standard
+orbit.
+
+<p><a href="/$X/DOC/EXAMPLE.ERP">Example</a>
+
+<a name="SATCLK" default=""></a>
+<p><b>Satellite clocks:</b>
+The program may use a satellite clock file. On the single-difference level
+satellite clock errors are almost completely eliminated, if both receivers
+take the measurements simultaneously within 1&nbsp;ms. Therefore, it is usually
+not necessary to use a satellite clock file when processing
+<nobr>single-difference</nobr> observation files.
+<br>
+When screening zero-difference observation files the accuracy of the
+satellite clocks from this file will define the quality of the phase data
+screening. To detect all cycle slip an epoch to epoch accuracy level of
+0.1&nbsp;nanosecond is required.
+
+<p><a href="/$X/DOC/EXAMPLE1.CLK">Example</a>
+
+<a name="TROPEST" default=""></a>
+<p><b>Estimated troposphere values:</b>
+You may introduce troposphere estimates stemming from previous
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> or
+<a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a> runs or from other sources (e.g.,
+from CODE).
+
+<p><a href="/$X/DOC/EXAMPLE.TRP">Example</a>
+
+<a name="METFIL" default=""></a>
+<p><b>Meteo data files:</b>
+Measured surface meteorological data may be used to compute the tropospheric
+delays. One meteorological data file
+per station has to be specified. These
+Meteo data are used to compute the troposphere delay with the model selected
+in option "ZPD model and mapping function" of the section "TROPOSPHERE
+MODELING".
+
+<p><a href="/$X/DOC/EXAMPLE1.MET">Example 1</a>,
+   <a href="/$X/DOC/EXAMPLE2.MET">Example 2</a>,
+   <a href="/$X/DOC/EXAMPLE3.MET">Example 3</a>
+
+<a name="VMF1_FILES" default=""></a>
+<p><b>Maps of VMF1 coefficients:</b>
+For the continued fraction of the troposphere mapping function, the
+Vienna Mapping Functions 1 (VMF1, <a href="REFERENCES.HLP#Boehm_etal_2006">
+Boehm et al., 2006</a>) rely on global grids of the a, b, and c coefficients,
+partly based on the ray-tracing of the European Centre for Medium-Range
+Weather Forecasts (ECMWF) numerical weather models output. For more details
+on the VMF1 or to download VMF1 grids, please visit the
+<a href="LINKS.HLP#VMF1">VMF1 website</a>.
+
+<a name="IONOS" default=""></a>
+<p><b>Ionosphere models:</b>
+The program may take ionosphere models (Bernese format) produced by program
+<a href="PGMLST.HLP#IONEST">IONEST</a> or by program
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> into account. However, it does not help
+very much to apply an ionosphere model correction in most cases. Use the
+ionosphere-free linear combination (L3) for the epoch-difference solution in
+all cases where possible.
+
+<p><a href="/$X/DOC/EXAMPLE2.ION">Example</a>
+
+<a name="LEOPROC" default="0"></a>
+<p><b>Process LEOs:</b>
+Check this box to preprocess observation files stemming from GPS receivers
+on board of LEOs. If this box is marked all files containing observations from
+at least one LEO are automatically selected from the specified
+observation files. If this box is unmarked observation files containing LEO
+observations are ignored.
+
+<p><i>Remark:</i>
+The <tt>MARKER TYPE</tt> in part <tt>TYPE 005: HANDLING STATION TYPES</tt>
+of the "Station information" file (see section "GENERAL INPUT FILES") has
+to be <tt>SPACEBORNE</tt> to flag a GPS receiver as a LEO satellite.
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+<p><b>MAUPRP 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">CONST.</a>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates. It is used
+to apply antenna heights and for the printing of coordinates in the
+local system (north, east, up). You only have to modify this file
+when you want to introduce a new reference ellipsoid.
+
+<p><i>Caution:</i>
+This file has no effect on Cartesian coordinates.
+
+<p>Example: <a href="/$X/GEN/DATUM.">DATUM.</a>
+
+<a name="SUBMOD" default="IERS2010XY"></a>
+<p><b>Subdaily pole model:</b>
+This file contains the parameters for the subdaily pole model. It
+has to be identical to the one used for the computation of the
+standard orbit.
+<br>
+Example: <a href="/$X/GEN/IERS2010XY.SUB">IERS2010XY.SUB</a>
+
+<a name="NUTMOD" default="IAU2000R06"></a>
+<p><b>Nutation model:</b>
+This file contains the parameters for the nutation model. It
+has to be identical to the one used for the computation of the
+standard orbit.
+
+<p>Example: <a href="/$X/GEN/IAU2000R06.NUT">IAU2000R06.NUT</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT. is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">SATELLIT.I08</a>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems concerning modeling.
+It is used for exclusion of misbehaving satellites
+(and for orbit arc splitting).
+It may also contain (mean) epochs of GPS repositioning events.
+
+<p><i>Note:</i>
+Corresponding year-specific files are maintained by AIUB/CODE.
+You can get the latest version of the current file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SAT_2011.CRX">SAT_2011.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<a name="STAINFO" default=""></a>
+<p><b>Station information:</b>
+This file contains station specific information. The program only considers
+the marker types (TYPE 005: HANDLING STATION TYPES) contained in this file.
+Receivers in the observation files are handled as LEO-satellites if the
+'station' is indicated as <tt>SPACEBORNE</tt> here.
+
+<p><a href="/$X/DOC/EXAMPLE.STA">Example</a>
+
+<a name="PHASECC" default="PCV.I08"></a>
+<p><b>Phase center eccentricities:</b>
+This file contains receiver antenna phase center offsets and optionally
+elevation-dependent phase center patterns.
+In addition, the file may contain satellite-specific antenna
+phase center patterns (dependent on nadir angle) as well as offset values.
+Corresponding offset (correction) values, however, are not yet considered
+by the software.
+The satellite antenna offset values applied correspond to
+those given in <a href="/$X/GEN/SATELLIT.I08">SATELLIT.I08</a>.
+<br>
+You have to modify this file when you use a new antenna type
+or when you wish to consider your own PCV calibrations.
+The program <a href="PGMLST.HLP#ATX2PCV">ATX2PCV</a> allows to convert
+PCV information given in ANTEX format into Bernese-formatted PCV tables.
+
+<p><i>Important note:</i>
+The file $X/GEN/PHAS_IGS.REL contains PCV values
+for most of the receiver antenna types commonly used
+within IGS (and EUREF).
+These PCV values are addressed as 'relative' values
+as they are generally referred to
+a specific receiver antenna type (AOAD/M_T).
+For this reference antenna type
+(as well as implicitly all GNSS antenna types),
+PCV patterns are assumed to be nonexistent.
+Sooner or later, it will become common to consider 'absolutely' calibrated
+receiver and satellite antenna PCV values.
+A corresponding file ($X/GEN/PHAS_IGS.ABS) will be made available
+as soon as this is the case.
+
+<p>Example: <a href="/$X/GEN/PCV.I08">PCV.I08</a>.
+
+<br><br>
+
+<a name="AUXFIL" default="MAUPRP$J"></a>
+<a name="OBCOPY" default="MAUPRP$J"></a>
+<p><b>TEMPORARY FILES</b>
+<p><b>Scratch files:</b>
+Enter the names of the scratch files used by this program. The scratch files
+need to be named differently for different programs running simultaneously.
+This may be achieved, e.g., by adding the job ID
+<tt>$J</tt> to the program name (define the job ID in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>).
+
+<p><i>Default values:</i> <tt>MAUPRP$J</tt>
+
+<p><hr>
+
+<p><b>MAUPRP 1.2: LEO Processing</b>
+
+<a name="LEOSTD" default=""></a>
+<p><b>INPUT FILES FOR LEO PROCESSING</b>
+<p><b>LEO standard orbit:</b>
+Specify the standard orbit file for the LEO. If no LEO positions and
+velocities are available in the files specified in "Kinematic input
+coordinates" (see section "INPUT FILES") and "Kinematic velocities"
+(see below) respectively, the positions and velocities of the LEO are
+taken from the LEO standard orbit.
+
+<a name="ATTIT" default=""></a>
+<p><b>LEO attitude:</b>
+Specify the LEO attitude file.
+
+<a name="GPSUTC" default="GPSUTC."></a>
+<p><b>GPS-UTC seconds:</b>
+Specify the file with GPS-UTC values. You have to update this file each time
+a leap second is introduced. This file is only necessary together with a
+JASON attitude file.
+
+<p>Example: <a href="/$X/GEN/GPSUTC.">GPSUTC.</a>
+
+<a name="KINVEL" default=""></a>
+<p><b>Kinematic velocities:</b>
+Specify the file containing LEO-kinematic velocities accompanying the
+kinematic positions specified in "Kinematic input coordinates" in the
+section "INPUT FILES".
+
+<p><hr>
+
+<p><b>MAUPRP 2: Output Files</b>
+
+<a name="COORDRS" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>Coordinate results:</b>
+Specify a coordinate file name to save the coordinate estimates of the
+epoch-difference phase solution. The results of the epoch-difference
+solution may provide a priori coordinates for the program
+<a href="PGMLST.HLP#GPSEST">GPSEST</a>.
+<br>
+If you are preprocessing single-difference observation files the result of
+the epoch-difference solution (triple-difference solution) are coordinate
+vectors of the second station of the baseline relative to the first
+station. If all single-difference files of a session are preprocessed
+together the program will generate a consistent set of coordinates for all
+sites relative to the fixed site defined in "Define the fixed station" (see
+section "SAVING COORDINATES" below).
+<br>
+If not all baselines are connected the program will have to select one
+or more additional fixed sites. They will all get the flag 'F' in the
+resulting coordinate file (all estimated sites will be flagged with 'T' for
+'Triple-difference').
+<br>
+If you are preprocessing zero-difference files the coordinates estimated in
+the epoch-difference solution (i.e., double difference between two
+satellites and two epochs of one station) are stored with the flag 'U' (for
+'Undifferenced'). No fixed stations are necessary because coordinate
+estimates are obtained for all stations.
+<br>
+If the field is left blank no coordinates will be saved.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="RESIDRS" default=""></a>
+<p><b>Residual file:</b>
+Specify a filename to save the residuals of the epoch-difference solution.
+All preprocessing actions (e.g., marking of observations, cycle slip
+corrections) are applied when the residuals are generated. The residual
+file will reflect the quality of the cleaned observation files.
+The content of the binary file may be viewed by the program
+<a href="PGMLST.HLP#REDISP">REDISP</a> or analyzed by the program
+<a href="PGMLST.HLP#RESRMS">RESRMS</a>.
+<br>
+If the field is left blank no residuals will be saved.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="MAUPRP"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>MAUPRP 3: General Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+and will be saved in the result files to document the program run.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="NFRCHK" default="AUTO"></a>
+<a name="MINLEN" default="20"></a>
+<b>GENERAL SETTINGS</b>
+<p><b>Screening mode, frequency to check:</b>
+This option is important for dual-band data. For baselines longer than about
+10 to 20&nbsp;km the <b>COMBINED</b> mode (depending on the activity in the
+ionosphere) is mandatory as only there the ionosphere-free
+linear combination L3 of the L1 and L2 observations is used for cycle slip
+detection. The <b>BOTH</b> mode actually consists only of the single frequency
+preprocessing for L1 and L2 independently.
+<br>
+The selection <b>AUTO</b> automatically switches between the "BOTH" and the
+"COMBINED" mode depending on the specification in the input field "Max.
+baseline length to use BOTH mode". Single-frequency data are automatically
+screened in the "BOTH"-mode when "AUTO" is selected.
+
+<p><i>Remark:</i>
+When processing zero-difference phase observation files
+the "COMBINED" mode should be applied because the screening bases on the
+Precise Point Positioning (PPP) method where the data of the single station
+are joining a global network.
+
+<p><i>Remark for kinematic stations:</i>
+Observation files containing
+kinematic stations where the positions have to be estimated should be
+handled in the "COMBINED" mode when ever possible. Otherwise the reduced
+degree of freedom (four parameters are estimated before the interpretation
+of the residuals) increases the difficulty to distinguish between
+the (real) influence from the ionosphere and data problems.
+
+<p><i>Default value:</i> <tt>AUTO</tt>
+
+<p><b>Max. baseline length to use BOTH mode:</b>
+If the "Screening mode, frequency to check" is automatically selected the
+maximum length in km of a baseline that will be screened in the "BOTH" mode
+is selected here. All longer baselines will be screened in the "COMBINED" mode.
+
+<p><i>Default value:</i> <tt>20</tt> km
+
+<a name="SECIPL" default="0"></a>
+<p><b>Interpolation of clocks: </b>
+The interpolation of the satellite clocks may be applicable if you process data
+with a higher sampling than the available satellite clocks, e.g. LEO data with
+10 seconds sampling, satellite clocks with 30 seconds sampling. Then you can
+linearly interpolate the clocks by selecting a value, which is larger than the
+sampling of the clocks.
+
+<p><i>Default value:</i> <tt>0</tt>
+
+<a name="ISAVE" default="1"></a>
+<p><b>Save screened observation files:</b>
+Check this box to save the screened observation files for further use in the
+program <a href="PGMLST.HLP#GPSEST">GPSEST</a>. If this box is left unmarked
+all observation files remain untouched which means that all changes
+suggested by the program are lost. Not saving modified observation files may
+be useful for test purposes or for the generation of a priori coordinates from
+the epoch-difference solution for a next MAUPRP iteration.
+
+<p><i>Default value:</i> marked
+
+<a name="ISETOP" default="1"></a>
+<!-- Option not in panel
+<p><u>Take frequency/wavelength factors from file:</u>
+It may happen that the selected options are not compatible with the files to
+be preprocessed (e.g., number of frequencies in the observation files,
+wave-length factors). If you mark this box, the necessary information is
+taken from the observation header files.
+
+<p><i>Default value:</i> marked
+-->
+
+<br><br>
+
+<a name="TROPOS" default="GMF"></a>
+<p><b>TROPOSPHERE MODELING</b>
+<p><b>ZPD model and mapping function:</b>
+There are several possibilities to model the tropospheric delay. The
+models <b>GMF</b> and <b>VMF</b> as well as the older models <b>NIELL</b>, <b>SAASTAMOINEN</b>,
+and <b>HOPFIELD</b> are including
+the dry and wet component of the tropospheric delay, whereas the
+models <b>DRY_GMF</b>, <b>DRY_VMF</b>, <b>DRY_NIELL</b>, <b>DRY_SAAST</b>, and <b>DRY_HOPFIELD</b>
+take into account the dry part only.
+<br>
+Selecting <b>NONE</b> suppresses the use of an a priori troposphere model
+and is therefore not recommended (for test purposes only). For LEO-satellites
+no troposphere will be applied even if you have chosen a troposphere model
+here.
+<br>
+The troposphere model is used corresponding to the selected input
+files:
+<ol>
+<li>If no troposphere input files (input fields "Estimated troposphere values"
+    and "Meteo data files" in the "INPUT FILES" section are empty) the selected
+    troposphere model is used to compute the troposphere delay with extrapolated
+    meteorological data based on a standard atmosphere.
+    <br>
+    In case of <b>VMF</b> or <b>DRY_VMF</b> the values from ECMWF as included in the
+    grid files are used. If you have specified <b>GMF</b> or <b>DRY_GMF</b> the GPT
+    (Global Pressure Temperature model,
+    <href="REFERENCES.HLP#Boehm_etal_2007">B&ouml;hm et al, 2007</a>) is used as
+    basis for the troposphere model.
+    <br>
+    In all other models, the starting values at
+    sea level to compute pressure, temperature, and humidity at the height of
+    the station (standard atmosphere) are given in the "General constants" file
+    you have specified in the "GENERAL INPUT FILES" section. Do not change these
+    values.
+<li>If a file with estimated troposphere values from
+    <a href="PGMLST.HLP#GPSEST">GPSEST</a> or
+    <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a> has been
+    selected in the field "Estimated  troposphere values" of the "INPUT FILES"
+    section these values are applied to model the troposphere delay. If a
+    station is missing in this file extrapolated meteorological data are used
+    (see 1).
+<li>If Meteo files with observed meteorological data have been selected in the
+    field "Meteo data files" in the "INPUT FILES" section these Meteo data are
+    used to compute the troposphere delay with the selected troposphere model.
+    For all stations without Meteo data in the input files extrapolated
+    meteorological data are used (see 1).
+</ol>
+
+<p><i>Remark:</i>
+Please remember that you need to specify grid with correction
+values covering the time interval of processing in the input field "Maps of
+VMF1 coefficients" if you have selected "VMF" or "DRY_VMF".
+
+<p><i>Remark:</i>
+The troposphere modeling is not relevant if you
+preprocess data for LEOs.
+
+<p><i>Recommended value:</i> <tt>GMF</tt>
+
+<br><br>
+
+<a name="STALST" default="">
+<a name="STAFIX" default=""></a>
+<p><b>SAVING COORDINATES</b>
+<p><b>Define the fixed station:</b>
+This option is only relevant if coordinates estimated in the epoch-difference
+solution from single-difference observation files (baselines) are stored in
+a "Coordinate results" file (see section "RESULT FILES"). The station to be
+kept fixed may be specified by the user.
+<br>
+If no station name (blank) or "AUTO" is specified the program will select a
+station automatically. It is possible that more than one station will be
+fixed in a network which is divided into two or more independent parts, but
+only one station (belonging to a first part of the network) to be fixed may
+be specified by the user. MAUPRP will fix additional stations for the
+remaining parts automatically.
+
+<p><hr>
+
+<p><b>MAUPRP 4: Marking of Observations</b>
+
+<a name="IUSFLG" default="0"></a>
+<p><b>MARKING OF OBSERVATIONS BEFORE CYCLE SLIP DETECTION</b>
+<p><b>Mark if marking flags in observation file:</b>
+If you check this box, all the observations already marked (e.g., from a
+previous run of MAUPRP or manually in the
+<a href="PGMLST.HLP#SATMRK">SATMRK</a> program) will not be checked
+anymore at any stage of the preprocessing and remain marked. If this
+box is left unmarked all observation markings read from the observation
+files will be reset and all observations will be checked.
+
+<p><i> Default value:</i> unmarked
+
+<a name="MINEL"   default="5"></a>
+<a name="MINELEO" default="0"></a>
+<p><b>Mark observations below an elevation of:</b>
+Observations with low elevations are expected to be more corrupted by the
+troposphere and by multipath. On the other hand the height component of
+the station position may be better estimated if observations with low
+elevations are used. All observations below the specified cut-off angle
+are marked. They are neither checked by this program nor used by the
+parameter estimation program <a href="PGMLST.HLP#GPSEST">GPSEST</a>.
+There are separate input fields for terrestrial stations and LEO-satellites.
+
+<p><i>Default value:</i> <tt>5</tt>&nbsp;degrees
+
+<a name="MRK1O2" default="1"></a>
+<!-- Option not in panel
+<p><u>Mark unpaired dual frequency observations:</u>
+Check this box to mark all dual frequency observations where only L1 or L2
+is present. This option needs always be enabled, if you use the "COMBINED"
+mode (option "Screening mode, frequency to check" in the section "GENERAL
+SETTINGS"), otherwise unchecked single frequency observations may remain in
+the data.
+
+<p><i>Default value:</i> marked
+-->
+
+<a name="MNCONT" default="301"></a>
+<p><b>Minimum time interval accepted for continuous observations:</b>
+Short intervals of observations (a few epochs only) are in general
+not important for the quality of the final solution. On the contrary,
+small pieces of data might indicate tracking problems which might lead
+to many new ambiguity parameters causing higher a posteriori mean
+errors of the estimated parameters. It seems to be safer to mark these
+short intervals. A time interval which covers approximately
+10&nbsp;epochs is appropriate as input value.
+
+<p><i>Default value:</i> <tt>301</tt>&nbsp;seconds for a 30&nbsp;seconds
+data sampling
+
+<a name="MXHOLE" default="61"></a>
+<p><b>Maximum gap accepted within continuous observations:</b>
+It might happen that many observations are marked because they are not
+accepted by the previous criterion although a closer look to the observations
+shows that the cause are very small gaps in the data (e.g., just one epoch
+missing). It makes sense, therefore, to accept data with such short gaps
+still as 'continuous observations'. If there is a gap in the data larger
+than the value specified here, the data will no longer be considered
+'continuous' and the check for small data pieces (defined in the previous
+options) will be applied.
+A time interval about twice the sampling rate in the observation file is
+appropriate as input value.
+
+<p><i>Default value:</i> <tt>61</tt>&nbsp;seconds for a 30&nbsp;seconds
+data sampling
+
+<p><hr>
+
+<p><b>MAUPRP 5: Non-Parametric Screening</b>
+
+<a name="IPRNT1" default="SUMMARY"></a>
+<p><b> GENERAL OPTIONS</b>
+<p><b>Extent of program output: </b>
+Non-parametric screening is the first part of the preprocessing. You
+can specify here how many details you want to print into the program output
+file from this part of the preprocessing.
+
+<p><i>Default value:</i> <tt>SUMMARY</tt>
+
+<a name="MXINTR" default="2"></a>
+<p><b>Maximum time interval for polynomial fit:</b>
+In the first step the program checks whether or not the assumption is
+correct that the observations may be represented by a polynomial of degree
+<i>q</i> - specified in the section "SCREENING ON DIFFERENT DIFFERENCE LEVELS"
+below - within an interval of a few minutes. This is achieved by
+checking whether or not the (<i>q</i>+1)-st derivative is zero within
+3&nbsp;times its "Discontinuity level" to be specified in the section
+"SCREENING ON DIFFERENT DIFFERENCE LEVELS". If the assumption is correct,
+the considered interval is shifted by one observation. If the assumption
+is wrong, the last observation of the current interval is marked an
+replaced by the following one. If the current interval gets longer
+than the specified value, all observations of this current interval
+are dropped, and the process is re-initialized.
+<br>
+The interval has to be long enough to contain <i>q</i>+2 observation epochs
+because the (<i>q</i>+1)-st derivative has to be computed. If a polynomial
+degree of one is used (<i>q</i>=1), the interval has to contain at
+least three observation epochs. It is not recommended to use a large maximal
+interval of fit.
+
+<p><i>Default value:</i> <tt>2</tt>&nbsp;minutes for 30&nbsp;seconds
+data sampling
+
+<br><br>
+
+<a name="IPPROC1" default="0"></a>
+<p><b>SCREENING ON DIFFERENT DIFFERENCE LEVELS</b>
+<p><b>Original observations from file:</b>
+If you check this box the observations are fitted by a polynomial on the
+zero-difference level if zero-difference observation files are specified or
+on the single-difference level if single-difference files are specified.
+This has the advantage that a problem may directly be assigned to a
+specific satellite.
+On the other hand the 'success' of the polynomial fit depends on the quality
+of the receiver clock synchronization previously done in program
+<a href="PGMLST.HLP#CODSPP">CODSPP</a>. This screening is, therefore,
+not used in general, except for debugging purposes.
+
+<!--
+<p><i>Remark:</i> Observations excluded in the non-parametric screening
+algorithm will not contribute to the epoch-difference solution.
+Nevertheless, they will finally be checked for cycle slips and outliers
+to mark them definitively or not.
+-->
+
+<p><i>Default value:</i> unmarked
+
+<a name="QQ1" default="1"></a>
+<p><b>Polynomial degree:</b>
+Specify the degree of the fitting polynomial (see option "Maximum time
+interval for polynomial fit" above for a description of the algorithm).
+
+<p><i>Default value:</i> <tt>1</tt>
+
+<a name="DISCLV1" default="0.4"></a>
+<p><b>Discontinuity level:</b>
+Specify the discontinuity level (see option "Maximum time
+interval for polynomial fit" above for a description of the algorithm).
+
+<p><i>Default value:</i> <tt>0.4</tt>&nbsp;meters
+
+<a name="IPPROC2" default="1"></a>
+<p><b>Differences between satellites</b>
+It is recommended to use differences between satellites for the
+non-parametric screening. The differences between two satellites of one
+epoch are formed from the observations in the observation files (which
+results in a single-difference screening if zero-difference observation
+files are selected or in a double-difference screening if single-difference
+files are specified). The advantage is that the receiver clock synchronization
+previously done in the program <a href="PGMLST.HLP#CODSPP">CODSPP</a>
+will not affect the polynomial fit.
+Unmark this box only for debugging purposes.
+
+<!--
+<p><i>Remark:</i> Observations excluded in the non-parametric screening
+algorithm will not contribute to the epoch-difference solution.
+Nevertheless, they will finally be checked for cycle slips and outliers
+to mark them definitively or not.
+-->
+
+<p><i>Default value:</i> marked
+
+<a name="QQ2" default="1"></a>
+<p><b>Polynomial degree:</b>
+Specify the degree of of the fitting polynomial (see option "Maximum time
+interval for polynomial fit" above for a description of the algorithm).
+
+<p><i>Default value:</i> <tt>1</tt>
+
+<a name="DISCLV2" default="0.01"></a>
+<p><b>Discontinuity level:</b>
+Specify the discontinuity level (see option "Maximum time
+interval for polynomial fit" above for a description of the algorithm).
+
+<p><i>Default value:</i> <tt>0.01</tt>&nbsp;meters
+
+<p><hr>
+
+<p><b>MAUPRP 6: Epoch-Difference Solution</b>
+
+<a name="LTRIP" default="L3"></a>
+<p><b>EPOCH-DIFFERENCE SOLUTION</b>
+<p>
+In the previous non-parametric screening step differences between two
+satellites for the same epoch are formed from the measurements in the
+observation files. In this step additional differences between two
+successive epochs are formed from the satellite differences of the
+observations. In the case of single difference observation files this
+corresponds to a triple-difference solution.
+<br>
+The epoch-difference solution is used as reference for the cycle
+slip detection and correction. It is, therefore, essential for a
+successful preprocessing.
+
+<p><b>Frequency for the solution:</b>
+Specify the linear combination used for the epoch-difference solution.
+The polynomial fit in the non-parametric screening part is done with
+this linear combination, too.
+<br>
+For longer baselines, the ionosphere-free linear combination L3 is
+the best choice.
+
+<p><i>Default value:</i> <tt>L3</tt>
+
+<a name="KINSTA" default="0"></a>
+<p><b>Kinematic coordinate estimation:</b>
+If large receiver coordinate differences from epoch to epoch occur it is
+possible to take the change of the position (zero-difference observation
+file) or of the baseline vector (single-difference observation file) into
+account. It is recommended to constrain the coordinates to the a priori
+values (see option "A priori coordinate/baseline vector sigmas" below).
+<br>
+It is not necessary to mark this box if you have introduced very good
+a priori kinematic positions (e.g., selecting "Kinematic input coordinates"
+in the section "INPUT FILES") which are not expected to be improved by an
+epoch-difference solution.
+
+<p><i>Default value:</i> unmarked
+
+<a name="OMCMAX" default="0.5"></a>
+<p><b>Maximum observed-computed value:</b>
+Observations which lead to epoch-difference residuals larger than the
+specified value will not be used for the epoch-difference solution.
+In the program output these observations will be marked with the flag
+<tt>O-C</tt>. If you have bad a priori coordinates, you should not make
+use of this parameter. Enter <tt>0.0</tt> or blank to disable the test.
+
+<!---
+<p><i>Remark:</i> Observations excluded by this threshold
+will not contribute to the epoch-difference solution.
+Nevertheless, they will finally be checked for cycle slips and outliers
+to mark them definitively or not.
+-->
+
+<p><i>Default value:</i> <tt>0.5</tt>&nbsp;meters
+
+<a name="RMSMAX" default="1.0"></a>
+<p><b>RMS limit for epoch solution:</b>
+In the case of zero-difference observation files or kinematic coordinate
+estimation the change of the clock resp. the position is estimated epoch by
+epoch. This estimation can be flagged as 'bad' if a high RMS remains after
+removing bad observations. The limit for this RMS can be specified in this
+input field. The occurrence of a high RMS will be reported as a warning
+message.
+
+<p><i>Default value:</i> <tt>1</tt>&nbsp;meter
+
+<a name="APRCWGT" default="1"></a>
+<a name="SIGWGS1" default="0.1"></a>
+<a name="SIGWGS2" default="0.1"></a>
+<a name="SIGWGS3" default="0.1"></a>
+<p><b>A priori coordinate/baseline vector sigmas</b>
+A priori sigmas may be assigned to the station coordinates if you are
+screening zero-difference phase observation file and to the baseline
+vector if you have selected single-difference phase observation
+files respectively. A value of zero
+is equivalent to no a priori sigmas specified, i.e., the solution is not
+constrained.
+<br>
+It is recommended to use these constraints if good a priori
+coordinates are already available. The specified a priori sigmas should
+approximately reflect the accuracy of the a priori coordinates.
+<br>
+If the "Kinematic coordinate estimation" is enabled the constraining
+of the coordinates or baseline vectors will help to improve the reliability
+of the epoch solutions and in this way the screening result. It is recommended
+to introduce a priori kinematic positions (e.g., by selecting "Kinematic
+input coordinates" in the section "INPUT FILES").
+
+<p><i>Default values:</i> <tt>0.1</tt>&nbsp;meters
+
+<p><hr>
+
+<p><b>MAUPRP 7: Clock Events</b>
+
+<a name="CLKOPT2" default="50"></a>
+<p><b>DETECTION OF CLOCK EVENTS</b>
+<p>
+In principle jumps in the receiver clock are uncritical. This is true if
+such events are treated in a consistent way in the RINEX files. They affect
+the observation epoch, the code, and the phase measurements with a
+corresponding magnitude. The program <a href="CODSPP.HLP">CODSPP</a> needs to
+be run before MAUPRP to synchronize the receiver clocks using
+the code observations. In the epoch solutions of MAUPRP these code based
+receiver clock values have to be confirmed using the phase observations.
+If this is not the case MAUPRP will report a 'clock event'. It must be
+identified and, if possible, corrected if code and phase observations are
+introduced together into the program <a href="PGMLST.HLP#GPSEST">GPSEST</a>
+for the estimation of clock corrections.
+<br>
+Some receivers generate jumps with a size of <i>n</i> times one millisecond.
+If such ms-jumps are not correctly handled by receiver or RINEX converter
+they may be repaired by MAUPRP.
+
+<p><b>Minimum size of a clock event:</b>
+MAUPRP uses the phase observations to estimate
+the differences of the receiver clock from epoch to epoch. The a priori
+values for this task stem from the <a href="PGMLST.HLP#GPSEST">CODSPP</a>
+solution. The estimate for the change of the receiver clock from epoch to
+epoch is, therefore, expected to be zero.
+<br>
+The parameter in this field specifies the threshold above which the estimate
+from the phase observations for the receiver clock differs from the a priori
+values obtained from the pure code measurements is considered as a 'clock
+event'.
+
+<p><i>Default value:</i> <tt>50</tt>&nbsp;nanoseconds
+
+<a name="TOLJMP" default="0.001"></a>
+<p><b>Tolerance for ms-jump detection:</b>
+MAUPRP is able to identify ms-jumps with the magnitude of n times
+1&nbsp;millisecond. A tolerance has to be defined to account for the
+measurement noise. If the tolerance is too large, arbitrary clock estimates
+may be interpreted as ms-jumps and the phase observations will be corrected
+for this (wrong) clock offsets.
+
+<p><i>Default value:</i> <tt>0.001</tt>&nbsp;milliseconds
+
+<br><br>
+
+<a name="CLKOPT5" default="0"></a>
+<p><b>MS-JUMP HANDLING</b>
+<p><b>Flag the observation file for deletion:</b>
+If you check this box the program will stop the preprocessing for those
+files for which a ms-jump is found. The screened phase observation file
+will not be stored but flagged in the program output (<tt>#@# JUMP</tt>
+instead of <tt>#@# OK</tt>). The extraction program
+<a href="MPRXTR.HLP">MPRXTR</a> may then be used to write a file deletion
+list containing these corrupted files.
+
+<p><i>Default value:</i> unmarked
+
+<a name="CLKOPT1" default="1"></a>
+<p><b>Repair the ms-jumps as 'cycle slips':</b>
+The ms-jumps may be repaired in the observation files. Assuming that
+they have a magnitude of a multiple of a millisecond it is possible to
+correct them in the same way as cycle slips. If the option is disabled the
+ms-jumps will be treated according to the options for "HANDLING OF OTHER CLOCK
+EVENTS" below.
+
+<p><i>Default value:</i> marked
+
+<br><br>
+
+<a name="CLKOPT6" default="0"></a>
+<p><b>HANDLING OF OTHER CLOCK EVENTS</b>
+<p><b>Flag the observation file for deletion:</b>
+If you check this box the program will stop the preprocessing for those
+files for which a clock event with an arbitrary magnitude is found. The
+screened phase file will not be stored but flagged in the program output
+(<tt>#@# CLKP</tt> instead of <tt>#@# OK</tt>). The
+extraction program <a href="MPRXTR.HLP">MPRXTR</a> may then be used to write
+a file deletion list containing these corrupted files.
+
+<p><i>Default value:</i> unmarked
+
+<a name="CLKOPT3" default="300"></a>
+<p><b>Mark observations up to a time interval:</b>
+If several clock events occur within a time interval specified by this
+option, the magnitude of all these events are summed up. If this sum is
+below the limit specified in the field "Minimum size of a clock
+event" it can be assumed that the receiver clock problem affects a
+few epochs only. These epochs are marked to eliminate the clock event.
+<br>
+Approximately 10&nbsp;epochs is a reasonable value here. You may use the
+same value as for "Minimum observed time interval per ambiguity" in the
+section "MARKING OF OBSERVATIONS AFTER CYCLE SLIP CORRECTIONS".
+
+<p><i>Default value:</i> <tt>300</tt>&nbsp;seconds for 30&nbsp;seconds data
+sampling
+
+<a name="CLKOPT4" default="1"></a>
+<p><b>Set ambiguities for all satellites:</b>
+In general, clock events can be handled by introducing new ambiguities for
+the phase observations of all satellites at the corresponding epochs. This
+is the save way to treat clock events.
+
+<p><i>Caution:</i>
+Unmark this box only for very special test purposes:
+In this case you will <b>not</b> be able to process code and phase
+observation files together in <a href="PGMLST.HLP#GPSEST">GPSEST</a>
+if there are any clock events in your observation files.
+
+<p><i>Default value:</i> marked
+
+<p><hr>
+
+<p><b>MAUPRP 8: Cycle Slip Detection/Correction</b>
+
+<a name="IPRNT2" default="SUMMARY"></a>
+<p><b>SLIP DETECTION</b>
+<p><b>Extent of program output:</b>
+Automatic cycle slip detection and correction is the main task of program
+MAUPRP. Here you can specify how many details you want to print in the
+program output file.
+
+<p><i>Default value: </i><tt>SUMMARY</tt>
+
+<a name="CYCDET" default="0"></a>
+<p><b>Do not accept cycle slip corrections:</b>
+If a cycle slip was detected the program tries to correct it. The cycle slip
+corrections are directly applied to the observations. If you check this box
+you will suppress the correction. No cycle slip correction obtained from the
+algorithm will be accepted (which is equivalent to set the option
+"Minimum size of accepted cycle slip correction" to infinity).
+<br>
+If you are preprocessing zero-difference observation files it is in
+general not recommended to apply any cycle slip correction.
+
+<p><i>Default value:</i> unmarked for preprocessing of single-difference
+observation files; marked for preprocessing of zero-difference observation
+files
+
+<a name="MINCYC" default="10"></a>
+<p><b>Minimum size of accepted cycle slip correction:</b>
+Cycle slips smaller than the value specified in this field are considered as
+outliers and are marked. Small cycle slips in the data (up to about
+10&nbsp;cycles) might not be real.
+<br>
+This option reduces the probability that a cycle slip is introduced into
+the data due to a high noise level (e.g., for low elevation data).
+
+<p><i>Default value:</i><tt> 10</tt>&nbsp;cycles
+
+<a name="NTONLY" default="0"></a>
+<p><b>Test only observations with cycle slip flag:</b>
+Do not use this option unless the receiver software reliably marks any
+possible cycle slips. If this box is checked you rely on information (cycle
+slip flags) given in the observation files.  Usually all observations should
+be checked.
+
+<p><i>Default value:</i> unmarked
+
+<a name="L5CLEA" default="0"></a>
+<p><b>L5 is clean except for observations with flags:</b>
+Check this box only if you use dual-band P-code receivers and if you know
+that the wide-lane linear combination was successfully checked, e.g., using
+the Melbourne-Wuebbena method. Usually this possibility is not used
+even if P-code observations are available on both frequencies.
+
+<p><i>Default value:</i> unmarked
+
+<br><br>
+
+<a name="SIGL12_1" default="0.0020"></a>
+<a name="SIGL12_2" default="0.0020"></a>
+<p><b>NO CYCLE SLIP HYPOTHESIS</b>
+<p><b>Sigma for L1 observations</b>/<b>Sigma for L2 observations:</b>
+These parameters have to be set only if the data are screened by the
+"COMBINED" method (see option "Screening mode, frequency to check" in
+the section "GENERAL SETTINGS"). They are first
+used to check the no-cycle-slip hypothesis for each individual epoch
+difference by comparing it with the epoch-difference solution. If a cycle
+slip is identified the parameters are used again to check if there are
+cycle slip corrections within the search range specified in the option, e.g.,
+"Search width to find L1 cycle slip correction" below meeting the
+no-cycle-slip hypothesis. If the second step is not successful the
+cycle slip is not repaired.
+<br>
+The sigma values have an essential effect on the cycle slip detection
+algorithm. If you specify a too large value (compared to the actual noise),
+the algorithm will find more than one acceptable possibility to correct the
+cycle slip in L1 and/or L2 at some epochs. Therefore, the cycle slip
+correction candidate with the smallest ionosphere change will be chosen
+which is not necessary the correct one, especially on long baselines.
+If you specify a too small value, the program will not find any suitable
+choice at certain epochs and will mark a lot of observations or introduce
+many ambiguity parameters.
+<br>
+The sigmas should be chosen within the limits
+0.0008&nbsp;m&nbsp;-&nbsp;0.0015&nbsp;m (corresponding to about 2.2&nbsp;cm
+and 4.0&nbsp;cm for the triple-difference L3 residuals for epoch-differences
+of single-difference observation files) and according to the quality of the
+receivers. Because the narrow-lane linear combination (with a wavelength of
+approximately 10&nbsp;cm) plays an important role in the preprocessing, a
+sigma value larger than 0.0018&nbsp;m will allow small cycle slip to pass
+unnoticed.
+
+<p><i>Remark:</i>
+If low elevation data is used the sigma values may
+nevertheless be set to 0.0020&nbsp;m. In this case screening of the
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> residuals is,
+however, mandatory to remove remaining data problems at low elevations. This
+has to be done using the <a href="PGMLST.HLP#RESRMS">RESRMS</a> and
+<a href="PGMLST.HLP#SATMRK">SATMRK</a> programs.
+<br>
+When preprocessing zero-difference observation files the quality of the
+introduced "Satellite clocks" (see section "INPUT FILES") may limit the sigma
+for the observations. If the satellite clocks are too noisy you have to increase
+the sigma values. In this case a screening of GPSEST residuals is mandatory,
+too. To have the capability to detect all cycle slips the satellite clocks
+need to have an epoch-to-epoch accuracy of 0.13&nbsp;ns (corresponds
+to 4&nbsp;cm).
+<br>
+The sigma for L1 is used as the a priori unit of weight when a priori
+sigmas for the station coordinates are applied (option "A priori
+coordinate/baseline vector sigmas" in the section "EPOCH-DIFFERENCE SOLUTION").
+
+<p><i>Default value:</i> <tt>0.0020</tt>&nbsp;m if low elevation data is used
+and residuals from GPSEST are screened.
+
+<a name="MXIOND_B" default="30"></a>
+<a name="MXIOND_C" default="400"></a>
+<a name="MXIOND_L" default="2000"></a>
+<p><b>Maximum ionospheric change from epoch to epoch:</b>
+You have to specify the maximum ionosphere change on the epoch difference
+level (in % of the L1 wavelength, from one epoch to the next). A value
+of about <tt>400</tt>% may be appropriate for very long baselines, i.e., less
+than one L5 cycle. For shorter baselines smaller values may be used.
+Do not use values smaller than <tt>50</tt>% in the
+"COMBINED" mode (see option "Screening mode, frequency to check" in the
+section "GENERAL SETTINGS").
+<br>
+A linear increasing value for this parameter depending on the baseline
+length seems to be reasonable: Starting from the values for short baselines
+(e.g., <tt>30</tt>% assumed for a baseline length of <tt>0</tt> km) up to
+the value for long baselines (e.g., <tt>400</tt>%) for a user defined
+baseline length (e.g., <tt>2000</tt>km, see <b>use the combined mode value
+for bsl longer than</b>) this parameter is linearly increased
+whereas for longer baselines the maximum value for long baselines is used.
+<br>
+If you are not running the "COMBINED" mode the change of the ionosphere
+between two epochs cannot exceed half a wavelength to be sure that
+all cycle slips will be detected. A value of <tt>30</tt>% seems to be
+reasonable.
+
+<p><i>Default value:</i> "COMBINED" mode: from <tt>30</tt>% for short
+baselines up to <tt>400</tt>% for baselines of <tt>2000</tt>&nbsp;km or
+longer; "BOTH" mode or "AUTO": <tt>30</tt>%
+
+<br><br>
+
+<a name="SWIDTH1" default="5"></a>
+<a name="SWIDTH2" default="2"></a>
+<p><b>CYCLE SLIP CORRECTIONS</b>
+<p><b>Search width to find L1 cycle slip correction</b>/
+   <b>Search width to find L5 cycle slip correction:</b>
+These two options are only used for the "COMBINED" mode (see option
+"Screening mode, frequency to check" in the section "GENERAL SETTINGS").
+They have a very important effect on the cycle slip correction algorithm.
+The entries define the search range in L1 and L5 around the first guess for
+the cycle slip correction value (assuming that no ionospheric
+refraction was present). Within this search range a cycle slip correction
+are searched meeting the conditions defined in the section "NO CYCLE SLIP
+HYPOTHESIS".
+<br>
+Default values which make sense under most conditions are: 5 cycles in
+L1 and 2 cycles in L5 if high quality receivers are assumed. In this case,
+the ionospheric refraction should not pose a problem. For squaring type
+receivers, 4 cycles in L1 and 1 cycle in L5 may be a good choice assuming
+low ionospheric activity.
+
+<p><i>Default values:</i> <tt>5</tt> cycles for L1 and <tt>2</tt> cycles for L5
+
+<a name="IWLSCR1" default="FULL"></a>
+<a name="IWLSCR2" default="FULL"></a>
+<!-- Option is not in panel
+<p><u>Cycles unit for L1/L2:</u>
+Modern receivers provide full wavelength data on both frequencies. Squaring
+receiver types have half cycle slips in L2. These options are active only if
+you disable the option 'Take frequency/wavelength factors from file' in the
+section "GENERAL SETTINGS". Otherwise the program reads
+the wavelength factors (1 for full cycles, 2 for half cycles) from the
+observation file header.
+
+<p><i>Default value:</i> <tt>FULL</tt>
+-->
+
+<p><hr>
+
+<p><b>MAUPRP 9: Outlier Rejection / Ambiguity Setting</b>
+
+<a name="IRJECT" default="1"></a>
+<p><b>OUTLIER REJECTION</b>
+<p><b>Enable outlier rejection:</b>
+Use this option to mark the observations if a cycle slip
+cannot be reliable corrected.
+
+<p><i>Default value:</i> marked
+
+<a name="MXOGAP" default="181"></a>
+<p><b>Mark consecutive outliers up to a time interval:</b>
+This option prevents of marking long series of observations. The program
+marks up to the specified interval of observations. If the cycle slip
+still cannot be corrected a new ambiguity will be introduced
+(see also options to "SET UP MULTIPLE AMBIGUITIES" below).
+
+<p><i>Default value:</i> <tt>181</tt>&nbsp;seconds for a 30&nbsp;seconds
+data sampling
+
+<br><br>
+
+<a name="IAMNEW4" default="0"></a>
+<p><b>SET UP MULTIPLE AMBIGUITIES</b>
+<p><b>Preserve ambiguities from observation file:</b>
+This option allows to introduce multiple ambiguity parameters present in the
+observation file headers. These ambiguities may stem from the program
+<a href="SNGDIF.HLP">SNGDIF</a> or from a previous MAUPRP run.
+
+<p><i>Default value:</i> unmarked
+
+<a name="IAMNEW1" default="0"></a>
+<p><b>If a cycle slip flag in observation file:</b>
+Because MAUPRP can correct most of the cycle slips. We do not recommend this
+option.
+
+<p><i>Default value:</i> unmarked
+
+<a name="IAMNEW2" default="1"></a>
+<p><b>If no cycle slip correction was possible:</b>
+It is mandatory that MAUPRP introduces a new ambiguity parameter in the case
+a cycle slip cannot reliably be corrected.
+If allowed MAUPRP will first try an "OUTLIER REJECTION", before setting up
+a new ambiguity.
+
+<p><i>Default value:</i> marked
+
+<a name="IAMNEW3" default="181"></a>
+<p><b>After an observation gap larger than:</b>
+The test of the "NO CYCLE SLIP HYPOTHESIS" is not reliable if the interval
+between two epochs is too large. Therefore it is better to introduce
+a new ambiguity parameter in this case. The setting of this option should
+correspond to the one of the option "Mark consecutive outliers up to a time
+interval" (see section "OUTLIER REJECTION").
+
+<p><i>Default value:</i> Same value as for "Mark consecutive outliers up
+to a time interval"
+
+<br><br>
+
+<a name="IAMNEW5" default="301"></a>
+<p><b>MARKING OF OBSERVATIONS AFTER CYCLE SLIP CORRECTIONS</b>
+<p><b>Minimum observed time interval per ambiguity:</b>
+To avoid getting a huge number of ambiguities referring to a few
+observations only, the minimum observation interval that should be
+associated with one ambiguity may be defined here. Intervals shorter than
+this minimum interval will be marked. The corresponding ambiguity parameter
+will be removed.
+<br>
+This test is performed after "SET UP MULTIPLE AMBIGUITIES". For
+each ambiguity the time interval between the first and last valid (not marked)
+observation is compared with the time interval specified in this
+input field.
+<br>
+An interval covering about 10&nbsp;epochs seems to be reasonable.
+
+<p><i>Default value:</i> <tt>301</tt>&nbsp;seconds for a 30&nbsp;seconds data
+sampling
+
+<a name="MXAMBS" default="300"></a>
+<p><b>Remove satellites if the file contains more than:</b>
+To avoid getting a huge number of ambiguities, a maximum number
+of ambiguities per baseline may be specified. If this value is exceeded,
+MAUPRP marks all observations of a satellite - starting with the satellite
+causing the largest number of multiple ambiguities - until the number of
+ambiguities is smaller than the specified value.
+
+<p><i>Remark:</i> The maximum number of ambiguities should not be larger
+than the <tt>MAXAMB</tt> parameter in <tt>$I/INC/P_GPSEST.f90</tt>.
+
+<p><i>Default value:</i> <tt>300</tt>&nbsp;ambiguities
+
+<p><hr>
+
+</body>
+</html>

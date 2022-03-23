@@ -1,0 +1,2888 @@
+<html>
+<body>
+
+<center>
+<b>COMBINE NORMAL EQUATION SYSTEMS</b>
+<p>Program: ADDNEQ2
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="DELETE_FILES"  default="AUXFIL"></a>
+<a name="STALST"        default=""></a>
+<a name="CLKLST"        default=""></a>
+<a name="TRPLST"        default=""></a>
+<a name="DCBRLST"       default=""></a>
+<a name="GSPLST"        default=""></a>
+<a name="GRIDLST"       default=""></a>
+<a name="RCLKLST"       default=""></a>
+<a name="SCLKLST"       default=""></a>
+<a name="DIR_ORB"       default=""></a>
+<a name="EXT_ELE"       default=""></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program is a tool to combine results achieved by sequential
+GPSEST solutions or results stemming from previous ADDNEQ2 runs.
+<br>
+The input files are normal equation files (NEQs), which can be saved
+when running GPSEST (or ADDNEQ2). The algorithms are in principle
+identical to those used for a combination of station coordinate results
+taking into account the variance-covariance information between the parameters
+(see program <a href="PGMLST.HLP#COMPAR">COMPAR</a>).
+<br>
+In contrast to the program COMPAR, most of parameters saved in the NEQ
+files (not only site coordinates) can be handled by ADDNEQ2 such as
+<ul>
+<li>station coordinates and velocities,
+<li>troposphere zenith delay and gradient parameters,
+<li>global ionosphere model (GIM) parameters,
+<li>differential code biases (DCBs),
+<li>orbit parameters, including stochastic orbit parameters,
+<li>Earth rotation (x, y, LOD) and nutation (dpsi, deps) parameters,
+<li>Geocenter coordinates,
+<li>satellite antenna phase center offsets and patterns.
+</ul>
+Ambiguities may not be manipulated by ADDNEQ2 and should therefore be
+pre-eliminated in GPSEST before saving the NEQ information in a file.
+
+<br><br>
+
+Some application examples for the program ADDNEQ2:
+<ul>
+<li>multi-year solutions of permanent GNSS networks, including
+    velocity estimation,
+<li>combination of campaigns which are regularly observed,
+<li>combination of overlapping networks (regional with global networks),
+<li>long-arc applications (<nobr>n-day</nobr> arcs based on n
+    <nobr>1-day</nobr> arcs),
+<li>model changes (as far as possible on the NEQ level):
+  <ul>
+  <li>change of the geodetic datum definition,
+  <li>estimation of station velocities,
+  <li>reduction of the number of troposphere or Earth orientation
+      parameters per session,
+  <li>change of a priori weights for station coordinates,
+      troposphere parameters, orbit parameters, EOPs, etc,
+  <li>retrieval of Geocenter coordinates,
+  </ul>
+<li>combination of baseline-, or cluster-specific NEQs into a network
+    solution
+    (parallel data processing neglecting the inter-baseline, or inter-cluster
+    correlations),
+<li>combination of results from different processing centers,
+    e.g., via the Solution INdependent EXchange (SINEX) format and the
+    program <a href="PGMLST.HLP#SNX2NQ0">SNX2NQ0</a>,
+    which is used to convert SINEX into NEQ data.
+</ul>
+
+<p><hr>
+
+<p><b>ADDNEQ2 1.1: Input Files 1</b>
+
+<p><a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="INPFILE" default=""></a>
+<p><b>NORMAL EQUATION SYSTEMS</b>
+<p><b>Normal equations:</b>
+Select the normal equation (NQ0) files to be used for combination,
+or manipulation
+(created by program GPSEST, ADDNEQ2, or imported using SNX2NQ0).
+
+<p><i>Default value:</i> blank
+
+<a name="COVCOMI" default=""></a>
+<p><b>Variance rescaling factors:</b>
+The normal equations of each NEQ file may be weighted individually
+(e.g. down-weighting of specific normal equation files). <br>
+The same file can also be used
+<ul>
+<li>to apply given Helmert transformation parameters 
+(indicator in the file is <tt>1</tt>) or 
+<li>to setup Helmert parameters between individual input NEQ files 
+and the resulting combined NEQ that will be estimated together with
+the other parameters (indicator in the file is <tt>2</tt>).
+</ul>
+
+<p><i>Note:</i>
+The use of this option does make sense when combining SINEX results from
+different analysis centers.
+The conversion from the SINEX to the Bernese NEQ format may be done using
+the program <a href="PGMLST.HLP#SNX2NQ0">SNX2NQ0</a>.
+<br>
+<a href="/$X/DOC/EXAMPLE.WGT">Example</a>
+
+<a name="COORD" default=""></a>
+<p><b>MAIN INPUT FILES</b>
+<p><b>Station coordinates:</b>
+Select an a priori coordinate file.  It is used to define the a
+priori site coordinates for the definition of the geodetic datum
+(coordinates for fixing of sites or free net-work solutions). The a
+priori coordinates contained in the input normal equation files are
+transformed to the coordinates contained in the file specified in this
+input field. If you specify a velocity file in the following option
+the coordinates are propagated to the epoch of each input NEQ file.
+
+<p><i>Note:</i>
+This coordinate file must contain all the sites you are processing.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="VELAPR" default=""></a>
+<p><b>Station velocities:</b>
+If you specify a station velocity file in this field, the coordinates given
+in the a priori station coordinate file (option "Station coordinates" above)
+are propagated to the middle epoch of each input NEQ in order to perform
+the parameter transformation to a priori coordinates.
+<br>
+The station velocities are also used to define the geodetic datum of
+the estimated velocities. The velocities are estimated relative to the a
+priori velocities. Station velocities may be constrained or fixed to the
+a priori values using a station sigma file or a station selection file.
+
+<p><i>Note:</i>
+The velocity file must contain velocities for all fiducial stations
+used for datum definition (with respect to velocity estimation).
+
+<p><a href="/$X/DOC/EXAMPLE.VEL">Example</a>
+
+<a name="STAINFO" default=""></a>
+<p><b>Station information:</b>
+This file contains information on station problems. It allows for the following
+operations:
+<ul>
+<li>Change station names. Coordinates of stations with different names are
+    not stacked (TYPE 001). This option can be used to set up new coordinates,
+    e.g., after a jump (earthquake, antenna change, ...).
+<li>Change the name of receiver or antenna (TYPE 002). Any change will be
+    notified in the program output file. Note that the use of a wrong antenna
+    phase pattern in program GPSEST can not be corrected in ADDNEQ2 by
+    changing the antenna name.
+<li>Change antenna height (TYPE 002). The a priori coordinates are transformed
+    to the new antenna height and the estimated station coordinates refer
+    to the new antenna position.
+<li>Mark a station as bad for a specific time interval (TYPE 003). The
+    station coordinates will not be stacked for the NEQ files overlapping
+    with this time interval.
+<li>Relative constraining of coordinates and/or velocities of two stations
+    (TYPE 004). This may be useful, e.g., to estimate one set of velocities
+    for neighboring sites or for a station before and after an antenna
+    change.
+</ul>
+<a href="/$X/DOC/EXAMPLE.STA">Example</a>
+
+<p><hr>
+
+<p><b>ADDNEQ2 1.2: Input Files 2</b>
+
+<a name="TROPEST" default=""></a>
+<p><b>NEW A PRIORI VALUES</b>
+<p><b>Troposphere estimates:</b>
+If you specify a Bernese troposphere file, ADDNEQ2 checks whether troposphere
+parameters contained in the input NEQ files are available in this file.
+Parameters that are found are fixed to the external values and eliminated
+from the normal equation system.
+
+<p><a href="/$X/DOC/EXAMPLE.TRP">Example</a>
+
+<a name="DCBINP" default=""></a>
+<p><b>Differential code biases:</b>
+If you specify a code bias input file containing differential
+(P1-P2 or P1-C1) code biases of satellites (and receivers) the
+a priori parameters available in the input NEQ files are transformed to
+the values specified in this file. Otherwise the a priori values are
+transformed to zero.
+
+<p><a href="/$X/DOC/EXAMPLE.DCB">Example</a>
+
+<a name="POLE" default=""></a>
+<p><b>Earth rotation parameters:</b>
+This file contains the Earth rotation parameters (ERP's). It is used for the
+transformations between the International Celestial Reference Frame (ICRF)
+and the International Terrestrial Reference Frame (ITRF). If your input NEQs
+contain Earth rotation parameters you have to specify a file here. The ERP a
+priori values will be transformed to the values given in the file. Be sure
+to use a file referring to the same subdaily and nutation model as used for
+generating the original NEQs.
+
+<p><a href="/$X/DOC/EXAMPLE.ERP">Example</a>
+
+<a name="GCCINP" default=""></a>
+<p><b>Geocenter coordinates:</b>
+Specify the name of a Geocenter coordinate file if you like to transform
+the a priori values contained in the input NEQs to new values.
+
+<p><a href="/$X/DOC/EXAMPLE.GCC">Example</a>
+
+<a name="SATCLK" default=""></a>
+<p><b>Satellite clock corrections:</b>
+If your input NEQs contain GNSS satellite clock parameters you may change
+their a priori values to the satellite clock corrections given in this
+Bernese formatted satellite clock file.
+
+<p><a href="/$X/DOC/EXAMPLE1.CLK">Example</a>
+
+<a name="RXCLKIN" default=""></a>
+<p><b>Clock RINEX file:</b>
+The a priori values of receiver and/or satellite clock parameters given in
+the input NEQ files are changed to the clock corrections given in this
+clock RINEX formatted file for satellite and/or receiver clock corrections.
+
+<p><a href="/$X/DOC/EXAMPLE2.CLK">Example</a>
+
+<a name="ISBINP" default=""></a>
+<p><b>Inter-system biases:</b>
+You may specify a file containing GNSS--specific parameters for 
+station positions and/or troposphere here to change the a priori
+values for those parameters from the values of the input NEQ files
+to the new values given in the file.
+
+<p><a href="/$X/DOC/EXAMPLE.ISB">Example</a>
+
+<a name="RGBINP" default=""></a>
+<p><b>SLR data handling (biases, CoM):</b>
+If you specify an SLR file containing range biases, the a priori values
+of SLR range bias parameters contained in the input NEQ files are
+transformed to the values given in this file.
+Otherwise the a priori values are taken from the input NEQ files.
+
+<p><a href="/$X/DOC/EXAMPLE.SLR">Example</a>
+
+<a name="PARAMIN" default=""></a>
+<p><b>List of parameter estimates:</b>
+Specify the name of a file containing parameter estimates. This file
+is used for an a priori value transformation for the NEQ parameters.
+Only GNSS-specific parameters are considered at the moment.
+
+<p><a href="/$X/DOC/EXAMPLE.EST">Example</a>
+
+<a name="IONOS" default=""></a>
+<p><b>HEADER AND EPOCH INFORMATION</b>
+<p><b>Ionosphere master file:</b>
+This ionosphere input file is required when combining GIM results
+on the NEQ level.
+Corresponding header information is taken over
+for generation of the ionosphere output file (including IONEX).
+This also includes the list of registered epochs (or time intervals),
+i.e., only sets of parameters conform with these epochs are output.
+
+<p><a href="/$X/DOC/EXAMPLE2.ION">Example</a>
+
+<p><hr>
+
+<p><b>ADDNEQ2 1.3: General Files</b>
+
+<a name="CONST"default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates. It is used
+to apply antenna heights and for the printing of coordinates in the
+local system (north, east, up). You only have to modify this file
+when you want to introduce a new reference ellipsoid.
+
+<p><i>Caution:</i>
+This file has no effect on Cartesian coordinates.
+
+<p>Example: <a href="/$X/GEN/DATUM.">$X/GEN/DATUM.</a>
+
+<a name="PHASECC" default="PCV.I08"></a>
+<p><b>Phase center variations:</b>
+This file contains receiver antenna phase center offsets and optionally
+elevation-dependent phase center patterns.
+In addition, the file may contain satellite-specific antenna
+phase center patterns (dependent on nadir angle).
+<br>
+If you specify a filename here the a priori values for the parameters for
+the satellite antenna phase center variations in the input normal
+equation files are adapted to the values in this file. It is not relevant
+if have not included such parameters in your normal equation.
+<br>
+The sensor names that are searched for in this file are defined for each
+satellite in the satellite information file
+(<a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>). It is expected that
+this definition is valid for the entire time interval of the corresponding
+parameter in the input normal equation. Because the satellite antenna offset
+values applied are taken from the satellite information file they were checked
+too for consistency.
+
+<p><i>Important note:</i>
+If you change the values take care on the
+consistency with the receiver antenna phase center variations that you have
+used in <a href="PGMLST.HLP#GPSEST">GPSEST</a> when generating the normal
+equations from the Bernese observation files. Since currently no corresponding
+parameters are supported by ADDNEQ2 there is not possibility to adapt these
+values too.
+<br>
+For this reason it will not be possible to switch to the
+upcoming 'absolutely' calibrated receiver and satellite antenna PCV values by
+introducing a corresponding file containing consistent pattern for receiver
+and satellite antennas (e.g., $X/GEN/PHAS_COD.I08).
+
+<p>Example: <a href="/$X/GEN/PCV.I08">$X/GEN/PCV.I08</a>.
+
+<a name="RECEIVR" default="RECEIVER."></a>
+<p><b>Receiver information:</b>
+This file provides the satellite systems that can be tracked for the
+individual receivers. This information is necessary to read older normal
+equation files.
+
+<p>Example: <a href="/$X/GEN/RECEIVER.">$X/GEN/RECEIVER.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+ADDNEQ2 may use this file to update the a priori values for the satellite
+antenna offsets in the input normal equation files. It is expected that these
+sensor offsets are valid for the entire time interval of the corresponding
+parameter in the input normal equation. An empty input field indicates that
+no transformation of the a priori values for these parameter type has to be
+done.
+<br>
+If you are going to transform the a priori values of the satellite
+antenna phase center variations using an input file for the "Phase center
+variations" this satellite information file is mandatory to assign the
+satellite number to the sensor names.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems. In ADDNEQ2 it is
+used to split satellite arcs at NEQ boundaries. If a problem type '4' and
+action '0' is specified for a specific satellite in the satellite problem
+file, ADDNEQ2 does not connect its orbit at the specified epoch (which
+has to coincide with a NEQ boundary) if long-arc computation is activated.
+
+<p>Example: <a href="/$X/GEN/SAT_2011.CRX">$X/GEN/SAT_2011.CRX</a>
+
+<a name="SUBMOD" default="IERS2010XY"></a>
+<p><b>Subdaily pole model:</b>
+This file contains the parameters for the subdaily pole model. It
+has to be identical to the one used for the computation of the
+standard orbits contained in the NEQ files. Only required if orbital
+parameters are included in the NEQs.
+
+<p>Example: <a href="/$X/GEN/IERS2010XY.SUB">$X/GEN/IERS2010XY.SUB</a>
+
+<a name="NUTMOD" default="IAU2000R06"></a>
+<p><b>Nutation model:</b>
+This file contains the parameters for the nutation model. It
+has to be identical to the one used for the computation of the
+standard orbits contained in the NEQ files. Only required if orbital
+parameters are included in the NEQs.
+
+<p>Example: <a href="/$X/GEN/IAU2000R06.NUT">$X/GEN/IAU2000R06.NUT</a>
+
+<a name="SINEXIN" default="SINEX."></a>
+<p><b>SINEX header file:</b>
+This file contains the general header information used when you want
+to create SINEX (Software independent exchange format) files. Adapt the
+file to your needs (institution name, hardware used, contacts, ...).
+
+<p>Example: <a href="/$X/GEN/SINEX.">$X/GEN/SINEX.</a>
+
+<a name="IONEXCF" default="IONEX."></a>
+<p><b>IONEX control file:</b>
+This file contains general information and some options you have to adapt
+when you want to create IONEX (IONosphere map EXchange format) files.
+
+<p>Example: <a href="/$X/GEN/IONEX.">$X/GEN/IONEX.</a>
+
+<br><br>
+
+<a name="AUXFIL" default="ADDNEQ2$J"></a>
+<p><b>TEMPORARY FILES</b>
+<p><b>Scratch file:</b>
+Enter the names of the scratch files used by this program. The scratch files
+need to be named differently for different programs running simultaneously.
+This may be achieved, e.g., by adding the job ID <tt>$J</tt> to the program
+name (define the job ID in the dialogue <a href="SETDATE.HLP">Menu &gt;
+Configure &gt; Set session/compute day</a>).
+
+<p><i>Default values:</i> <tt>ADDNEQ2$J</tt>
+
+<p><hr>
+
+<p><b>ADDNEQ2 2.1: Output Files 1</b>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="ADDNEQ2"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program
+output file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="NEQOUT" default=""></a>
+<p><b>MAIN RESULT FILES</b>
+<p><b>Normal equations:</b>
+Enter a file name to save the NEQs resulting from the combination of
+different input NEQ files. This option allows a hierarchical
+combination of NEQs (e.g., from single baseline or cluster NEQs to
+daily NEQs, to weekly NEQs, and finally to multi-year solutions).
+
+<a name="SNXCONT" default="NEQ"></a>
+<a name="SINEXRS" default=""></a>
+<p><b>SINEX with:</b>
+Choose from the combobox the content to be written in SINEX. Covariance
+(COV) and normal equation (NEQ) are supported.
+Enter in the editable box a file name to save results in the Software
+Independent Exchange format SINEX V2.10. Station coordinates, velocities,
+Earth orientation parameters, Geocenter coordinates and satellite antenna
+offsets are supported.
+
+<a name="COORDRS" default=""></a>
+<p><b>STATION- AND SATELLITE-RELATED RESULTS</b>
+<p><b>Station coordinates:</b>
+Enter a file name to save the resulting coordinates in a file.
+The flags written to the coordinate output file are 'A' for the
+unconstrained estimated mean coordinates, 'W' for
+sites with a priori constraints, and 'N' for sites that were
+estimated and also used for the no-net rotation/translation
+conditions.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="VELORS" default=""></a>
+<p><b>Station velocities:</b>
+Enter a file name to save resulting velocities in a file.
+
+<p><a href="/$X/DOC/EXAMPLE.VEL">Example</a>
+
+<a name="ELEFILE" default=""></a>
+<p><b>Satellite orbital elements :</b>
+Enter a file name to save results of the orbit estimation (up to 6
+Keplerian elements, up to 9 radiation pressure parameters for each
+arc, and the results of the pseudo-stochastic parameters) to a file.
+<br>
+If normal equation files of different sessions are combined (e.g., to
+compute long arcs) a different orbital element file has to be saved
+for each session. In this case you have to use wildcard characters
+(either % or ?) in the output file name specified here. The wild-
+card characters are then replaced by the characters of the a priori
+standard orbit file name used to create the normal equation files.
+
+<p><i>Example:</i>
+Let us assume that the a priori standard orbit files
+used to generate 3 <nobr>1-day</nobr> normal equation files were named
+G1_04061.STD, G1_04062.STD, and G1_04063.STD and that you would like to create a
+<nobr>3-day</nobr> arc with the program ADDNEQ2. If you specify G3_%%%%% for
+the orbital element output file name, ADDNEQ2 will save the estimated
+orbital parameter for each day in the files G3_04061.ELE,
+G3_04062.ELE, and G3_04063.ELE.
+<br>
+The orbital element file may be used in the program
+<a href="PGMLST.HLP#ORBGEN">ORBGEN</a> to create a new standard orbit
+file with the orbital parameters estimated in ADDNEQ2.
+
+<p><a href="/$X/DOC/EXAMPLE.ELE">Example</a>
+
+<a name="POLERS" default=""></a>
+<p><b>Earth rotation parameters:</b>
+Enter a filename to save ERP's (X,Y,UT1-UTC drift, nutation) to a
+file. The format used is the Bernese ERP format.
+
+<p><a href="/$X/DOC/EXAMPLE.ERP">Example</a>
+
+<a name="IERSPOL" default=""></a>
+<p><b>Earth rotation parameters (IERS):</b>
+Enter a filename to save ERP's (X,Y,UT1-UTC drift, nutation) to a
+file. The format used is the IERS ERP format.
+
+<p><a href="/$X/DOC/EXAMPLE.IEP">Example</a>
+
+<a name="TROPSAV" default=""></a>
+<p><b>ATMOSPHERE-SPECIFIC RESULTS</b>
+<p><b>Troposphere estimates:</b>
+Enter a file name to save results of the troposphere estimation.
+
+<p><a href="/$X/DOC/EXAMPLE.TRP">Example</a>
+
+<a name="TROPSNX" default=""></a>
+<p><b>Troposphere estimates (SINEX):</b>
+Enter a file name to save results of the troposphere estimation in
+the Software Independent Exchange format.
+
+<a name="IONOSRS" default=""></a>
+<p><b>Ionosphere models:</b>
+Enter a file name to save results of the ionosphere estimation in
+Bernese format.
+
+<p><a href="/$X/DOC/EXAMPLE2.ION">Example</a>
+
+<a name="IONEXRS" default=""></a>
+<p><b>Ionosphere models (IONEX):</b>
+Enter a file name to save results of the ionosphere estimation in
+the Software Independent Exchange (IONEX) format.
+
+<p><hr>
+
+<p><b>ADDNEQ2 2.2: Output Files 2</b>
+
+<a name="GCCOUT" default=""></a>
+<p><b>ADDITIONAL RESULT FILES</b>
+<p><b>Geocenter coordinates:</b>
+Enter a filename to save Geocenter estimates to a file.
+
+<p><a href="/$X/DOC/EXAMPLE.GCC">Example</a>
+
+<a name="DCBOUT" default=""></a>
+<p><b>Differential code biases:</b>
+Enter a filename to save differential code biases of satellites and/or
+receivers. It is not possible to save code biases of different types.
+Satellite-specific code biases can be saved in ionosphere map files
+specified in the option 'IONEX', too.
+
+<p><a href="/$X/DOC/EXAMPLE.DCB">Example</a>
+
+<!--
+<a name="BIASSNX" default=""></a>
+<p><b>Differential code biases (SINEX):</b>
+Enter a filename to save differential code biases of satellites and/or
+receivers in a Software Independent Exchange format.
+It is not possible to save code biases of different types in the
+same ADDNEQ2 run.
+
+<p><a href="/$X/DOC/EXAMPLE.BIA">Example</a>
+-->
+
+<a name="PHASRSG" default=""></a>
+<p><b>Phase center variations (gridded):</b>
+Specify a filename to save estimated receiver/satellite antenna models
+(antenna phase center variations for receiver and satellite antennas,
+receiver antenna offsets). The representation of the stored phase center
+variations depends on the parametrization selected for the parameter
+estimation.
+
+<a name="CLKSAV" default=""></a>
+<p><b>Satellite clock corrections:</b>
+If your NEQs contain satellite clock corrections you may store the 
+results in a Bernese formatted GNSS satellite clock file which name
+is specified in this input field.
+
+<p><a href="/$X/DOC/EXAMPLE1.CLK">Example</a>
+
+<a name="CLKRNX" default=""></a>
+<p><b>Clock corrections (RINEX):</b>
+The name of a clock RINEX file for the resulting receiver and/or satellite
+clock corrections can be specified here.
+
+<p><a href="/$X/DOC/EXAMPLE2.CLK">Example</a>
+
+<a name="ISBOUT" default=""></a>
+<p><b>Inter-system biases:</b>
+If you have GNSS-specific coordinate or troposphere parameters in your
+NEQs you may store the estimates for those parameters in a file which 
+name is specified in this input field.
+
+<p><a href="/$X/DOC/EXAMPLE.ISB">Example</a>
+
+<a name="RGBOUT" default=""></a>
+<p><b>Data handling (biases, CoM):</b>
+Enter a file name to save results of the SLR range bias parameter
+estimation.
+
+<p><a href="/$X/DOC/EXAMPLE.SLR">Example</a>
+
+<a name="WEKSUM" default=""></a>
+<p><b>AUXILIARY FILES</b>
+<p><b>Weekly summary:</b>
+Specify a filename in order to store repeatability RMS values to a
+summary file that may be included into a processing protocol.
+
+<p>Output example:<!-- $outf/Q1_16685.SUM -->
+<pre>
+ COMPARISON OF IGSFINAL (Q1) COORDINATE FILES           
+ -------------------------------------------------------------------------------
+ Total number of stations:   254
+ -------------------------------------------------------------------------------
+                       Weekday  Repeatability (mm)
+ Station        #Days  0123456     N     E     U
+ -------------------------------------------------------------------------------
+ ABMF 97103M001     7  AAAAAAA    0.95  1.81  6.01
+ ABPO 33302M001     7  AAAAAAA    0.81  1.15  5.40
+ ADIS 31502M001     7  AAAAAAA    0.80  1.17  3.41
+ ALBH 40129M003     7  WWWWWWW    1.02  1.47  3.66
+ ALGO 40104M002     7  WWWWWWW    1.68  1.52  7.79
+ ALIC 50137M001     7  WWWWWWW    0.90  0.61  2.75
+ ALRT 40162M001     7  WWWWWWW    0.57  0.63  3.48
+ AMC2 40472S004     7  WWWWWWW    0.54  0.99  3.13
+ AMU2 66040M002     7  AAAAAAA    1.27  1.39  5.84
+ ANKR 20805M002     7  WWWWWWW    1.05  0.78  3.90
+ AREQ 42202M005     7  AAAAAAA    1.37  0.64  3.22
+ ARTU 12362M001     7  WWWWWWW    0.82  0.34  5.57
+ ASPA 50503S006     7  AAAAAAA    2.29  2.15  5.44
+ AUCK 50209M001     5   WW WWW    0.96  0.65  2.54
+ AZCO 49454M001     7  AAAAAAA    0.98  1.02  2.95
+ AZGB 49541S001     7  AAAAAAA    1.13  1.45  2.35
+ BADG 12338M002     7  AAAAAAA    1.32  0.49  2.07
+...
+ YARR 50107M006     5  WW  WWW    0.82  0.34  2.52
+ YCBA 41803M001     7  AAAAAAA    1.39  0.43  2.38
+ YELL 40127M003     7  WWWWWWW    0.58  0.71  1.83
+ YSSK 12329M003     7  AAAAAAA    0.84  0.83  3.49
+ ZECK 12351M001     7  WWWWWWW    0.73  0.96  2.86
+ ZIM2 14001M008     7  AAAAAAA    0.99  1.16  1.75
+ ZIMM 14001M004     7  WWWWWWW    0.82  0.76  1.87
+ ZWE2 12330M003     7  AAAAAAA    0.76  1.10  4.97
+ -------------------------------------------------------------------------------
+ # Coordinate estimates:  1722    1.20  1.23  4.23
+</pre>
+
+<p><i>Remark:</i>
+The option "Compute and compare individual solutions"
+in panel "ADDNEQ2 3.1: Options 1" has to be activated in order to write
+a file.
+
+<a name="PLOTRS" default=""></a>
+<p><b>Parameter residuals wrt coordinates:</b>
+Specify a filename in order to store coordinate repeatability residuals
+in machine-readable form. The file will contains the station name, epoch
+and component (1=N, 2=E, 3=U) number, residual in meters, and epoch in
+modified Julian date.
+
+<p>Output example:<!-- $outf/AMUN.PLT -->
+<pre>
+ABMF 97103M001      1 1   0.00117   55890.49983                0.00027  0.10764E+00  0.43216E+01
+ABMF 97103M001      1 2   0.00139   55890.49983                0.00029 -0.64310E-01  0.47981E+01
+ABMF 97103M001      1 3   0.00353   55890.49983                0.00120 -0.73010E-01  0.29328E+01
+ABMF 97103M001      2 1   0.00143   55891.49983                0.00027  0.11460E+00  0.52668E+01
+ABMF 97103M001      2 2   0.00067   55891.49983                0.00029 -0.69314E-01  0.22718E+01
+ABMF 97103M001      2 3  -0.00227   55891.49983                0.00120 -0.84523E-01 -0.18853E+01
+ABMF 97103M001      3 1   0.00108   55892.49983                0.00027  0.11083E+00  0.40550E+01
+...
+ABMF 97103M001     30 1   0.00069   55919.49983                0.00025  0.10345E+00  0.27387E+01
+ABMF 97103M001     30 2   0.00150   55919.49983                0.00027 -0.40265E-01  0.55115E+01
+ABMF 97103M001     30 3   0.00705   55919.49983                0.00110 -0.43988E-01  0.63873E+01
+ABPO 33302M001      1 1   0.00195   55890.49983                0.00026  0.24556E-01  0.74079E+01
+ABPO 33302M001      1 2  -0.00051   55890.49983                0.00027  0.15314E+00 -0.18941E+01
+ABPO 33302M001      1 3  -0.00102   55890.49983                0.00080 -0.73802E-03 -0.12671E+01
+ABPO 33302M001      2 1   0.00085   55891.49983                0.00026  0.28288E-01  0.32247E+01
+ABPO 33302M001      2 2  -0.00047   55891.49983                0.00027  0.14590E+00 -0.17487E+01
+ABPO 33302M001      2 3  -0.00215   55891.49983                0.00080 -0.56538E-03 -0.26919E+01
+...
+</pre>
+
+<p><i>Remark:</i>
+The option "Compute and compare individual solutions"
+in panel "ADDNEQ2 3.1: Options 1" has to be activated in order to write
+a file.
+
+<a name="PLOT_ALL" default=""></a>
+<p><b>All parameter residuals:</b>
+Specify a filename in order to get a comparison of the individual
+solutions from the contributing normal equations with respect to the
+combined solution of the current ADDNEQ2 run. The resulting file
+will contain the result part of the usual program output for each
+individual contributing normal equation.
+<br>
+The 'A priori value' is the combined solution of the full system.
+The 'Estimated value' and the 'RMS error' refer to the solution of
+the individual contributing normal equation. The corresponding
+residual can be taken from the column <tt>Correction</tt>.
+
+<p><i>Remark:</i>
+The option "Compute and compare individual solutions"
+in panel "ADDNEQ2 3.1: Options 1" has to be activated in order to write
+a file.
+
+<a name="COVARRS" default=""></a>
+<p><b>Covariance matrix wrt coordinates:</b>
+Enter a filename to save variance-covariance information with respect
+to station coordinates to a file.
+
+<a name="COVTTRS" default=""></a>
+<p><b>Full covariance matrix:</b>
+Enter a filename to save the full variance-covariance matrix to a file.
+Be aware that this file may get very large.
+
+<p><a href="/$X/DOC/EXAMPLE.COV">Example</a>
+
+<a name="COVCOMO" default=""></a>
+<p><b>Variance rescaling factors, Helmert:</b>
+Specify a filename in order to store variance rescaling factors of each
+individual normal equation. The factors may be introduced in further
+program runs for the individual weighting of the normal equations.
+
+<p><a href="/$X/DOC/EXAMPLE.WGT">Example</a>
+
+<p><i>Remark:</i>
+The option "Compute and compare individual solutions"
+in panel "ADDNEQ2 3.1: Options 1" has to be activated in order to write
+a file.
+
+<a name="PARAMRS" default=""></a>
+<p><b>List of parameter estimates:</b>
+Enter a filename to save the characterizations and estimates for
+all available parameters.
+
+<p><a href="/$X/DOC/EXAMPLE.EST">Example</a>
+
+<p><hr>
+
+<b>ADDNEQ2 3.1: Options 1</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment in the program output
+and will be saved in all the result files to document the program run.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="MAXPAR" default="3000"></a>
+<p><b>GENERAL OPTIONS</b>
+<p><b>Maximum number of parameters in combined NEQ:</b>
+ADDNEQ2 uses this option to allocate memory for the combined NEQ
+system. Specifying a number greater than necessary does not harm
+if the computer has enough memory.
+
+<p><i>Default value:</i> <tt>3000</tt>
+
+<a name="SIGMA0" default="0.0010"></a>
+<p><b>A priori sigma of unit weight:</b>
+Here you may specify the a priori sigma of unit weight, where the
+unit weight usually corresponds to the weight of the zero-difference
+L1 phase observable (at zenith). The a priori weights for the L1
+phase and code observable are defined in the file
+<a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>.
+<br>
+The a priori sigma should approximately agree with the actual
+measurement noise of the one-way L1 phase observations (the post-fit
+sigma of unit weight given in the GPSEST output file).
+The value of this sigma is relevant only for the correct scaling of
+any a priori constraints put on specific parameters. When changing the
+a priori sigma here, you also change the strength of the a priori
+constraints defined.
+
+<p><i>Default value:</i> <tt>0.001</tt>&nbsp;meter
+(<tt>0.002</tt>&nbsp;meter if no elevation-dependent weighting)
+
+<a name="INDVSOL" default="YES"></a>
+<p><b>Compute and compare individual solutions:</b>
+If the option is enabled each input NEQ system is processed
+with the same options as the combined NEQ. The coordinate residuals of the
+individual solutions with respect to the combined solution are computed. The
+following options are supported:
+<ul>
+<li><b>HLM_ALL</b>: a seven-parameter Helmert transformation will
+    be applied to compare each individual solution with the combined solution.
+<li><b>HLM_ROT</b>: three rotation parameters are applied to compare
+    each individual with respect to the combined solution.
+<li><b>HLM_TRA</b>: three translation parameters are applied to compare
+    each individual with respect to the combined solution.
+<li><b>HELMERT</b>: the same components as selected for the "MINIMUM
+    CONSTRAINT CONDITIONS" in panel "ADDNEQ2 5: Datum Definition for Station
+    Coordinates" are selected to compare
+    each individual with respect to the combined solution. If another type of
+    datum definition is selected all seven parameters are used.
+<li><b>YES</b>: each individual solution is directly compared to the combined
+    solution without any transformation parameter.
+<li><b>NO</b>: no comparison is computed.
+</ul>
+<br>
+The residuals in north, east, up as well as the repeatability RMS in each
+component are written to the program output and to the output file specified
+in option 'Parameter residuals' in panel "ADDNEQ2 2.2: Output Files 2".
+
+<p><i>Remark:</i>
+If you want to use the residuals to analyse the coordinate
+time series using the program <a href="PGMLST.HLP#FODITS">FODITS</a>
+you must select YES here.
+
+<a name="TIMREF" default=""></a>
+<p><b>Reference epoch for station coordinates:</b>
+The resulting coordinates in the coordinate file refer to this
+epoch. If blank, the middle of the entire time interval covered by
+coordinate parameters is assumed.
+
+<a name="NOINV" default="0"></a>
+<p><b>Stop program after NEQ saving:</b>
+If you check this box no solution is computed for this program run.
+After performing the parameter operations ("DELETE", and all types of
+pre-elimination) and the stacking of the selected normal equation files
+the resulting NEQ files is stored and the program stops. If you are not
+interested in the solution (e.g., because you are currently generating
+an interim NEQ file) you can spare the computing time for inverting the
+normal equation.
+<br>
+Of course, no result files are written in the program run apart from
+the "Normal equations" file.
+
+<p><i>Default value:</i> unmarked
+
+<br><br>
+
+<a name="CRD_NINT" default="0"></a>
+<p><b>ADD PARAMETERS TO THE SYSTEM</b>
+<p><b>Set up station velocities:</b>
+Mark this box to set up station velocities. You need input NEQs spanning a
+reasonable time interval in order to get reliable estimates for velocities.
+The panels "ADDNEQ2 6: Datum Definition for Station Velocities" provides you
+with a number of options for the definition of the geodetic datum for the
+estimated site velocities.
+
+<p><i>Default value:</i> unmarked
+
+<a name="SETUP_GCC" default="0"></a>
+<p><b>Set up Geocenter coordinates:</b>
+If the option is activated Geocenter coordinates are set up for each input
+NEQ file, if not already present.
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+<b>ADDNEQ2 3.2: Options 2</b>
+
+<a name="CRXREC" default="NEVER"></a>
+<a name="CRXANT" default="NEVER"></a>
+<p><b>REMOVE STATION PARAMETERS FROM THE SYSTEM</b>
+<p><b>If receiver changes</b>/<b>If antenna changes:</b>
+In case of an equipment change during the interval of the solution
+the parameters for the corresponding stations may be pre-eliminated
+before stacking. The equipment changes <i>must</i> be indicated in
+the "Station information" file given in panel "ADDNEQ2 1.1: Input Files 1".
+<br>
+For receivers and antennas can be selected what type of equipment change
+is considered:
+<ul>
+<li>NEVER:  no elimination of parameters due to equipment changes is done.
+<li>TYPE:   parameters are only eliminated if the receiver/antenna type changes.
+<li>ECCENT: in case of changing the antenna eccentricity, the parameters are
+    eliminated.
+<li>NUMBER: the elimination is initialized if the receiver/antenna number
+    changes.
+</ul>
+Note that in the current version the resulting SINEX file may not reflect
+the full history of the station equipment because within each parameter
+interval only one equipment configuration can be stored.
+
+<p><i>Default value:</i> <tt>NEVER</tt>
+
+<br><br>
+
+<a name="NO_ABC" default="NO"></a>
+<p><b>INPUT FILE OPTIONS</b>
+<p><b>Truncate NEQ station names after position 14:</b>
+Enabling this option sets all characters after position 14 in the
+station names contained in the input NEQs to blank. The option may
+be useful to eliminate characters 'B', 'C', etc., following the DOMES
+codes indicating different coordinate solutions.
+<br>
+Instead of NO and YES a number may be specified giving the
+position after which the station names shall be truncated.
+
+<p><i>Default value:</i> <tt>NO</tt>
+
+<a name="NOCHRONO" default="0"></a>
+<p><b>Keep input NEQs in alphabetical order:</b>
+By default input NEQs are ordered chronologically according to the start
+epoch of the files. This is particularly important when combining orbital
+arcs from successive NEQs. Enabling this option disables chronological
+ordering and keeps the original order as prepared by the file browser
+(default: alphabetical ordering). It is recommended to keep alphabetical
+ordering in particular for SINEX combination tasks. Ordering of input files
+may also be controlled by configuring the file selection browser
+accordingly.
+
+<p><i>Default value:</i> unmarked
+
+<br><br>
+
+<a name="PRT_EXT" default="1"></a>
+<p><b>OUTPUT OPTIONS</b>
+<p><b>Extended output wrt estimated parameters:</b>
+In the program output ADDNEQ2 provides a table containing information for
+each estimated parameter in a generic format including name and type of the
+parameter, correction, estimated value, RMS error, a priori value, units,
+and time interval of validity.
+<br>
+With this option enabled additional columns will be added to the table
+containing the mean epoch in modified Julian date, parameter number, and a
+string characterizing the parameter which enables to extract information
+using a simple grep command. The grep string includes:
+<dl>
+<li><tt>#CRD </tt> coordinates,</li>
+<li><tt>#DCB </tt> differential code biases,</li>
+<li><tt>#ERP </tt> Earth orientation parameters,</li>
+<li><tt>#GCC </tt> Geocenter coordinates,</li>
+<li><tt>#GIM </tt> global ionosphere parameters,</li>
+<li><tt>#ORB </tt> orbit parameters,</li>
+<li><tt>#SAO </tt> satellite antenna offsets,</li>
+<li><tt>#SAP </tt> satellite antenna phase patterns,</li>
+<li><tt>#SORB</tt> stochastic orbit parameters,</li>
+<li><tt>#TRP </tt> troposphere parameters.</li>
+</dl>
+
+<a name="PRT_SIC" default="1"></a>
+<p><b>Notify station inconsistencies between NEQs:</b>
+With this option enabled any inconsistency of station information (receiver
+or antenna type, antenna eccentricity) between input NEQs is listed in the
+program output.
+
+<p><i>Default value:</i> marked
+
+<a name="CRXWARN" default="1"></a>
+<p><b>Notify changes due to station information file:</b>
+With this option enabled a warning message is issued in the program output
+file notifying each change of station information performed based on the
+content of the station information file specified in panel "ADDNEQ2 1.1:
+Input Files 1".
+
+<p><i>Default value:</i> marked
+
+<a name="PRT_PAR" default="0"></a>
+<p><b>Print detailed list of parameter manipulations:</b>
+With this option enabled extended output is provided giving detailed
+parameter information for debug purposes together with manipulations
+performed which can be one of the following:
+<dl>
+<li><tt>#PR_EST</tt> parameter estimated,</li>
+<li><tt>#PR_EBS</tt> parameter pre-eliminated before stacking,</li>
+<li><tt>#PR_EAS</tt> parameter pre-eliminated after stacking,</li>
+<li><tt>#PR_DEL</tt> parameter fixed to a priori value,</li>
+<li><tt>#PR_SBS</tt> parameter singular before stacking,</li>
+<li><tt>#PR_SAS</tt> parameter singular after stacking,</li>
+</dl>
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+<p><b>ADDNEQ2 3.3: Options 3</b>
+
+<a name="SNXREG" default="NO"></a>
+<p><b>SINEX OPTIONS</b>
+<p><b>Regularize a priori constraint matrix:</b>
+The a priori constraint matrix in the SINEX file (SOLUTION/MATRIX_APRIORI
+block) needs to be regular. This is not the case if the datum is defined
+using a free network constraint or if not all stations are constrained.
+Selecting YES in this field puts an additional weight of 1e-7 to the
+diagonal of the matrix (as well as to the solution matrix). Alternatively
+you may specify another value than 1e-7 as regularization constraint.
+
+<p><i>Default value:</i> <tt>NO</tt>
+
+<a name="STASORT" default="0"></a>
+<p><b>Sort stations according to DOMES code:</b>
+The option allows to sort stations in the output SINEX file according
+to DOMES codes instead of station names.
+
+<p><i>Default value:</i> unmarked
+
+<a name="HEUREF" default="0"></a>
+<p><b>Include ADDNEQ1-style statistics block:</b>
+This option allows to include a comment block containing statistical
+information in the SINEX output file as it was generated by the old
+ADDNEQ program.
+
+<p><i>Default value:</i> unmarked
+
+<a name="ANTRED" default="0"></a>
+<p><b>Do not write uncalibrated antenna/radome combinations:</b>
+This option allows to exclude uncalibrated antennas from SITE/ANTENNA
+block in SINEX.
+
+<p><i>Default value:</i> unmarked
+
+<a name="ERPREP" default="0"></a>
+<p><b>Transform ERP to offset/drift representation:</b>
+This option allows to transform the ERP parameters from piecewise linear
+into offset/drift representation for SINEX.
+<br>
+In case of saving SINEX files containing NEQ information the transformation
+is only possible if two ERP are available.
+
+<p><i>Default value:</i> unmarked
+
+<br><br>
+
+<a name="COVMODE" default="CRD/VEL"</a>
+<p><b>VARIANCE-COVARIANCE FILE OPTIONS</b>
+<p><b>Representation of coordinates and velocities:</b>
+If you estimate velocities, ADDNEQ2 sets up a second coordinate set for
+each station. This representation (two coordinate sets) is equivalent
+to one coordinate and one velocity set per station. With this option you
+choose if the var-covar file contains values for the two coordinate sets
+(original representation) or if the values are transformed back
+to coordinates and velocities.
+
+<p><i>Default value:</i> <tt>CRD/VEL</tt>
+
+<p><hr>
+
+<a name="CRD_ELIM"  default=""></a>
+<a name="CRD_EXCP"  default=""></a>
+<a name="CRD_EXST"  default="0"></a>
+<a name="CLK_ELIM"  default=""></a>
+<a name="CLK_EXCP"  default=""></a>
+<a name="CLK_EXST"  default="0"></a>
+<a name="ISB_ELIM"  default=""></a>
+<a name="ISB_EXCP"  default=""></a>
+<a name="ISB_EXST"  default="0"></a>
+<a name="RAO_ELIM"  default=""></a>
+<a name="RAO_EXCP"  default=""></a>
+<a name="RAP_ELIM"  default=""></a>
+<a name="RAP_EXCP"  default=""></a>
+<a name="DCBR_ELIM" default=""></a>
+<a name="DCBR_EXCP" default=""></a>
+<a name="DCBR_EXST" default="0"></a>
+<a name="RNG_ELIM"  default=""></a>
+<a name="RNG_EXCP"  default=""></a>
+<a name="TRP_ELIM"  default=""></a>
+<a name="TRP_EXCP"  default=""></a>
+<a name="TRP_EXST"  default="0"></a>
+<a name="GRD_ELIM"  default=""></a>
+<a name="GRD_EXCP"  default=""></a>
+<a name="GRD_EXST"  default="0"></a>
+<a name="GIM_ELIM"  default=""></a>
+<a name="GIM_EXCP"  default=""></a>
+<a name="HOI_ELIM"  default=""></a>
+<a name="HOI_EXCP"  default=""></a>
+<a name="TRANS_ELIM"  default=""></a>
+<a name="TRANS_EXCP"  default=""></a>
+<a name="ROT_ELIM"  default=""></a>
+<a name="ROT_EXCP"  default=""></a>
+<a name="SCALE_ELIM" default=""></a>
+<a name="SCALE_EXCP" default=""></a>
+<a name="ORB_ELIM"  default=""></a>
+<a name="ORB_EXCP"  default=""></a>
+<a name="STO_ELIM"  default=""></a>
+<a name="STO_EXCP"  default=""></a>
+<a name="ANT_ELIM"  default=""></a>
+<a name="ANT_EXCP"  default=""></a>
+<a name="ANTX_ELIM" default=""></a>
+<a name="ANTX_EXCP" default=""></a>
+<a name="SPV_ELIM"  default=""></a>
+<a name="SPV_EXCP"  default=""></a>
+<a name="DCBS_ELIM" default=""></a>
+<a name="DCBS_EXCP" default=""></a>
+<a name="ERP_ELIM"  default=""></a>
+<a name="ERP_EXCP"  default=""></a>
+<a name="LOD_ELIM"  default=""></a>
+<a name="LOD_EXCP"  default=""></a>
+<a name="UT_ELIM"   default=""></a>
+<a name="UT_EXCP"   default=""></a>
+<a name="NUT_ELIM"  default=""></a>
+<a name="NUT_EXCP"  default=""></a>
+<a name="ALD_ELIM" default=""></a>
+<a name="ALD_EXCP" default=""></a>
+<a name="ALD_EXST" default="0"></a>
+<a name="OLD_ELIM" default=""></a>
+<a name="OLD_EXCP" default=""></a>
+<a name="OLD_EXST" default="0"></a>
+<a name="HLD_ELIM" default=""></a>
+<a name="HLD_EXCP" default=""></a>
+<a name="HLD_EXST" default="0"></a>
+<a name="GTRA_ELIM" default=""></a>
+<a name="GTRA_EXCP" default=""></a>
+<a name="GTRA_EXST" default="0"></a>
+<a name="GTRP_ELIM" default=""></a>
+<a name="GTRP_EXCP" default=""></a>
+<a name="GTRP_EXST" default="0"></a>
+<a name="MSS_ELIM"  default=""></a>
+<a name="MSS_EXCP"  default=""></a>
+<a name="CLKR_ELIM" default=""></a>
+<a name="CLKR_EXCP" default=""></a>
+<a name="CLKS_ELIM" default=""></a>
+<a name="CLKS_EXCP" default=""></a>
+<p><b>ADDNEQ2 4.1: Parameter Pre-Elimination</b>,
+   <b>ADDNEQ2 4.2: Parameter Pre-Elimination</b>, and
+   <b>ADDNEQ2 4.3: Parameter Pre-Elimination</b>
+<p>
+These three panels provides sophisticated pre-elimination options for all
+parameters available in the input NEQs.
+Pre-elimination is useful, e.g., to reduce the size of the output NEQ or to
+increase processing speed.
+<br>
+Be careful in selecting appropriate constraints when pre-eliminating
+parameters and saving normal equations. The parameters remain, with the
+constraints applied, implicitly in the system. The constraints are 'frozen
+in' and can never be modified again. Values for pre-eliminated parameters
+are no longer accessible. They do not appear neither in output files nor in
+output NEQ or SINEX files.
+<br>
+The following pre-elimination options are available:
+<ul>
+<li><b>empty field:</b>
+     The parameter type is not available in the normal equation
+     system. Corresponding option panels will not be displayed. The
+     program stops with an error if deactivated parameters are found in
+     the input NEQs or if activated parameters are not found.
+<li><b>NO:</b>
+    The parameters are not pre-eliminated and remain explicitly in
+    the system. They appear in the solution.
+<li><b>BEFORE_STACKING:</b>
+    The parameters are pre-eliminated immediately after reading of each
+    individual input NEQ file. The parameters are not stacked.
+    <br>
+    <b>exceptions for</b> <b>files:</b> In this field you may specify the
+    number(s) of those input NEQs (counted in chronological order) for which the
+    pre-elimination should not be applied. This allows, e.g., to retain
+    the troposphere parameters for the middle day of a three days solution
+    by specifying <tt>2</tt> (second of three input NEQs). In addition,
+    <tt>F</tt> and <tt>L</tt> denoting the first and last file may
+    be used.
+<li><b>AFTER_STACKING:</b>
+    The parameters are pre-eliminated after reading of all input NEQ
+    files and stacking of the parameters but before computing the solution.
+    The parameters do not appear in the solution nor in the output normal
+    equation or SINEX file. The option may be used to reduce the size of
+    the resulting NEQ file.
+<li><b>EXCEPT FOR BOUNDARIES:</b>
+    This option, applicable to time dependent parameters modeled by
+    piece-wise linear functions such as troposphere or Earth orientation
+    parameters, allows it to pre-eliminate all parameters (before stacking)
+    except of the first and the last one.
+    This makes it still possible to connect the parameters at the NEQ
+    boundaries when stacking output NEQs covering adjacent time intervals.
+    <br>
+    <b>exceptions for</b> <b>files:</b> In this field you may specify the
+    number(s) of those input NEQs (counted in chronological order) for which the
+    pre-elimination should not be applied. This allows, e.g., to retain
+    the troposphere parameters for the middle day of a three days solution
+    by specifying <tt>2</tt> (second of three input NEQs). In addition,
+    <tt>F</tt> and <tt>L</tt> denoting the first and last file may
+    be used.
+<li><b>OUTSIDE FROM WINDOW:</b>
+    All parameters outside from a time window (to be specified in the
+    follow-up panel) are pre-eliminated before stacking the individual
+    input NEQ files.
+<li><b>DELETE:</b>
+    This option allows to fix parameters to their a priori value before
+    eliminating them from the system. The option may be preferable over a
+    strong constraining followed by a pre-elimination because numerical
+    problems caused by strong constraints are avoided.
+</ul>
+
+<p><hr>
+
+<p><b>ADDNEQ2 4.4: Parameter Pre-Elimination</b>
+
+<a name="RADIO_1" default="1"></a>
+<p><b>TIME WINDOW FOR "OUTSIDE FROM WINDOW" PRE-ELIMINATION</b>
+<p>
+The time interval for the option pre-eliminate all parameters
+outside from a time window is specified in this panel.
+
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the observation window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT"  default="$YMD_STR+0"></a>
+<a name="STATIM"  default="00 00 00"></a>
+<a name="ENDDAT"  default="$YMD_STR+0"></a>
+<a name="ENDTIM"  default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the observation window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: 00&nbsp;00&nbsp;00, end date: <tt>$YMD_STR+0</tt>,
+end time: 23&nbsp;59&nbsp;59
+
+<p><hr>
+
+<a name="CRD_EXSEL" default="MANUAL"></a>
+<a name="CRD_EXMAN" default=""></a>
+<a name="CRD_EXFIL" default=""></a>
+<a name="CRD_EXFLG" default=""></a>
+<a name="CLK_EXSEL" default="MANUAL"></a>
+<a name="CLK_EXMAN" default=""></a>
+<a name="CLK_EXFIL" default=""></a>
+<a name="CLK_EXFLG" default=""></a>
+<a name="ISB_EXSEL" default="MANUAL"></a>
+<a name="ISB_EXMAN" default=""></a>
+<a name="ISB_EXFIL" default=""></a>
+<a name="ISB_EXFLG" default=""></a>
+<a name="DCBR_EXSEL" default="MANUAL"></a>
+<a name="DCBR_EXMAN" default=""></a>
+<a name="DCBR_EXFIL" default=""></a>
+<a name="DCBR_EXFLG" default=""></a>
+<a name="GTRA_EXSEL" default="MANUAL"></a>
+<a name="GTRA_EXMAN" default=""></a>
+<a name="GTRA_EXFIL" default=""></a>
+<a name="GTRA_EXFLG" default=""></a>
+<a name="GTRP_EXSEL" default="MANUAL"></a>
+<a name="GTRP_EXMAN" default=""></a>
+<a name="GTRP_EXFIL" default=""></a>
+<a name="GTRP_EXFLG" default=""></a>
+<a name="TRP_EXSEL" default="MANUAL"></a>
+<a name="TRP_EXMAN" default=""></a>
+<a name="TRP_EXFIL" default=""></a>
+<a name="TRP_EXFLG" default=""></a>
+<a name="GRD_EXSEL" default="MANUAL"></a>
+<a name="GRD_EXMAN" default=""></a>
+<a name="GRD_EXFIL" default=""></a>
+<a name="GRD_EXFLG" default=""></a>
+<a name="ALD_EXSEL" default="MANUAL"></a>
+<a name="ALD_EXMAN" default=""></a>
+<a name="ALD_EXFIL" default=""></a>
+<a name="ALD_EXFLG" default=""></a>
+<a name="OLD_EXSEL" default="MANUAL"></a>
+<a name="OLD_EXMAN" default=""></a>
+<a name="OLD_EXFIL" default=""></a>
+<a name="OLD_EXFLG" default=""></a>
+<a name="HLD_EXSEL" default="MANUAL"></a>
+<a name="HLD_EXMAN" default=""></a>
+<a name="HLD_EXFIL" default=""></a>
+<a name="HLD_EXFLG" default=""></a>
+<p><b>ADDNEQ2 4.5: Parameter Pre-Elimination</b>
+<p>
+For a certain number of parameters it is possible to define a list of
+stations there parameters are <i>not</i> pre-eliminated. The idea behind
+this feature is that you can keep station-related parameters for specific
+core or collocation sites in a resulting
+NEQ for combination with other solutions or for the inter-technique
+combination.
+<br>
+The following possibilities are available to select the list of stations
+for keeping in the resulting NEQ file (exceptions from pre-elimination):
+<ul>
+<li><b>FIRST</b>:
+    The first station of the station list is selected automatically.
+<li><b>LAST</b>:
+    The last station of the station list is selected automatically.
+<li><b>ALL</b>:
+    All stations are selected - no parameter is pre-eliminated.
+<li><b>MANUAL</b>:
+    Get an additional field allowing to select the sites manually
+    from the list of all stations involved in the solution.
+<li><b>FROM_FILE</b>:
+    Get an additional field allowing to select the name of a station
+    selection file.
+<li><b>WITH_FLAG</b>:
+    Get an additional field allowing to specify a list of flags. Stations
+    marked with the specified flags in the a priori coordinate file are
+    kept with the corresponding station-related parameters in the resulting
+    NEQ.
+</ul>
+
+<p><hr>
+
+<p><b>ADDNEQ2 5: Datum Definition for Station Coordinates</b>
+
+<p><b>DATUM DEFINITION TYPE</b>
+<p>The following options are available for the definition of the
+geodetic datum of the estimated site coordinates:
+<ul>
+<li><a name="RADIO2_4" default="0"></a>
+<b>Free network solution:</b>
+This option allows to estimate site coordinates without any constraints
+applied. I.e., no explicit definition of the geodetic datum is performed.
+This solution is not recommended for use, except for test purposes.
+
+<li><a name="RADIO2_3" default="0"></a>
+    <a name="FREESTA" default="MANUAL"></a>
+<b>Minimum constraint solution:</b>
+Mark this option to define the geodetic datum of the site coordinates
+using network conditions. No-net translation, no-net rotation, or no-net
+scale conditions may be imposed in the section "MINIMUM CONSTRAINT CONDITIONS"
+below using the stations specified here.
+
+<li><a name="RADIO2_2" default="1"></a>
+    <a name="SIGSTA" default="MANUAL"></a>
+<b>Coordinates constrained:</b>
+Mark this option if you want to constrain coordinates of a selected set of
+reference stations to their a priori coordinates for defining the geodetic
+datum. The strength of the constraints may be specified in option "A PRIORI
+SIGMAS" below.
+
+<li><a name="RADIO2_1" default="0"></a>
+    <a name="FIXSTA" default="MANUAL"></a>
+<b>Coordinates fixed:</b>
+With this option you may fix the coordinates of the selected stations to
+their a priori values specified in the input coordinate file selected in
+option "Station coordinates" in panel "ADDNEQ2 1.1: Input Files 1". The
+coordinates are fixed and removed from the solution.
+
+<p><i>Caution:</i>
+Be aware that fixed coordinates can never be 'unfixed'
+again. Therefore, do not fix station coordinates if you are writing normal
+equation files. Use station coordinate constraining instead.
+</ul>
+
+<br><br>
+
+The following possibilities are available to select the reference stations
+for the definition of the geodetic datum for three of the four options above
+<ul>
+<li><b>FIRST</b>:
+    The first station of the station list is selected automatically. The
+    option is available for constraining and fixing of reference coordinates.
+<li><b>LAST</b>:
+    The last station of the station list is selected automatically. The
+    option is available for constraining and fixing of reference coordinates.
+<li><b>ALL</b>:
+    All stations are used to realize the geodetic datum of the coordinates.
+<li><b>MANUAL</b>:
+    Get an additional panel allowing to select the reference sites manually
+    from the list of all stations involved in the solution.
+    See options in panel "ADDNEQ2 5.1: Datum Definition for Station
+    Coordinates".
+<li><b>FROM_FILE</b>:
+    Get an additional panel allowing to select the name of a station
+    selection file (for minimum constraint solution) or station sigma file
+    (for coordinate constraining) containing the list of stations to be
+    used as reference sites.
+    <br>
+    In case of coordinate constraining the sigmas specified in the
+    station sigma file are used. The option "A PRIORI SIGMAS" is inactive
+    in this case. This option allows to specify individual constraints for
+    different stations.
+    See options in panel "ADDNEQ2 5.1: Datum Definition for Station
+    Coordinates".
+<li><b>WITH_FLAG</b>:
+    Get an additional panel allowing to specify a list of flags. Stations
+    marked with the specified flags in the a priori coordinate file are
+    used as reference stations.
+    <br>
+    This option may be useful if you want to introduce the coordinates
+    of another solution.
+    See options in panel "ADDNEQ2 5.1: Datum Definition for Station
+    Coordinates".
+</ul>
+
+<br><br>
+<p><b>MINIMUM CONSTRAINT CONDITIONS</b>
+<p>
+If you enabled the option "Minimum constraint solution" above you can
+specify the Helmert transformation parameters between estimated coordinates
+and a priori coordinates of the reference sites selected.
+
+<p><a name="C_TRA" default="YES"></a>
+<b>Translation:</b>
+Enable the option in order to impose a Helmert
+translation condition (no-net translation condition) to the coordinates of
+the reference sites specified. This option is useful to validate the
+coordinates for the reference sites in a regional solution. Alternatively
+to YES you may specify the strength of the Helmert translation constraints
+in meters.
+
+<p><a name="C_ROT" default="NO"></a>
+<b>Rotation:</b>
+Enable the option in order to impose a Helmert
+rotation condition (no-net rotation condition) to the coordinates of
+the reference sites specified. This option is useful to validate the
+coordinates for the reference sites in a global solution. Alternatively to
+YES you may specify the strength of the Helmert rotation constraints in
+meters (angle in radians multiplied by the Earth's radius).
+
+<p><a name="C_SCL" default="NO"></a></a>
+<b>Scale:</b>
+Enable the option in order to impose a Helmert scale
+condition (no-net scale condition) to the coordinates of the reference sites.
+Alternatively to YES you may specify the strength of the Helmert scale
+constraint in meters (scale difference multiplied by the Earth's radius).
+
+<br><br>
+<p><a name="C_SIGMAN" default="0.001"></a>
+   <a name="C_SIGMAE" default="0.001"></a>
+   <a name="C_SIGMAU" default="0.001"></a>
+<b>A PRIORI SIGMAS</b>
+<p>
+It is possible to define default sigma values for site coordinate
+constraining (in meters). You may define different constraints for the
+horizontal (north, east) and the vertical (up) components which will be
+applied to the selected reference sites. If you want to specify individual
+constraints for the reference sites you have to create a station sigma
+file and introduce it using the FROM_FILE option in the field above.
+
+<p><hr>
+
+<p><b>ADDNEQ2 5.1: Datum Definition for Station Coordinates</b>
+
+<p><b>STATIONS CONSIDERED FOR MINIMUM CONSTRAINT CONDITIONS</b>
+<p>
+The coordinates of the selected set of stations will be used to set up
+the minimum constraint condition with respect to the coordinates given in
+the a priori coordinate file specified in panel "ADDNEQ2 1.1: Input Files 1".
+Depending on the options selected under "Minimum constraint solution" in panel
+"ADDNEQ2 5: Datum Definition for Station Coordinates" you may input additional
+information in one of the following fields. Specify the Helmert transformation
+conditions in the section "MINIMUM CONSTRAINT CONDITIONS" in the previous
+panel.
+
+<p><a name="FREESTA_L" default=""></a>
+<b>Manual selection:</b>
+The field is active if you selected MANUAL to specify the reference sites.
+Push the button next to the field in order to get the list of stations
+involved in the solution as extracted from the NEQ headers. You may select
+manually the reference sites you want to use to apply the minimum constraint
+conditions.
+
+<p><a name="FREESTA_F" default=""></a>
+<b>List of stations from file:</b>
+The field is active if you selected FROM_FILE to specify the reference sites.
+Specify the name of a station selection file containing the names of the
+sites you want to use to apply the minimum constraint conditions.
+
+<p><a href="/$X/DOC/EXAMPLE.FIX">Example</a>
+
+<p><a name="FREESTA_G" default="%%"></a>
+<b>Stations with specific flags in CRD file:</b>
+The field is active if you selected WITH_FLAG to specify the reference
+sites.  Specify a blank-separated list of flags. Those stations which are
+marked in the a priori station coordinate file with one of the specified
+flags are used to apply the minimum constraint condition.
+<br>
+The character '#' stands for all non-blank flags, '@' for all stations
+in the file.
+
+<p><hr>
+
+<p><b>ADDNEQ2 5.1: Datum Definition for Station Coordinates</b>
+
+<p><b>STATION COORDINATES TO BE CONSTRAINED</b>
+<p>
+The coordinates of the selected set of stations will be constrained to the
+coordinates specified in the a priori coordinate file specified in panel
+"ADDNEQ2 1.1: Input Files 1". Depending on the options selected under "Coordinates
+constrained" in panel "ADDNEQ2 5: Datum Definition for Station Coordinates"
+you may input additional information in one of the following fields.
+
+<p><a name="STATION4" default=""></a>
+<b>Manual selection:</b>
+The field is active if you selected MANUAL to specify the reference sites.
+Push the button next to the field in order to get the list of stations
+involved in the solution as extracted from the NEQ headers. You may select
+manually the reference sites you want to constrain. Specify the values for
+the constraints in the section "A PRIORI SIGMAS" in the previous panel.
+
+<p><a name="STAFILE4" default=""></a>
+<b>List of stations (and sigmas) from file:</b>
+The field is active if you selected FROM_FILE to specify the reference sites.
+Specify the name of a station sigma file containing the names and the values
+of the constraints (in meters) for the sites you want to constrain.
+
+<p><a href="/$X/DOC/EXAMPLE.SIG">Example</a>
+
+<p><a name="STAFLAG4" default="%%"></a>
+<b>Stations with specific flags in CRD file:</b>
+The field is active if you selected WITH_FLAG to specify the reference
+sites.  Specify a blank-separated list of flags. Those stations which are
+marked in the a priori station coordinate file with one of the specified
+flags are constrained.  Specify the values for the constraints in the
+section "A PRIORI SIGMAS" in the previous panel.
+<br>
+The character '#' stands for all non-blank flags, '@' for all stations
+in the file.
+
+<p><hr>
+
+<p><b>ADDNEQ2 5.1: Datum Definition for Station Coordinates</b>
+
+<p><b>STATION COORDINATES TO BE FIXED</b>
+<p>
+The coordinates of the selected set of stations will be fixed to the
+coordinates specified in the a priori coordinate file specified in panel
+"ADDNEQ2 1.1: Input Files 1" and removed from the solution. They can no longer
+be 'unfixed'. Depending on the options selected under "Coordinates
+fixed" in panel "ADDNEQ2 5: Datum Definition for Station Coordinates" you
+may input additional information in one of the following fields.
+
+<p><a name="STATION1" default=""></a>
+<b>Manual selection:</b>
+The field is active if you selected MANUAL to specify the reference sites.
+Push the button next to the field in order to get the list of stations
+involved in the solution as extracted from the NEQ headers. You may select
+manually the reference sites you want to fix.
+
+<p><a name="STAFILE1" default=""></a>
+<b>List of stations from file:</b>
+The field is active if you selected FROM_FILE to specify the reference sites.
+Specify the name of a station selection file containing the names of the
+sites for which you want to fix the coordinates.
+
+<p><a href="/$X/DOC/EXAMPLE.FIX">Example</a>
+
+<p><a name="STAFLAG1" default="%%"></a>
+<b>Stations with specific flags in CRD file:</b>
+The field is active if you selected WITH_FLAG to specify the reference
+sites.  Specify a blank-separated list of flags. Those stations which are
+marked in the a priori station coordinate file with one of the specified
+flags are fixed.
+<br>
+The character '#' stands for all non-blank flags, '@' for all stations
+in the file.
+
+<p><hr>
+
+<a name="RADIO3_4" default="0"></a>
+<b>ADDNEQ2 6: Datum Definition for Station Velocities</b>
+
+<p><b>DATUM DEFINITION TYPE</b>
+<p>
+If you estimate velocities by enabling the option "Set up station
+velocities" in panel "ADDNEQ2 3.1: Options 1" ADDNEQ2 offers you the
+following options for the definition of the geodetic datum of the estimated
+site velocities.
+<ul>
+<li><a name="RADIO3_4" default="0"></a>
+    <b>Free network solution</b>
+    This option allows to estimate site velocities without any constraints
+    applied. I.e., no explicit definition of the geodetic datum is performed.
+    This solution is not recommended for use except for test purposes.
+
+<li><a name="RADIO3_3" default="0"></a>
+    <a name="FREEVEL" default="MANUAL"></a>
+    <b>Minimum constraint solution:</b>
+    Mark this option to define the geodetic datum of the site velocities using
+    network conditions. No-net translation, no-net rotation, or no-net scale
+    conditions may be imposed in the section "MINIMUM CONSTRAINT CONDITIONS"
+    below using the stations specified here.
+
+<li><a name="RADIO3_2" default="1"></a>
+    <a name="SIGVEL" default="MANUAL"></a>
+    <b>Velocities constrained:</b>
+    Mark this option if you want to constrain the velocities of a selected set
+    of reference stations to their a priori coordinates for defining the
+    geodetic datum.
+    The strength of the constraints may be specified in option "A PRIORI SIGMAS"
+    below.
+
+<li><a name="RADIO3_1" default="0"></a>
+    <a name="FIXVEL" default="MANUAL"></a>
+    <b>Velocities fixed:</b>
+    With this option you may fix the velocities of the selected stations to
+    their a priori values specified in the input velocity file selected in
+    option "Station velocities" in panel "ADDNEQ2 1.1: Input Files 1". The
+    velocities are fixed and removed from the solution.
+    <p><i>Caution:</i>
+    Be aware that fixed velocities can never be 'unfixed'
+    again. Therefore, do not fix station velocities if you are writing normal
+    equation files. Use station velocity constraining instead.
+</ul>
+<br
+The following possibilities are available to select the reference stations
+for the definition of the geodetic datum for three of the four options above
+<ul>
+<li><b>FIRST</b>:
+    The first station of the station list is selected automatically. The
+    option is available for constraining and fixing of reference velocities.
+<li><b>LAST</b>:
+    The last station of the station list is selected automatically. The
+    option is available for constraining and fixing of reference velocities.
+<li><b>ALL</b>:
+    All stations are used to realize the geodetic datum for the velocities.
+<li><b>MANUAL</b>:
+    Get an additional panel allowing to select the reference sites manually
+    from the list of all stations involved in the solution.
+    See options in panel "ADDNEQ2 6.1: Datum Definition for Station
+    Velocities".
+<li><b>FROM_FILE</b>:
+    Get an additional panel allowing to select the name of a station
+    selection file (for minimum constraint solution) or station sigma file
+    (for velocity constraining) containing the list of stations to be
+    used as reference sites.
+    <br>
+    In case of velocity constraining the sigmas specified in the
+    station sigma file are used. The option "A PRIORI SIGMAS" is inactive
+    in this case. This option allows to specify individual constraints for
+    different stations.
+    See options in panel "ADDNEQ2 6.1: Datum Definition for Station
+    Velocities".
+<li><b>WITH_FLAG</b>:
+    Get an additional panel allowing to specify a list of flags. Stations
+    marked with the specified flags in the a priori velocity file are
+    used as reference stations.
+    <br>
+    This option may be useful if you want to introduce the velocities
+    of another solution.
+    See options in panel "ADDNEQ2 6.1: Datum Definition for Station
+    Velocities".
+</ul>
+
+<br><br>
+
+<a name="V_TRA" default="YES"></a>
+<p><b>MINIMUM CONSTRAINT CONDITIONS</b>
+<p>
+If you enabled the option "Minimum constraint solution" above you can
+specify the Helmert transformation parameters between estimated velocities
+and a priori velocities of the reference sites selected.
+
+<p><b>Translation:</b>
+Enable the option in order to impose a Helmert
+translation condition (no-net translation condition) to the velocities of
+the reference sites specified. This option is useful to validate the
+velocities for the reference sites in a regional solution. Alternatively
+to YES you may specify the strength of the Helmert translation constraints
+in meters/second.
+
+<a name="V_ROT" default="NO"></a>
+<p><b>Rotation:</b>
+Enable the option in order to impose a Helmert
+rotation condition (no-net rotation condition) to the velocities of
+the reference sites specified. This option is useful to validate the
+velocities for the reference sites in a global solution. Alternatively to
+YES you may specify the strength of the Helmert rotation constraints in
+meters/second (angular rate in radians/second multiplied by the Earth's
+radius).
+
+<a name="V_SCL" default="NO"></a>
+<p><b>Scale:</b>
+Enable the option in order to impose a Helmert scale
+condition (no-net scale condition) to the velocities of the reference sites.
+Alternatively to YES you may specify the strength of the Helmert scale
+constraint in meters/second (scale rate difference multiplied by the Earth's
+radius).
+
+<br><br>
+
+<a name="V_SIGMAN" default="0.0001"></a>
+<a name="V_SIGMAE" default="0.0001"></a>
+<a name="V_SIGMAU" default="0.0001"></a>
+<p><b>A PRIORI SIGMAS</b>
+<p>
+It is possible to define default sigma values for site velocity
+constraining (in meters/year). You may define different constraints for the
+horizontal (north, east) and the vertical (up) components which will be
+applied to the selected reference sites. If you want to specify individual
+constraints for the reference sites you have to create a station sigma
+file and introduce it using the FROM_FILE option in the field above.
+
+<p><i>Default value:</i> <tt>0.0001</tt>&nbsp;meter/year
+(to 'fix' velocities)
+
+<p><hr>
+
+<p><b>ADDNEQ2 6.1: Datum Definition for Station Velocities</b>
+
+<a name="FREEVEL_L" default=""></a>
+<p><b>STATIONS CONSIDERED FOR MINIMUM CONSTRAINT CONDITIONS</b>
+<p>
+The velocities of the selected set of stations will be used to set up
+the minimum constraint condition with respect to the velocities given in the
+a priori velocity file specified in panel "ADDNEQ2 1.1: Input Files 1". Depending
+on the options selected under "Minimum constraint solution" in panel
+"ADDNEQ2 6: Datum Definition for Station Velocities" you may input additional
+information in one of the following fields. Specify the Helmert transformation
+conditions in the section "MINIMUM CONSTRAINT CONDITIONS" in the previous
+panel.
+
+<p><b>Manual selection:</b>
+The field is active if you selected MANUAL to specify the reference sites.
+Push the button next to the field in order to get the list of stations
+involved in the solution as extracted from the NEQ headers. You may select
+manually the reference sites you want to use to apply the minimum constraint
+conditions.
+
+<a name="FREEVEL_F" default=""></a>
+<p><b>List of stations from file:</b>
+The field is active if you selected FROM_FILE to specify the reference sites.
+Specify the name of a station selection file containing the names of the
+sites you want to use to apply the minimum constraint conditions.
+
+<p><a href="/$X/DOC/EXAMPLE.FIX">Example</a>
+
+<a name="FREEVEL_G" default="%%"></a>
+<p><b>Stations with specific flags in VEL file:</b>
+The field is active if you selected WITH_FLAG to specify the reference
+sites.  Specify a blank-separated list of flags. Those stations which are
+marked in the a priori station velocity file with one of the specified
+flags are used to apply the minimum constraint condition.
+<br>
+The character '#' stands for all non-blank flags, '@' for all stations
+in the file.
+
+<p><hr>
+
+<p><b>ADDNEQ2 6.1: Datum Definition for Station Velocities</b>
+
+<a name="VELOCITY4" default=""></a>
+<p><b>STATION VELOCITIES TO BE CONSTRAINED</b>
+<p>
+The velocities of the selected set of stations will be constrained to the
+velocities specified in the a priori velocity file specified in panel
+"ADDNEQ2 1.1: Input Files 1". Depending on the options selected under
+"Velocities constrained" in panel "ADDNEQ2 6: Datum Definition for Station
+Velocities" you may input additional information in one of the following
+fields.
+
+<p><b>Manual selection:</b>
+The field is active if you selected MANUAL to specify the reference sites.
+Push the button next to the field in order to get the list of stations
+involved in the solution as extracted from the NEQ headers. You may select
+manually the reference sites you want to constrain. Specify the values for
+the constraints in the section "A PRIORI SIGMAS" in the previous panel.
+
+<a name="VELFILE4" default=""></a>
+<p><b>List of stations (and sigmas) from file:</b>
+The field is active if you selected FROM_FILE to specify the reference sites.
+Specify the name of a station sigma file containing the names and the values
+of the constraints (in meters/year) for the sites you want to constrain.
+
+<p><a href="/$X/DOC/EXAMPLE.SIG">Example</a>
+
+<a name="VELFLAG4" default="%%"></a>
+<p><b>Stations with specific flags in VEL file:</b>
+
+The field is active if you selected WITH_FLAG to specify the reference
+sites. Specify a blank separated list of flags. Those stations which are
+marked in the a priori station velocity file with one of the specified
+flags are constrained. Specify the values for the constraints in the
+section "A PRIORI SIGMAS" in the previous panel.
+<br>
+The character '#' stands for all non-blank flags, '@' for all stations
+in the file.
+
+<p><hr>
+
+<p><b>ADDNEQ2 6.1: Datum Definition for Station Velocities</b>
+
+<a name="VELOCITY1" default=""></a>
+<p><b>STATION VELOCITIES TO BE FIXED</b>
+<p>
+The velocities of the selected set of stations will be fixed to the
+velocities specified in the a priori velocity file specified in panel
+"ADDNEQ2 1.1: Input Files 1" and removed from the solution. They can no longer
+be 'unfixed'. Depending on the options selected under
+"Velocities fixed" in panel "ADDNEQ2 6: Datum Definition for Station
+Velocities" you may input additional information in one of the following
+fields.
+
+<p><b>Manual selection:</b>
+The field is active if you selected MANUAL to specify the reference sites.
+Push the button next to the field in order to get the list of stations
+involved in the solution as extracted from the NEQ headers. You may select
+manually the reference sites you want to fix.
+
+<a name="VELFILE1" default=""></a>
+<p><b>List of stations from file:</b>
+The field is active if you selected FROM_FILE to specify the reference sites.
+Specify the name of a station selection file containing the names of the
+sites for which you want to fix the velocities.
+
+<p><a href="/$X/DOC/EXAMPLE.FIX">Example</a>
+
+<a name="VELFLAG1" default="%%"></a>
+<p><b>Stations with specific flags in VEL file:</b>
+The field is active if you selected 'WITH_FLAG' to specify the reference
+sites.  Specify a blank-separated list of flags. Those stations which are
+marked in the a priori station velocity file with one of the specified
+flags are fixed.
+<br>
+The character '#' stands for all non-blank flags, '@' for all stations
+in the file.
+
+<p><hr>
+
+<p><b>ADDNEQ2 7: Comparison of Individual Solutions</b>
+
+<a name="BADSOL_N" default="15"></a>
+<a name="BADSOL_E" default="15"></a>
+<a name="BADSOL_U" default="30"></a>
+<p><b>NOTIFICATION OF POSSIBLE OUTLIERS</b>
+<p>
+The options in this panel allow it to automatically generate a list of
+stations for which the coordinate comparison indicates anomalous behavior.
+Note that enabling the options does not have any influence on the result but
+does only notify possible outliers in the program output.
+
+<p><i>Remark:</i>
+The option "Compute and compare individual solutions"
+in panel "ADDNEQ2 3.1: Options 1" has to be activated in order to have
+this option available.
+
+<p><b>Maximum tolerated residual:</b>
+Specify threshold limits for coordinate repeatability residuals in north,
+east, and up components.
+
+<p><a name="BADSOLRN" default="10"></a>
+   <a name="BADSOLRE" default="10"></a>
+   <a name="BADSOLRU" default="20"></a>
+<b>Maximum tolerated root-mean-square error</b>
+Specify threshold limits for coordinate repeatability RMS in north,
+east, and up components.
+
+<p><a name="MINSOL" default="0"></a>
+<b>Minimum number of solutions for each station:</b>
+Stations contributing to the combined solution with fewer solutions than
+specified in this field are listed in the program output.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p><hr>
+
+<a name="TRP_NINT" default=""></a>
+<a name="GRD_NINT" default=""></a>
+<a name="ISB_NINT" default=""></a>
+<a name="ERP_NINT" default=""></a>
+<a name="NUT_NINT" default=""></a>
+<p><b>ADDNEQ2 8: Interval Length of Parameters</b>
+<p>
+Time dependent parameters are consequently modeled in ADDNEQ2 as piece-wise
+linear, i.e., continuous functions. Parameters are estimated at regularly
+spaced time intervals. Between these nodal points the parameters are modeled
+by a linear functions.
+<br>
+The options in the panel allow it to reduce the time resolution of the
+representation by modifying the spacing of the parameters. In addition the
+offset of the parameters with respect to the beginning of the session can
+be specified.
+
+<p><b>NEW PARAMETER SPACING</b>
+<p>
+Specify the spacing of troposphere zenith delay or gradient parameters,
+Earth rotation or nutation parameters in hours, minutes, and seconds. If you
+do not want to change the parametrization, enter a blank value.
+
+<p><i>Important:</i>
+It is only possible to reduce the number of parameters
+by removing existing parameters. In this case the parametrization can be
+transformed to the new situation leading again to a piece-wise
+parametrization.  I.e., the spacing you enter here must be an integer
+multiple of the original spacing. You may change a <nobr>2-hourly</nobr>
+troposphere representation into a <nobr>4-hourly</nobr> representation, but
+not into a <nobr>3-hourly</nobr> representation.
+
+<p><i>Default values:</i> blank
+
+<br><br>
+
+<a name="PAR_REF" default=""></a>
+<a name="PAR_OFF" default=""></a>
+<p><b>REFERENCE EPOCH FOR PARAMETER INTERVALS</b>
+<p>
+Specify the offset of the parameters with respect to the beginning of
+the session in hours, minutes, and seconds. The offset is valid for all
+of the above listed parameters. It is not recommended to change the
+parameter offset in ADDNEQ2. Use a blank value to retain the parameter offset
+specified in the input NEQs.
+
+<p><i>Default value:</i> blank
+
+<p><hr>
+
+<p><b>ADDNEQ2 9: Options for Atmospheric Parameters</b>
+<p>
+In these fields you specify absolute and relativeconstraints of
+troposphere zenith delay and gradient parameters (sigmas in meters) as well
+as for global ionosphere parameters (sigmas in TECU). If you do not want to
+impose constraints, leave the fields empty. Constraints on troposphere
+parameters are handled equally for each station. A blank value is equivalent
+to no constraint.
+
+<p><a name="TRP_ASIG" default=""></a>
+   <a name="GRD_ASIG" default=""></a>
+   <a name="GIM_ASIG" default=""></a>
+<b>ABSOLUTE CONSTRAINING</b>
+
+All parameters are constrained on the a priori model that was used in
+GPSEST (e.g., dry Niell troposphere model). Make sure that you used a
+reasonable a priori model. If you did not use any model the parameters are
+constrained to zero. In most cases no absolute constraints are needed. Be
+aware that absolute constraints on troposphere parameters may introduce a
+small scale into your solution.
+
+<br><br>
+
+<a name="TRP_RSIG" default=""></a>
+<a name="GRD_RSIG" default=""></a>
+<a name="GIM_RSIG" default=""></a>
+<a name="TRP_RDT" default=""></a>
+<a name="GRD_RDT" default=""></a>
+<a name="GIM_RDT" default=""></a>
+<p><b>RELATIVE CONSTRAINING AND VALIDITY INTERVAL OF CONSTRAINT</b>
+<p>
+Subsequent estimates are constrained relative to each other. Relative
+constraints, of course, also act between subsequent parameters from
+different NEQs files. In the case of troposphere, only parameters for the
+same station are constrained, i.e., no spatial constraining is considered.
+For the troposphere relative constraints are usually only necessary if
+parameters are set up more frequently than about every 60&nbsp;minutes.
+<br>
+If you set up relative sigmas you should also specify the
+maximum validity time of the constraint, i.e., the interval between
+parameters that shall be constrained with respect to each other.
+This option may be important, e.g., in case missing parameters.
+Usually the value specified here corresponds to the spacing between
+the parameters.
+<br>
+<i>Remark:</i>
+In order to avoid a format overflow in the troposphere
+output file (may happen if a troposphere parameter is estimated based on
+very few observations concentrated at one end of the parameter interval),
+a small relative sigma (e.g., 1&nbsp;meter) may help.
+
+For troposphere parameters the following rough numbers for absolute
+constraints may help to find the appropriate values for your application:
+<table>
+<tr><td> &gt;5.0&nbsp;m:</td>
+    <td>A value of a few meters is equivalent to a free estimation of the
+        parameters</td></tr>
+<tr><td>0.001&nbsp;-&nbsp;0.01&nbsp;m:</td>
+    <td>Depending on the formal RMS of the free troposphere estimates (check
+        the program output!) the troposphere constraints start to become
+        effective.</td>
+</tr>
+<tr><td>&lt;0.001&nbsp;m:</td>
+    <td> A sigma of the order of one millimeter or smaller corresponds to a
+         heavy constraint</td>
+</tr>
+</table>
+<br>
+For a local network (50 km) it might be necessary to estimate only
+n-1 troposphere parameters for n sites, because of the strong correlations
+between these parameters. If you introduce a Bernese troposphere
+file (e.g., from a global solution) in option "Troposphere estimates" in
+panes "ADDNEQ2 1.2: Input Files 2" the troposphere values of the stations found
+in this file are transformed to this value and fixed.
+
+<p><i>Default values:</i> blank (absolute and relative)
+
+<br><br>
+
+<a name="TRPOFF" default="00 30 00"></a>
+<a name="TRPRES" default="01 00 00"></a>
+<p><b>EXTRACTION OF PARAMETERS FOR TROPOSPHERE SINEX FILE</b>
+<p>
+If you specified an output troposphere SINEX file in panel "ADDNEQ2 2.1:
+Output Files 1" you may define in these two fields the offset and time
+resolution you want to use to for the parameters written to the file. If you
+specify, e.g., an offset of 1&nbsp;hours and a resolution of 2&nbsp;hours,
+troposphere values for 1, 3, 5, ... hours will be written.
+<br>
+The offset and time resolution specified here is independent of the
+offset and spacing of the parameters. The options simply define at what
+epochs the piece-wise function shall be evaluated.
+
+<p><i>Default values:</i> 00&nbsp;30&nbsp;00 (offset) and
+                          01&nbsp;00&nbsp;00 (resolution) for a
+                          hourly sampling of troposphere values
+
+<p><hr>
+
+<p><b>ADDNEQ2 10.1: Options for Orbital Parameters</b>
+
+<a name="TRAFO" default="0"></a>
+<p><b>OPTIONS FOR ORBIT COMBINATION</b>
+<p><b>Long-arc computation:</b>
+If the input NEQ files belong to successive sessions and contain
+orbit parameters it is possible to connect the satellite arcs
+from the individual NEQ files to a single arc. This option allows
+for a very efficient long-arc computation of satellite orbits.
+Three-days satellite arcs may, e.g., be computed based on three
+one-day NEQ files. Note that the files containing the standard orbits
+and the orbit partials used in the GPSEST run generating the NEQs are
+required in order to perform the parameter transformations.
+<br>
+If the box is marked one arc for the entire time interval covered
+by the input NEQ files is computed for each satellite.
+If the box is unmarked the original arc definition is kept, i.e.,
+for each NEQ an independent set of orbit parameters is estimated.
+
+<p><i>Default value:</i> unmarked
+
+<a name="NUMSTC" default="0"></a>
+<p><b>Stochastic pulses at NEQ boundaries:</b>
+Additional stochastic parameters can be set up for all satellites
+at the NEQ boundaries. These parameters allow it to absorb unmodeled effect,
+in particular for eclipsing satellites, in a long-arc computation. This
+option is only relevant, if the option "Long-arc computation" (see above)
+is used.
+
+<p><i>Default value:</i> unmarked
+
+<a name="SPLTDYN" default="0"></a>
+<p><b>No stacking of dynamical orbit parameters:</b>
+This option allows to keep the dynamical orbit parameters with the temporal
+resolution given by the input NEQ files. Only the osculating elements then are
+transformed into one common set for the entire arc.
+E.g., when computing long-arcs from three one-day NEQ files, there will be
+one set of osculating elements and three sets of dynamic orbit parameters.
+
+<p><i>Default value:</i> unmarked
+
+<a name="DTSTC" default="  6 00 00"></a>
+<p><b>Minimum interval between pulse and maneuver:</b>
+This option suppresses the setup of additional stochastic pulses for a maneuver
+satellites at the NEQ boundaries (option "Stochastic pulses at NEQ boundaries",
+see above) if the maneuver epoch in the "Satellite problems" file (see
+"GENERAL INPUT FILES" section) is very close to the NEQ boundary.
+
+<p><i>Default value:</i> 6 hours
+
+<br><br>
+
+<a name="ORB_A"  default=""></a>
+<a name="ORB_E"  default=""></a>
+<a name="ORB_I"  default=""></a>
+<a name="ORB_OM" default=""></a>
+<a name="ORB_P"  default=""></a>
+<a name="ORB_U"  default=""></a>
+<p><b>A PRIORI SIGMAS FOR ORBITAL ELEMENTS</b>
+<p>
+Specify the a priori sigmas if you want to constrain the initial
+conditions of the satellite orbits, i.e., osculating elements semi major
+axis, numerical eccentricity, orbital inclination, right ascension of
+ascending node, argument of perigee and argument of latitude at the
+osculation epoch (beginning of arc). A blank value is equivalent to no
+constraint.
+
+<p><hr>
+
+<p><b>ADDNEQ2 10.2: Options for Orbital Parameters</b>
+
+<a name="ORB_D0" default=""></a>
+<a name="ORB_Y0" default=""></a>
+<a name="ORB_X0" default=""></a>
+<a name="ORB_DP" default="1e-12"></a>
+<a name="ORB_YP" default="1e-12"></a>
+<a name="ORB_XP" default=""></a>
+<p><b>A PRIORI SIGMAS FOR DYNAMICAL PARAMETERS</b>
+<p>
+Radiation pressure is modeled as a constant and a once-per-revolution
+periodic acceleration in each of the following three components:
+<ul>
+<li><b>D:</b> Direct radiation pressure, direction Sun-satellite.
+<li><b>Y:</b> Acceleration in the direction of the solar panel axis.
+<li><b>X:</b> Acceleration in direction perpendicular to the other two.
+</ul>
+or
+<ul>
+<li><b>R:</b> Radial direction.
+<li><b>S:</b> Along-track direction.
+<li><b>W:</b> Out-of-plane direction.
+</ul>
+
+Constant and periodic components in the three orthogonal directions can be
+constrained individually. A blank value is equivalent to no constraint.
+Experience shows that the periodic components in D and Y directions should
+be constrained.
+
+<p><i>Default values:</i> <tt>1e-12</tt>&nbsp;meters/sec**2
+for periodic terms in D and Y, blank for all others
+
+<br><br>
+
+<a name="STC_R" default="1e-6"></a>
+<a name="STC_A" default="1e-6"></a>
+<a name="STC_O" default="1e-9"></a>
+<a name="STC_S" default="1e-6"></a>
+<a name="STC_Y" default="1e-6"></a>
+<a name="STC_X" default="1e-9"></a>
+<p><b>A PRIORI SIGMAS FOR STOCHASTIC PULSES</b>
+<p>
+Stochastic pulses may be set up in radial, along track, and out of plane
+directions, or in the directions D, Y, X specific for radiation pressure.
+The type of pulses is defined in GPSEST and cannot be changed in ADDNEQ2.
+Parameters of different type are not combined.
+<br>
+In this section you may specify the constraints you want to impose on
+the stochastic parameters. The pulse parameters read from the input NEQs
+as well as the pulses set up in ADDNEQ2 at NEQ boundaries using the option
+"Stochastic pulses at NEQ boundaries" in panel "ADDNEQ2 10.1: Options for
+Orbital Parameters" are handled in the same way. A blank value is equivalent
+to no constraint.
+
+<p><i>Default values:</i> <tt>1e-6</tt>&nbsp;meters/sec
+in radial, along track, D-, and Y-directions,
+<tt>1e-9</tt>&nbsp;meters/sec in out of plane and X-directions.
+
+<p><hr>
+
+<p><b>ADDNEQ2 11: Options for Earth Orientation Parameters</b>
+
+<a name="BLKRET" default="NO"></a>
+<p><b>OPTIONS FOR EARTH ORIENTATION PARAMETERS</b>
+<p><b>Block retrograde terms in polar motion:</b>
+If sub-daily ERPs are solved for together with the estimation of the
+satellite orbits, it is not possible to separate a retrograde diurnal x-y
+variation from a rotation of the orbital system in inertial space. To avoid
+this 'singularity' you may block the retrograde diurnal periods of the pole
+coordinates with special constraints.
+Alternatively to YES you may specify the strength of constraints in milliarcseconds.
+
+<p><i>Default value:</i> <tt>NO</tt>
+
+<br><br>
+
+<a name="POL_UTF" default="0.00001"></a>
+<a name="POL_EPF" default="0.0001"></a>
+<a name="POL_PSF" default="0.0001"></a>
+<p><b>A PRIORI SIGMAS (FIRST PARAMETER)</b>
+<p>
+Earth orientation parameters are modeled as piece-wise linear function.
+Absolute constraints may be imposed with respect to the values given in the
+file specified in "Earth rotation parameters" in panel "ADDNEQ2 1.2: Input
+Files 2". A difference is made between the first parameter set and further
+sets to allow for example that the starting values can be constrained with a
+higher a priori weights. This is necessary for UT1-UTC and nutation due to
+high correlations with the rotation of the orbital planes.
+<br>
+Constraints are given in milliseconds for UT1-UTC and in milliarcsecond
+for nutation offsets. A blank value is equivalent to no constraint.
+
+<p><i>Default values:</i> <tt>0.00001</tt>&nbsp;milliseconds for UT1-UTC,
+<tt>0.0001</tt>&nbsp;milliarcseconds for nutation offsets
+
+<br><br>
+
+<a name="POL_XY"  default=""></a>
+<a name="POL_UTN" default=""></a>
+<a name="POL_LOD" default=""></a>
+<a name="POL_EPN" default="0.0001"></a>
+<a name="POL_PSN" default="0.0001"></a>
+<p><b>A PRIORI SIGMAS (REMAINING PARAMETERS)</b>
+<p>
+Specify the absolute constraints for all but the first parameters for X-
+and Y-components of the pole (in milliarcseconds), in UT1-UTC (in
+milliseconds) and in nutation offsets (in milliarcseconds). An empty value
+is equivalent to no constraint.
+
+<p><i>Default values:</i> blank for X- and Y-pole and UT1-UTC,
+<tt>0.0001</tt>&nbsp;milliarcseconds for nutation offsets
+
+<br><br>
+
+<a name="POLESTEP" default="12 00 00"></a>
+<p><b>EXTRACTION OF PARAMETERS FOR ERP FILES</b>
+<p><b>Time resolution:</b>
+Specify the time resolution for writing the Earth orientation parameters to
+the output files specified in "Earth rotation parameters" and
+"Earth rotation parameters (IERS)" in
+panel "ADDNEQ2 2.1: Output Files 1". The time resolution specified here is not
+related to the parameter spacing. It only specifies at what epochs the
+piece-wise linear functions representing the pole parametrization shall
+be evaluated.
+
+<p><i>Default value:</i> <tt>12</tt>&nbsp;<tt>00</tt>&nbsp;<tt>00</tt>
+
+<p><hr>
+
+<p><b>ADDNEQ2 12: Options for Geocenter Coordinates</b>
+
+<a name="COFMASSX" default=""></a>
+<a name="COFMASSY" default=""></a>
+<a name="COFMASSZ" default=""></a>
+<p><b>A PRIORI SIGMAS FOR COMPONENT</b>
+<p><b>Geocenter coordinates:</b>
+Specify the a priori sigmas for constraining the Geocenter coordinates in
+the three components X, Y, Z in the Earth-fixed frame. If you fix and
+pre-eliminate the parameters from the NEQ system use the option DELETE to
+avoid possible problems with tight constraints imposed.
+
+<p><i>Default values:</i> <tt>0.00001</tt>&nbsp;meter (to 'fix' the parameters)
+
+<p><hr>
+
+<p><b>ADDNEQ2 13: Options for Differential Code Biases</b>
+
+<a name="P1C1REF" default="SUM"></a>
+<a name="P1C1SIG" default=""></a>
+<p><b>P1-C1 BIAS PARAMETERS</b>
+It is necessary to define a reference for the satellite P1-C1 DCB parameters.
+This is usually realized by a zero-mean condition for all estimated
+improvements (<tt>SUM</tt>).
+<br>
+Alternatively it might be necessary to
+constraint the DCB parameter to their a priori values given in the input
+file "Differential code biases" in panel "ADDNEQ2 1.2: Input Files 2": 'Type of
+sigma' is set to <tt>ALL</tt> and the corresponding a priori sigma is
+defined below.
+
+<p><i>Note:</i>
+If you have specified no input DCB file the a priori values
+for the DCB parameters are transformed to <tt>0.0</tt>&nbsp;nanoseconds.
+
+<p><i>Default value:</i> <tt>SUM</tt>
+
+<a name="P1P2REF" default="SUM"></a>
+<a name="P1P2SIG" default=""></a>
+<a name="P1P2SIGR" default=""></a>
+<p><b>P1-P2 BIAS PARAMETERS</b>
+It is necessary to define a reference for the satellite P1-P2 DCB parameters.
+This is usually realized by a zero-mean condition for all estimated
+improvements (<tt>SUM</tt>).
+<br>Alternatively it might be necessary to
+constraint the DCB parameters to their a priori values given in the input
+file "Differential code biases" in panel "ADDNEQ2 1.2: Input Files 2": 'Type of
+sigma' is set to <tt>ALL</tt> and the corresponding a priori sigma (separate
+values for satellite and receiver biases) is defined below.
+
+<p><i>Note:</i>
+If you have specified no input DCB file the a priori values
+for the DCB parameters are transformed to <tt>0.0</tt>&nbsp;nanoseconds.
+
+<p><i>Default value:</i> <tt>SUM</tt>
+
+<a name="LCREF" default="SUM"></a>
+<a name="LCSIGR" default=""></a>
+<p><b>LC BIAS PARAMETERS</b>
+It is necessary to define a reference for the inter-system bias (ISB)
+parameters at the receivers related to the ionosphere-free linear combination.
+This is usually realized by a zero-mean condition for all estimated
+improvements (<tt>SUM</tt>).
+<br>
+Alternatively it might be necessary to constraint the ISB parameter to their a
+priori values given in the input file "Differential code
+biases" in panel "ADDNEQ2 1.2: Input Files 2". The estimated improvements may be
+constrained to zero with the a priori sigma given in this input field. In
+this case the 'Type of sigma' is set to <tt>ALL</tt> and the corresponding a
+priori sigma is defined below.
+
+<p><i>Note</i> If you have specified no input DCB file the a priori values
+for the DCB parameters are transformed to <tt>0.0</tt>&nbsp;nanoseconds.
+
+<p><hr>
+
+<p><b>ADDNEQ2 14: Options for GLONASS Receiver Clock Biases</b>
+
+<a name="RCOSIGMA" default=""></a>
+<p><b>GLONASS RECEIVER CLOCK BIASES</b>
+Receiver clock offset parameters are usually either satellite- or
+frequency-specific bias parameters between GPS and GLONASS. If it
+was specified, also time-dependent inter-system bias between GPS
+and GLONASS are parameters of this group.
+
+<p><b>Receiver clock offsets:</b>
+The estimated improvement for receiver clock offset parameters in the NEQ
+can be constraint to zero with the value given in this input field.
+
+<p><i>Remark:</i> If the field remains empty, the necessary zero-mean
+condition for the improvements of all relevant parameters are
+automatically applied.
+
+<a name="RCOFROMPPP" default="0"></a>
+<p><b>Biases in the NEQ stem from a PPP:</b>
+You must indicate if the GLONASS receiver biases in the NEQ result from
+a PPP. In this case the constraining scheme is adapted.
+
+<a name="RCORMGPS" default="0"></a>
+<p><b>Fix biases for all GPS satellites:</b>
+If bias parameters for the GPS satellites are in the NEQ they can be
+removed by checking this box.
+
+<a name="RCOTOFRQ" default="0"></a>
+<p><b>Transform satellite to frequency biases:</b>
+If bias parameters for each of the GLONASS satellites are in the NEQ
+they can be reduced to frequency-dependent biases (one common bias
+parameter for all GLONASS satellites using the same frequency number)
+by checking this box.
+
+<a name="IFBMAX" default=""></a>
+<p><b>Inter-frequency bias, alarming limit:</b>
+If the estimated (a priori plus improvement) value for a satellite- or
+frequency-specific bias parameter between GPS and GLONASS exceeds the
+limit given in this input field it is reported in a specific warning
+message:
+<pre>
+ ### DCBSTORE: Exceptional IFB found for sat/sta: ...
+</pre>
+This might be helpful if stations with exceptional high biases cause
+problems in the processing.
+
+<p><i>Recommended value:</i> <tt>500</tt>&nbsp;nanoseconds
+
+<p><hr>
+
+<p><b>ADDNEQ2 15: Options for GNSS-specific Translations and ZPD Biases</b>
+
+<a name="GTRADAT" default="NONE"></a>
+<a name="GTRATRA" default="0"></a>
+<a name="GTRAROT" default="0"></a>
+<a name="GTRASCL" default="0"></a>
+<p><b>STATION TRANSLATIONS</b>
+<p><b>Type of constraining:</b>
+Select the datum definition for the station translation parameters.
+<ul>
+<li><b>NONE</b> Do not constrain the translation parameters.
+<li><b>ABSOLUTE</b> Put absolute constraints on all station
+    translations.
+<li><b>MIN_CONST</b> Apply minimum constraint conditions (<b>Tra</b>nslations,
+    <b>Rot</b>ations, <b>Sc</b>a<b>l</b>e).
+</ul>
+
+<p><i>Default value:</i> <tt>NONE</tt>
+
+<a name="GTRAFIX" default=""></a>
+<a name="GTRAXCL" default="INCLUDED"></a>
+<p><b>Stations to be:</b>
+List of stations to be <b>INCLUDED</b> in or <b>EXCLUDED</b> from
+the datum definition. All stations are used if no file is selected.
+
+<p><i>Default value:</i> <tt>blank</tt>
+
+<a name="GTRASIG_N" default=""></a>
+<a name="GTRASIG_E" default=""></a>
+<a name="GTRASIG_U" default=""></a>
+<p><b>A priori sigmas:</b>
+Specify the absolute a priori sigmas for constraining the station translation
+parameters in the three components N, E, and U.
+
+<p><i>Default values:</i> <tt>0.0</tt>&nbsp;meters
+
+<br><br>
+
+<a name="GTRPDAT" default="NONE"></a>
+<p><b>TROPOSPHERE BIASES</b>
+<p><b>Type of constraining:</b>
+Select the datum definition for the troposphere bias parameters.
+<ul>
+<li><b>NONE:</b> Do not constrain the bias parameters.
+<li><b>SUM:</b> Apply a zero-mean condition for the biases.
+<li><b>ABSOLUTE:</b> Put absolute constraints on all biases.
+</ul>
+
+<p><i>Default value:</i> <tt>NONE</tt>&nbsp;
+
+<a name="GTRPFIX" default=""></a>
+<a name="GTRPXCL" default="INCLUDED"></a>
+<p><b>Stations to be:</b>
+List of stations to be <b>INCLUDED</b> in or <b>EXCLUDED</b> from
+the constraining. All station biases are used if no file is selected.
+
+<p><i>Default value:</i> <tt>blank</tt>&nbsp;
+
+<a name="GTRPSIG" default=""></a>
+<p><b>A priori sigma:</b>
+Specify the absolute a priori sigma for constraining the troposphere
+biases.
+
+<p><i>Default value:</i> <tt>0.0</tt>&nbsp;meters
+
+<p><hr>
+
+<p><b>ADDNEQ2 16: Options for Satellite Antenna Phase Center Parameters</b>
+
+<a name="SATANTGPS" default="NONE"></a>
+<a name="SATANTGLO" default="NONE"></a>
+<p><b>SATELLITE PHASE CENTER OFFSETS</b>
+<p><b>Modify parametrization</b>
+If there are satellite antenna offset parameters in the incoming normal
+equation files they may be changed in one of the following way:
+<ul>
+<li><b>DELETE:</b> Satellite antenna offset parameters are deleted (fixed to their
+    a&nbsp;priori values).
+<li><b>TO_FREQUENCY:</b> transformed from satellite specific to frequency specific
+    parameters (only available for GLONASS).
+    <br>
+    Note that the satellite has to used on the same frequency number
+    for the entire interval of the parameter.
+<li><b>TO_BLOCK/TYPE:</b> transformed from satellite specific to type (block)
+    specific parameters.
+</ul>
+The selection can be done independently for each GNSS (GPS, GLONASS).
+<br>
+Select <b>NONE</b> to keep the parametrization as it is.
+
+<a name="SATANTX" default=""></a>
+<a name="SATANTY" default=""></a>
+<a name="SATANTZ" default=""></a>
+<p><b>A priori sigmas:</b>
+Specify the a priori sigmas for constraining the satellite antenna offsets
+in the three components X, Y, Z in the satellite-fixed frame. If you fix and
+pre-eliminate the parameters from the NEQ system use the option DELETE to
+avoid possible problems with tight constraints.
+
+<p><i>Default values:</i> <tt>0.00001</tt>&nbsp;m (to 'fix' the parameters)
+
+<a name="SATANTS" default="ALL"></a>
+<a name="SATANTD" default""></a>
+<p><b>Apply constraints to</b>
+The constraints given for the satellite antenna offsets may be applied to
+<ul>
+<li><b>ALL:</b> to all satellites,
+<li><b>GPS:</b> only to the GPS satellites,
+<li><b>GLONASS:</b> only to the GLONASS satellites, or
+<li><b>LAUNCHED_BEFORE:</b> all satellites launched before a specific date. The
+    assumed launch date for a satellite is the start of the interval for a
+    satellite in the satellite information file.
+</ul>
+
+<a name="SATANT0" default=""></a>
+<p><b>Advanced grouping/sigmas:</b><!-- Missing text! -->
+
+<br><br>
+
+<a name="SATSPVGPS" default="NONE"></a>
+<a name="SATSPVGLO" default="NONE"></a>
+<p><b>SATELLITE PHASE CENTER VARIATIONS</b>
+<p><b>Modify parametrization</b>
+If there are satellite antenna pattern parameters in the incoming normal
+equation files they may be changed in one of the following way:
+<ul>
+<li><b>DELETE:</b> Satellite antenna pattern parameters are deleted (fixed to
+    their a&nbsp;priori values).
+<li><b>TO_FREQUENCY:</b> transformed from satellite specific to frequency
+    specific parameters (only available for GLONASS).
+    <br>
+    Note that the satellite has to used on the same frequency number
+    for the entire interval of the parameter.
+<li><b>TO_BLOCK/TYPE:</b> transformed from satellite specific to type (block)
+    specific parameters.
+</ul>
+The selection can be done independently for each GNSS (GPS, GLONASS).
+<br>
+Select NONE to keep the parametrization as it is.
+
+<a name="SATSPV" default=""></a>
+<p><b>A priori sigmas:</b>
+Specify the a priori sigmas for constraining the satellite antenna phase
+patterns. If you fix and pre-eliminate the parameters from the NEQ system
+use the option DELETE to avoid possible problems with tight constraints.
+
+<p><i>Default value:</i> <tt>0.00001</tt>&nbsp;m (to 'fix' the parameters)
+
+<a name="SATSPVS" default="ALL"></a>
+<a name="SATSPVD" default""></a>
+<p><b>Apply constraints to</b>
+The constraints given for the satellite antenna pattern may be applied to
+<ul>
+<li><b>ALL:</b> to all satellites,</li>
+<li><b>GPS:</b> only to the GPS satellites,</li>
+<li><b>GLONASS:</b> only to the GLONASS satellites, or</li>
+<li><b>LAUNCHED_BEFORE:</b> all satellites launched before a specific date. The
+    assumed launch date for a satellite is the start of the interval for a
+    satellite in the satellite information file.</li>
+</ul>
+
+<a name="SAPANT0" default=""></a>
+<p><b>Advanced grouping/sigmas:</b><!-- Missing text! -->
+
+<p><hr>
+
+<p><b>ADDNEQ2 16.1 Advanced Options for Satellite Antenna Phase Center Offsets</b>
+
+<a name="SATANTSTR" default=""></a>
+<p><b>ADVANCED PARAMETER STACKING AND CONSTRAINING</b><!-- Missing text! -->
+
+<p><hr>
+
+<p><b>ADDNEQ2 16.2 Advanced Options for Satellite Antenna Phase Center Variations</b>
+
+<a name="SAPGRP" default=""></a>
+<p><b>ADVANCED PARAMETER STACKING AND CONSTRAINING</b><!-- Missing text! -->
+
+<p><hr>
+
+<p><b>ADDNEQ2 17: Options for Receiver Antenna Phase Center Parameters</b>
+
+<a name="RECANTN" default=""></a>
+<a name="RECANTE" default=""></a>
+<a name="RECANTU" default=""></a>
+<p><b>RECEIVER ANTENNA PARAMETERS</b>
+<p><b>Receiver antenna offsets:</b>
+Specify the a priori sigmas for constraining the receiver antenna offsets
+in the three components N, E, U in the local frame of the station. If you fix
+and pre-eliminate the parameters from the NEQ system use the option DELETE to
+avoid possible problems with tight constraints.
+
+<p><i>Default values:</i> <tt>0.00001</tt>&nbsp;m (to 'fix' the parameters)
+
+<a name="RECSPV" default=""></a>
+<p><b>Receiver antenna patterns:</b>
+Specify the a priori sigmas for constraining the receiver antenna phase
+patterns. If you fix and pre-eliminate the parameters from the NEQ system
+use the option DELETE to avoid possible problems with tight constraints.
+
+<p><i>Default value:</i> <tt>0.00001</tt>&nbsp;m (to 'fix' the parameters)
+
+<p><hr>
+
+<p><b>ADDNEQ2 18: Options for Helmert Transformation Parameters</b>
+
+<a name="CMB_TRA" default="NO_STACKING"></a>
+<a name="CMB_ROT" default="NO_STACKING"></a>
+<a name="CMB_SC"  default="NO_STACKING"></a>
+<p><b>STACKING OF PARAMETERS</b>
+Specify how the Helmert transformation parameters belonging to
+different groups should be treated:
+<ul>
+<li><b>NO STACKING:</b> Keep the parameters as they are in the input NEQs.
+                        This may result in time series of Helmert parameters
+                        for each group.
+<li><b>IDENT_GROUP:</b> Stack only Helmert parameters belonging to the same group.
+                        The group is defined in the WGT file
+                        (<a href="/$X/DOC/EXAMPLE.WGT">Example</a>).
+                        This results in one set of Helmert parameters per group, which is
+                        valid over the entire time span covered by all input NEQs.
+<li><b>STACK_ALL:</b> Stack all Helmert parameters independent of the group and epoch.
+                      This results in only one set of Helmert parameters.
+</ul>
+
+<p><hr>
+
+<p><b>ADDNEQ2 19: Options for Higher-order Ionosphere Scaling Factors</b>
+
+<a name="HOI1"    default="ONE"></a>
+<a name="SIGHOI1" default=""></a>
+<a name="STKHOI1" default="0"></a>
+<a name="HOI2"    default="ONE"></a>
+<a name="SIGHOI2" default=""></a>
+<a name="STKHOI2" default="0"></a>
+<a name="HOI3"    default="ONE"></a>
+<a name="SIGHOI3" default=""></a>
+<a name="STKHOI3" default="0"></a>
+<p><b>PARAMETER HANDLING FOR</b>
+<p><b>Second-order term</b>
+<br><b>Third-order term</b>
+<br><b>Ray path bending term</b>
+<br>There are scaling factors for three components of the higher order
+ionosphere terms available. Individually for each of the three components
+you may define:
+<ul>
+<li><b>a priori</b> value to be <tt>one</tt> (the model component is applied)
+    or <tt>zero</tt> (the model component is not applied).
+<li><b>sigma</b> use for constraining the parameter to its a priori value.
+<li><b>Stacking</b> station-specific scaling factor parameters to one
+single parameters used for all stations.
+</ul>
+
+<p><hr>
+
+<p><b>ADDNEQ2 20: Options for Parameter Scaling Factors</b>
+
+<a name="ALOADSET"   default="ONE_OVERALL"></a>
+<a name="ALOADCLU"   default=""></a>
+<a name="ALOADDEC"   default="FULL_EFFECT"></a>
+<a name="ALOAD10"    default="ONE"></a>
+<a name="ALOADSIG1"  default=""></a>
+<a name="ALOADSIG2"  default=""></a>
+<a name="ALOADSIG3"  default=""></a>
+<a name="ONTLDSET"   default="ONE_OVERALL"></a>
+<a name="ONTLDCLU"   default=""></a>
+<a name="ONTLDDEC"   default="FULL_EFFECT"></a>
+<a name="ONTLD10"    default="ONE"></a>
+<a name="ONTLDSIG1"  default=""></a>
+<a name="ONTLDSIG2"  default=""></a>
+<a name="ONTLDSIG3"  default=""></a>
+<a name="HLOADSET"   default="ONE_OVERALL"></a>
+<a name="HLOADCLU"   default=""></a>
+<a name="HLOADDEC"   default="FULL_EFFECT"></a>
+<a name="HLOAD10"    default="ONE"></a>
+<a name="HLOADSIG1"  default=""></a>
+<a name="HLOADSIG2"  default=""></a>
+<a name="HLOADSIG3"  default=""></a>
+<p><b>ATMOSPHERIC PRESSURE LOADING</b>
+<br><b>OCEAN NON-TIDAL LOADING</b>
+<br><b>HYDROSTATIC PRESSURE LOADING</b>
+Options to manipulate scaling factors for grid files in the format of the
+Vienna mapping function (<br><a href=/$X/DOC/EXAMP_ALOAD.GRD>Example</a>):
+
+<p><b>Parameter setup:</b>
+If there are individual scaling factors for each station in the input
+NEQ files they may be
+<ul>
+<li><b>PER_STATION</b> kept individually for each station, </li>
+<li><b>PER_GROUP</b> collected into groups defined by a cluster file
+(<br><a href=/$X/DOC/EXAMPLE.CLU>Example</a>), and</li>
+<li><b>ONE_OVERALL</b> stacked to one common parameter for all stations</li>
+</ul>
+
+<p><b>Parameter decomposition:</b> The number of applicable constraints
+  depends on the parameter decomposition.
+<ul>
+<li><b>FULL_EFFECT</b> One constraint is applied to all three components.
+<li><b>HORIZONTAL/VERTICAL</b> Separate constraints are possible for the
+  horizontal and vertical components.
+<li><b>NORTH/EAST/UP</b> Each of the three components (of the local
+  coordinate system) can be constrained.
+</ul>
+
+<p><b>Constrain scaling factors to</b> an a priori value which is
+either <tt>one</tt> (the model component is applied) or <tt>zero</tt> 
+(the model component is not applied). 
+
+<p><hr>
+
+<p><b>ADDNEQ2 21: Options for Epoch-wise Clock Offsets</b>
+
+<a name="REFCLOCK" default="ALL_STATIONS"></a>
+<a name="CLKSTASEL" default=""></a>
+<a name="CLKSATSEL" default=""></a>
+<a name="CLKSTAFIL" default=""></a>
+<a name="CLKSATFIL" default=""></a>
+<p><b>REFERENCE CLOCK</b>
+<p><b>Selection of reference clock(s):</b>
+Select the stations for which the clocks will be used as a reference. Keep in
+mind that one station or satellite has to serve as reference.
+<ul>
+  <li><b>NONE</b>:
+      Do not use any of the clocks in the current NEQ as reference.
+  <li><b>FIRST_STATION</b>:
+      To select the clock of the first station in the list of input NEQs
+      as reference.
+  <li><b>LAST_STATION</b>:
+      To select the clock of the last station in the list of input NEQs
+      as reference.
+  <li><b>ALL_STATIONS</b>:
+      Use all station clocks as reference (how to realize the reference
+      is defined below).
+  <li><b>ALL_SATELLITES</b>:
+      Use all satellite clocks as reference (how to realize the reference
+      is defined below).
+  <li><b>MANUAL</b>:
+      Select the stations/satellites whose clocks serve as a reference
+      in the next input fields.
+  <li><b>FROM_FILE</b>:
+      You may create a station selection file to define a list
+      of sites whose clocks will be used as a reference. Specify this file
+      in the corresponding input field.
+      <br>Alternatively your can create also a station selection file
+      containing satellite PRN numbers to define a list of satellites
+      whose clocks will be used as a reference. Specify this file in
+      the corresponding input field below.
+</ul>
+When selecting a reference clock for a NEQ you should keep in mind that you
+might have already an implicitly selected reference in your clock parameters,
+e.g., by pre-eliminated clock parameters or in case of a Precise Point
+Positioning (PPP).
+
+<a name="CLKFIX" default="0"></a>
+<p><b>Fix reference clock:</b>
+Check this box if the clock parameters shall be fixed to their a priori values.
+It means that the corresponding clock parameters are removed from the NEQ.
+Note that the reference is implicitly fixed and cannot be changed anymore in
+a subsequent processing step using the resulting NEQ.
+<br>If more than one clock per epoch is selected as reference above the a priori
+values need to be fully consistent when fixing them by checking this box.
+
+<p><i>Default value:</i> unmark
+
+<a name="CLKSIG" default=""></a>
+<p><b>A priori sigma for reference clock:</b>
+If the clock parameters shall not be removed from the NEQ but only enforced
+to their a priopri values the estimates for the clock parameter can be
+constrained to zero.
+<br>
+If more than one clock per epoch is selected as reference above the a priori
+values need to be fully consistent when fixing them by checking this box.
+
+<p><i>Remark:</i>
+Leave this input field blank to realize the reference clock
+by a zero-mean condition for the estimated improvements of all clock parameters
+for the above selected reference clocks.
+
+<p><i>Default value:</i> blank
+
+<a name="CLKDELINP" default="1"></a>
+<p><b>Fix only clocks with input values:</b>
+If you have selected "DELETE" for the station clocks or satellite clocks
+in panel "ADDNEQ2 4.3: Parameter Pre-Elimination" it may be useful to limit
+the deletion also to those parameters where the input value was given in
+input "Satellite clock corrections" or "Clock RINEX file" (panel "ADDNEQ2 1.2:
+Input Files 2"). All other clock parameters remain in the resulting NEQ and
+can be pre-eliminated later (without selecting any additional reference
+clock condition).
+
+<p><i>Default value:</i> mark
+
+<p><hr>
+
+<p><b>ADDNEQ2 21.1: Options for Epoch-wise Clock Offsets</b>
+
+<a name="RUNBY" default=""></a>
+<p><b>HEADER ENTRIES FOR THE CLOCK RINEX OUTPUT FILE</b>
+<br>
+<br>
+<p>In this input panel the information for the clock RINEX header created by
+this program run can be specified. This includes the values for the following
+header lines:
+
+<p><b>Run by:</b>
+Content of RUNBY in the header of the clock RINEX output file.
+
+<p><a name="AC" default=""></a>
+<b>AC designator:</b>
+Content of AC in the header of the clock RINEX output file.
+
+<p><a name="ACNAME" default=""></a>
+<b>AC name:</b>
+Content of ACNAME in the header of the clock RINEX output file.
+
+<p><a name="TIMESYS" default="GPS"></a>
+<b>Time system:</b>
+Content of TIME SYSTEM in the header of the clock RINEX output file.
+
+<p><a name="DCBLINE" default=""></a>
+<b>DCBs applied:</b>
+Last 40 characters of DCBS APPLIED in the header of the clock RINEX output
+file.
+
+<p><a name="COMMENT" default=""></a>
+<b>Comment lines:</b>
+Content of COMMENT in the header of the clock RINEX output file. Add
+additional lines as needed.
+
+<p><hr>
+
+<p><b>ADDNEQ2 22: Options for SLR Range Biases</b>
+
+<a name="RGBSIG" default=""></a>
+<p><b>A PRIORI SIGMAS</b>
+<p><b>Range bias parameters:</b>
+Specify the a priori sigma for constraining the SLR range bias parameters.
+
+<br><br>
+
+<a name="RGB_STK1" default="1"></a>
+<a name="RGB_STK2" default="0"></a>
+<a name="RGB_STK3" default="0"></a>
+<p><b>ESTIMATION/STACKING PER STATION</b>
+Select how the SLR range bias parameters belonging to one station should be treated:
+<ul>
+<li><b>Stack only identical range biases:</b> The satellite name / group
+       must be identical, otherwise the parameters are kept separately.</li>
+<li><b>Stack range biases for the satellites of one group:</b>
+       Range biases for satellites belonging to the same group are stacked.
+       The satellite group is defined according to the hundreds place of the SVN
+       given in the Satellite Information file.</li>
+<li><b>Stack all range biases for one station:</b> All range biases are stacked,
+       independent of the satellite.
+       Only one range bias parameter per station is finally estimated.</li>
+</ul>
+
+
+<!-- This panel will not be displayed
+<p><hr>
+<p><b>ADDNEQ2 99.1: Selection from Station Information File</b>
+
+<a name="USEFLG" default="0"></a>
+<p><b>Consider flags:</b>
+
+<br><br>
+
+<a name="FLG001" default = "999"></a>
+<p><b>FLAGS TO BE CONSIDERED</b>
+<p><b>Type 001: Renaming of stations </b>
+
+<a name="FLG002" default = "999"></a>
+<p><b>Type 002: Station information</b>
+
+<a name="FLG003" default = "999"></a>
+<p><b>Type 003: Station problems</b>
+-->
+
+<!-- This panel will not be displayed
+<p><hr>
+<p><b>ADDNEQ2 99.2: Compensate for Step-2 Tide SW Bug</b>
+
+<a name="STEP2" default="0"></a>
+<a name="STEP2A" default=""></a>
+<a name="STEP2B" default=""></a>
+<p><b>Compensate for effect of step-2 tide SW bug between:</b>
+Version 4.2 as well as Version 5.0 of the BSW contained a bug in the
+implementation of the step 2 correction of the station motion due to
+solid Earth tides according to IERS Conventions 1996. This bug was
+corrected with release number B09 (07-Jul-2004), see BSW Mail 190.
+<br>
+If you want to process archived NEQs that are affected by the bug
+you may enable this option and specify the time window within which
+the bug should be corrected. The correction is performed by integrating
+the difference between wrong and correct tidal displacement over the
+validity time interval of each input NEQ and correction of the a priori
+value of the station coordinates.
+
+<br><br>
+
+SINEX files delivered by CODE to the IGS resp. EUREF were affected
+in the time intervals
+<table>
+<tr><td>files</td><td>from</td><td></td><td></td>
+             </td><td>to  </td><td></td><td></td></tr>
+<tr><td>IGS  </td><td>1996 09 29</td><td>273/1996</td><td>0873</td>
+             </td><td>2004 07 11</td><td>193/2004</td><td>1279</td></tr>
+<tr><td>EUREF</td><td>1996 09 23</td><td>267/1996</td><td>0872</td>
+             </td><td>2004 06 20</td><td>172/2004</td><td>1276</td></tr>
+</table>
+There is no way to identify affected NEQs. Therefore, carefully check
+which of your files are contaminated and use the option with care.
+
+<p><i>Default value:</i> unmarked
+-->
+
+
+<p><hr>
+
+</body>
+</html>

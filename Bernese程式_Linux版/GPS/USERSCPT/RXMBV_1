@@ -1,0 +1,62 @@
+package RXMBV_1;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  RXMBV_1
+#
+# Purpose :  Convert RINEX meteo files into Bernese formatted meteo files
+#            (station per station)
+#            Program RXMBV3
+#
+# PARAMs  :
+#
+# Author  :  D. Thaller
+# Created :  10-Feb-2012
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use File::Basename;
+
+use lib $ENV{BPE};
+use bpe_util qw(setUserVar);
+
+sub run{
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($ssss,
+      $dirMet,   $extMet,  $dirRxm,   $extRxm) =
+  $bpe->getKeys
+     ('$S+0',
+      'DIR_MET', 'EXT_MET','DIR_RXM', 'EXT_RXM');
+
+# Delete existing meteo files
+# ---------------------------
+  unlink glob "${dirMet}????${ssss}.$extMet";
+
+# Get list of RINEX meteo files
+# -----------------------------
+  my @fillst = glob("${dirRxm}/????${ssss}.${extRxm}");
+
+# Get all station names
+# ---------------------
+  my @stalst = map{substr(basename($_),0,4)} @fillst;
+
+# Loop over all files / stations
+# ------------------------------
+  my $PGMNAM = "RXMBV3";
+  foreach (@stalst) {
+    setUserVar($bpe,"STA",$_);
+
+    print " Conversion for station $_ \n";
+
+    # Run program
+    # -----------
+    $bpe->RUN_PGMS($PGMNAM);
+  }
+
+}

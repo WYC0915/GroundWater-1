@@ -1,0 +1,214 @@
+<html>
+<body>
+
+<center>
+<b>EXTRACT ATMOSPHERIC TIDAL LOADING COEFFICIENTS</b>
+<p>Program: GRDS1S2
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The program GRDS1S2 extracts from a grid of atmospheric pressure tidal
+loading corrections the coefficients for a list of stations given in a
+Bernese formatted coordinate file.
+
+<p><hr>
+
+<p><b>GRDS1S2 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="S1_S2_DATA" default="s1_s2_def_ce.dat"></a>
+<p><b>INPUT FILES</b>
+<p><b>S1/S2 loading grid:</b>
+The grid file containing S1/S2 atmospheric pressure loading tidal corrections
+is specified here.
+<br>
+The file may contain comment lines at the beginning. They are indicated by
+<tt>$$</tt> as the first two characters of the line. These comment lines
+are repeated in the resulting "S1/S2 loading coeff." file.
+<br>
+Below follows the data part. It is expected that the file contains
+the following columns:
+<ul>
+<li>Longitude of the grid point
+<li>Latitude  of the grid point
+<li>cosine term for S1, radial component
+<li>sine   term for S1, radial component
+<li>cosine term for S2, radial component
+<li>sine   term for S2, radial component
+<li>cosine term for S1, north component
+<li>sine   term for S1, north component
+<li>cosine term for S2, north component
+<li>sine   term for S2, north component
+<li>cosine term for S1, east component
+<li>sine   term for S1, east component
+<li>cosine term for S2, east component
+<li>sine   term for S2, east component
+</ul>
+The files must be located in the directory <tt>$X/GEN</tt>. According to the
+IERS Conventions 2010 the file <a href="/$X/GEN/s1_s2_def_ce.dat">
+$X/GEN/s1_s2_def_ce.dat</a> shall be used. It is distributed together with
+the software.
+
+<p><i>Note:</i>
+If you plan to correct for the non-tidal atmospheric loading during the data
+processing (<a href="GPSEST.HLP#ALOAD_FILES">GPSEST: ATM-NT-LOAD</a>)
+it is essential that you use the consistent set of tidal corrections there
+(<a href="GPSEST.HLP#ATMLOAD">GPSEST: Atm. tidal loading corrections</a>).
+
+<p><i>Default value:</i> <tt>s1_s2_def_ce.dat</tt>
+
+<a name="CMCYN" default="CoF"></a>
+<p><b>Reference:</b>
+Here the reference of the S1/S2 tidal atmospheric pressure is specified:
+<ul>
+<li><b>CoF</b>: Center of figure (or approx. Center of Earth)
+<li><b>CoM</b>: Center of mass
+</ul>
+If you use <b>CoF</b>, then you have to apply center of mass corrections (CMC).
+Such corrections are specified in a separate section of panel
+"GRDS1S2 2: Options".
+<br>The difference between Center of figure (CoF) and Center of Earth (CoE) are
+minor in this context. If you only have a CoE related file available you may
+use this instead of a CoF-based set.
+
+<p><i>Note:</i> The differences between Center of figure (CoF) and Center of Earth (CoE) are
+minor in this context. If you only have a CoE related file available you may
+use this instead of a CoF-based set.
+
+<p><i>Default value:</i> <tt>CoF</tt>
+
+<a name="COORD" default=""></a>
+<p><b>Input coordinate file:</b>
+Select the name of the input coordinate file. For all stations in this file
+S1/S2 tidal atmospheric pressure loading coefficients are provided in the
+result file.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<br><br>
+
+<a name="S1_S2_OUT" default=""></a>
+<p><b>RESULT FILE</b>
+<p><b>S1/S2 loading coeff.:</b>
+The result file contains the tidal atmospheric loading coefficients for
+all stations given in the "Input coordinate file". It is used in the
+processing programs to correct the observations for this effect.
+<br>
+According to your reference it may also contain the center of mass
+corrections (CMC). In that case it becomes additionally relevant for some
+of the orbit programs.
+
+<p><a href="/$X/DOC/EXAMPLE.ATL">Example</a>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="GRDS1S2"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>GRDS1S2 1.1: General Files</b>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates. It is used
+to apply antenna heights and for the printing of coordinates in the
+local system (north, east, up). You only have to modify this file
+when you want to introduce a new reference ellipsoid.
+
+<p><i>Caution:</i>
+This file has no effect on Cartesian coordinates.
+
+<p>Example: <a href="/$X/GEN/DATUM.">$X/GEN/DATUM.</a>
+
+<p><hr>
+
+<p><b>GRDS1S2 2: Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<br><br>
+
+<a name="CMCMODEL" default="RAY_PONTE"></a>
+<a name="CMCNAME"  default=""></a>
+<a name="CMC_S1CX" default=""></a>
+<a name="CMC_S1SX" default=""></a>
+<a name="CMC_S2CX" default=""></a>
+<a name="CMC_S2SX" default=""></a>
+<a name="CMC_S1CY" default=""></a>
+<a name="CMC_S1SY" default=""></a>
+<a name="CMC_S2CY" default=""></a>
+<a name="CMC_S2SY" default=""></a>
+<a name="CMC_S1CZ" default=""></a>
+<a name="CMC_S1SZ" default=""></a>
+<a name="CMC_S2CZ" default=""></a>
+<a name="CMC_S2SZ" default=""></a>
+<p><b>ADD S1/S2 CENTER OF MASS CORRECTIONS</b>
+<p><b>Coefficients from:</b>
+You may select a series of coefficients from where the center of mass
+corrections (CMC) for S1/S2 tidal atmospheric pressure loading are
+written into the resulting file. The IERS 2010 conventions recommend
+to use the model from <b>RAY_PONTE</b>
+(<a href="REFERENCES.HLP#Ray_Ponte_2003">Ray and Ponte, 2003</a>).
+<br>
+Alternatively you may include other sets of coefficients by selecting
+<b>MANUAL</b> as the source of CMC. With this selection the input fields for
+the individual corrections and a name of the model become active.
+
+<p><i>Note</i>:
+This section of input fields is inactive if the "Reference"
+of the S1/S2 atmospheric pressure loading grid is <b>CoM</b> (Center of mass) because
+in that case no CMC is necessary.
+
+<p><i>Default value:</i> <tt>RAY_PONTE</tt>
+
+<p><hr>
+
+</body>
+</html>

@@ -1,0 +1,251 @@
+      MODULE s_PTKEYW
+      CONTAINS
+
+C*
+      SUBROUTINE PTKEYW(PANNAM,NKEYWD,KEYWRD,VALKEY,IRCODE)
+CC
+CC NAME       :  PTKEYW
+CC
+CC PURPOSE    :  STORE VALUES OF KEYWORDS INTO DATA PANEL
+CC
+CC PARAMETERS :
+CC         IN :  PANNAM : PANEL FILENAME                        CH*(*)
+CC               NKEYWD : NUMBER OF KEYWORDS AND VALUES          I*4
+CC                        IF <0: GIVES SEQUENCE NUMBER FOR
+CC                        KEYWORD IN PANELS WITH REPETITIVE LINES
+CC                        (INPUT OF ONE VALUE ONLY!)
+CC               KEYWRD : KEYWORD WHICH VALUE IS LOOKED FOR  CH(*)*8
+CC               VALKEY : VALUE OF KEYWORD                   CH(*)*(*)
+CC        OUT :  IRCODE : RETURN CODE                            I*4
+CC                        2: ERROR DETECTED
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  W. GURTNER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  17-NOV-89
+CC
+CC CHANGES    :  28-MAY-91 : ??: DECLARATION OF PANNAM,VALKEY
+CC               22-JAN-93 : ??: OPNFIL
+CC               27-AUG-94 : MR: NO PROMP1 FOR NON-INTERACTIVE MODE
+CC               19-MAR-98 : WG: ERROR MESSAGES IMPROVED
+CC               24-APR-03 : RD: DO NOT USE GTINTR ANYMORE
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1989     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE s_opnfil
+      USE s_promp1
+      USE f_lengt0
+      USE f_lengt1
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , I1    , I2    , IFIRST, IKEYWD, ILINE , IOSTAT,
+     1          K     , K1    , KLINE , L     , L1    , L2    ,
+     2          LFNLOC, LS    , MAXKEY, MAXLIN, MAXNUM, NLINE ,
+     3          NOINTR, NWORD
+C
+      PARAMETER (MAXNUM=5,MAXLIN=100,MAXKEY=5*MAXLIN)
+C
+C  GLOBAL PARAMETERS
+      INTEGER*4    IRCODE,NKEYWD
+      CHARACTER    PANNAM*(*),VALKEY(*)*(*)
+      CHARACTER*8  KEYWRD(*)
+C
+C  LOCAL PARAMETERS
+      LOGICAL      YES
+      CHARACTER*127 STRING(MAXLIN)
+      CHARACTER*80  STRG(1)
+      CHARACTER*1   START,END,CHR1,DONE(MAXKEY)
+      CHARACTER     FIRSTC*8,FIRSTP*8
+      COMMON/CPTKEY/STRING
+C
+      DATA START/'>'/,END/'<'/
+      DATA IFIRST/1/
+C
+C GET INTERACTION MODE
+      IF (IFIRST.EQ.1) THEN
+CC        CALL GTINTM(NOINTR)
+        NOINTR=1
+        LFNLOC=99
+        IFIRST=0
+      ENDIF
+C
+      IF(NKEYWD.EQ.0) GOTO 900
+      INQUIRE(FILE=PANNAM,EXIST=YES)
+      IF(.NOT.YES) THEN
+        WRITE (*,1) PANNAM(1:LENGT1(PANNAM))
+1       FORMAT(/,' *** SR PTKEYW: PANEL NOT FOUND',
+     1         /,16X,'PANEL NAME: ',A,/)
+        IF (NOINTR.NE.1) THEN
+          STRG(1)='PRESS <ENTER> TO CONTINUE'
+          CALL PROMP1(1,STRG)
+          READ(*,'(A)') CHR1
+        ENDIF
+        IRCODE=2
+        GOTO 999
+      END IF
+C
+      CALL OPNFIL(LFNLOC,PANNAM,'OLD',' ',' ',' ',IOSTAT)
+C
+      DO 210 ILINE=1,MAXLIN
+        READ(LFNLOC,11,END=220) STRING(ILINE)
+11      FORMAT(A)
+210   CONTINUE
+215   WRITE(*,12) MAXLIN,PANNAM(1:LENGT1(PANNAM))
+12    FORMAT(/,' *** SR PTKEYW: MAXIMUM NUMBER OF LINES REACHED IN ',
+     1         'PANEL',
+     2       /,16X,'INCREASE "MAXLIN" IN SUBROUTINE.',
+     3       /,16X,'MAX. NUMBER OF LINES ALLOWED:',I5,
+     4       /,16X,'PANEL NAME: ',A,/)
+      GOTO 920
+220   NLINE=ILINE-1
+      IKEYWD=0
+C
+      IF(NKEYWD.GE.0) THEN
+        NWORD=MOD(NKEYWD,1000)
+      ELSE
+        NWORD=1
+      END IF
+      DO 250 I=1,NWORD
+        DONE(I)='N'
+250   CONTINUE
+C
+      FIRSTC=' '
+      FIRSTP=' '
+      ILINE=0
+10    ILINE=ILINE+1
+        IF(ILINE.GT.NLINE) GOTO 15
+C
+        FIRSTC=STRING(ILINE)(82:89)
+        DO 330 K=1,NWORD
+          IF(DONE(K).NE.'Y') THEN
+            IF(K.NE.1.AND.
+     1         FIRSTC.NE.FIRSTP.AND.KEYWRD(K).EQ.FIRSTP) THEN
+C
+C  NEW FIRST KEYWORD ON CURRENT LINE BUT SAME AS PREVIOUS ONE IN
+C  THE REPLACE LIST: WE HAVE TO INTRODUCE A NEW LINE INTO THE
+C  PANEL (I.E. DOUBLE THE PREVIOUS LINE)
+C
+              IF(NLINE.GE.MAXLIN) GOTO 215
+              DO 310 KLINE=NLINE,ILINE-1,-1
+                STRING(KLINE+1)=STRING(KLINE)
+310           CONTINUE
+              NLINE=NLINE+1
+              ILINE=ILINE-1
+              GOTO 10
+            END IF
+          END IF
+330     CONTINUE
+C
+        IF(INDEX(STRING(ILINE)(1:79),START).EQ.0.AND.
+     1     INDEX(STRING(ILINE)(1:79),END  ).EQ.0) GOTO 10
+C
+        K1=1
+C
+C  LENGTH OF PANEL LINE MINUS 1
+        LS=LENGT0(STRING(ILINE))-1
+C
+C  LOOK FOR KEYWORDS (82-89, 91-98, 100-107, ETC)
+        DO 20 I=1,MAXNUM
+C
+C  START / END OF KEYWORD
+          I1=73+9*I
+          I2=I1+7
+C
+C  BEYOND STRING LENGTH
+          IF(I2.GT.LS) GOTO 10
+C
+C  BLANK: NO KEYWORD
+          IF(STRING(ILINE)(I1:I2).EQ.' '.OR.
+     1       STRING(ILINE)(I1:I2).EQ.'KEYWORDS') GOTO 10
+C
+C  LOOK FOR START OF CORRESPONDING INPUT FIELD
+          DO 30 K=K1,79
+            IF(STRING(ILINE)(K:K).EQ.START) GOTO 50
+30        CONTINUE
+          WRITE(*,31) PANNAM(1:LENGT1(PANNAM)),ILINE
+31        FORMAT(/,' *** SR PTKEYW: START OF FIELD NOT FOUND IN PANEL',
+     1           /,16X,'PANEL NAME: ',A,
+     2           /,16X,'LINE NUMBR: ',I4,/)
+          GOTO 920
+C
+C  FOUND: LOOK FOR END OF INPUT FIELD
+50        L1=K+2
+          DO 40 L=L1,79
+            IF(STRING(ILINE)(L:L).EQ.END) GOTO 60
+40        CONTINUE
+          WRITE(*,51) PANNAM(1:LENGT1(PANNAM)),ILINE
+51        FORMAT(/,' *** SR PTKEYW: END OF FIELD NOT FOUND IN PANEL',
+     1           /,16X,'PANEL NAME: ',A,
+     2           /,16X,'LINE NUMBR: ',I4,/)
+          GOTO 920
+C
+C  KEEP FIRST KEYWORD OF CURRENT LINE
+60        IF(I.EQ.1) FIRSTP=FIRSTC
+C
+C  LOOK FOR KEYWORD: REPLACE INPUT FIELD
+C
+          L2=L-2
+          K1=L+1
+C
+          DO 230 K=1,NWORD
+            IF(DONE(K).NE.'Y') THEN
+              IF(STRING(ILINE)(I1:I2).EQ.KEYWRD(K)) THEN
+                IKEYWD=IKEYWD+1
+                IF(NKEYWD.GT.0) THEN
+                  STRING(ILINE)(L1:L2)=VALKEY(K)
+                  DONE(K)='Y'
+                  GOTO 20
+                ELSEIF(IKEYWD.EQ.-NKEYWD) THEN
+                  STRING(ILINE)(L1:L2)=VALKEY(K)
+                  DONE(K)='Y'
+                  GOTO 120
+                END IF
+              END IF
+            END IF
+230       CONTINUE
+20      CONTINUE
+      GOTO 10
+C
+15    IF(NKEYWD.LT.1000) THEN
+        DO 260 I=1,NWORD
+          IF(DONE(I).NE.'Y') THEN
+            WRITE(*,61) PANNAM(1:LENGT1(PANNAM)),KEYWRD(I)
+61          FORMAT(/,' *** SR PTKEYW: KEYWORD NOT FOUND IN PANEL',
+     1             /,16X,'PANEL NAME: ',A,
+     2             /,16X,'KEYWORD   : ',A/)
+            GOTO 920
+          END IF
+260     CONTINUE
+      END IF
+C
+C  REWRITE PANEL
+120   REWIND LFNLOC
+      DO 240 ILINE=1,NLINE
+        WRITE(LFNLOC,11) STRING(ILINE)(1:LENGT1(STRING(ILINE)))
+240   CONTINUE
+      CLOSE(UNIT=LFNLOC)
+C
+900   IRCODE=0
+      GOTO 999
+C
+920   IF (NOINTR.NE.1) THEN
+        STRG(1)='PRESS <ENTER> TO CONTINUE'
+        CALL PROMP1(1,STRG)
+        READ(*,'(A)') CHR1
+      ENDIF
+      IRCODE=2
+      GOTO 999
+C
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

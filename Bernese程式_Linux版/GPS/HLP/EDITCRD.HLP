@@ -1,0 +1,123 @@
+<html>
+<body>
+
+<center>
+<b>CREATE/UPDATE STATION COORDINATES</b>
+<p>Editor: EDITCRD
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT" default="%% %%"></a>
+<a name="DATUM"       default="DATUM."></a>
+<a name="AUXFIL"      default="EDITCRD$J"></a>
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+The coordinate file contains geocentric station coordinates. This
+input panel helps you to create or to edit this type of files.
+<br>
+To create a new coordinate file specify a new filename in the file
+selection dialogue.
+
+<p><i>Remark:</i>
+The end of the coordinate file is indicated by a blank line. Lines below the
+blank line are ignored. If you use this input mask to edit a coordinate file
+these additional lines will be lost. If you want to keep them in the file
+you have to use an external text file editor.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<p><hr>
+
+<p><b>STATION COORDINATES</b>
+
+<a name="COORDRS" default=""></a>
+<p><b>Filename:</b>
+The absolute path and the name of the station coordinate file is given here.
+
+<a name="TITLE" default=""></a>
+<p><b>Title:</b>
+This title line will be saved in the file and should indicate where the
+coordinates come from. If they are estimated by processing programs, the title
+line entered for the program runs will appear here.
+
+<a name="TIMCRD" default=""></a>
+<p><b>Coordinate epoch:</b>
+The coordinates are referring to the reference epoch specified here.
+
+<a name="DATUM_STRG" default=""></a>
+<p><b>Geodetic datum:</b>
+The geodetic datum is only used to compute ellipsoidal coordinates
+in the processing programs if necessary. It does not mean that the
+coordinates are referring to this datum.
+<br>
+The name and specification of the geodetic datum must be contained in the
+"Geodetic datum" file
+(default: $X/GEN/DATUM.) you are using together with the coordinate file.
+
+<a name="STACRD" default="%% %% %% %% %% %%"></a>
+<p><b>Num:</b>
+The station numbers are read and used by the processing programs.
+
+<p><b>Station name:</b>
+The station names are read and used by the processing programs.
+
+<p><b>X</b>, <b>Y</b> and <b>Z:</b>
+The geocentric coordinates are referring to the reference epoch specified in
+the field "Coordinate epoch". They are given in meters with
+13&nbsp;digits including 4&nbsp;decimal places.
+
+<p><b>Flag:</b>
+Different programs mark the estimated coordinates with different flags:
+<br>
+<table>
+<tr><td><tt>R:</tt></td>
+    <td>Coordinates extracted from RINEX files,
+        from program <a href="PGMLST.HLP#RXOBV3">RXOBV3</a></td></tr>
+<tr><td><tt>C:</tt></td>
+     <td>Coordinates from a code single point positioning,
+        from program <a href="PGMLST.HLP#CODSPP">CODSPP</a></td></tr>
+<tr><td><tt>U:</tt></td>
+    <td>Coordinates from an epoch-difference solution
+        in the zero difference phase screening,
+        from program <a href="PGMLST.HLP#MAUPRP">MAUPRP</a></td></tr>
+<tr><td><tt>T:</tt></td>
+    <td>Coordinates from a triple-difference solution
+        in the baseline screening,
+        from program <a href="PGMLST.HLP#MAUPRP">MAUPRP</a></td></tr>
+<tr><td><tt>P:</tt></td>
+    <td>Coordinates estimated with or without constraints in the
+        main parameter estimation step,
+        from program <a href="PGMLST.HLP#GPSEST">GPSEST</a></td></tr>
+<tr><td><tt>M:</tt></td>
+    <td>Mean coordinates from several solutions,
+        from program <a href="PGMLST.HLP#COMPAR">COMPAR</a></td></tr>
+<tr><td><tt>A:</tt></td>
+    <td>Coordinates estimated without constraints in the
+        normal equation combination step,
+        from program <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a></td></tr>
+<tr><td><tt>W:</tt></td>
+    <td>Coordinates estimated with constraints in the
+        normal equation combination step,
+        from program <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a></td></tr>
+<tr><td><tt>N:</tt></td>
+    <td>Estimated coordinates for a station used to define a free network
+        condition in the normal equation combination step,
+        from program <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a></td></tr>
+<tr><td><tt>I:</tt></td>
+    <td>ITRF coordinates</td></tr>
+<tr><td><tt>E:</tt></td>
+    <td>Eccenter site coordinates, when using a station eccentricity file</td>
+        </tr>
+<tr><td><tt>F:</tt></td>
+    <td>Coordinates of a station which were fixed in the solution,
+        from programs <a href="PGMLST.HLP#MAUPRP">MAUPRP</a> or
+        <a href="PGMLST.HLP#GPSEST">GPSEST</a></td></tr>
+<tr><td>others:</td>
+    <td>Not estimated, not used, or unknown</td></tr>
+</table>
+
+<p><hr>
+
+</body>
+</html>

@@ -1,0 +1,350 @@
+
+!SOME KEYWORDS FOR AUTOMATIC OUTPUT
+! ----------------------------------
+CAMPAIGN     0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! -------------------------------------------------------------------------
+! General Constants
+! -----------------
+SHOWGEN     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+CONST     1  "CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_CONST 1  "General Constants"
+
+! Title
+! -----
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+! Program Output File
+! -------------------
+SYSODEF     1  "1"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "FMTOBS"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG     1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR     1  "ERROR"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+
+DESCR_SYSERR 1  "Error message"
+
+! Selection of Formatted Observation Files
+! ----------------------------------------
+! Zero diff., Code
+! ----------------
+FCZFIL     0
+  ## widget = selwin; path = DIR_FCZ; ext = EXT_FCZ; maxfiles = 999
+  ## emptyallowed = true
+
+MSG_FCZFIL 1  "Zero difference code"
+
+FCZFIL_TXT_COL_1 1  "ASCII files (Code)"
+
+FCZFIL_TXT_COL_2 1  "Header files (Code)"
+
+FCZFIL_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_CZH
+
+FCZFIL_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_CZH
+
+FCZFIL_TXT_COL_3 1  "Observation files (Code)"
+
+FCZFIL_PTH_COL_3     0
+  ## widget = initmenu; pointer = DIR_CZO
+
+FCZFIL_EXT_COL_3     0
+  ## widget = initmenu; pointer = EXT_CZO
+
+FCZFIL_TXT_COL_4 1  "ASCII files (Phase)"
+
+FCZFIL_PTH_COL_4     0
+  ## widget = initmenu; pointer = DIR_FPZ
+
+FCZFIL_EXT_COL_4     0
+  ## widget = initmenu; pointer = EXT_FPZ
+
+FCZFIL_TXT_COL_5 1  "Header files (Phase)"
+
+FCZFIL_PTH_COL_5     0
+  ## widget = initmenu; pointer = DIR_PZH
+
+FCZFIL_EXT_COL_5     0
+  ## widget = initmenu; pointer = EXT_PZH
+
+FCZFIL_TXT_COL_6 1  "Observation files (Phase)"
+
+FCZFIL_PTH_COL_6     0
+  ## widget = initmenu; pointer = DIR_PZO
+
+FCZFIL_EXT_COL_6     0
+  ## widget = initmenu; pointer = EXT_PZO
+
+! Zero diff., Phase
+! -----------------
+FPZFIL     0
+  ## widget = selwin; path = DIR_FPZ; ext = EXT_FPZ; maxfiles = 999
+  ## emptyallowed = true
+
+MSG_FPZFIL 1  "Zero difference phase"
+
+FPZFIL_TXT_COL_1 1  "ASCII files (Phase)"
+
+FPZFIL_TXT_COL_2 1  "Header files (Phase)"
+
+FPZFIL_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_PZH
+
+FPZFIL_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_PZH
+
+FPZFIL_TXT_COL_3 1  "Observation files (Phase)"
+
+FPZFIL_PTH_COL_3     0
+  ## widget = initmenu; pointer = DIR_PZO
+
+FPZFIL_EXT_COL_3     0
+  ## widget = initmenu; pointer = EXT_PZO
+
+FPZFIL_TXT_COL_4 1  "ASCII files (Code)"
+
+FPZFIL_PTH_COL_4     0
+  ## widget = initmenu; pointer = DIR_FCZ
+
+FPZFIL_EXT_COL_4     0
+  ## widget = initmenu; pointer = EXT_FCZ
+
+FPZFIL_TXT_COL_5 1  "Header files (Code)"
+
+FPZFIL_PTH_COL_5     0
+  ## widget = initmenu; pointer = DIR_CZH
+
+FPZFIL_EXT_COL_5     0
+  ## widget = initmenu; pointer = EXT_CZH
+
+FPZFIL_TXT_COL_6 1  "Observation files (Code)"
+
+FPZFIL_PTH_COL_6     0
+  ## widget = initmenu; pointer = DIR_CZO
+
+FPZFIL_EXT_COL_6     0
+  ## widget = initmenu; pointer = EXT_CZO
+
+! Zero diff., Code=Phase
+! ----------------------
+BOTHZERO     0
+  ## widget = checkbox; activeif = FCZFIL /= _ OR FPZFIL /= _
+
+MSG_BOTHZERO 1  "Zero difference both"
+
+! Single diff., Code
+! ------------------
+FCSFIL     0
+  ## widget = selwin; path = DIR_FCS; ext = EXT_FCS; maxfiles = 999
+  ## emptyallowed = true
+
+MSG_FCSFIL 1  "Single difference code"
+
+FCSFIL_TXT_COL_1 1  "ASCII sng. diff. files (Code)"
+
+FCSFIL_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_CSH
+
+FCSFIL_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_CSH
+
+FCSFIL_TXT_COL_2 1  "Sng. diff. header files (Code)"
+
+FCSFIL_PTH_COL_3     0
+  ## widget = initmenu; pointer = DIR_CSO
+
+FCSFIL_EXT_COL_3     0
+  ## widget = initmenu; pointer = EXT_CSO
+
+FCSFIL_TXT_COL_3 1  "Sng. diff. obs. files (Code)"
+
+FCSFIL_PTH_COL_4     0
+  ## widget = initmenu; pointer = DIR_FPS
+
+FCSFIL_EXT_COL_4     0
+  ## widget = initmenu; pointer = EXT_FPS
+
+FCSFIL_TXT_COL_4 1  "Sng. diff. obs. files (Phase)"
+
+FCSFIL_PTH_COL_5     0
+  ## widget = initmenu; pointer = DIR_PSH
+
+FCSFIL_EXT_COL_5     0
+  ## widget = initmenu; pointer = EXT_PSH
+
+FCSFIL_TXT_COL_5 1  "Sng. diff. header files (Phase)"
+
+FCSFIL_PTH_COL_6     0
+  ## widget = initmenu; pointer = DIR_PSO
+
+FCSFIL_EXT_COL_6     0
+  ## widget = initmenu; pointer = EXT_PSO
+
+FCSFIL_TXT_COL_6 1  "Sng. diff. obs. files (Phase)"
+
+! Single diff., Phase
+! -------------------
+FPSFIL     0
+  ## widget = selwin; path = DIR_FPS; ext = EXT_FPS; maxfiles = 999
+  ## emptyallowed = true
+
+MSG_FPSFIL 1  "Single difference phase"
+
+FPSFIL_TXT_COL_1 1  "ASCII sng. diff. files (Phase)"
+
+FPSFIL_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_PSH
+
+FPSFIL_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_PSH
+
+FPSFIL_TXT_COL_2 1  "Sng. diff. header files (Phase)"
+
+FPSFIL_PTH_COL_3     0
+  ## widget = initmenu; pointer = DIR_PSO
+
+FPSFIL_EXT_COL_3     0
+  ## widget = initmenu; pointer = EXT_PSO
+
+FPSFIL_TXT_COL_3 1  "Sng. diff. obs. files (Phase)"
+
+FPSFIL_PTH_COL_4     0
+  ## widget = initmenu; pointer = DIR_FCS
+
+FPSFIL_EXT_COL_4     0
+  ## widget = initmenu; pointer = EXT_FCS
+
+FPSFIL_TXT_COL_4 1  "Sng. diff. obs. files (Code)"
+
+FPSFIL_PTH_COL_5     0
+  ## widget = initmenu; pointer = DIR_CSH
+
+FPSFIL_EXT_COL_5     0
+  ## widget = initmenu; pointer = EXT_CSH
+
+FPSFIL_TXT_COL_5 1  "Sng. diff. header files (Code)"
+
+FPSFIL_PTH_COL_6     0
+  ## widget = initmenu; pointer = DIR_CSO
+
+FPSFIL_EXT_COL_6     0
+  ## widget = initmenu; pointer = EXT_CSO
+
+FPSFIL_TXT_COL_6 1  "Sng. diff. obs. files (Code)"
+
+! Single diff., Code=Phase
+! ------------------------
+BOTHSING     0
+  ## widget = checkbox; activeif = FCSFIL /= _ OR FPSFIL /= _
+
+MSG_BOTHSING 1  "Single difference both"
+
+! Range Observations
+! ------------------
+FRZFIL     0
+  ## widget = selwin; path = DIR_FRZ; ext = EXT_FRZ; maxfiles = 999
+  ## emptyallowed = true
+
+MSG_FRZFIL 1  "Single difference phase"
+
+FRZFIL_TXT_COL_1  1  "ASCII files (Range)"
+
+FRZFIL_TXT_COL_2  1  "Header files (Range)"
+
+FRZFIL_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_RZH
+
+FRZFIL_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_RZH
+
+FRZFIL_TXT_COL_3  1  "Observation files (Range)"
+
+FRZFIL_PTH_COL_3     0
+  ## widget = initmenu; pointer = DIR_RZO
+
+FRZFIL_EXT_COL_3     0
+  ## widget = initmenu; pointer = EXT_RZO
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CONVERT OBSERVATION FILES (ASCII TO BINARY) - FMTOBS 1: Input/Output Files   #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files  > % <                                              # SHOWGEN
+#                                                                              #
+# INPUT FILES                                                                  #
+#   Zero difference observations        Single difference observations         #
+#     code  > %%%%%%%% <                  code  > %%%%%%%% <                   # FCZFIL FCSFIL
+#     phase > %%%%%%%% <                  phase > %%%%%%%% <                   # FPZFIL FPSFIL
+#     both  > % <                         both  > % <                          # BOTHZERO BOTHSING
+#                                                                              #
+#   Range observations                                                         #
+#           > %%%%%%%% <                                                       # FRZFIL
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output          > % < use FMTOBS.Lnn            or    > %%%%%%%% < # SYSODEF SYSOUT
+#   Error messages          > % < merged to program output  or    > %%%%%%%% < # ERRMRG SYSERR
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1  #####################################################
+# FMTOBS 1.1: General Files                                                    #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants       > %%%%%%%%%%%% <                                   # CONST
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################

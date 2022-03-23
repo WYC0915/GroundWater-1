@@ -1,0 +1,61 @@
+      MODULE s_JMT
+      CONTAINS
+
+C*
+      SUBROUTINE JMT(DJUL,J,M,D)
+CC
+CC NAME       :  JMT
+CC
+CC PURPOSE    :  COMPUTE YEAR,MONTH,DAY OF MONTH FROM
+CC               MODIFIED JULIAN DATE (MJD=JUL. DATE-2400000.5)
+CC
+CC PARAMETERS :
+CC         IN :  DJUL   : MODIFIED JULIAN DATE                R*8
+CC        OUT :  J      : YEAR                                I*4
+CC               M      : MONTH                               I*4
+CC               D      : DAY OF MONTH                        R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/02 15:22
+CC
+CC CHANGES    :  14-JAN-92 : ??: CHANGE OF HEAD (IN/OUT PARAMETERS)
+CC               18-JUN-99 : TS: USE BRACKETS IN "D=(T3.....)+T4"
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               20-APR-12 : RD: PREVENT ROUNDING PROBLEMS WHEN COMPUTING D
+CC               04-MAY-12 : RD: USE DMOD FROM MODULE
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE l_basfun, ONLY: dmod
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IH , IH1, IH2, J  , M
+C
+      REAL*8 DJUL,D,T1,T2,T3,T4
+      T1=1.D0+DJUL-DMOD(DJUL,1.D0)+2400000.D0
+      T4=DMOD(DJUL,1.D0)
+      IH=INT((T1-1867216.25D0)/36524.25D0)
+      T2=T1+1+IH-IH/4
+      T3=T2-1720995.D0
+      IH1=INT((T3-122.1D0)/365.25D0)
+      T1=365.25D0*DBLE(IH1)-DMOD(365.25D0*DBLE(IH1),1.D0)
+      IH2=INT((T3-T1)/30.6001D0)
+      D=DNINT(T3-T1-DINT(30.6001D0*DBLE(IH2)))+T4
+      M=IH2-1
+      IF(IH2.GT.13)M=IH2-13
+      J=IH1
+      IF(M.LE.2)J=J+1
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

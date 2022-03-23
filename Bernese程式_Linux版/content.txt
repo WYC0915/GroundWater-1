@@ -1,0 +1,25 @@
+======================================================================
+Bernese GNSS Software, Version 5.2              Last mod.: 22-Nov-2012
+----------------------------------------------------------------------
+List of installation files for Unix/Linux platforms
+======================================================================
+
+content.txt            : Content of the CD-ROM (this file)
+
+README/INSTALL.TXT     : Description of the installation procedure
+README/JPL_EPH.TXT     : Instructions to generate the JPL ephem. file
+README/FIRST_STEPS.TXT : Remarks on the first steps with the software
+README/V50_TO_V52.TXT  : Important remarks for BSW 5.0 users
+README/UPDATE.TXT      : Description of the software update procedure
+README/DOCU50.pdf      : Bernese GPS Software 5.0 user manual
+README/TUTORIAL.pdf    : Tutorial from the Introductory Course
+
+setup.sh               : Installation script
+
+BERN52.tgz             : Main software tree
+CAMPAIGN52.tgz         : Example campaign
+DATAPOOL.tgz           : Datapool area
+SAVEDISK.tgz           : Savedisk area
+ICONS.tgz              : Icons for X-Window System
+
+======================================================================

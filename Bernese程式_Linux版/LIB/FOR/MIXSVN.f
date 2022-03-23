@@ -1,0 +1,104 @@
+      MODULE f_mixsvn
+      CONTAINS
+
+C*
+      FUNCTION MIXSVN(NSAT,SATNUM)
+CC
+CC NAME       :  MIXSAT
+CC
+CC PURPOSE    :  CHECK WHETHER "SATNUM" CONTAINS SATELLITE NUMBERS
+CC               OF GPS, GLONASS, OR BOTH SYSTEMS, + LEO
+CC
+CC PARAMETERS :
+CC         IN :  NSAT   : NUMBER OF SATELLITES TO BE CHECKED  I*4
+CC               SATNUM : SATELLITE NUMBERS                   I*4(*)
+CC        OUT :  MIXSVN : =0: GPS SATELLITES ONLY
+CC                        =1: MIXED - GPS AND GLONASS
+CC                            SATELLITES
+CC                        =2: GLONASS SATELLITES ONLY
+CC                        =3: MIXED - GPS AND LEO
+CC                        =4: MIXED - GLONASS AND LEO
+CC                        =5: MIXED - GPS AND GLONASS AND LEO
+CC                        =6: LEO ONLY
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  D.INEICHEN
+CC
+CC VERSION    :  4.1  (JUL 97)
+CC
+CC CREATED    :  30-OCT-97  15:00
+CC
+CC CHANGES    :  26-FEB-98 : SS: SOME COSMETIC CHANGES
+CC            :  14-FEB-01 : DS: EXTENDED FOR LEO (3:6)
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC               UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+
+C
+C DECLARATIONS
+C ------------
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I       , MIXSVN  , NMIXSVNG, NMIXSVNL, NMIXSVNR,
+     1          NSAT
+C
+CCC       IMPLICIT INTEGER*4 (I-N)
+
+      INTEGER*4 SATNUM(*)
+
+      MIXSVN=0
+      NMIXSVNG=0
+      NMIXSVNR=0
+      NMIXSVNL=0
+
+C
+C MIXED SATELLITES
+C ------------------
+      DO I=1,NSAT
+        IF(SATNUM(I).GT.0.AND.SATNUM(I).LT.100)NMIXSVNG=1
+        IF(SATNUM(I).GE.100.AND.SATNUM(I).LT.200)NMIXSVNR=10
+        IF(SATNUM(I).GE.900.AND.SATNUM(I).LT.1000)NMIXSVNL=100
+      END DO
+
+      MIXSVN=NMIXSVNG+NMIXSVNR+NMIXSVNL
+
+C
+C GET THE RIGHT COMBINATION
+C -------------------------
+      IF(MIXSVN.EQ.1)THEN
+        MIXSVN=0
+        GOTO 999
+      ELSEIF(MIXSVN.EQ.11)THEN
+        MIXSVN=1
+        GOTO 999
+      ELSEIF(MIXSVN.EQ.10)THEN
+        MIXSVN=2
+        GOTO 999
+      ELSEIF(MIXSVN.EQ.101)THEN
+        MIXSVN=3
+        GOTO 999
+      ELSEIF(MIXSVN.EQ.110)THEN
+        MIXSVN=4
+        GOTO 999
+      ELSEIF(MIXSVN.EQ.111)THEN
+        MIXSVN=5
+        GOTO 999
+      ELSEIF(MIXSVN.EQ.100)THEN
+        MIXSVN=6
+        GOTO 999
+      END IF
+
+C
+C END
+C ---
+999   RETURN
+      END FUNCTION
+
+      END MODULE

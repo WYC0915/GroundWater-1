@@ -1,0 +1,600 @@
+<html>
+<body>
+
+<center>
+<b>THE MENU SYSTEM</b>
+<p>Bernese GNSS Software
+</center>
+<hr width="100%">
+
+<dl>
+<br><b>THE MENU</b>
+<dd><a href="#INTRO">     Introduction</a></dd>
+<dd><a href="#QUIT">      Quit the menu</a></dd>
+
+<dd><a href="#MENUBAR">   Menu bar</a></dd>
+<dd><a href="#INPUT">     Input fields</a></dd>
+<dd><a href="#EXECUTE">   Command bar</a></dd>
+<dd><a href="#STATUS">    Status bar</a></dd>
+
+<dd><a href="#HELP">      Help</a></dd>
+
+<dd><a href="#CONF_MEN">  Configure the menu</a></dd>
+
+<br><b>THE PROCESSING SETUP</b>
+<dd><a href="#INTERFACE"> Interface between menu and processing
+                          programs</a></dd>
+
+<dd><a href="#CONF_PGM">  Configure processing defaults</a></dd>
+
+<br><b>THE PROCESSING DEFAULTS</b>
+<dd><a href="#JOBID">     Define and use the Job ID</a></dd>
+<dd><a href="#SETDAY">    Select the current session</a></dd>
+<dd><a href="#SESSION">   Session table</a></dd>
+<dd><a href="#VARIABLES"> Variables</a></dd>
+
+<dd><a href="#CAMPAIGN">  Select the active campaign</a></dd>
+<dd><a href="#STATION">   Edit station specific files</a></dd>
+
+<br><b>THE PROCESSING PROGRAMS</b>
+<dd><a href="#PARTS">     Program structure</a></dd>
+<dd><a href="#PGMLIST">   List of programs</a></dd>
+
+<br><b>THE BERNESE PROCESSING ENGINE</b>
+<dd><a href="#BPE">       Bernese Processing Engine (BPE)</a></dd>
+<dd><a href="#"></a></dd>
+</dl>
+
+<p><hr>
+
+<p><b>THE MENU</b>
+
+<a name="INTRO"></a>
+<p><b>Introduction</b>
+<p>
+With Version 5.0 of the Bernese GPS Software the user interface of the
+processing programs has been completely revised. The graphical interface
+allows to specify sessions and campaigns, to view and edit data files,
+execute processing programs, start the processing through the Bernese
+Processing Engine (BPE), in short words, to control all functions
+available in the Bernese GNSS Software package.</p>
+<p>
+The graphical surface is composed of four fields which are (from top to
+bottom):
+<dl>
+<dt>Menu bar:</dt><dd>Used to define session and campaign, select the
+             program to be executed, configure the menu, request help,
+             quit the menu.</dd>
+<dt>Input field:</dt><dd>Main part of the menu displaying the input fields
+             for the selected program or tool.</dd>
+<dt>Command bar:</dt><dd>Allows to navigate forward and backward through the
+             program panels, save the inputs, execute the programs, and view
+             the program output files.</dd>
+<dt>Status bar:</dt><dd>Displays user name, active campaign and current session, 
+             the JOB-ID (if defined), and the name of
+             input file opened.</dd>
+</dl>
+
+<a name="QUIT"></a>
+<p><b>Quit the menu</b></p>
+<p>
+Quit the menu through <b>Menu &gt; Configure &gt; Quit</b>.
+If a panel is displayed the
+menu will ask you whether you like to save it before quitting.
+<p>
+When quitting the menu a configuration file (default name $U/PAN/MENU.INP)
+stores the actual menu configuration setting, i.e., active
+campaign, current session, size of window, fonts, colors, etc. When opening
+the menu a next time the configuration will again be the same.
+<br>
+On UNIX platforms you are able to start the menu more than once for the same
+user. The configuration of the menu is independent for each running menu. The
+configuration file contains the information from the menu you have left last.
+
+<a name="MENUBAR"></a>
+<p><b>Menu bar</b>
+<p>
+The menu bar contains menu items to open pull-down menus. It reflects
+the structure of the Bernese GNSS software:
+<table>
+<tr><td valign=top>Configure</td>
+    <td valign=top>Configure the menu and the processing structures.</td></tr>
+<tr><td valign=top>Campaign</td>
+    <td valign=top>Prepare a campaign.</td></tr>
+<tr><td valign=top>RINEX</td>
+    <td valign=top>Transfer part, </td></tr>
+<tr><td valign=top>Orbits/EOP</td>
+    <td valign=top>Orbit part, </td></tr>
+
+<tr><td valign=top>Processing</td>
+    <td valign=top>Processing part,</td></tr>
+<tr><td valign=top>Service</td>
+    <td valign=top>Service part,</td></tr>
+<tr><td valign=top>Conversion</td>
+    <td valign=top>Conversions part,</td></tr>
+<tr><td valign=top>BPE</td>
+    <td valign=top>Bernese processing engine,</td></tr>
+<tr><td valign=top>User</td>
+    <td valign=top>User programs, and</td></tr>
+<tr><td valign=top>Help</td>
+    <td valign=top>Help part.</td></tr>
+</table>
+
+<p><i>Use with keyboard:</i>
+Items in the menu bar are accessible through the &lt;alt&gt;-key and the
+underlined letter. If the pull-down menu is open only the underlined letter
+is necessary to continue navigation.
+
+<a name="INPUT"></a>
+<p><b>Input fields</b></p>
+<p>
+A number of input field types are available to accept user input:
+<dl>
+<dt>Lineedit:</dt>
+<dd>This simplest field allows to input any text. This may be comment text,
+    real-valued resp. integer-valued option parameter, as well as
+    output filename. For filenames the extension for the specific file type
+    appears just right of the field.
+
+<dt>Selwin:</dt>
+<dd>This type of input field is generally used to specify input filenames. The
+    input field is accompanied by a browse button just right to it allowing
+    to browse a directory for files of a specific type using a standard
+    dialogue.
+    <br>
+    <i>Browse the directory:</i>
+    You may leave the input field blank or use
+    wildcards and/or menu variables and time variables to browse the directory,
+    e.g., <tt>???$YD+0</tt>. The file selection dialogue allows to view a selected
+    ASCII file using the Browse-button.<br>
+    <i>Selection of several files:</i> Depending on the option more than one
+    file may be specified. In this case the string <tt>SELECTED</tt> will appear
+    in the input field. Pressing the browse button allows to check the names of
+    the selected files.
+    <br>
+    In some cases this input field is also used to select other items
+    than filenames, e.g., a subset of stations from a list.
+</dd>
+
+<dt>Checkbox:</dt>
+<dd>This widget allows to activate or deactivate an option. With the box
+    marked the corresponding option is activated, with the box unmarked the
+    option is not active.
+
+<dt>Radiobutton:</dt>
+<dd>This widget never appears alone. It is used to switch between different
+    options which cannot be active at the same time.
+
+<dt>Spinbox:</dt>
+<dd>The integer input values in this field may be incremented or decremented
+    within defined bounds using the corresponding arrows appearing at the
+    right edge of the input field. Values may also be input directly into the
+    field.
+
+<dt>Combobox:</dt>
+<dd>This field allows to select between different predefined input values.
+    Depending on the option the list of defined values is complete or additional
+    values may be input by the user.
+
+<dt>Uniline:</dt>
+<dd>This field is used to generate input tables of variable length. Pressing
+    the + or - button just to the right of a line duplicates or removes the
+    corresponding line. Depending on the option an input line may contain more
+    than one input field.
+    <br>
+    In some cases the unilines appear without + and - buttons. In this case
+    only the activated input fields accept user input.
+</dl>
+<p>
+Filenames may be entered in widgets lineedit and selwin. The file extension
+is displayed on the browse button (selwin) or at the right border of the input
+field (lineedit). Path name and file extension are file-type specific and may be
+defined in the panels in <b>Menu &gt; Configure &gt; Paths and
+extensions</b>.
+<p>
+Depending on the user input, individual fields or entire panels may become
+inactive. Inactive fields change their color and do not accept input,
+inactive panels do not appear to the user. This mechanism helps the user to
+focus on the options that are relevant for a specific application.
+<p>
+A consequent use of menu time variables in filenames and for the definition
+of time windows in the program panels significantly improves the flexibility
+of the program system when same processing steps have to be performed for
+different session. Apart from spinboxes all types of input fields accept
+menu time and user variables. Menu variables are defined in <b>Menu &gt;
+Configure &gt; Menu variables</b>. More information on their use is provided
+here: <a href="MENU_VAR.HLP">Menu variables</a>.
+
+<p><i>Use with keyboard:</i>
+Navigation through the panels using the
+&lt;tab&gt;-key is supported.
+The &lt;space&gt;-key is used to select an item or press a button. In
+spinboxes or comboboxes
+the &lt;up&gt;-key resp. &lt;down&gt;-key may be used to change the values.
+
+<a name="EXECUTE"></a>
+<p><b>Command bar</b>
+<p>
+The command bar at the bottom of the panel area is used to navigate through
+the panels, to save the program input files, execute programs, and browse the
+program output files.
+Buttons are inactive if they are meaningless in a given context.
+<br>
+You find the following buttons:
+<table>
+<tr><td valign=top>^Top:</td>
+    <td valign=top>Go back to the first panel.</td></tr>
+<tr><td valign=top>^Prev:</td>
+    <td valign=top>Go back to the previous panel.</td></tr>
+<tr><td valign=top>^Next:</td>
+    <td valign=top>Continue to the next panel.</td></tr>
+<tr><td valign=top>Cance^l:</td>
+    <td valign=top>Quit the panel without saving. The menu will ask you
+        whether you really want to quit without saving, with saving, or
+        cancel the action.</td></tr>
+<tr><td valign=top>Save^As:</td>
+    <td valign=top>Save the program input file under a name which you may
+        specify in a corresponding dialogue box.</td></tr>
+<tr><td valign=top>^Save:</td>
+    <td valign=top>Save the program input file under its original name
+        without executing the program.</td></tr>
+<tr><td valign=top>^Run:</td>
+    <td valign=top>Save the program input file under its original name and
+        execute the program based on the options specified in the
+        panels.</td></tr>
+<tr><td valign=top>^Output:</td>
+    <td valign=top>Browse the program output from the last program run.
+        <br><i>Remark:</i> You may also browse program output and error
+        files through
+        <b>Menu &gt; Service &gt; Browse program output</b> and
+        <b>Menu &gt; Service &gt; Browse error message</b>.</td></tr>
+<tr><td valign=top>^Rerun:</td>
+    <td>Reload the last panel. Helpful if you want to rerun the same program
+        you just executed.</td></tr>
+</table>
+
+<p><i>Use with keyboard:</i>
+To access the buttons using the keyboard use the
+&lt;ctrl&gt;-key together with the letter following the ^-character as a
+shortcut.
+
+<a name="STATUS"></a>
+<p><b>Status bar</b>
+<p>
+The status bar displays
+<table>
+<tr><td valign=top><tt>User:</tt></td>
+    <td valign=top>the user name,</td></tr>
+<tr><td valign=top><tt>Campaign:</tt></td>
+    <td valign=top>the active campaign,</td></tr>
+<tr><td valign=top><tt>$Y+0=</tt></td>
+    <td valign=top>year of the current session,</td></tr>
+<tr><td valign=top><tt>$S+0=</tt></td>
+    <td valign=top>session identifier of the current session,</td></tr>
+<tr><td valign=top><tt>$J=</tt></td>
+    <td valign=top>the JOB-ID (if defined), and</td></tr>
+<tr><td valign=top><tt>File:</tt></td>
+    <td valign=top>the name of input file opened.</td></tr>
+</table>
+
+<a name="HELP"></a>
+<p><b>Help</b>
+<p>
+The help button in the menu bar provides you extended help covering
+general aspects (select <b>Menu &gt; Help &gt; General</b> to get this file)
+as well as specific information for all Bernese programs.
+<p>
+If you need support for an option in a program input panel: Put the cursor
+into the corresponding field and select <b>Menu &gt; Help &gt; Help on
+context</b>. You will immediately
+fall into the section describing that particular option in the help panel for
+the specific program. Browse through the different program help panels to
+obtain more information on the programs, their application, the various
+options (many with default values), and output.
+<p>
+A button allows you to search for strings in a help panel, links to
+different sections in the same panel or to other panels help you to quickly
+collect the information you require. Arrow keys in the bottom of the help
+window support you to navigate forward and backward through the different
+links you selected (backward jumps return to the position of an anchor point
+in the text which need not be the original position in the text in all cases).
+
+<a name="CONF_MEN"></a>
+<p><b>Configure the menu</b></p>
+<p>
+The menu item <b>Menu &gt; Configure &gt; Menu layout</b> allows you to
+modify fonts, font sizes, and colors
+separately for the different components of the menu. It is recommended to
+use a non-proportional font for the panels. The size of the menu may be
+changed by dragging one edge of the window.
+<br>
+The menu item may be used to reset the menu configuration to the
+default values.
+<p>
+When quitting the menu a configuration file (default name $U/PAN/MENU.INP)
+stores the actual menu configuration setting, i.e., active
+campaign, session, size of window, fonts, colors, etc. When opening the menu
+a next time the configuration will again be the same.
+<br>
+On UNIX platforms you are able to start the menu more than once for the same
+user. The configuration of the menu is independent for each running menu. The
+configuration file contains the information from the menu you have left last.
+
+<p><hr>
+
+<a name="INTERFACE"></a>
+<p><b>THE PROCESSING SETUP</b>
+<p><b>Interface between menu and processing programs</b>
+<p>
+The interface between the processing programs and the menu is
+represented by program-specific ASCII files. They need to have the same
+name as the program they are associated with and are located in the user's
+Bernese environment (default: <tt>${U}/PAN/PGMNAM.INP</tt>). Input
+options and file names received from the user are written to
+keyword-annotated input fields which are read by the Fortran programs.
+<p>
+At the same time the interface files contain the layout of the panels and
+the types of the input fields and additional information, e.g., used by the
+menu to check the user input immediately after input.
+<p>
+The menu program does not access data files directly in order to avoid
+the duplication of file formats in different reading and writing
+routines. To access data files a special mechanism is implemented using the
+Fortran-program <tt>MENUAUX</tt> . This allows,
+e.g., to display selection lists that are generated from input files such
+as, for example, station names for datum definition extracted from binary
+Bernese observation files.
+<p>
+There are two tools in the menu to manipulate the program input files:
+<ul>
+<li>The menu item <b>Menu &gt; Configure &gt; Change
+    general options</b> (CHNGEN) allows you to change keyword values
+    in a set of program input files or even in all input files.
+<li>The menu item <b>Menu &gt; Configure &gt; Update
+    input files</b> (UPDPAN) may be used to update program input
+    files, e.g., to activate a new release of master input files in the user
+    environment.
+</ul>
+
+<a name="CONF_PGM"></a>
+<p><b>Configure processing defaults</b>
+There are two menu items to configure the names of the Bernese programs
+and the paths and extensions for the different file types used in the
+Bernese GNSS Software:
+<dt><b>Menu &gt; Configure &gt; Program names</b>:</dt>
+<dd>The assignment of program names to menu items may be changed and
+    some general options for program execution may be set under this menu item.
+    In most cases the default setting needs not to be changed by the user
+    - except for adding your own programs to the menu (<b>Menu &gt; User</b>).
+</dd>
+<dt><b>Menu &gt; Configure &gt; Paths and extensions</b>:</dt>
+<dd>Paths and extensions for any data type may be changed - but it is not
+    recommended.</dd>
+</dt>
+
+<p><i>Remark for UNIX platforms:</i>
+If you are running more than one menu
+at the same time in a user environment the change of these settings will
+affect all currently running menus.
+
+<p><hr>
+
+<a name="JOBID"></a>
+<p><b>THE PROCESSING DEFAULTS</b>
+<p><b>Define and use the Job ID</b></p>
+<p>
+The Job ID can be specified in the <b>Menu &gt; Configure &gt; Set
+session/compute date</b>. The two-character string is appended to the
+extension of the program input files in your user specific panel
+directory. In this way you may predefine panels with different settings of
+options for the same program which you may address with the Job ID.
+<p>
+If you would like to run more than one job of the same program at the
+same time, you have to use different job identification characters to obtain
+independent input files for the program runs. The Job ID defines the value
+of the menu variable <tt>$J</tt>, which you can use in all input panels. The
+variable <tt>$J</tt> should in particular be used to distinguish scratch
+files.
+
+<a name="SETDAY"></a>
+<p><b>Select the current session</b>
+<p>
+The processing unit in the Bernese GNSS Software is a session.
+The menu assumes that the session you are going the process is
+selected as the 'current session'. You may selected the current session
+in the menu item <b>Menu &gt; Configure &gt; Set session/compute
+date</b>. For details see <a href="SETDATE.HLP">Set session</a>.
+<p>
+The important application of the 'current session' is the definition
+of the menu time <a href="#VARIABLES">variables</a> which are recommended to
+be use in the input fields, e.g., to compose filenames, or to specify a time
+window. In addition the current session is logged in the program output file
+headers and is used by some of the programs.
+
+<a name="SESSION"></a>
+<p><b>Session table</b></p>
+<p>
+The session identifier is a 4-character string composed as <tt>dddc</tt>
+where <tt>ddd</tt> represents the day of year (DoY) of the beginning of the
+time interval and <tt>c</tt> is an alphanumeric character identifying the
+session within the day. Each session is assigned to an individual time
+window in the session table. The session table is individual for each
+campaign. For more information on how a session table is set up consult
+<a href="SESSIONS.HLP">Session table</a>.
+<p>
+It is recommended to use the session (the menu time variable is
+<tt>$S+0</tt>, see section <a href="#VARIABLES">Variables</a>) to
+characterize the relevant output filenames, and to use the menu time variable
+to define time windows (whenever possible).
+
+<a name="VARIABLES"></a>
+<p><b>Variables</b></p>
+<p>Variables can be used as place holders throughout the menu system. The
+following types of variables are supported:
+<ul>
+<li><b>Menu time variables</b> are predefined by the menu. They provide the
+    most important time strings and are always referring to the current session
+    (e.g, <tt>$S+0</tt> for the current session, <tt>$YD+0</tt> for the year and
+    day of year of the current session).</li>
+<li><b>Menu user variables</b> may be freely defined by the user in
+    menu item <b>Menu &gt; Configure &gt; Menu variables</b> and may be used
+    in all input fields.</li>
+<li><b>Environment variables</b> are used to translate system environment
+    variables in filenames when executing the Fortran programs.</li>
+</ul>
+<p>
+It is recommended to use menu variables in the input fields whenever
+possible. Especially the use of the menu time variables increase the
+efficiency of the processing when analyzing more than one session.
+More information about the usage and the definition of the variables
+is provided here: <a href="MENU_VAR.HLP">Menu variables</a>.
+
+<a name="CAMPAIGN"></a>
+<p><b>Select the active campaign</b></p>
+<p>
+Data processing in the Bernese GNSS Software is campaign-oriented. All input
+data, intermediate files, and results are read from or written to
+subdirectories in a campaign directory. The menu needs to know the campaign
+you are currently processing.
+<p>
+The <b>Menu &gt; Campaign</b> submenu provides menu items
+<ul>
+<li> to select the active campaign from the campaign list,
+<li> to add or remove campaigns from the list
+    <br>(see <a href="MENU_CMP.HLP">Edit list of campaigns</a>), and
+<li> to create new campaign directory structure
+    <br>(see <a href="NEWCAMP.HLP">Create new campaign</a>).
+</ul></p>
+
+<p><i>Remark:</i>
+It is important to remark that the campaign list is a
+general file that is accessed by all users accessing the same installation
+of the software. All available campaigns are visible to all users.
+
+<a name="STATION"></a>
+<p><b>Edit station specific files</b></p>
+<p>
+Items under the menu item <b>Menu &gt; Campaign &gt; Edit station files</b>
+allow to create and edit station specific files such as coordinate and velocity
+files, station information files, station selection lists, abbreviation
+tables, baseline definition files, and many more.
+<p>
+All station specific files can be created based on an existing coordinate
+file. If you enter the name of a non-existing station file in the corresponding
+file selection dialogue you may select an existing coordinate file. The station
+names from that file are used to generate a template file of the requested
+station file type that you may then adapt to your needs.
+
+<p><hr>
+
+<a name="PARTS"></a>
+<p><b>THE PROCESSING PROGRAMS</b>
+<p><b>Program structure</b></p>
+<p>
+The Bernese GNSS Software contains more than 100 programs which are ordered
+logically into five parts which are represented as items in the menu bar:
+<dl>
+<dt>RINEX:</dt>
+<dd>The <b>Transfer Part</b> includes all programs related to the transfer
+of RINEX files (observations, navigation messages, meteorological files)
+into Bernese format or vice versa, or to manipulate RINEX files such as
+cutting to a specific time window or concatenation of files. RINEX utilities
+allow to extract header information, generate statistical information, or
+preprocess observations at the RINEX level.</dd>
+
+<dt>Orbits/EOP:</dt>
+<dd>The <b>Orbit/EOP Part</b> contains all programs related to satellite orbits
+or Earth orientation parameters (EOPs). This includes the generation of an
+internal orbit representation (so-called standard orbit) starting from
+precise ephemerides or broadcast information, update orbit information,
+creation of precise orbit files, concatenation of precise files, comparison
+of orbits, conversion of EOP information from IERS format to Bernese format,
+extraction of pole information.</dd>
+
+<dt>Processing:<dt>
+<dd>The <b>Processing Part</b> contains the main processing programs. This
+includes code processing and receiver synchronization (program
+<a href="CODSPP.HLP">CODSPP</a>), generation of baseline files (program
+<a href="SNGDIF.HLP">SNGDIF</a>), dual frequency code and phase pre-processing
+(program <a href="MAUPRP.HLP">MAUPRP</a>), parameter estimation based
+on GPS and/or GLONASS observations (program <a href="GPSEST.HLP">GPSEST</a>)
+and on the superposition of normal equation systems (program
+<a href="ADDNEQ2.HLP">ADDNEQ2</a>).</dd>
+
+<dt>Service:</dt>
+<dd>The <b>Service Part</b> contains a simulator (program
+<a href="GPSSIM.HLP">GPSSIM</a>) as well as a number of tools to browse binary
+observation files, check residuals, compare and manipulate coordinates,
+analyze coordinate time series, and many more. This menu item also provides
+the possibility to browse program output or error message files.</dd>
+
+<dt>Conversion:</dt>
+<dd>The conversion programs are part of the <b>Service Part</b>. They allow
+to convert binary files into ASCII format and vice versa. Additional
+programs allow to convert SINEX files into normal equation files, extract
+station information from SINEX, to manipulate troposphere SINEX files.</dd>
+</dl>
+
+<a name="PGMLIST"></a>
+<p><b>List of programs</b></p>
+<p>
+The link <a href="PGMLST.HLP">list of programs</a> provides an alphabetically
+ordered list of all programs implemented into the menu system. Each program
+is characterized by a one-line description and its location in the menu
+system. A link to the program-specific help is provided for all programs.
+
+<p><hr>
+
+<a name="BPE"></a>
+<p><b>THE BERNESE PROCESSING ENGINE</b>
+<p>The <b>Bernese Processing Engine (BPE)</b> is an integrated part of
+the Bernese GNSS Software Version 5 menu system. It allows for a very
+automated GPS data processing. The BPE is implemented based on a
+server-client architecture. Communication between the different components
+is done using TCP/IP connections. On UNIX platforms the different tasks
+may run on remote hosts.
+<p>
+The BPE executes a list of tasks defined in a Process Control File
+(PCF). Individual tasks may run in parallel. Each Bernese program executed
+obtains its options from a dedicated option directory specified in the PCF.
+The control on where a particular job can be started is guaranteed by the
+CPU control file. For details consult the documentation of the Bernese
+GNSS Software.
+<br>
+The menu item <b>Menu &gt; BPE</b> contains the following items:
+<dl>
+<dt>Edit process control file (PCF):</dt>
+<dd>Allows to edit an existing or create a new <a href="EDITPCF.HLP">Process
+    Control File</a>. Select an existing file or type a new filename in the
+    file selection dialogue.</dd>
+<dt>Edit PCF program input files:</dt>
+<dd>Select a PCF in the file selection dialogue. You will then get a list of
+    all programs executed in that PCF together with the PID, script name, and
+    option directory. Select one or several entries. You will then get the
+    program input panels presented one after the other allowing you to check
+    and modify the program options. In order to modify options in menu input
+    files use the following option.
+    <br><i>Remark:</i> The user scripts called in the PCF must exist in
+    the correct location.</dd>
+<dt>Edit single menu/program input file:</dt>
+<dd>Select an option directory in the file selection dialogue and then one or
+    several program or menu input files of one option directory. The input
+    panels will then be
+    presented one after the other allowing you to check and modify the
+    options.</dd>
+<dt>Edit CPU file:</dt>
+<dd>Select a <a href="CPU.HLP">CPU control file</a> in the file selection
+    dialogue. The file may then be edited and modified.</dd>
+<dt>Reset CPU file:</dt>
+<dd>You may reset the number of running jobs on any CPU of the selected CPU
+    control file to zero. This is a safe operation after a BPE server was
+    killed.</dd>
+<dt>Start BPE process:</dt>
+<dd>This menu item allows you to setup and start the execution of a BPE. For
+    details see <a href="RUNBPE.HLP">RUNBPE</a>.
+</dl>
+
+<p><hr>
+
+</body>
+</html>

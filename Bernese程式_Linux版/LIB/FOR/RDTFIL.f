@@ -1,0 +1,273 @@
+      MODULE s_RDTFIL
+      CONTAINS
+
+C*
+      SUBROUTINE RDTFIL(LFN   ,IFIL  ,INDTIM,TF    ,TL    ,IPOSOK,
+     1                  DT    ,NSAT  ,NAVNUM,SOURCE,TFLAST,IRCTOT)
+CC
+CC NAME       :  RDTFIL
+CC
+CC PURPOSE    :  READ INFORMATION IN INTERVAL (TF,TL) IN
+CC               ONE TABULAR ORBIT FILE
+CC
+CC PARAMETERS :
+CC         IN :  LFN    : LOGICAL FILE NUMBER OF TAB FILE     I*4
+CC               IFIL   : TABULAR FILE NUMBER                 I*4
+CC               INDTIM : TIME DEFINITION INDEX               I*4
+CC                    =1: TIME=GPS TIME
+CC                    =2: TIME=UTC
+CC               IPOSOK : SUITABLE POSITIONS ALREADY FOUND    I*4
+CC                    =0: NO POSITIONS FOUND YET
+CC                    =1: SUITABLE POSITIONS ALREADY FOUND    I*4
+CC                        IN A PREVIOUS TAB-FILE
+CC               TF,TL  : INTERVAL IN WHICH SAT. POSITIONS    R*8
+CC                        HAVE TO BE EXTRACTED
+CC     IN/OUT :  IPOSOK : SUITABLE POSITIONS ALREADY FOUND    I*4
+CC                    =0: NO POSITIONS FOUND YET
+CC                    =1: SUITABLE POSITIONS ALREADY FOUND    I*4
+CC                        IN A PREVIOUS TAB-FILE
+CC        OUT :  DT     : TABULAR INTERVAL (SEC)              R*8
+CC               NSAT   : NUMBER OF SATELLITES                I*4
+CC               NAVNUM(K),K=1,2,..,NSAT: SVN NUMBERS         I*4
+CC               SOURCE(K),K=1,2,..,10: ORBIT SOURCE          CH*1
+CC               TFLAST : LAST EPOCH OF FILE                  R*8
+CC               IRCTOT : TOTAL NUMBER OF RECORDS             I*4
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/30 08:11
+CC
+CC CHANGES    :  31-MAY-92 : ??: OPTION J2000.0
+CC               13-JUN-92 : ??: CORRECT NUMBERING OF MANOEUVRE-SATELLITES
+CC                               IF MORE THAN ONE TABULAR FILE PER ARC
+CC               29-JUN-93 : ??: CORRECT EPOCH TOBS+T0ARC FOR SR POLDEF
+CC                               (IMPORTANT FOR TABULAR ORBITS IN UTC)
+CC               23-NOV-93 : SF: SET MAXSAT TO 30
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               05-JUN-96 : TS: CALL POLDEF CHANGED DUE TO SUBDAILY POLE
+CC               04-NOV-96 : MR: PARAMETER "IPOSOK" INTRODUCED
+CC               29-APR-97 : HH: ADD GLONASS (MAXSAT=48, FORMATS, SAT+50)
+CC               27-AUG-98 : MR: USE FUNCTION "MODSVN"
+CC               10-MAY-99 : MR: ADD PARAMETER "IFIL", WRITE "IFIL"
+CC               17-FEB-03 : LM: USE M_MAXDIM
+CC               16-JUN-05 : MM: UNUSED COMCONST.inc REMOVED
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               06-DEC-10 : RD: ADDITIONAL COMMENT LINE FOR CMC
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE m_maxdim, ONLY: MAXSAT
+      USE s_poldef
+      USE f_modsvn
+      USE f_djul
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IDAY1 , IDAY2 , IEPO  , IFIL  , INDTIM, IORSYS,
+     1          IPOSOK, IRCTOT, IREC  , ISAT  , ISF   , ISVN  , IYEAR1,
+     2          IYEAR2, K     , LFN   , MONTH1, MONTH2, MXCSAT,
+     3          NEP   , NSAT  , NSFIL
+C
+      REAL*8    DAY1  , DAY2  , DJBEG , DJBEG1, DJEND , DJEND1,
+     1          DT    , GPSUTC, HOUR1 , HOUR2 , RR    , SEC1  , SEC2  ,
+     2          T0ARC , TF    , TFLAST, TL    , TOBS  , UT1UTC, XMIN1 ,
+     3          XMIN2 , XP    , XPOLE , YP    , YPOLE
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+C
+C
+      REAL*8      XSAT(3)
+      INTEGER*4   NAVNUM(*),NAVFIL(MAXSAT)
+      CHARACTER*7 REFSYS,REFOLD
+      CHARACTER*6 MXNSAT
+      CHARACTER*1 COMENT(10),SOURCE(10)
+      CHARACTER(LEN=lineLength) line
+C
+      COMMON/TORIGO/T0ARC
+      COMMON/ORBSYS/IORSYS
+      COMMON/MCMSAT/MXCSAT,MXNSAT
+C
+      DATA REFOLD/' '/
+C
+C READ FIRST LINE OF TABULAR ORBIT FILE
+C -------------------------------------
+      READ(LFN,5)(SOURCE(K),K=1,10),REFSYS
+5     FORMAT(43X,10A1,9X,A7)
+C
+C CHECK REFERENCE SYSTEM
+C ----------------------
+      IF (REFSYS.EQ.' ') REFSYS='B1950.0'
+      IF (REFSYS.EQ.'B1950.0' .OR. REFSYS.EQ.'J2000.0')  THEN
+C
+C INCONSISTENT REFERENCE SYSTEMS IN DIFFERENT TAB. FILES
+        IF (REFOLD.NE.' '.AND.REFSYS.NE.REFOLD) THEN
+          WRITE(LFNERR,901) REFOLD,REFSYS
+901       FORMAT(/,' *** SR RDTFIL: INCONSISTENT REFERENCE SYSTEMS',/,
+     1             16X,'IN TABULAR ORBITS',/,
+     2             16X,'REFERENCE SYSTEM 1: ',A,/,
+     3             16X,'REFERENCE SYSTEM 2: ',A,/)
+          CALL EXITRC(2)
+        ENDIF
+        REFOLD=REFSYS
+C
+C SET "IORSYS" FOR COMMON/ORBSYS TO BE USED IN SR "DEQRHS"
+        IF (REFSYS.EQ.'B1950.0') THEN
+          IORSYS=1
+        ELSE
+          IORSYS=2
+        ENDIF
+C
+C INVALID REFERENCE SYSTEM
+      ELSE
+        WRITE(LFNERR,902) REFSYS
+902     FORMAT(/,' *** SR RDTFIL: INVALID REFERENCE SYSTEM',/,
+     1         16X,'REFERENCE SYSTEM: ',A,/,
+     2         16X,'ALLOWED SYSTEMS ARE B1950.0 AND J2000.0',/)
+        CALL EXITRC(2)
+      ENDIF
+C
+C READ COMMENT LINE
+C -----------------
+      DO
+        READ(LFN,'(A)') LINE
+        IF (LINE(1:1).EQ.' ') EXIT
+      ENDDO
+C
+C READ TIME OF FIRST/LAST TABULAR EPOCH
+C -------------------------------------
+      READ(LINE,*)MONTH1,IDAY1,IYEAR1,HOUR1,XMIN1,SEC1
+      READ(LFN,*) MONTH2,IDAY2,IYEAR2,HOUR2,XMIN2,SEC2
+      DAY1=IDAY1
+      DAY2=IDAY2
+      DJBEG1=DJUL(IYEAR1,MONTH1,DAY1)
+      DJEND1=DJUL(IYEAR2,MONTH2,DAY2)
+      DJBEG=DJBEG1+HOUR1/24+XMIN1/1440+SEC1/86400
+      DJEND=DJEND1+HOUR2/24+XMIN2/1440+SEC2/86400
+      DJBEG1=(DJBEG1-T0ARC)
+     1                   +HOUR1/24+XMIN1/1440+SEC1/86400
+      TFLAST=DJEND
+C
+C READ TABULAR INTERVAL(SEC) , NR OF EPOCHS
+C -----------------------------------------
+      READ(LFN,*)DT,NEP
+C
+C UT1-UTC , XP , YP
+C -----------------
+      READ(LFN,*)UT1UTC,XP,YP
+      DO 50 I=1,3
+        READ(LFN,'(80A1)')(COMENT(K),K=1,10)
+50    CONTINUE
+      READ(LFN,*)NSFIL
+      IF(NSFIL.GT.MAXSAT) THEN
+        WRITE(LFNERR,51) NSFIL,MAXSAT
+51      FORMAT(/,' *** SR RDTFIL: TOO MANY SATELLITES IN TAB.',
+     1           ' ORBIT FILE',/,
+     2                       16X,'NUMBER OF SATELLITES:',I3,/,
+     3                       16X,'MAX. NUMBER ALLOWED :',I3,/)
+        CALL EXITRC(2)
+      END IF
+      DO 70 I=1,NSFIL
+        READ(LFN,691)NAVFIL(I)
+691     FORMAT(8X,I3)
+        READ(LFN,'(80A1)')(COMENT(K),K=1,10)
+70    CONTINUE
+C
+C CHECK VALIDITY OF REQUEST
+C -------------------------
+      IF(TF.GT.TL)THEN
+        WRITE(LFNERR,80) TF,TL
+80      FORMAT(/,' *** SR RDTFIL: START TIME GREATER THAN END TIME',/,
+     1                       16X,'START TIME:',F18.6,/,
+     2                       16X,'END   TIME:',F18.6,/)
+        RETURN
+      END IF
+      IF(TF.GT.DJEND)THEN
+        WRITE(LFNERR,100)TF,DJEND
+100     FORMAT(/,' *** SR RDTFIL: START TIME GREATER THAN LAST TAB.',
+     1           ' EPOCH',/,
+     2                       16X,'START TIME     :',F18.6,/,
+     3                       16X,'LAST TAB. EPOCH:',F18.6,/)
+        RETURN
+      END IF
+      IF(TL.LT.DJBEG)THEN
+        IF (IPOSOK.EQ.0) THEN
+          WRITE(LFNERR,120)TL,DJBEG
+120       FORMAT(/,' *** SR RDTFIL: LAST REQ. TIME LOWER THAN FIRST',
+     1             ' TAB. EPOCH',/,
+     2                         16X,'LAST REQ. TIME  :',F18.6,/,
+     3                         16X,'FIRST TAB. EPOCH:',F18.6,/)
+        ENDIF
+        RETURN
+      END IF
+C
+C CORRECT NUMBERING OF MANOEUVRE-SATELLITES
+C -----------------------------------------
+      DO 30 ISAT=1,NSAT
+        IF (NAVNUM(ISAT).NE.MODSVN(NAVNUM(ISAT))) THEN
+          DO 20 ISF=1,NSFIL
+            IF (NAVFIL(ISF).EQ.MODSVN(NAVNUM(ISAT))) THEN
+              NAVFIL(ISF)=NAVFIL(ISF)+50
+              GOTO 30
+            ENDIF
+20        CONTINUE
+        ENDIF
+30    CONTINUE
+C
+C STORE SATELLITE NUMBERS
+C -----------------------
+      DO 72 ISF=1,NSFIL
+        DO 71 ISAT=1,NSAT
+          IF(NAVFIL(ISF).EQ.NAVNUM(ISAT))GO TO 72
+71      CONTINUE
+        NSAT=NSAT+1
+        IF(NSAT.GT.MXCSAT)THEN
+          WRITE(LFNERR,73)MXCSAT
+73        FORMAT(/,' *** SR RDTFIL: TOO MANY SATELLITES',/,
+     1                         16X,'NUMBER OF SATELLITES ALLOWED:',I3,/)
+          CALL EXITRC(2)
+        END IF
+        NAVNUM(NSAT)=NAVFIL(ISF)
+72    CONTINUE
+C
+C READ REQUESTED COORDINATES
+C --------------------------
+      DO 200 I=1,100000
+        READ(LFN,*,END=210)IREC,(XSAT(K),K=1,3)
+        IEPO=(IREC-1)/NSFIL+1
+        ISVN=IREC-(IEPO-1)*NSFIL
+        RR=0.D0
+        DO 201 K=1,3
+          XSAT(K)=XSAT(K)*1000.D0
+          RR=RR+XSAT(K)**2
+201     CONTINUE
+        IF(RR.GT.0.D0)THEN
+          TOBS=DJBEG1+(IEPO-1)*DT/86400.D0
+          IF(TOBS+T0ARC.GE.TF.AND.TOBS+T0ARC.LE.TL)THEN
+            IF(INDTIM.EQ.2)THEN
+              CALL POLDEF(TOBS+T0ARC,1,XPOLE,YPOLE,UT1UTC,GPSUTC)
+              TOBS=TOBS+GPSUTC/86400.D0
+            END IF
+            IPOSOK=1
+            IRCTOT=IRCTOT+1
+            WRITE(LFN001) IFIL,NAVFIL(ISVN),TOBS,XSAT
+          END IF
+        END IF
+200   CONTINUE
+210   CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

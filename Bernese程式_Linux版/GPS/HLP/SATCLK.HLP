@@ -1,0 +1,157 @@
+<html>
+<body>
+
+<center>
+<b>EXTRACT SATELLITE CLOCKS</b>
+<p>Program: SATCLK
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The program SATCLK extracts satellite clocks from broadcast ephemerides and
+writes them into a file with the Bernese satellite clock format.
+
+<p><hr>
+
+<p><b>SATCLK 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES:</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+<a name="BRDFIL" default=""></a>
+<p><b>INPUT FILE:</b>
+<p><b>Broadcast ephemeris:</b>
+Select the broadcast files (Bernese format) of which you want to have the
+satellite clocks. You may specify several files but the result file will be
+<u>one</u> Bernese satellite clock file containing the clock records from
+all input files.
+
+<p><a href="/$X/DOC/EXAMPLE.BRD">Example</a>
+
+<br><br>
+
+<a name="SATCLRS" default=""></a>
+<p><b>RESULT FILE:</b>
+<p><b>Satellite clock results:</b>
+Specify the name of the file for the satellite clock results. This file will
+contain all clock records of the broadcast files selected in the previous
+option.
+
+<p><a href="/$X/DOC/EXAMPLE1.CLK">Example</a>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="SATCLK"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+and will be saved in all the result files to document the program run.
+
+<p><hr>
+
+<p><b>SATCLK 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<p><hr>
+
+<p><b>SATCLK 2: Observation Window</b>
+
+<a name="RADIO_0" default="0"></a>
+<p><b>OBSERVATION WINDOW</b>
+<p>
+This panel allows to specify a time window. Only clock records
+within this time window will be converted.
+<br>
+You may either decide to use all available clock records or
+define a time window either by using session definitions, or by explicitly
+specifying start and end times.
+
+<p><b>Take all clock records:</b> Select this option to use all clock records
+available in the input file(s).
+
+<a name="RADIO_1" default="1"></a>
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the observation window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the observation window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: <tt>00&nbsp;00&nbsp;00</tt>, end date: <tt>$YMD_STR+0</tt>,
+end time: <tt>23&nbsp;59&nbsp;59</tt>
+
+<p><hr>
+
+</body>
+</html>

@@ -1,0 +1,79 @@
+      MODULE s_SOLINT
+      CONTAINS
+
+C*
+      SUBROUTINE SOLINT(Q,NLINES,MAT,B,YCOE)
+CC
+CC NAME       :  SOLINT
+CC
+CC PURPOSE    :  PERFORM THE FOLLOWING MATRIX MULTIPLICATION:
+CC                   T          T
+CC               YCOE  = MAT * B
+CC               AND RETURN MATRIX YCOE.
+CC               B AND YCOE HAVE NLINES LINES, Q+1 COLUMNS
+CC               MAT IS A MATRIX OF DIMENSION Q+1, Q+1
+CC
+CC PARAMETERS :
+CC         IN :  Q,NLINES: MATRIX DIMENSIONS AS GIVEN ABOVE   I*4
+CC               MAT(K),K=1,2,..,(Q+1)**2: FIRST MATRIX OF    R*8
+CC                        MATRIX PRODUCT
+CC     IN/OUT :  B(K),K=1,2,..,(Q+1)*NLINES: SECOND MATRIX    R*8
+CC        OUT :  YCOE(K),K=1,2,...,(Q+1)*NLINES: RESULTING    R*8
+CC                        MATRIX
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/12/28 16:29
+CC
+CC CHANGES    :  08-MAR-95 : ??: FORM DIFFERENCES OF MATRIX B TO AVOID
+CC                               NUMERICAL PROBLEMS
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IDIFF , IK    , IL    , IND1  , IND2  , K     ,
+     1          L     , LK    , NLINES
+C
+CCC       IMPLICIT REAL*8    (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+      INTEGER*4 Q
+      REAL*8 MAT(*),YCOE(*),B(*)
+C
+C FORM DIFFERENCES
+C ----------------
+      DO 90 IL=1,NLINES
+        DO 80 IDIFF=1,Q-2
+          DO 70 L=Q+1,3+IDIFF,-1
+            IND1=IL+(L-1)*NLINES
+            IND2=IL+(L-2)*NLINES
+            B(IND1)=B(IND1)-B(IND2)
+70        CONTINUE
+80      CONTINUE
+90    CONTINUE
+C
+C MATRIX MULTIPLICATION
+C ---------------------
+      DO 100 I=1,Q+1
+      DO 100 K=1,NLINES
+        IK=K+(I-1)*NLINES
+        YCOE(IK)=0.D0
+        DO 100 L=Q+1,1,-1
+          IL=I+(L-1)*(Q+1)
+          LK=K+(L-1)*NLINES
+          YCOE(IK)=YCOE(IK)+MAT(IL)*B(LK)
+100   CONTINUE
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

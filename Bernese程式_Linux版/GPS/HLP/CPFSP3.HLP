@@ -1,0 +1,226 @@
+<html>
+<body>
+
+<center>
+<b>CONVERT CPF TO PRECISE ORBIT FILES</b>
+<p>Program: CPFSP3
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program converts the orbit prediction files from the ILRS
+(International Laser Ranging Service) given in the CPF format into SP3
+format.
+
+<p><hr>
+
+<p><b>CPFSP3 1: Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get the currently active campaign, session and session table.
+
+<br><br>
+
+<a name="CPFFIL" default=""></a>
+<p><b>INPUT FILE</b>
+<p><b>CPF file:</b>
+Specify the CPF file, which should be converted into SP3 format.
+
+<br><br>
+
+<a name="PREFIL" default=""></a>
+<p><b>OUTPUT FILE</b>
+<p><b>SP3 file:</b>
+Specify the name of the SP3 output file. This file will have the default
+extension PRE.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="CPFSP3"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or to specify a separate file to which error messages are
+written.
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<p><hr>
+
+<p><b>CPFSP3 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates. It is used
+to apply antenna heights and for the printing of coordinates in the
+local system (north, east, up). You only have to modify this file
+when you want to introduce a new reference ellipsoid.
+
+<p><i>Caution:</i>
+This file has no effect on Cartesian coordinates.
+
+<p>Example: <a href="/$X/GEN/DATUM.">DATUM.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems concerning modeling.
+It is used for exclusion of misbehaving satellites
+(and for orbit arc splitting).
+It may also contain (mean) epochs of GPS repositioning events.
+
+<p><i>Note:</i>
+Corresponding year-specific files are maintained by AIUB/CODE.
+You can get the latest version of the current file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SAT_2011.CRX">$X/GEN/SAT_2011.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<a name="GPSUTC" default="GPSUTC."></a>
+<p><b>GPS-UTC seconds:</b>
+Specify the file with GPS-UTC values here. You have to update this file each
+time a leap second is introduced. The GPS-UTC values are needed for the
+conversion, because the time argument of the CPF file is in UTC time and
+the time argument in the SP3 file may be either in GPS or UTC time.
+
+<p>Example: <a href="/$X/GEN/GPSUTC.">$X/GEN/GPSUTC.</a>
+
+<p><i>Default value:</i> <tt>GPSUTC.</tt>
+
+<p><hr>
+
+<p><b>CPFSP3 2: Input options for new formatted precise orbit file</b>
+
+<a name="TITLE1" default=""></a>
+<a name="TITLE2" default=""></a>
+<a name="TITLE3" default=""></a>
+<a name="TITLE4" default=""></a>
+<p><b>Title 1</b> - <b>Title 4:</b>
+The SP3 file header contains four lines, which may be filled with comments
+on the contents of the file. You may add these comments in the four lines.
+
+<a name="TIMESYS" default="GPS"></a>
+<p><b>Time system:</b>
+Select the time system in which the SP3 file should be written. The two
+possibilities are GPS or UTC time.
+
+<p><i>Default value:</i> <tt>GPS</tt>
+
+<a name="SAMPLE" default=""></a>
+<p><b>Sampling interval:</b>
+Specify the sampling interval for the output SP3 file. If you leave the
+field blank or if you specify 0 the sampling interval from the CPF file is
+used. If the specified sampling interval is smaller than that from the CPF
+file it will be set automatically to the sampling interval of the CPF file
+(a corresponding warning message will appear).
+
+<p><i>Default value:</i> blank
+
+<p><hr>
+
+<p><b>CPFSP3 3: Observation Window</b>
+
+<a name="RADIO_0" default="0"></a>
+<p><b>OBSERVATION WINDOW</b>
+<p><b>Take all epochs from file:</b>
+Select this option to convert all available epochs.
+
+<a name="RADIO_1" default="1"></a>
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the observation window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the observation window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: 00&nbsp;00&nbsp;00, end date: <tt>$YMD_STR+0</tt>,
+end time: 23&nbsp;59&nbsp;59
+
+<p><hr>
+
+</body>
+</html>

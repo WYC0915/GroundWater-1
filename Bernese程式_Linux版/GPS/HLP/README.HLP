@@ -1,0 +1,131 @@
+<html>
+<body>
+
+<center>
+<b>LIST OF README FILES</b>
+<p>
+</center>
+<hr width="100%">
+
+<p><b>INSTALLATION</b>
+<p>
+<b><a href="/$X/DOC/README_INSTALL.TXT">Installation of the Bernese GNSS
+Software</a>:</b>
+This file lists the system requirements and explains the installation
+procedure as well as how to compile the software.
+
+<br><br>
+
+<b><a href="/$X/DOC/README_JPL_EPH.TXT">Installation of JPL
+ephemerides</a>:</b>
+In the Bernese GNSS Software the information on the planetary and lunar
+ephemerides  is taken from JPL and stored in a binary file (extension
+<tt>.EPH</tt>).
+This file is used by the EXAMPLE BPEs and, therefore, it has to be
+installed on each platform the BPEs will run.
+
+<br><br>
+
+<b><a href="/$X/DOC/README_UPDATE.TXT">Update utility</a>:</b>
+The update procedure for the latest Bernese GNSS Software release (not
+version!) is described in this file.
+
+<p><hr>
+
+<p><b>GETTING STARTED</b>
+<p>
+<b><a href="/$X/DOC/README_V50_TO_V52.TXT">Upgrade version 5.0</a>:</b>
+Remarks on compatibility with previous software version 5.0.
+This includes the procedure on how to transfer an existing campaign from
+verison 5.0 to 5.2.
+
+<br><br>
+
+<b><a href="/$X/DOC/README_FIRST_STEPS.TXT">First steps</a>:</b>
+Here the first steps with the new Bernese GNSS Software are described.
+
+<p><hr>
+
+<p><b>DATASETS</b>
+
+<ul>
+<li><a href="/$X/DOC/README_AIUB_AFTP.TXT">AFTP at AIUB</a>
+<li><a href="/$X/DOC/README_VMF.TXT">VMF correction from TU Vienna</a>
+</ul>
+
+<p><hr>
+
+<p><b>CUSTOMIZING MODELS</b>
+
+<ul>
+<li><a href="/$X/DOC/README_BLQ.TXT">Ocean tidal loading (BLQ)</a>
+<li><a href="/$X/DOC/README_ATL.TXT">S1/S2 Atmopsheric tidal loading (ATL)</a>
+</ul>
+
+<p><hr>
+
+<p><b>EXAMPLE BPE</b>
+<p>
+The philosophy for the dataflow is
+<center>
+DATAPOOL -&gt; CAMPAIGN -&gt; SAVEDISK
+</center>
+<br>
+If the EXAMPLE archive is installed you have
+<ul>
+<li> for the processing examples a test dataset provided in the DATAPOOL
+     area (${D} or %D%) as well as
+<li> reference solutions (file names ending with <tt>_REF</tt> in the
+     SAVEDISK area (${S} or %S%).
+</ul>
+<br>
+The distribution of the software package contains also ready-to-use examples:
+<br>
+<table border="1" width="95%">
+<tr><th align=left nowrap>Name</th>
+    <th align=left nowrap>Purpose</th>
+    <th align=left nowrap></th>
+</tr>
+<tr><td><a href="/$X/PCF/PPP_BAS.PCF">PPP_BAS</a></td>
+    <td>Standard PPP for coordinate, troposphere, and receiver clock
+        determination based on GPS only data or a combined GPS/GLONASS
+        solution</td>
+    <td><a href="/$X/PCF/PPP_BAS.README">Description</a></td>
+</tr>
+<tr><td><a href="/$X/PCF/PPP_DEMO.PCF">PPP_DEMO.PCF</a></td>
+    <td>PPP containing several extended processing examples, like
+        pseudo-kinematic, high-rate troposphere, and ionosphere solutions</td>
+    <td><a href="/$X/PCF/PPP_DEMO.README">Description</a></td>
+</tr>
+<tr><td><a href="/$X/PCF/RNX2SNX.PCF">RNX2SNX.PCF</a></td>
+    <td>Standard double-difference network solution based on GPS only data
+        or a combined GPS/GLONASS solution with an extended ambiguity
+        resolution scheme</td>
+    <td><a href="/$X/PCF/RNX2SNX.README">Description</a></td>
+</tr>
+<tr><td><a href="/$X/PCF/BASTST.PCF">BASTST.PCF</a></td>
+    <td>Baseline by baseline processing for trouble shooting</td>
+    <td><a href="/$X/PCF/BASTST.README">Description</a></td>
+</tr>
+<tr><td><a href="/$X/PCF/CLKDET.PCF">CLKDET.PCF</a></td>
+    <td>Zero-difference network solution based on GPS only data or a
+        combined GPS/GLONASS solution providing clock corrections (e.g.,
+        w.r.t. an existing coordinate and troposphere solution)</td>
+    <td><a href="/$X/PCF/CLKDET.README">Description</a></td>
+</tr>
+<tr><td><a href="/$X/PCF/LEOPOD.PCF">LEOPOD.PCF</a></td>
+    <td>Precise orbit determination for a low earth orbiting satellite
+        based on on-board GPS-measurements (e.g., for GRACE)</td>
+    <td><a href="/$X/PCF/LEOPOD.README">Description</a></td>
+</tr>
+<tr><td><a href="/$X/PCF/SLRVAL.PCF">SLRVAL.PCF</a></td>
+    <td>Validation of an existing GNSS or LEO orbit using SLR measurements</td>
+    <td><a href="/$X/PCF/SLRVAL.README">Description</a></td>
+</tr>
+</table>
+<br>
+
+<p><hr>
+
+</body>
+</html>

@@ -1,0 +1,154 @@
+#!/bin/sh
+# CLEAN_UP
+# sh script file written by bds
+# -----------------------------
+# functions used by shell
+do_rm( ) {
+    if [ "$1" ]
+    then
+        if [ -f `echo $1 | tr ' ' '\012' | head -1` ]
+        then
+            eval rm $1
+        fi
+    fi
+}
+#
+toupper( ) {
+    eval $1=`echo $2 | ${UPPERC}`
+    eval export $1
+}
+#
+seterr( ) {
+    if [ $? = 0 ]
+    then
+        ERRSTAT=OK
+    else
+        ERRSTAT=ERR
+    fi
+}
+#
+# -----------------------------
+# SHELL STARTS HERE
+# -----------------------------
+#
+#
+echo EXECUTING CLEAN_UP for "$PGMNAM"
+if [ ""$PGMNAM"" = "" ]
+then
+    echo --------------------------
+    echo PGMNAM NOT SET IN CLEAN_UP
+    echo --------------------------
+    $X/SCRIPT/PRT_MESS "$PRT_FILE" ERR CLEAN_UP PGMNAM_VAR_NOT_SET
+    seterr
+    STATUS="ERR"
+    export STATUS
+else
+#
+#   if echo is on, print message
+#
+    if [ ""$DOECHO"" = "TRUE" ]
+    then
+        echo -------------------------------
+        echo STARTING CLEAN_UP with "$PGMNAM"
+        echo -------------------------------
+    fi
+#
+#   check status, if it is error, then we don't
+#   do any thing
+#
+    if [ ""$STATUS"" = "ERR" ]
+    then
+        echo -------------------------------
+        echo ERR STATUS IN CLEAN_UP, EXITING
+        echo -------------------------------
+        $X/SCRIPT/PRT_MESS "$PRT_FILE" ERR CLEAN_UP RECEIVED_ERR_STATUS
+        seterr
+    else
+#
+#       create list of files to delete for various programs
+#
+        found="FALSE"
+        export found
+#
+#       CCRINEXO - remove all rinex observation files for session
+#       ---------------------------------------------------------
+        if [ ""$PGMNAM"" = "CCRINEXO" ]
+        then
+            if [ ""$DOECHO"" = "TRUE" ]
+            then
+                echo REPLACING PGMNAM="$PGMNAM" WITH CCRNXO
+            fi
+            PGMNAM="CCRNXO"
+            export PGMNAM
+        fi
+#
+        if [ ""$PGMNAM"" = "CCRNXO" ]
+        then
+            found="TRUE"
+            export found
+            FILSPEC=""$CAMP_PTH""$CAMPAIGN"/RAW/????"$SESSION".??O"
+            export FILSPEC
+        fi
+#
+#       RXOBV3 - remove all zero difference files for session
+#       -----------------------------------------------------
+        if [ ""$PGMNAM"" = "RXOBV3" ]
+        then
+            found="TRUE"
+            export found
+            FILSPEC=""$CAMP_PTH""$CAMPAIGN"/OBS/????"$SESSION".?Z?"
+            export FILSPEC
+        fi
+#
+#       SNGDIF - remove all single difference files for session
+#       -------------------------------------------------------
+        if [ ""$PGMNAM"" = "SNGDIF" ]
+        then
+            found="TRUE"
+            export found
+            FILSPEC=""$CAMP_PTH""$CAMPAIGN"/OBS/????"$SESSION".?S?"
+            export FILSPEC
+        fi
+#
+#       GPSEST - remove all residual files
+#       ----------------------------------
+        if [ ""$PGMNAM"" = "GPSEST" ]
+        then
+            found="TRUE"
+            export found
+            FILSPEC=""$CAMP_PTH""$CAMPAIGN"/OUT/????"$SESSION".RES"
+            export FILSPEC
+        fi
+#
+#       see if we found PGMNAM
+#
+        if [ ""$found"" = "FALSE" ]
+        then
+            echo --------------------------------------
+            echo CLEAN_UP: DID NOT FIND PGMNAM "$PGMNAM"
+            echo --------------------------------------
+        else
+#
+#           delete the files
+#
+            if [ -f `echo $FILSPEC | tr ' ' '\012' | head -1` ]
+            then
+                for file in  $FILSPEC 
+                do
+                    rm -f "$file"
+                    if [ -f `echo $file | tr ' ' '\012' | head -1` ]
+                    then
+                        echo ---------------------------------
+                        echo CLEAN_UP: COULD NOT DELETE "$file"
+                        echo ---------------------------------
+                        $X/SCRIPT/PRT_MESS "$PRT_FILE" WAR CLEAN_UP COULD_NOT_DELETE_"$file"
+                        seterr
+                    fi
+                done
+            fi
+        fi
+    fi
+fi
+#
+# That's it
+#

@@ -1,0 +1,263 @@
+
+! ---------------------
+ENVIRONMENT 1  "CM" "D:\CelestialMechanics"
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! General Constants
+! -----------------
+CONST 1  "${CM}\GEN\CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  # CONST.
+
+! General Pole File
+! -----------------
+POLE 1  "${CM}\GEN\bullet_a.ERP"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_ERP; maxfiles = 1
+  # bullet_a
+
+! JPL-Ephemerides
+! ---------------
+JPLEPH 1  "${CM}\GEN\DE200.EPH"
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  # DE200.EPH
+
+! Station Coordinates
+! -------------------
+STACOO 1  "${CM}\ORBDET\STA\STATION_PLA.CRD"
+  ## widget = selwin; path = PTH_ORBDET_STA; ext = EXT_CRD; maxfiles = 1
+  ## emptyallowed = true; activeif = PLA_SAT == M_PLANET
+  # STATION_PLA
+
+! Station Coordinates
+! -------------------
+ET-UT 1  "${CM}\ORBDET\STA\et.dat"
+  ## widget = selwin; path = PTH_ORBDET_STA; ext = NO_EXT; maxfiles = 1
+  ## emptyallowed = true; activeif = PLA_SAT == M_PLANET
+  # et.dat
+
+! Output (Log) File
+! -----------------
+SYSOUT 1  "${CM}\ORBDET\OUT\orbdet.OUT"
+  ## widget = lineedit; path = PTH_ORBDET_OUT; ext = EXT_OUT; maxfiles = -1
+  # orbdet
+
+! File with observations
+! ----------------------
+OBSFIL 1  "${CM}\ORBDET\OBS\2003SO84.OBS"
+  ## widget = selwin; path = PTH_ORBDET_OBS; ext = EXT_OBS; maxfiles = 1
+  ## emptyallowed = true
+  # 2003SO84
+
+! File with elements
+! ------------------
+ELEFIL 1  "${CM}\ORBDET\ORB\SILENTIUM.ELE"
+  ## widget = lineedit; path = PTH_ORBDET_ORB; ext = EXT_ELE
+  ## pointer = OBSFIL; emptyallowed = true
+  # SILENTIUM
+
+INC_NSELE 1  "0"
+  ## widget = checkbox
+
+! File with table of b-function
+! -----------------------------
+B_FUNC 1  "${CM}\ORBDET\ORB\B_FUNC.TAB"
+  ## widget = lineedit; path = PTH_ORBDET_ORB; ext = EXT_TAB
+  ## emptyallowed = true
+  # B_FUNC
+
+! -------------------
+RESIDU 1  "${CM}\ORBDET\ORB\SILENTIUM.RES"
+  ## widget = lineedit; path = PTH_ORBDET_ORB; ext = EXT_RES
+  ## emptyallowed = true
+  # SILENTIUM
+
+! Ephemerides or Orbit Determination
+PLA_SAT 1  "M_PLANET"
+  ## widget = combobox; editable = false; cards = SATELLITE M_PLANET
+
+! Circular or General Orbit
+CIRC_THREE 1  "BOUNDARY_VALUE"
+  ## widget = combobox; editable = false
+  ## cards = CIRCULAR_ORBIT  BOUNDARY_VALUE
+
+! Use analytical or numerical method
+ANALYTICAL_NUMERICAL 1  "ANALYTICAL"
+  ## widget = combobox; editable = false
+  ## activeif = CIRC_THREE == BOUNDARY_VALUE; cards = ANALYTICAL   NUMERICAL
+
+! Look for parabolic solution
+PARABOLIC_SOLUTION 1  "0"
+  ## widget = checkbox; activeif = CIRC_THREE == BOUNDARY_VALUE
+
+!number of iteration first orbit determination
+ITER_FIRST_ORBIT 1  "1"
+  ## widget = lineedit; range = 1 5 1; activeif = CIRC_THREE == BOUNDARY_VALUE
+
+! Automatic Mode for Circular Orbit
+! ---------------------------------
+CCD_MODE 1  "0"
+
+AUTO_MODE 1  "0"
+
+AUTO_FOBS 1  "1"
+  ## widget = lineedit
+
+AUTO_LOBS 1  "3"
+  ## widget = lineedit
+
+AUTO_IMPRV 1  "1"
+  ## widget = checkbox
+
+AUTO_MARKS 1  "1"
+  ## widget = checkbox; activeif = AUTO_IMPRV == 1
+
+AUTO_CIRC 1  "1"
+  ## widget = checkbox
+  ## activeif = CIRC_THREE == CIRCULAR_ORBIT AND AUTO_IMPRV == 0
+
+! Error Message File
+! ------------------
+SYSERR 0
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR; maxfiles = -1
+  # 
+
+! A Priori Coordinates for Satellite Observations
+! -----------------------------------------------
+COORD 0
+  ## widget = selwin; path = PTH_ORBDET_STA; ext = EXT_CRD; maxfiles = 1
+  ## activeif = PLA_SAT == SATELLITE
+  # STATION
+
+! Geodetic Datum
+! --------------
+DATUM 0
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  ## activeif = PLA_SAT == SATELLITE
+  # DATUM.
+
+! Eccentricities
+! --------------
+ECCENT 0
+  ## widget = selwin; path = PTH_ORBDET_STA; ext = EXT_ECC; maxfiles = 1
+  ## emptyallowed = true
+  # 
+
+INC_MERCURY 1  "0"
+  ## widget = checkbox
+
+INC_VENUS 1  "1"
+  ## widget = checkbox
+
+INC_EARTH 1  "1"
+  ## widget = checkbox
+
+INC_MARS 1  "1"
+  ## widget = checkbox
+
+INC_JUPITER 1  "1"
+  ## widget = checkbox
+
+INC_SATURN 1  "1"
+  ## widget = checkbox
+
+INC_URANUS 1  "1"
+  ## widget = checkbox
+
+INC_NEPTUN 1  "1"
+  ## widget = checkbox
+
+INC_PLUTO 1  "0"
+  ## widget = checkbox
+
+INC_OBLATE 1  "1"
+  ## widget = checkbox
+
+INC_SUN 1  "1"
+  ## widget = checkbox
+
+INC_MOON 1  "1"
+  ## widget = checkbox
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+#  ORBIT DETERMINATION: INPUT AND OUTPUT FILE NAMES                            #
+#                                                                              #
+#  Satellites or Minor Planets   > %%%%%%%%%% <                                # PLA_SAT
+#                                                                              #
+#  GENERAL INPUT:                                                              # 
+#  General Constants             > %%%%%%%%%%%% <                              # CONST
+#  General Pole File             > %%%%%%%%%%%% <                              # POLE
+#  JPL Ephemerides               > %%%%%%%%%%%% <                              # JPLEPH
+#  ET - UT                       > %%%%%%%%%%%% <                              # ET-UT
+#  Station Coordinates (PLA)     > %%%%%%%%%%%% <                              # STACOO
+#  Station Coordinates (SAT)     > %%%%%%%%%%%% <                              # COORD
+#  Geodetic Datum                > %%%%%%%%%%%% <                              # DATUM
+#                                                                              #
+#  OUTPUT:                                                                     #
+#  General Program Output        > %%%%%%%%%%%% <                              # SYSOUT
+#  Error Messages                > %%%%%%%%%%%% <                              # SYSERR
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+#  ORBIT DETERMINATION: METHOD, OBSERVATIONS, ELEMENTS, RESIDUALS, B-Funcion   #
+#                                                                              #
+#  Iinitialize using             > %%%%%%%%%%%%%%%%%% <                        # CIRC_THREE
+#  Analytical/Numerical Orbit            > %%%%%%%%%% <                        # ANALYTICAL_NUMERICAL
+#  Look For acceptable parabolic solution         > % <                        # PARABOLIC_SOLUTION
+#  Iterations First Orbit Determination          > %% <                        # ITER_FIRST_ORBIT
+#                                                                              #
+#  INPUT:                                                                      #
+#  Observation File              > %%%%%%%%%%%%%%% <                           # OBSFIL
+#                                                                              #
+#  OUTPUT:                                                                     #
+#  Estimated Elements            > %%%%%%%%%%%%%%% <                           # ELEFIL
+#  File for Residuals            > %%%%%%%%%%%%%%% <                           # RESIDU
+#  B-Function                    > %%%%%%%%%%%%%%% <                           # B_FUNC
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL PLA_SAT = M_PLANET ###############################################
+#  PERTURBATIONS TO BE INCLUDED FOR OBJECT IN PLANETARY SYSTEM:                # 
+#                                                                              #
+#  Planets     Included                                                        #
+#                                                                              #
+#   Mercury      > % <                                                         # INC_MERCURY 
+#   Venus        > % <                                                         # INC_VENUS    
+#   Earth        > % <                                                         # INC_EARTH   
+#   Mars         > % <                                                         # INC_MARS    
+#   Jupiter      > % <                                                         # INC_JUPITER 
+#   Saturn       > % <                                                         # INC_SATURN  
+#   Uranus       > % <                                                         # INC_URANUS  
+#   Neptun       > % <                                                         # INC_NEPTUN  
+#   Pluto        > % <                                                         # INC_PLUTO   
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL PLA_SAT = SATELLITE ##############################################
+#  PERTURBATIONS TO BE INCLUDED FOR SATELLITE ORBITS:                          # 
+#                                                                              #
+#  Perturbation                 Included                                       #
+#                                                                              #
+#   Oblateness (C_20)            > % <                                         # INC_OBLATE 
+#   Lunar Gravity                > % <                                         # INC_MOON    
+#   Solar Gravity                > % <                                         # INC_SUN   
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL AUTO_MODE = 1 ####################################################
+#  AUTOMATIC MODE                                                              #
+#                                                                              #
+#  Parameters:                                                                 #
+#  First and last Observation          > %%% <> %%% <                          # AUTO_FOBS AUTO_LOBS
+#  Orbit Improvement with Perturbations         > % <                          # AUTO_IMPRV
+#  Reset all Marks                              > % <                          # AUTO_MARKS
+#  Fix e and per (CIRCULAR_ORBIT only)          > % <                          # AUTO_CIRC
+#                                                                              #
+#  Include nonsingular Elements?                > % <                          # INC_NSELE
+#                                                                              #
+# END_PANEL ####################################################################

@@ -1,0 +1,93 @@
+      MODULE s_RXCHKW
+      CONTAINS
+
+C*
+      SUBROUTINE RXCHKW(ITYP,TJUL,NWK)
+CC    --------------------------------
+CC
+CC NAME        : RXCHKW
+CC
+CC PURPOSE     : CHECK AND CORRECT MJD (ITYP=1) OR GPS WEEK (ITYP=2)
+CC               AGAINST APPROXIMATE GPS WEEK GIVEN IN DATA FILE
+CC               "XXRINEX.GWK" (CURRENT DIRECTORY) TO ACCOUNT FOR
+CC               WRONG GPS ROLLOVER WEEK. APPROXIMATE GPS WEEK MUST BE
+CC               WITHIN 512 WEEKS OF CORRECT WEEK.
+CC
+CC PARAMETERS  :
+CC          IN : ITYP   : 1: CHECK MJD, 2: CHECK GPS WEEK                I*4
+CC               TJUL   : MJD TO TEST                                    R*8
+CC               NWK    : GPS WEEK TO TEST                               I*4
+CC
+CC REMARKS     : TEST IS PERFORMED IF FILE EXISTS AND CONTAINS A NON-ZERO
+CC               VALUE
+CC
+CC AUTHOR      : W. GURTNER
+CC               ASTRONOMICAL INSTITUTE, UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+CC CREATED     : 28-JUN-99
+CC
+CC CHANGES     : 30-AUG-99 : TYPO IN DATA STATEMENT (LFNLOC)
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS
+CC
+C*
+      USE s_opnfil
+      USE s_mjdgps
+      USE f_lengt0
+      USE f_gpsmjd
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IFAPR , IFOPEN, IOSTAT, ITYP  , IWKAPR, LFNLOC,
+     1          NDIFF , NWEEK , NWK
+C
+      REAL*8    TJUL,SECOND
+      CHARACTER FILGWK*80
+      LOGICAL   YES
+      DATA FILGWK/'XXRINEX.GWK'/,LFNLOC/99/,IFOPEN/0/,IFAPR/0/
+      DATA IWKAPR/0/
+C
+C  FILE WITH APPROXIMATE GPS WEEK
+C  ------------------------------
+C
+      IF(IFOPEN.EQ.0) THEN
+        INQUIRE(FILE=FILGWK,EXIST=YES)
+        IF(YES) THEN
+          CALL OPNFIL(LFNLOC,FILGWK,'OLD',' ',' ',' ',IOSTAT)
+          READ(LFNLOC,*,IOSTAT=IOSTAT) IWKAPR
+          CLOSE(UNIT=LFNLOC)
+        END IF
+        IFOPEN=1
+      END IF
+C
+      IF(IWKAPR.NE.0) THEN
+        IF(ITYP.EQ.1) THEN
+          CALL MJDGPS(TJUL,SECOND,NWEEK)
+        ELSEIF(ITYP.EQ.2) THEN
+          NWEEK=NWK
+        ELSE
+          RETURN
+        END IF
+        NDIFF=NINT((IWKAPR-NWEEK)/1024.)
+        IF(NDIFF.NE.0) THEN
+          NWEEK=NWEEK+NDIFF*1024
+          IF(ITYP.EQ.1) THEN
+            TJUL=GPSMJD(SECOND,NWEEK)
+          ELSE
+            NWK=NWEEK
+          END IF
+          IF(IFAPR.EQ.0) THEN
+            WRITE(*,1) NDIFF*1024,NWEEK,
+     1                   FILGWK(1:LENGT0(FILGWK)),IWKAPR
+1           FORMAT(/,' GPS WEEK ADJUSTED BY',I5,' WEEKS TO',I5,'.',
+     1           /,' (APPROXIMATE WEEK GIVEN IN FILE ',A,':',I5,')')
+            IFAPR=1
+          END IF
+        END IF
+      END IF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

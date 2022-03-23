@@ -1,0 +1,87 @@
+package TIMESTAP;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  TIMESTAP
+#
+# Purpose :  Prepare parallel GPSEST run for zero-difference files
+#
+# Remark  :  The use of code or phase data is taken from variable V_OBSTYP.
+#            (default phase-only if V_OBSTYP is not defined)
+#
+# PARAMs  :  PARAM2 - output file identifier (default: EST)
+#            PARAM3 - empty: stop if no CZH/PZH/CSH/PSH files are found
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use File::Basename;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtErr initPar_Bl initPar_Cl);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($ssss    , $yyssss  ,
+      $param2  , $param3  , $clu     , $obstyp  , $dirBpe,
+      $dirCzh  , $dirPzh  , $dirOut  , $dirNeq  ,
+      $extCzh  , $extPzh  , $extOut  , $extNeq) =
+  $bpe->getKeys
+     ('$S+0'   , '$YSS+0' ,
+      'PARAM2' , 'PARAM3' , 'V_CLU'  , 'V_OBSTYP','DIR_BPEPRT',
+      'DIR_CZH', 'DIR_PZH', 'DIR_OUT', 'DIR_NEQ',
+      'EXT_CZH', 'EXT_PZH', 'EXT_OUT', 'EXT_NEQ');
+
+# Delete old files (OUT, NQ0)
+# ---------------------------
+  my $est = "EST";
+  if ( $param2 ne "" ) {
+    $est = defined $$bpe{$param2} ? $$bpe{$param2} : $param2;
+  }
+  if ($clu ne "") {
+    unlink glob("${dirOut}${est}${ssss}???.${extOut}");
+    unlink glob("${dirNeq}${est}${ssss}???.${extNeq}");
+  } else {
+    unlink glob("${dirOut}${est}${ssss}????.${extOut}");
+    unlink glob("${dirNeq}${est}${ssss}????.${extNeq}");
+  }
+
+# Find out which observation files are needed
+# -------------------------------------------
+  my $isCode  = $obstyp ne "" ?  ($obstyp ne "PHASE") : 0;
+  my $isPhase = $obstyp ne "" ?  ($obstyp ne "CODE")  : 1;
+
+# Initialize parallel run
+# -----------------------
+  my $bpeFil = "${dirBpe}EST${ssss}";
+
+  my @obsFil = ();
+  if ($isPhase) {
+    @obsFil = glob("${dirPzh}????${ssss}.${extPzh}");
+  } elsif ($isCode) {
+    @obsFil = glob("${dirCzh}????${ssss}.${extCzh}");
+  }
+
+  if ($clu ne "") {
+    initPar_Cl($bpe,$bpeFil,@obsFil,0,$clu,0);
+  } else {
+    @obsFil = map { substr(basename($_),0,4) } @obsFil;
+    initPar_Bl($bpe,@obsFil);
+  }
+
+# Stop if no PZH/PSH files found
+# ------------------------------
+  if (@obsFil == 0 && $param3 eq "") {
+    prtErr($bpe,"No PZH files found") and
+      die "No PZH files found for session ${ssss}";
+  }
+
+}

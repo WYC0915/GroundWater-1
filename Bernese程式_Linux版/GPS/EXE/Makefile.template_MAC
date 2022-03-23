@@ -1,0 +1,135 @@
+# ==============================================================================
+#
+# Name:       Makefile.template for Mac OS X platforms
+#
+# Purpose:    Definition of C-compiler (CC) and librarian (AR) as well as the
+#             Fortran pre-processor (CPP), F77 compiler (F77), Fortran
+#             compiler (FC) and linking program (LD) with their respective
+#             options and flags.
+#
+# Authors:
+#
+# Created:    __-___-____
+#
+# Changes:    13-Nov-2012 EO: adapt options for Mac OS X
+#
+# ==============================================================================
+
+# Default C-compiler
+# ------------------
+CC      = cc
+CFLAGS  = -c -O
+
+# Default librarian
+# -----------------
+AR      = ar
+ARFLAGS = r
+
+# OTHER Fortran compiler
+# ----------------------
+ifeq ($(F_VERS),OTHER)
+  # Pre-compiler
+  # ************
+  # CPP is copy (cp) if the preprocessor can be evoked by an option of the
+  # Fortran compiler. In this case CPPDEFS has to be empty.
+  # If there is a separate pre-compiler it has to be put to CPP together with
+  # its pre-compiler options. Then, the FPPDEFS options have to be moved to
+  # CPPDEFS.
+  CPP     = cp
+  CPPDEFS =
+  FPPDEFS = -DOS_UNIX -DEPH_$(JPLEPH) -DGRP_$(CGROUP)
+
+  # Fortran compiler for Fortran 77 source code
+  # *******************************************
+  F77    =
+  # Fortran compiler for Fortran 90 source code
+  # *******************************************
+  FC     =
+  # Begin of the command to get the version information for FC
+  # **********************************************************
+  FCVERS =
+
+  ifeq ($(F_DEBUG),YES)
+    # Debugging mode
+    # Options for F77 (put local vars to static memory!)
+    # **************************************************
+    FFLAGS  =  \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS)c -I$(I) $(FC_OPTIONS)
+    # Options for FC
+    # **************
+    FCFLAGS =  \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS)c -I$(I) $(FC_OPTIONS)
+  else
+    # Options for F77 (put local vars to static memory!)
+    # **************************************************
+    FFLAGS  =  \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS) -I$(I) $(FC_OPTIONS)
+    # Options for FC
+    # **************
+    FCFLAGS =  \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS) -I$(I) $(FC_OPTIONS)
+  endif
+
+  # Linker
+  # ******
+  LD      =
+  LDFLAGS =
+endif
+
+
+# GNU Fortran (external preprocessor)
+# -----------
+ifeq ($(F_VERS),GNU)
+  CPP     = cpp -traditional-cpp
+  CPPDEFS = -DOS_UNIX -DCMP_GNU -DEPH_$(JPLEPH) -DGRP_$(CGROUP)
+  FPPDEFS =
+
+  F77     = gfortran
+  FC      = gfortran
+  LD      = gfortran
+  FCVERS  = --version | head -n2
+
+  ifeq ($(F_DEBUG),YES)
+    FFLAGS  = -c -g -Wall -Wextra -fbounds-check \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS)c -I$(I) $(FC_OPTIONS) -fno-automatic
+    FCFLAGS = -c -g -Wall -Wextra -fbounds-check \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS)c -I$(I) $(FC_OPTIONS)
+  else
+    FFLAGS  = -c -O -Wall \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS) -I$(I) $(FC_OPTIONS) -fno-automatic
+    FCFLAGS = -c -O -Wall \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS) -I$(I) $(FC_OPTIONS)
+  endif
+
+  LDFLAGS =
+endif
+
+
+# Portland Compiler
+# -----------------
+ifeq ($(F_VERS),PG_F90)
+  CPP     = cp
+  CPPDEFS =
+  FPPDEFS = -DOS_UNIX -DCMP_PG_F90 -DEPH_$(JPLEPH) -DGRP_$(CGROUP)
+
+  F77     = pgf90
+  FC      = pgf90
+  LD      = pgf90
+  FCVERS  = --version | tail -n3
+
+  ifeq ($(F_DEBUG),YES)
+    FFLAGS  = -c -Mpreprocess -Minform=inform -Minfo=all -traceback -Mbounds \
+              -module . -I. -I$(I) -I$(C)/LIB/OBJ_$(F_VERS)c $(FC_OPTIONS) -Msave
+    FCFLAGS = -c -Mpreprocess -Minform=inform -Minfo=all -traceback -Mbounds \
+              -module . -I. -I$(I) -I$(C)/LIB/OBJ_$(F_VERS)c $(FC_OPTIONS)
+  else
+    FFLAGS  = -c -Mpreprocess -O -Minform=inform -traceback \
+              -module . -I. -I$(I) -I$(C)/LIB/OBJ_$(F_VERS) $(FC_OPTIONS) -Msave
+    FCFLAGS = -c -Mpreprocess -O -Minform=inform -traceback \
+              -module . -I. -I$(I) -I$(C)/LIB/OBJ_$(F_VERS) $(FC_OPTIONS)
+  endif
+
+  LDFLAGS =
+endif
+
+# ==============================================================================

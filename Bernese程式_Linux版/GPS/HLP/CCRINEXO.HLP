@@ -1,0 +1,208 @@
+<html>
+<body>
+
+<center>
+<b>CONCATENATE RINEX OBSERVATION FILES</b>
+<p>Program: CCRINEXO
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<!-- Hidden options: -->
+<a name="DEVOUT" default=""></a>
+
+<p><b>GENERAL DESCRIPTION</b></p>
+<p>
+The main purpose of the program CCRINEXO is to concatenate several RINEX
+observation files of the same station into one file. If you select files
+of more than one station for a program run one resulting RINEX file per
+station will be generated.
+<br>
+You can also use the program to extract the observations
+of one or more files of the same station for a specified time interval, to
+resample the data to a lower sampling interval, or to exclude observations
+of a satellite system (GPS or GLONASS) from mixed RINEX observation files.
+
+<p><hr>
+
+<p><b>CCRINEXO 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+This program does not need general files. If you check this box, the currently
+active campaign, session and session table are displayed.
+
+<br><br>
+
+<a name="FILELIST" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>RINEX files:</b>
+Enter the list of the RINEX files to concatenate / cut. They are expected to
+be in the campaign subdirectory for original RINEX files (default: ORX).
+
+<br><br>
+
+<a name="REFEPO" default=""></a>
+<p><b>RESULT FILES</b>
+<p>
+The program reads input files from the campaign directory for original
+RINEX files (default: ORX) and creates the result files in the directory
+of RINEX files (default: RAW). The result filenames retain their first
+four characters (station identifier).
+
+<p><b>Reference epoch:</b>
+If the field for the reference epoch is left empty the session is generated
+according to the day of year of the first observation epoch contained in the
+result file and the session character. If you would like to have another
+session written into the filename (e.g., you have 30 hours in your session,
+from 21:00 of the previous day to 3:00 of the following day) you have to
+specify a reference epoch from which the session is generated.
+
+<a name="FILSEQ" default="0"></a>
+<p><b>Session character:</b>
+To change the session character use the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute date</a>.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="CCRINEXO"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output.
+The title should characterize the program run by, e.g., giving the most
+important options and the session.
+
+<p><hr>
+
+<p><b>CCRINEXO 2: Options</b>
+
+<a name="SATSYST" default="GPS+GLONASS"></a>
+<p><b>OPTIONS</b>
+<p><b>Satellite system:</b>
+Select the satellite systems (GPS, GLONASS, or GPS+GLONASS) to be
+included in the RINEX files.
+
+<p><i>Default value:</i> <tt>GPS+GLONASS</tt>
+
+<a name="SAMPLING" default="0"></a>
+<p><b>Sampling interval:</b>
+Adapt the sampling interval of the observation data if necessary.
+A sampling interval 0 will convert all observations found.
+A sampling interval of 30 seconds will select
+data at epochs 00 and 30 seconds after each full minute.
+
+<p><i>Default value:</i> <tt>0</tt>&nbsp;seconds
+
+<a name="OFFSET" default="0"></a>
+<p><b>Offset to full minute:</b>
+This value may shift the sampling epoch with respect to the full minute.
+Use this option with care!
+
+<p><i>Default value:</i> <tt>0</tt>&nbsp;seconds
+
+<a name="USEWIN" default="0"></a>
+<p><b>Use observation window:</b>
+Mark this checkbox to enter a time window for the observations to be processed.
+
+<p><i>Default value:</i> unmarked
+
+<br><br>
+
+<a name="AGENCY" default=""></a>
+<p><b>COMMENTS</b>
+<p><b>Agency running program:</b>
+Enter the name of the agency/institution creating the RINEX files. It will be
+included into the RINEX headers.
+
+<a name="COMMENT1" default=""></a>
+<a name="COMMENT2" default=""></a>
+<a name="COMMENT3" default=""></a>
+<p><b>Comments:</b>
+Up to three lines of comments that will be included into the headers
+of each generated RINEX files.
+
+<p><hr>
+
+<p><b>CCRINEXO 3: Observation Window</b>
+
+<a name="RADIO_1" default="1"></a>
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>OBSERVATION WINDOW</b>
+<p>
+This panel allows to specify a time window. Only navigation messages
+within this time window will be included in the output RINEX file.
+<br>
+You may define the time window either by using session definitions, or by
+explicitly specifying start and end times.
+
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the observation window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the observation window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: 00&nbsp;00&nbsp;00, end date: <tt>$YMD_STR+0</tt>,
+end time: 23&nbsp;59&nbsp;59
+
+<p><hr>
+
+</body>
+</html>

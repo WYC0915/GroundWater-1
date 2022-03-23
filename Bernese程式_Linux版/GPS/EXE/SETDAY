@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+# -------------------------------------------------------------------------
+# Bernese GPS Software Version 5.0
+# -------------------------------------------------------------------------
+#
+# Script:     SETDAY
+#
+# Purpose:    Called by from BPE scripts written in shell.  Simply
+#             copies some variables from the environment and then
+#             executes the program SETDAY by calling BPEclient->run.
+#
+#             The first argument is the "DOY" the second one the "YEAR"
+#             in SETDAY.INP.
+#
+# Author:     R.Dach
+#
+# Created:    20-May-2003
+#
+# Changes:    __-___-____ __:
+#
+# Copyright:  Astronomical Institute
+#             University of Bern
+#             Switzerland
+# -------------------------------------------------------------------------
+
+use strict;
+use lib "$ENV{BPE}";
+use RUNBPE;
+
+RUNBPE::putKey ('',"$ENV{'U'}/PAN/SETDAY.INP","DOY", "$ARGV[0]");
+RUNBPE::putKey ('',"$ENV{'U'}/PAN/SETDAY.INP","YEAR","$ARGV[1]");
+
+# Create a new BPE client object from a small set of environment variables.
+# Use this object to call the 'run' routine (which runs the script with all BPE
+# details handled)
+my @vars = qw(DEBUG CAMP_PTH PGMNAM U BPE XQ CAMP_DRV CAMPAIGN MJD SESSION
+              PRT_FILE SERVER_VARIABLES);
+
+eval { RUNBPE->new(map { if ($_ ne "PGMNAM") {
+                           $_ => $ENV{$_}
+                         } else {
+                           PGMNAM => "SETDAY" } } @vars)->RUN_PGMS };
+if ($@) {
+  print "RUN_PGMS.pl: Exception in $ENV{PGMNAM}:\n$@\n";
+  exit 1;
+}
+exit 0;
+
+
+

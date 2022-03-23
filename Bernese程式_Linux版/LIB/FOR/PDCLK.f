@@ -1,0 +1,75 @@
+      MODULE s_PDCLK
+      CONTAINS
+
+C*
+      SUBROUTINE PDCLK(N,Y,D,XV,XS,T,SZ,DER)
+CC
+CC NAME       :  PDCLK
+CC
+CC PURPOSE    :  THIS SUBROUTINE COMPUTES THE PARTIAL DERIVATIVES OF
+CC               THE DIFFERENTIAL PHASE OBSERVABLE D1-D2 (IN METER) WITH
+CC               RESPECT TO THE CLOCK OFFSET (DER(1)) AND TO THE CLOCK-
+CC               DRIFT (DER(2)) OF THE SECOND RECEIVER . TIME UNITS ARE
+CC               SECONDS. POLAR WOBBLE IS NEGLECTED HERE .
+CC
+CC PARAMETERS :
+CC         IN :  N      : =1 : ONLY CLOCK OFFSET              I*4
+CC                        =2 : OFFSET AND DRIFT
+CC               Y      : TOPOC. POSITION OF SATELLITE WITH   R*8(3)
+CC                        RESPECT TO SECOND RECEIVER (TRUE
+CC                        COORDINATE SYSTEM OF DATE)
+CC               D      : TOPOC. DISTANCE OF SATEL.(METERS)   R*8
+CC               XV     : POSITION (FIRST 3 ELEMENTS) AND     R*8(6)
+CC                        VELOCITY OF SATELLITE (LAST THREE
+CC                        ELEMENTS)
+CC               XS     : COORDINATES OF THE STATION          R*8(3)
+CC               T      : TIME IN SECONDS                     R*8
+CC               SZ     : CORRESPONDING TRUE SIDEREAL TIME    R*8
+CC        OUT :  DER    : ARRAY CONTAINING THE RESULT         R*8(2)
+CC
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/10/28 16:41
+CC
+CC CHANGES    :  26-MAR-96 : TS: SECOND DER. FOR CLOCK ESTIMATION
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 N
+C
+      REAL*8    D    , OMEGA, R11  , R12  , SZ   , T
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+      REAL*8 Y(3),XV(6),XS(3),DER(2)
+C
+      R11=DCOS(-SZ)
+      R12=DSIN(-SZ)
+      OMEGA=1.0027379D0*8*DATAN(1.D0)/86400.D0
+C
+      DER(1)=-(Y(1)*(XV(4)-OMEGA*(R12*XS(1)-R11*XS(2)))
+     1        +Y(2)*(XV(5)-OMEGA*(R11*XS(1)+R12*XS(2)))
+     2        +Y(3)*XV(6))/D
+C
+      DER(2)= (XV(4)-OMEGA*(R12*XS(1)-R11*XS(2)))**2
+     1       +(XV(5)-OMEGA*(R11*XS(1)+R12*XS(2)))**2
+     2       +(XV(6))**2
+C
+      IF(N.GT.1)DER(2)=DER(1)*T
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

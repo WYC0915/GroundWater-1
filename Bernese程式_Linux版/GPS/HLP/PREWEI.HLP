@@ -1,0 +1,220 @@
+<html>
+<body>
+
+<center>
+<b>SET ACCURACY CODES IN PRECISE ORBITS</b>
+<p>Program: PREWEI
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="DELETE_FILES"  default="SCRATCH"></a>
+
+<p><b>GENERAL DESCRIPTION</b></p>
+<p>
+This program extracts the satellite specific RMS from the
+<a href="PGMLST.HLP#ORBGEN">ORBGEN</a> Summary
+file (default extension LST, therefore also called list file). These RMS
+values are used to determine the
+accuracy codes for the satellites in the precise orbit files (SP3-files).
+Precise orbit files containing the new accuracy codes are created.
+
+<p><hr>
+
+<p><b>PREWEI 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="LIST" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>List file from ORBGEN:</b>
+Select the Summary file (default extension: LST) from program
+<a href="PGMLST.HLP#ORBGEN">ORBGEN</a>.
+
+<p><i>Remark:</i>
+If you want to process more than one precise orbit, this
+file must contain RMS values for the corresponding days.
+
+<p><a href="/$X/DOC/EXAMPLE1.LST">Example</a>
+
+<a name="PREFIL" default=""></a>
+<p><b>Precise orbit file:</b>
+Selection of the precise orbit file(s) in which the accuracy information
+shall be updated.
+
+<br><br>
+
+<a name="PREOUT" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>Precise orbit files:</b>
+Selection of the name of the resulting precise output orbit file. If this
+field remains empty the original files will be overwritten. The output files
+will be identical with the input files except for the satellite accuracy codes.
+
+<p><i>Remark:</i>
+If you specify a filename only one orbit file may be processed.
+
+<p><i>Default value:</i> blank
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="PREWEI"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<b>PREWEI 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<br><br>
+
+<a name="SCRATCH" default="PREWEI$J"></a>
+<p><b>TEMPORARY FILES</b>
+<p><b>Scratch file:</b>
+Enter the name of the scratch file used by this program. The scratch file needs
+to be named differently for different programs running simultaneously. This
+may be achieved, e.g., by adding the job ID
+<tt>$J</tt> to the program name (define the job ID in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>).
+
+<p><i>Default value:</i> <tt>PREWEI$J</tt>
+
+<p><hr>
+
+<p><b>PREWEI 2: Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="RADIO1" default="0"></a>
+<a name="RADIO2" default="1"></a>
+<p><b>ACCURACY CODES</b>
+<p>
+There are two possibilities for the generation of the accuracy code for
+the resulting precise orbit files:
+<ul>
+<li><b>Take accuracy codes from table:</b>
+    If this option is selected you can define a look-up table in the next input
+    panel from which the new accuracy codes (according to the RMS values) are
+    taken.
+<li><b>Compute accuracy codes from RMS values:</b>
+    If this option is selected the accuracy codes are computed from the
+    corresponding RMS values.
+    <br>
+    The used formula is: <tt>P=log(10*RMS)/log(2)</tt>
+</ul>
+
+<p><i>Default value:</i> "Compute accuracy codes from RMS values"
+
+<a name="MINACC" default="5"></a>
+<p><b>Minimum accuracy code P0:</b>
+Here you can set the minimum accuracy code the satellites should get.
+If the new accuracy code is smaller than P0 then the accuracy code is set
+to P0. In addition P0 is used as a minimum value for the look-up table.
+
+<p><i>Default value:</i> <tt>5</tt>
+
+<a name="FROMFILE" default="0">
+<p><b>Use codes from file:</b></a>
+If this option is selected then the accuracy codes from the original file
+are used as (satellite specific) minimum accuracy codes for the new file.
+This option does not affect the value of P0, instead
+<tt>max(P0, original accuracy code)</tt> is used as new minimum accuracy
+code.
+
+<p><i>Remark:</i>
+Use this option to prevent new accuracy codes from being
+smaller than the original ones.
+
+<p><i>Default value:</i> unmarked
+
+<a name="MAXACC" default="99"></a>
+<a name="FLGDEL" default="RERATED"></a>
+<p><b>Satellites with accuracy code greater than</b> ... <b>will be</b> ...:
+Here you can specify a margin for the new accuracy code and the action
+which will be taken if this value is exceeded.
+<ul>
+<li><b>REMOVED:</b> the satellite will be excluded from the precise orbit file
+<li><b>FLAGGED:</b> the accuracy code of the satellite is set to <tt>0</tt>
+<li><b>RERATED:</b> the accuracy code of the satellite is set to the specified margin
+    (in this case the margin acts as a maximum accuracy code)
+</ul>
+
+<p><hr>
+
+<p><b>PREWEI 3: Table for Accuracy Codes</b>
+
+<a name="RECORD01" default="0.14"></a>
+<a name="RECORD02" default="0.19"></a>
+<a name="RECORD03" default="0.30"></a>
+<a name="RECORD04" default="0.50"></a>
+<a name="RECORD05" default="0.70"></a>
+<a name="RECORD06" default="1.10"></a>
+<a name="RECORD07" default="1.50"></a>
+<a name="RECORD08" default="5.00"></a>
+<a name="RECORD09" default=""></a>
+<p><b>RESIDUAL LEVEL FOR ACCURACY CODES</b>
+<p>
+Here you can specify a residual level for each accuracy code between
+<tt>P0+1</tt> and <tt>P0+9</tt> (look-up table). The new accuracy codes are
+taken from this table according to the RMS value in the input list file.
+
+<p><i>Remark:</i>
+If the RMS is less than the level for <tt>P0+1</tt> then
+<tt>P=P0</tt> is used. For, e.g., <tt>P0=5</tt> the range of P is
+<tt>[5, ..., 14]</tt>.
+
+<p><i>Default values:</i> see input panel
+
+<p><hr>
+
+</body>
+</html>

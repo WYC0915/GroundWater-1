@@ -1,0 +1,23 @@
+RECEIVER ANTENNA ORIENTATIONS                                          15-NOV-03
+--------------------------------------------------------------------------------
+
+RECEIVER TYPE          ANTENNA S/N   SESS  AZIMUTH
+ANTENNA  TYPE          FROM    TO            DEG
+********************  ****** ******  ****    ***
+
+AOA SNR-8000 ACT        2104   2104  0011    270
+AOAD/M_T
+
+AOA SNR-8000 ACT        3104   3104  0011    270
+AOAD/M_T
+
+AOA SNR-8000 ACT        4104   4104  0011    270
+AOAD/M_T
+
+AOA SNR-8000 ACT        5104   5104  0011    270
+AOAD/M_T
+
+AOA SNR-8000 ACT         104    104  0011    270
+AOAD/M_T
+
+

@@ -1,0 +1,182 @@
+<html>
+<body>
+
+<center>
+<b>EXTRACT CODSPP PROGRAM OUTPUT</b>
+<p>Program: CODXTR
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<a name="DIRCZH" default=""></a>
+<a name="EXTCZH" default=""></a>
+<a name="DIRCZO" default=""></a>
+<a name="EXTCZO" default=""></a>
+<a name="DIRPZH" default=""></a>
+<a name="EXTPZH" default=""></a>
+<a name="DIRPZO" default=""></a>
+<a name="EXTPZO" default=""></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program extracts the most important information from one or more
+<a href="PGMLST.HLP#CODSPP">CODSPP</a> program output files and writes a
+comprehensive summary file. The
+program may also be used to remove bad clocks from a Bernese clock file
+or to generate lists of good or bad observation files. The latter may, e.g.,
+be used to remove bad files.
+<br>
+The program output summarizes among other information the problems
+identified by CODSPP (if any) if more than 50 epochs are concerned:
+<ul>
+<li><b>OUT:</b> Outlier detected</li>
+<li><b>ORB:</b> Missing orbit</li>
+<li><b>CRX:</b> Satellite excluded by SATCRUX file</li>
+<li><b>CLK:</b> Missing satellite clocks</li>
+</ul>
+If <i>Outlier detected</i> for more than 50 epochs is identified more than
+5 times for an individual satellite, a maneuver or a clock maintenance
+event is assumed and reported for this particular satellite.
+
+<p><hr>
+
+<p><b>CODXTR 1: Extraction</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+This program does not need general files. If you check this box, the currently
+active campaign, session and session table are displayed.
+
+<br><br>
+
+<a name="RADIO_1" default="1"></a>
+<a name="RADIO_2" default="0"></a>
+<a name="FILLST" default="CODSPP.L??"></a>
+<a name="OUTPUT" default=""></a>
+<p><b>INPUT FILES</b>
+<p>
+Selection of CODSPP output file(s) as input for the extraction program.
+
+<a name="CLKINP" default=""></a>
+<p><b>Satellite clocks:</b>
+You may select a satellite clock file as input. If the maneuver / clock
+maintenance hypothesis is assumed for a satellite (see above) all clock
+values of this particular satellite are removed. The remaining clock
+values are written into the satellite clock file specified
+in option "Satellite clocks" in "RESULT FILE" below.
+<br>
+An application of this option may be to clean a file containing
+broadcast clocks from entries for problematic satellites.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="CODXTR"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="CLKOUT" default=""></a>
+<p><b>RESULT FILE</b>
+<p><b>Satellite clocks:</b>
+You may select a satellite clock file as output. All clock values
+from the "Satellite clocks" file specified in panel "INPUT FILES" are read.
+If the maneuver / clock maintenance hypothesis for a satellite is
+assumed (see above) all clock values of this particular satellite are
+removed. The remaining clock values are written into this satellite clock
+output file. If no repositioning or clock maintenance was detected the
+input and output satellite clock files are identical.
+<br>
+If no satellite clock file is specified as input this option is not
+available.
+
+<p><i>Caution:</i>
+The input and output satellite clock files must
+have different names.
+
+<p><hr>
+
+<p><b>CODXTR 2: Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment in the program output.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="RMS_OPT" default="0"></a>
+<p><b>BAD STATION DETECTION</b>
+<p>
+Based on the value of the RMS of the code solution, files may be generated
+that list all observation filenames (including full path information) of the
+stations that fulfill or not fulfill a threshold criterion specified in the
+following option. The listings may, e.g., be used to copy or delete files.
+
+<a name="RMSMAX" default="999.0"></a>
+<p><b>RMS limit for a good station:</b>
+RMS of the CODSPP solution to distinguish between a good or bad code single
+point positioning for a station.
+
+<p><i>Default value:</i> <tt>999.0 </tt>meters
+
+<a name="LINOUT" default="10"></a>
+<p><b>Limit for number of OUT lines per station:</b>
+Number of OUT lines in the CODSPP output file to distinguish between a good or
+bad station.
+
+<p><i>Default value:</i> <tt>10</tt>
+
+<a name="FIL_OK" default=""></a>
+<p><b>List of good files:</b>
+Specify a filename to get the list of observation files of stations
+fulfilling the condition of a good single point positioning.
+
+<a name="FILBAD" default=""></a>
+<p><b>List of bad files (deletion list):</b>
+Specify a filename to get the list of observation files of stations
+with bad single point positioning. The list may be used to delete bad
+observation files.
+
+<a name="DELPHS" default="1"></a>
+<p><b>Add phase files to the deletion list:</b>
+Check this box to include the corresponding phase files in the list of
+bad code files.
+
+<p><i>Default value:</i> marked
+
+<p><hr>
+
+</body>
+</html>

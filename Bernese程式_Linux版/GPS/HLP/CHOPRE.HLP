@@ -1,0 +1,165 @@
+<html>
+<body>
+
+<center>
+<b>CONVERT CHAMP ORBITS TO PRECISE ORBITS</b>
+<p>Program: CHOPRE
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="SYSINP"        default=""></a>
+
+<a name="TITLE" default=""></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The program CHOPRE converts satellite positions given in the CHAMP orbit
+format into the precise orbit format.
+<!-- Entry in PGMLST.HLP is missing, too. -->
+
+<p><hr>
+
+<p><b>CHOPRE 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>Show all general files:</b> If this box is marked, a list with the
+general input files used by this program is displayed.
+
+<br><br>
+
+<a name="CHOINP"></a>
+<p><b>INPUT FILES</b>
+<p><b>CHAMP orbit files:</b>
+Selection of the input CHAMP orbit files.
+
+<br><br>
+
+<a name="PREOUT"></a>
+<p><b>RESULT FILE</b>
+<p><b>Output file precise orbits:</b>
+Specify the name of the output precise orbit file. If the field is left empty,
+the file name(s) of the precise orbit file(s) will be the same as the
+CHAMP orbit files with the extension PRE.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="CHOPRE"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR">
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<p><hr>
+
+<p><b>CHOPRE 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">CONST.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">SATELLIT.I08</a>
+
+
+<p><hr>
+
+<p><b>CHOPRE 2: Options</b>
+
+<a name="SENSOR" default=""></a>
+<p><b>Sensor on-board:</b>
+You have to give the name of the sensor on-board the LEO. It has to be the
+name which is given in the satellite information file SATELLIT. Through
+this file the right satellite number of the satellite is chosen.
+
+<a name="TYPE" default="SP3,POS+VEL+CLK"></a>
+<p><b>Format type:</b>
+Specify the format you want for your output precise orbit file.
+
+<br><br>
+
+<a name="DATADES" default=""></a>
+<p><b>SPECIAL INFORMATION FOR PRECISE ORBIT FILE HEADER</b>
+<p><b>Data description:</b>
+You may specify the data description. This is a five character descriptor in
+the header of the precise orbit file. The definition can be found in the
+precise orbit format description.
+
+<a name="ORBTYP" default=""></a>
+<p><b>Orbit type:</b>
+You may specify the orbit type. This is a three character descriptor in the
+header of the precise orbit file. There are defined three possibilities:
+FIT (fitted), EXT
+(extrapolated or predicted), and BCT (broadcast).
+
+<a name="AGENCY" default=""></a>
+<p><b>Agency gen. orbit:</b>
+You may specify the agency generating the orbit. This is a three character
+descriptor in the header of the precise orbit file.
+
+<a name="ACCURA" default=""></a>
+<p><b>LEO spec. accuracy:</b>
+You may specify a LEO specific accuracy. This is an information in the header
+of the precise orbit file.
+
+<a name="TIPRE1" default=""></a>
+<a name="TIPRE2" default=""></a>
+<a name="TIPRE3" default=""></a>
+<p><b>Title lines:</b>
+You may specify three title lines for the header of the precise orbit file.
+
+<p><hr>
+
+</body>
+</html>

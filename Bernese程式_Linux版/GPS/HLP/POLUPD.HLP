@@ -1,0 +1,287 @@
+<html>
+<body>
+
+<center>
+<b>CONVERT IERS POLE FILES TO BERNESE FORMAT</b>
+<p>Program: POLUPD
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program creates or updates a file containing the Earth Rotation
+Parameter (ERP) information. The information is taken from one or more
+input files given in almost any format (e.g. Bernese format, IERS
+Bulletin A or B format, etc.) and is written to the Bernese output file
+specified.
+<br>
+If equal epochs in different input files are found the record from the last
+file (in alphabetical order!) will be written to the output file. It is
+recommended to convert the files one by one; otherwise, make sure that time
+intervals covered by the input files do not overlap.
+
+<p><hr>
+
+<p><b>POLUPD 1: Input/Output Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="ERPFIL" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Bernese formatted ERP files:</b>
+This entry field defines the input files written in Bernese format.
+Leave the field blank if you don't want to use Bernese ERP files as input.
+
+<p><i>Remark:</i>
+It is recommended to convert the files one by one; otherwise, make sure
+that time intervals covered by the input files do not overlap.
+
+<p><a href="/$X/DOC/EXAMPLE.ERP">Example</a>.
+
+<a name="IEPFIL" default=""></a>
+<p><b>Foreign formatted ERP files:</b>
+This entry field defines the input files written in a foreign format (see
+<a href="/$X/DOC/EXAMPLE.IEP">Example</a> of a file from CODE). About 20
+formats are supported and automatically identified. You may
+read pole information files originating from IERS (C04, Bulletin A, Bulletin
+B), from IGS, from all IGS analysis centers. Various older format versions
+are supported. Formats specifying UT1-UTC, UT1R-UTC, UT1-TAI, etc., are
+automatically converted. An error message is issued if a format is unknown.
+<br>
+Leave the field blank if you don't want to use "Foreign formatted ERP files"
+as input.
+
+<p><i>Remark:</i>
+It is recommended to convert the files one by one; otherwise, make sure
+that time intervals covered by the input files do not overlap.
+
+<br><br>
+
+<a name="OUTFIL" default=""></a>
+<p><b>RESULT FILE</b>
+<p><b>Bernese formatted ERP file (out):</b>
+Enter the name of the resulting Earth Rotation Parameter file in Bernese
+format. If a file with this name does already exist it will be updated,
+otherwise a new file will be created.
+
+<p><a href="/$X/DOC/EXAMPLE.ERP">Example</a>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT" default="POLUPD"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>POLUPD 1.1: General Files</b>
+
+<a name="OFFFIL" default=""></a>
+<b>GENERAL INPUT FILES</b>
+<p><b>Pole offset coefficients: </b>
+This file contains the pole offset information that is used to transform
+C04-pole and Rapid-pole information to the actual epoch (e.g., C04 ITRF 1988
+to C04 ITRF 1996). Until the revision of the generation of C04-pole and
+Rapid-pole information by the IERS in 1997 this file had to be update every
+year to introduce the new constants given in the annual report of the
+IERS.
+<br>
+Today the pole offsets are <i>no longer required</i> because the IERS
+pole series are kept consistent with the ITRF in near-real-time based on
+measurements provided by the space geodetic techniques.
+<br>
+You do not need this file at all if you use IGS pole information or the
+C04- or the Rapid-pole from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a>
+account of AIUB (Astronomical Institute of the University of Bern).
+<br>
+Leave the field empty if you do not want to correct for pole offsets.
+
+<p>Example: <a href="/$X/GEN/POLOFF.">$X/GEN/POLOFF.</a>
+
+<p><i>Default value:</i> empty
+
+<a name="GPSUTC" default="GPSUTC.">
+<p><b>GPS-UTC seconds:</b></A>
+This file contains a table of all the leap seconds introduced during
+the last ten years. This information is used to transform the
+pole information from Bulletin A and B (see above) into the Bernese
+pole format. You have to modify this file whenever a new leap
+second is announced by the IERS. You do not need this file at all if
+you use IGS pole information or the C04- or the Rapid-pole from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB
+(Astronomical Institute of the University of Bern).
+
+<p>Example: <a href="/$X/GEN/GPSUTC.">$X/GEN/GPSUTC.</a>
+
+<p><i>Default value:</i>  GPSUTC.
+
+<p><hr>
+
+<p><b>POLUPD 2: Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>HEADER INFORMATION</b>
+<p><b>Title:</b>
+This title line will be printed as header comment into the program output
+and will be saved in the result file to document the program run.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<a name="NUTMOD" default="IAU2000R06"></a>
+<p><b>Nutation model:</b>
+Bernese ERP files specify the nutation model used for the generation of
+the file. If the corresponding string is found in the input files it will
+be written to the output file. In this field you may specify the default
+nutation model to be written to the pole output file header in case the
+input files do not specify a model. Select a nutation model file.
+
+<p>Example: <a href="/$X/GEN/IAU2000R06.NUT">$X/GEN/IAU2000R06.NUT</a>.
+
+<a name="SUBMOD" default="IERS2010XY"></a>
+<p><b>Subdaily pole model:</b>
+Bernese ERP files specify the subdaily pole model used for the generation of
+the file. If the corresponding string is found in the input files it will
+be written to the output file. In this field you may specify the default
+subdaily pole model to be written to the pole output file header in case the
+input files do not specify a model. Select a subdaily pole model file.
+
+<p>Example: <a href="/$X/GEN/IERS2010XY.SUB">$X/GEN/IERS2010XY.SUB</a>
+
+<br><br>
+
+<a name="NDAYS" default="1"></a>
+<p><b>BULLETIN B AS INPUT</b>
+<p><b>Use 1 or 5 day values:</b>
+In the case you use the values of IERS Bulletin B you can select
+whether you want to use the daily Earth Rotation Parameters or the
+values given in a five day interval.
+Enter <tt>1</tt> to select the daily values and <tt>5</tt> to select the
+five day values. This field is only used if you specify Bulletin B as
+input.
+
+<p><i>Default value:</i>  <tt>1</tt>
+
+<br><br>
+
+<a name="USERATE" default="1"></a>
+<p><b>OPTIONS</b>
+<p><b>Use ERP rates:</b>
+Option to use the ERP rates given in the IGS/IERS format to generate
+additional pole records at the beginning and end of a day.
+This option should, e.g., be used, if you convert IGS Rapid Pole files
+(IGR), because these files only contain one record at 12:00 UT.
+Enabling this option you obtain a Bernese pole file with
+three records (at 0:00, 12:00, and 24:00 of the day) out of the IGR
+pole file.
+
+<p><i>Default value:</i> marked
+
+<a name="DBLEPO" default="0"></a>
+<p><b>Allow double epochs:</b>
+The option allows to extract double epochs from input files in order
+to convert all epochs in the input files. The option is only active if
+ERP rates are not used.
+
+<p><i>Default value:</i> unmarked
+
+<a name="NUTOFF" default="0"></a>
+<p><b>Include nutation offsets:</b>
+Check this box if you want to copy nutation drifts from the input files to
+the output Bernese file. If the IAU2000 nutation model is used drifts
+(currently only available in Bulletin A or C04) are not needed.
+
+<p><i>Default value:</i> unmarked
+
+<a name="IWIN" default="0"></a>
+<p><b>Use time window:</b>
+Check this box to enter a time window for the pole records to be written into
+the output file. Pole records outside the specified window will not be written.
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+<p><b>POLUPD 3: Time Window</b>
+
+<a name="RADIO_1" default="1"></a>
+<p><b>TIME WINDOW</b>
+<p>
+This panel allows to specify a time window. Only pole records
+within this time window will be used written to the output file.
+<br>
+You may define the time window either by using session definitions, or by
+explicitly specifying start and end times.
+
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the time window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the time window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: 00&nbsp;00&nbsp;00, end date: <tt>$YMD_STR+0</tt>,
+end time: 23&nbsp;59&nbsp;59
+
+<p><hr>
+
+</body>
+</html>

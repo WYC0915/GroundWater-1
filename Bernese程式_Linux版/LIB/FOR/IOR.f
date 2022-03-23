@@ -1,0 +1,60 @@
+      MODULE f_ior
+      CONTAINS
+
+C*
+      FUNCTION IOR(IFLAG1,IFLAG2)
+CC
+CC NAME       :  IOR
+CC
+CC PURPOSE    :  BIT-WISE LOGICAL INCLUSIVE OR
+CC
+CC PARAMETERS :
+CC         IN :  IFLAG1 : FLAG NUMBER ONE                     I*4
+CC               IFLAG2 : FLAG NUMBER TWO                     I*4
+CC        OUT :  IOR    : BIT-WISE IFLAG1 OR IFLAG2           L*4
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  T. SPRINGER
+CC
+CC VERSION    :  3.5  (JAN 95)
+CC
+CC CREATED    :  07-APR-95
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE s_setflg
+      USE f_tstflg
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IBIT  , IFLAG1, IFLAG2, IOR
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+C
+C LOCAL DECLARATIONS
+C ------------------
+      CHARACTER*1 FLOR
+C
+C TEST FLAG FOR "IFLAG1 OR IFLAG2"
+C --------------------------------
+      FLOR=CHAR(0)
+      DO IBIT=0,7
+        IF (TSTFLG(CHAR(IFLAG1),IBIT) .OR.
+     1      TSTFLG(CHAR(IFLAG2),IBIT))   CALL SETFLG(FLOR,IBIT)
+      ENDDO
+      IOR=ICHAR(FLOR)
+C
+C RETURN CODES
+C ------------
+      RETURN
+      END FUNCTION
+
+      END MODULE

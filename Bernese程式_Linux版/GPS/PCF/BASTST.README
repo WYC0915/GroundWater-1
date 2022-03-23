@@ -1,0 +1,249 @@
+======================================================================
+Bernese GNSS Software, Version 5.2              Last mod.: 01-Nov-2012
+----------------------------------------------------------------------
+BASTST.PCF README
+======================================================================
+
+
+------------------------------------------------------------
+Purpose:
+------------------------------------------------------------
+
+Does GPSEST runs baseline by baseline for trouble shooting.
+
+
+------------------------------------------------------------
+Description:
+------------------------------------------------------------
+
+All baselines for a specific session in the campaign are
+processed independently. The residuals are stored together
+with some result files. In the subsequent step, the residuals
+are analysed and some statistics provided.
+
+Note that REAL residuals are stored.
+
+
+------------------------------------------------------------
+Remarks:
+------------------------------------------------------------
+
+Runs the program GPSEST baseline by baseline in an existing
+campaign. This BPE assumes that existing screened baseline
+observation files are available (e.g. after succesful
+completion of PID 312 or 313 in the RNX2SNX PCF, which run
+program MAUPRP), together with orbit, ERP, and a priori
+coordinate files.
+The purpose of the BPE is only to perform an analysis of the
+results on a baseline basis (e.g. to identify problematic
+stations) in an existing campaign. Neither a copy script nor
+a deletion script is added for that reason.
+
+------------------------------------------------------------
+Quality control:
+------------------------------------------------------------
+
+The processing is summarized in the so-called protocol file.
+It is compiled in the BPE user script BAS_SUM and exists only
+in the OUT directory of the campaign.
+
+This protocol file is divided into two sections, each
+consisting of two and three parts respectively:
+
+PART 1.1: BASELINE-WISE PROCESSING SUMMARY
+   For each baseline the basic summary on the GPSEST run is
+   provided. A single observation file contributes. The number
+   of observations mainly depends on the selected sampling and
+   the available/selected GNSS. The RMS is expected to be
+   between 1.0 and 1.5 millimeter.
+
+PART 1.2: COORDINATE SUMMARY
+   In this section the estimated coordinates for the second
+   station of the baseline relative to the first one are
+   given. The baseline vector solution is represented with
+   respect to the a priori coordinates in the vertical and
+   horizontal components.
+
+PART 2.1: RESIDUAL SUMMARY PER SATELLITE
+   An overview on the number of observations and the REAL (!)
+   residuals is given in the table. Notice that the residuals
+   are not normalized using the observation weighting during
+   the data processing.
+
+PART 2.2: DETAILED RESIDUAL SUMMARY
+   For each baseline the RMS of the REAL residuals for each
+   satellite is provided in a comprehensive table.
+
+PART 2.3: DETAILED RESIDUAL STATISTICS
+   The output from program RESRMS gives some more statistics
+   on the residuals of each baseline.
+
+
+
+------------------------------------------------------------
+BPE server variables:
+------------------------------------------------------------
+
+There are several variables, assigned with a default value
+here in the PCF (last section of the PCF file). When starting
+a BPE manually they may be modified in the fourth panel
+'BPE 4: Server Variables Sent to Client'.
+
+In this BPE there is only one BPE server variable to be used
+as solution identifier:
+V_A (default: BAS)
+   Label of the program output and result files from the
+   GPSEST process (CRD, TRP, NQ0, RES) and the residual
+   statistics.
+
+This BPE is designed to be run in an existing campaign with
+available a priori station coordinates and orbit files. These
+files are given in the following BPE server variables:
+V_APRFIL (default: APR$YSS+0)
+   Name of the file with the a priori coordinates. It has to
+   be specified as it is used in the program input panel
+   (with session as variable).
+V_ORBFIL (default: COD$YSS+0)
+   The name of the files containing respectively the standard
+   orbits  and the ERP information must be given here.
+   The filename should use the menu time variables.
+
+Additional files are needed by the BPE for a successful
+processing. All these files are expected in the usual
+subdirectory in the campaign area. Typically this is
+organized by the copy script of the BPE that has generated
+the baseline files.
+V_CRDINF (default: EXAMPLE)
+   The basename of the files used as basic Bernese input files
+   for this project. The file $(CRDINF).ABB is needed in this
+   BPE.
+V_BLQINF (default: EXAMPLE)
+   The basename of the file containing the ocean tidal
+   loading corrections for the stations. The file has also
+   to contain the center-of-mass corrections (CMC) connected
+   to ocean tidal loading. These corrections are needed for
+   orbit generation.
+   If the variable is empty, no displacement corrections to
+   the stations or CMC for the orbit generation are applied.
+V_ATLINF (default: EXAMPLE)
+   The basename of the file containing the atmosphere tidal
+   loading corrections for the stations. The file has also
+   to contain the center-of-mass corrections (CMC) connected
+   to atmosphere tidal loading. These corrections are needed
+   for orbit generation.
+   If the variable is empty, no displacement corrections to
+   the stations or CMC for the orbit generation are applied.
+V_HOIFIL (default: HOI$YSS+0)
+   The basename of the file containing of the ionosphere model
+   that is used to compute the higher-order ionosphere (HOI)
+   corrections. The file is expected in the ATM-directory of
+   the campaign.
+   No value for this variable disables the HOI corrections.
+
+The following variables are responsible for the data selection:
+V_SATSYS (default: GPS/GLO)
+   Select the system(s) (usually GPS or GPS/GLO) to be used
+   for the baseline-wise processing.
+   The value of this variable is directly introduced in the
+   option 'Satellite system' in panel
+   'GPSEST 3.1: General Options 1' (user script GPSEST_P).
+   NOTE: Whether all selected systems are really used for the
+   processing depends also on the availability of satellite
+   orbits as well as on the contents of the baseline observation
+   files. This option acts only as a filter to remove
+   non-selected systems from the observation files.
+V_SAMPL (default: 30)
+   Sampling interval (in seconds) for introducing the
+   observations from baseline observation file into the
+   processing (it should to be a multiple of the data sampling
+   in the observation files).
+   The value of this variable is directly introduced as the
+   option 'Sampling interval' in panel 'GPSEST 3.1:
+   General Options 1' (user script GPSEST_P).
+
+Model selection related BPE variables:
+V_PCV (default: I08)
+   Selection of the antenna phase center model identifier.
+V_SATINF (default: SATELLIT)
+   Basename of the satellite information file
+   The resulting filename is ${X}/GEN/{V_SATINF}.{V_PCV}.
+V_PCVINF (default: PCV)
+   Basename of the antenna phase center correction file.
+   The resulting filename is ${X}/GEN/{V_PCVINF}.{V_PCV}.
+   If you create your own antenna phase center correction
+   file considering your own station information file using
+   the program ATX2PCV (menu > Conversion > ANTEX to Bernese
+   format) we recommend to change the filename to indicate
+   which station information file was used (e.g., PCV_EXAMPLE).
+V_SATCRX (default: SAT_$Y+0)
+   Name of the satellite problem file
+
+
+------------------------------------------------------------
+Input files:
+------------------------------------------------------------
+
+The following input files are expected in the subdirectories
+of the campaign:
+  -->>  ORB/(V_ORBFIL).STD
+  -->>  ORB/(V_ORBFIL).ERP
+  -->>  STA/(V_APRFIL).CRD
+  -->>  STA/(V_CRDINF}.ABB
+
+
+Further input files are optional. They are used to switch
+options in the processing. These files must also be located
+the subdirectories of the campaign:
+  -->>  ATM/(V_HOIFIL).ION
+  The ionosphere file is needed to correct for the higher
+  order ionosphere terms.
+  -->>  STA/(V_BLQINF}.BLQ
+  -->>  STA/(V_ATLINF}.ATL
+  Ocean and atmospheric tidal loading may be corrected
+  during the baseline wise processing if the corresponding
+  corrections are provided in the files.
+  These files must also contain corresponding CMC
+  (center-of-mass correction) values for the translation
+  of the orbit positions from the Earth-fixed system in
+  the center-of-mass system for the orbit integration.
+
+
+------------------------------------------------------------
+Observations:
+------------------------------------------------------------
+
+The baseline observation files are expected in the OBS
+directory of the campaign. They must have been screened at
+least by MAUPRP before the BASTST BPE can run on them.
+
+If the baseline files contain resolved ambiguities they
+are introduced. This must be changed by the corresponding
+setting in option "Introduce L1 and L2 integers" in panel
+"GPSEST 3.2: General Options 2" (script GPSEST_P).
+
+
+------------------------------------------------------------
+Result files:
+------------------------------------------------------------
+
+The result files from this BPE are not copied into the
+result area. They are only available in the campaign area.
+
+The following files are generated:
+
+  -->>  OUT/BASyyssss.PRC
+Main protocol file containing the summary of the processing
+steps (more details are provided in the 'Quality control'
+section, see above).
+Most of the summary and main output files from the BPE are
+collected here. In addition, the program output and result
+files from the baseline-wise GPSEST processing are also
+available in the campaign:
+  -->>  OUT/BASssss????.OUT
+  -->>  OUT/BASssss????.RES
+  -->>  SOL/BASssss????.NQ0
+  -->>  ATM/BASssss????.TRP
+  -->>  STA/BASssss????.CRD
+(The ???? stands for the baseline name)
+
+======================================================================

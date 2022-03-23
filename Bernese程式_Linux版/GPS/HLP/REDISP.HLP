@@ -1,0 +1,317 @@
+<html>
+<body>
+
+<center>
+<b>DISPLAY RESIDUAL FILE</b>
+<p>Program: REDISP
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<a name="RESLST" default=""></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+With this program you can look at the residuals that have been written
+by one of the following programs:
+<a href="PGMLST.HLP#ORBGEN">ORBGEN</a>,
+<a href="PGMLST.HLP#CODSPP">CODSPP</a>,
+<a href="PGMLST.HLP#MAUPRP">MAUPRP</a>,
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> and
+<a href="PGMLST.HLP#IONEST">IONEST</a>.
+The content of the binary residual file is written into the program output
+file.
+
+<p>Example for an output of zero difference residuals:<!-- Missing reference! -->
+<pre>
+ GENERAL INFORMATION:
+ --------------------
+
+    Program that created the file:           CODSPP
+    Difference level of observations:        0 sta.       0 sat.       0 epo.
+    Number of parameters:                    0
+
+
+ File: 1  ZAMB 34601M001        2003-09-03 00:00:00     CODE  zero-diff.     L3
+
+ TIME |    6    14    15    16    18    25     2    23    30     3    20  ...
+ -----------------------------------------------------------------------  ...
+    1 |  2.1  -0.4   1.3  -0.1  -0.3  -2.2                                                                                                                                     
+    2 |  2.1  -0.3   1.3  -0.2  -0.3  -2.2                                                                                                                                     
+    3 |  2.1  -0.3   1.3  -0.2  -0.3  -2.2                                                                                                                                     
+ ...
+</pre>
+
+<p>For each epoch one line is written. The epoch number indicates
+the number of epochs elapsed since the reference epoch reported in the header
+of the table. The residuals are reported in the column of the satellite they
+refer to. The column remains blank if no residual to the corresponding
+satellite is available for the epoch. Empty lines indicate missing epochs
+either due the sampling during processing or due a lack of data in the
+observation file. The units are selected by the user (see option "Units"
+below).
+
+<p>Example for an output of double difference residuals:<!-- Missing reference! -->
+<pre>
+ GENERAL INFORMATION:
+ --------------------
+
+    Program that created the file:           GPSEST
+    Difference level of observations:        1 sta.       1 sat.       0 epo.
+    Number of parameters:                  314
+
+
+ File: 1  CONZ 41719M002        RIOG 41507M004        2003-10-09 00:00:00     PHASE dble-diff.     L3
+
+ TIME |  1  2  2 13 13 20 20 24 24 27 27  4  4 16 16  8  8 10 10 17 17 29 29 28 28 26 26  9  9  7  ...
+ ------------------------------------------------------------------------------------------------- ...
+    1 |    0     1     1    -1     0                                                                                                                                           
+    2 |    0     1     0    -2     0     2                                                                                                                                     
+    3 |    0     *    -1     1    -1     1     0                                                                                                                               
+    4 |    2     *     0    -1     0     2     0                                                                                                                               
+    5 |    1     0     0    -1     0     5                       *                                                                                                             
+                                                                                                                                                                               
+ ...
+</pre>
+
+<p>For each epoch one line is written. The epoch number indicates
+the number of epochs elapsed since the reference epoch reported in the header
+of the table. Each column refers to the double difference residuals of
+two satellites: first column: satellites 1 and 2; second column: satellites
+2 and 13; third column: satellites 13 and 20; and so on. In the example above
+the satellite 2 was not available for the epochs 3 and 4. It is, therefore,
+not possible
+to report double difference residuals between satellites 1 and 2 and between
+2 and 13 (first and second columns). But it is possible to display the double
+difference residual between the satellites 1 and 13. To indicate this situation
+the value of the residual is written into the first column and the '<tt>*</tt>'
+character into the second column. Analogously the residual of
+5&nbsp;millimeters at the fifth epoch is the double difference residual
+between the satellites 27 and 17.
+
+<p><hr>
+
+<p><b>REDISP 1: Input/Output Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RESIDUA" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Residual file:</b>
+Select the binary residual file which should be displayed.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="REDISP"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>REDISP 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<p><hr>
+
+<p><b>REDISP 2: Display Characterization</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<br><br>
+
+<a name="IFILE" default=""></a>
+<p><b>RESIDUAL DISPLAY SELECTION</b>
+<p><b>Which file should be displayed:</b>
+One residual file may contain the residuals of more than one satellite
+arc, station, or baseline. In the selection list you get
+<ul>
+<li>for satellite arc residuals: arc number, reference epoch, and the
+    components RADial, a LONg track, resp. OUT of plane for the residuals.
+<li>for observation file residuals: the station name(s), reference epoch,
+    measurement type, difference level, and a list of frequencies in
+    residual file.
+</ul>
+Here you have to select the satellite arc, station, or baseline of which you
+want to print the residuals. Please repeat this selection for each individual
+residual file you have selected in the "INPUT FILES" section because all
+entries (even the index number in the residual file) will be checked for the
+selection.
+
+<br><br>
+
+<a name="IUNIT" default="MILLIMETERS"></a>
+<p><b>RESIDUAL DISPLAY CHARACTERIZATION</b>
+
+<p><b>Units:</b>
+Specify the units for the residuals. In most cases <b>METERS</b> (e.g.,
+<a href="PGMLST.HLP#CODSPP">CODSPP</a>-residuals) or <b>MILLIMETERS</b> (e.g.,
+<a href="PGMLST.HLP#ORBGEN">ORBGEN</a>-residuals, or
+<a href="PGMLST.HLP#GPSEST">GPSEST</a>-residuals)
+are appropriate. In the case of <a href="PGMLST.HLP#MAUPRP">MAUPRP</a>
+residuals expressed in <b>CYCLES</b> may be
+more useful to verify the reliability of the cycle slip detection.
+
+<p><i>Default value:</i> <tt>MILLIMETERS</tt>
+
+<a name="ICYCLE" default="L1"></a>
+<p><b>Cycle type:</b>
+If you selected <b>CYCLES</b> in the previous option "Units" you have to specify
+specify here the corresponding frequency. Either the wavelength for <b>L1</b>
+or <b>L2</b> is used. <b>L1/L2</b> corresponds to the narrow lane linear
+combination. It works only if L3 residuals are available.
+
+<p><i>Default value:</i> <tt>L1</tt>
+
+<a name="IWLFAC" default="FULL"></a>
+<p><b>Wavelength factor:</b>
+If you selected <b>CYCLES</b> in the option "Units" you have to specify here either
+<b>HALF</b> or <b>FULL</b> cycles for the definition of the unit of the cycles. Half cycles
+result from the squaring technique used by old receivers to get access to the L2
+frequency.
+
+<p><i>Default value:</i> <tt>FULL</tt>
+
+<a name="ICARR" default="L3"></a>
+<p><b>Frequency for residual display:</b>
+If the residual file contains only one frequency the corresponding frequency
+is set automatically. If more than one frequency is stored in the
+residual file you may select
+<ul>
+<li><b>RAD</b> (radial component), <b>LON</b> (component along track),
+    or <b>OUT</b> (out of plane component) for satellite arc residuals, or
+<li>one of the frequencies <b>L1</b>, <b>L2</b>, <b>L3</b>, <b>L4</b>, or
+    <b>L5</b> for observation residuals.
+</ul>
+The selected frequency must be one of the frequencies in the residual file.
+<br>
+There is one exception: The program
+<a href="PGMLST.HLP#MAUPRP">MAUPRP</a> stores residual files containing L1 and
+L2 residuals. They are written in a way that the program REDISP is able to
+display residuals for all linear combinations.
+
+<a name="RESSIZ" default=""></a>
+<p><b>Minimal size of residuals:</b>
+Specify the minimal size of residuals which are printed. Only those epochs
+are displayed containing at least one residual bigger than this value.
+<br>
+Zero or an empty field means that all residuals are printed.
+
+<p><i>Default value:</i> blank
+
+<p><hr>
+
+<p><b>REDISP 3: Time Window</b>
+
+<a name="RADIO_0" default="0"></a>
+<p><b>TIME WINDOW FOR OUTPUT</b>
+<p>
+This panel allows to specify a time window. Only residuals
+within this time window will be printed.
+<br>
+You may define the time window either by using all available residuals,
+by session definitions, or by explicitly specifying start and end times.
+
+<p><b>Show all residuals:</b> Select this option to show all residuals
+available in the residual file.
+
+<a name="RADIO_1" default="1"></a>
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the observation window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the observation window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: <tt>00&nbsp;00&nbsp;00</tt>, end date: <tt>$YMD_STR+0</tt>,
+end time: <tt>23&nbsp;59&nbsp;59</tt>
+
+<p><hr>
+
+</body>
+</html>

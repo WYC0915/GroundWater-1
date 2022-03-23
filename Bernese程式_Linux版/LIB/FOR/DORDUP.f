@@ -1,0 +1,68 @@
+      MODULE s_DORDUP
+      CONTAINS
+
+C*
+      SUBROUTINE DORDUP(X,N,INDEX)
+CC
+CC NAME       : DORDUP
+CC
+CC PURPOSE    : SORT THE FIRST N ELEMENTS OF REAL*8 VECTOR X IN
+CC              ASCENDING ORDER: INDEX(1) WILL POINT TO THE SMALLEST
+CC              ELEMENT OF X, INDEX(N) TO THE LARGEST ONE.
+CC              (THE VECTOR X KEEPS ITS INTERNAL ORDER)
+CC
+CC PARAMETERS :
+CC         IN :  X      : VECTOR WITH ELEMENTS TO SORT         R*8(*)
+CC               N      : NUMBER OF ELEMENTS IN VECTOR X       I*4
+CC        OUT :  INDEX  : VECTOR WITH POINTERS TO X            I*4(*)
+CC
+CC AUTHOR     :  G. BEUTLER
+CC
+CC CREATED    :  ??-???-??
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1989     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , ILIMIT, IMIN  , J     , N
+C
+      REAL*8    XLIMIT, XMIN
+C
+CCC       IMPLICIT REAL*8(A-H,O-Z)
+      INTEGER*4 INDEX(*)
+      REAL*8    X(*)
+C
+      ILIMIT=0
+      XLIMIT=-1.7D+38
+      DO 40 J=1,N
+        XMIN=1.7D+38
+        DO 20 I=1,N
+          IF(X(I).LT.XLIMIT) GOTO 20
+          IF(X(I).EQ.XLIMIT) THEN
+            IF(I.GT.ILIMIT) THEN
+              IMIN=I
+              GOTO 30
+            ELSE
+              GOTO 20
+            END IF
+          END IF
+          IF(X(I).LT.XMIN) THEN
+            XMIN=X(I)
+            IMIN=I
+          END IF
+20      CONTINUE
+30      INDEX(J)=IMIN
+        XLIMIT=X(IMIN)
+        ILIMIT=IMIN
+40    CONTINUE
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

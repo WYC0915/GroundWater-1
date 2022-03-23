@@ -1,0 +1,91 @@
+      MODULE s_CHKION
+      CONTAINS
+
+C*
+      SUBROUTINE CHKION(IONTYP)
+CC
+CC NAME       :  CHKION
+CC
+CC PURPOSE    :  GET TYPE CODE OF IONOSPHERE MODELS
+CC
+CC PARAMETERS :
+CC        OUT :  IONTYP : MODEL TYPE                          I*4
+CC                        =0: NO IONOSPHERE MODELS APPLIED
+CC                        =1: LOCAL
+CC                        =2: GLOBAL
+CC                        =3: STATION-SPECIFIC
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  S.SCHAER
+CC
+CC VERSION    :  4.0
+CC
+CC CREATED    :  22-SEP-95
+CC
+CC CHANGES    :  25-SEP-95 : SS: PRINT WARNING ONCE ONLY
+CC               26-JAN-98 : SS: STATION-SPECIFIC GIMS
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1995     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE s_opnfil
+      USE s_opnerr
+      USE s_gtflna
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IFIRST, IONTYP, IOSTAT, IRCION
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      CHARACTER*32 FILION
+C
+C
+      DATA IFIRST/1/
+C
+C SET DEFAULT TYPE CODE
+C ---------------------
+      IONTYP=0
+C
+C CHECK WHETHER IONOSPHERE FILE IS SELECTED
+C -----------------------------------------
+      CALL GTFLNA(0,'IONOS  ',FILION,IRCION)
+C
+C READ TYPE CODE
+C --------------
+      IF (IRCION.EQ.0) THEN
+        CALL OPNFIL(LFNLOC,FILION,'OLD','FORMATTED','READONLY',
+     1              ' ',IOSTAT)
+        CALL OPNERR(LFNERR,LFNLOC,IOSTAT,FILION,'CHKION')
+        READ(LFNLOC,110,ERR=120) IONTYP
+110     FORMAT(///,49X,I4)
+120     CLOSE(UNIT=LFNLOC)
+C
+C CHECK TYPE CODE
+C ---------------
+        IF (IONTYP.EQ.0 .OR.
+     1      IONTYP.GT.3) THEN
+          IF (IFIRST.EQ.1) THEN
+            WRITE(LFNERR,130)
+130         FORMAT(/,' ### SR CHKION: TYPE OF IONOSPHERE MODELS ',
+     1             'NOT SPECIFIED IN IONOSPHERE FILE.',
+     2             /,16X,'IONOSPHERE MODELS ASSUMED TO BE ',
+     3             'LOCAL IONOSPHERE MODELS.'/)
+            IFIRST=0
+          END IF
+C
+          IONTYP=1
+        END IF
+      END IF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

@@ -1,0 +1,37 @@
+#!/usr/bin/perl -w
+
+# -------------------------------------------------------------------------
+# Bernese GPS Software Version 5.0
+# -------------------------------------------------------------------------
+#
+# Script:     NGETKEY
+#
+# Purpose:    Read a Keyword from Input File (interface to Fortran program
+#                                             GETKEY)
+#
+# Author:     L. Mervart
+#
+# Created:    15-JUN-2002
+#
+# Copyright:  Astronomical Institute
+#              University of Berne
+#                  Switzerland
+# -------------------------------------------------------------------------
+
+use strict;
+use lib "$ENV{BPE}";
+use RUNBPE;
+
+
+
+my @vars = qw(DEBUG CAMP_PTH PGMNAM U BPE XQ CAMP_DRV CAMPAIGN MJD
+              SESSION PRT_FILE);
+
+my $obj = RUNBPE->new(map { $_ => $ENV{$_} } @vars);
+
+my @valArray = $obj->getKey(@ARGV);
+
+for (my $i = 0; $i <= $#valArray; $i++) {
+  print "$valArray[$i]\n";
+}
+

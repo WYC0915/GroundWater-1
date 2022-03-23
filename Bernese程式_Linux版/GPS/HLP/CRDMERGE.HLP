@@ -1,0 +1,349 @@
+<html>
+<body>
+
+<center>
+<b>MERGE COORDINATE/VELOCITY FILES</b>
+<p>Program: CRDMERGE
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program allows to merge several coordinate/velocity files
+into one complete set of coordinates/velocities. By using a so-called
+master file it is possible to add new stations to an already existing file.
+To decide from which file a station should be taken, the flags in the
+different files are compared. The coordinates/velocities with a flag of
+higher priority will be saved in the resulting file.
+(Flags may have up to 5 characters for coordinates and up to 4 characters
+for velocities but for comparisons only the first character is of
+importance).
+<br>
+The following coordinate flags are predefined in the Bernese GNSS
+Software and are ordered here with increasing quality (assuming the standard
+procedure for the data processing):
+<table>
+<tr><td>blank:</td>
+    <td>Not estimated, not used, or unknown</td>
+</tr>
+<tr><td><b>R:</b></td>
+    <td>Coordinates from RINEX files,
+        from program <a href="PGMLST.HLP#RXOBV3">RXOBV3</a></td>
+</tr>
+<tr><td><b>C:</b></td>
+    <td>Coordinates from a code single point positioning,
+        from program <a href="PGMLST.HLP#CODSPP">CODSPP</a></td>
+</tr>
+<tr><td><b>U:</b></td>
+    <td>Coordinates from an epoch difference solution
+        of the zero difference phase screening,
+        from program <a href="PGMLST.HLP#MAUPRP">MAUPRP</a></td>
+</tr>
+<tr><td><b>T:</b></td>
+    <td>Coordinates from a triple difference solution
+         of the baseline screening,
+         from program <a href="PGMLST.HLP#MAUPRP">MAUPRP</a></td>
+</tr>
+<tr><td><b>P:</b></td>
+    <td>Coordinates estimated with or without constraints in the
+        main parameter estimation step
+        (CRDMERGE assumes a precise phase double-difference solution),
+        from program <a href="PGMLST.HLP#GPSEST">GPSEST</a></td>
+</tr>
+<tr><td><b>M:</b></td>
+    <td>Mean coordinates from several solutions
+        (CRDMERGE assumes the mean of several precise solutions),
+        from program <a href="PGMLST.HLP#COMPAR">COMPAR</a></td>
+</tr>
+<tr><td><b>A:</b></td>
+    <td>Coordinates estimated without constraints in the
+        normal equation combination step
+        (CRDMERGE assumes high quality GPS coordinates from precise
+        phase solutions),
+        from program <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a></td>
+</tr>
+<tr><td><b>W:</b></td>
+    <td>Coordinates estimated with constraints in the
+        normal equation combination step
+        (CRDMERGE assumes high quality GPS coordinates from precise
+        phase solutions),
+        from program <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a></td>
+</tr>
+<tr><td><b>N:</b></td>
+    <td>Estimated coordinates for a station used to define a free network
+        condition in the normal equation combination step
+        (CRDMERGE assumes high quality GPS coordinates from precise
+        phase solutions),
+        from program <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a></td>
+</tr>
+<tr><td><b>I:</b></td>
+    <td>ITRF coordinates</td>
+</table>
+<br>
+The flags "E" and "F" have a special meaning. Therefore they are
+standing a little bit out of this list. The user has to put them into the
+ordered list depending on the original source of the coordinates.
+<table>
+<tr><td><b>E:</b></td>
+    <td>Eccenter site coordinates, when using a station eccentricity file
+        <br>
+        <i>Remark:</i>
+        The coordinate sets of the center and eccenter are
+        merged independently in program CRDMERGE. There is no mechanism
+        implemented to preserve the eccenter vector in the merged coordinate
+        file.</td>
+</tr>
+<tr><td><b>F:</b></td>
+    <td>Coordinates of the station were fixed in the solution,
+        from programs <a href="PGMLST.HLP#MAUPRP">MAUPRP</a>,
+        <a href="PGMLST.HLP#GPSEST">GPSEST</a>
+        <br>
+        <i>Remark:</i>
+        Fixing a station means that the estimated coordinates
+        (with the flags listed above) are relative to the fixed sites.
+        Program CRDMERGE does not consider this fact. It merges all
+        coordinates independently (and not the vectors between the estimated and
+        fixed coordinates).</td>
+</tr>
+</table>
+
+<p><hr>
+
+<p><b>CRDMERGE 1: Input/Output Files </b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+This program does not need general files. If you check this box, the currently
+active campaign, session and session table are displayed.
+
+<br><br>
+
+<a name="RADIO_1" default="1"></a>
+<a name="RADIO_2" default="0"></a>
+<a name="CRDMTR" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Coordinates master file:</b>
+Selection of a master coordinate file. All stations from the merge files
+which are not contained in this master file will be added. The content
+of the master file will not be changed in any way.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="CRDMRG" default=""></a>
+<p><b>Merge files:</b>
+Selection of one or more files to be merged into one resulting coordinate
+set. The coordinates of this merged set are only written into the resulting
+coordinate file ("Coordinates" in "RESULT FILES", see below) if the station
+does not appear in the "Coordinates master file".
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="VELMTR" default=""></a>
+<p><b>Velocities master file:</b>
+Selection of a master velocity file. All stations from the merge files
+which are not contained in this master file will be added. The content
+of the master file will not be changed in any way.
+
+<p><a href="/$X/DOC/EXAMPLE.VEL">Example</a>
+
+<a name="VELMRG" default=""></a>
+<p><b>Merge files:</b>
+Selection of one or more files to be merged into one resulting velocity
+file.  The velocities of this merged set are only written into the resulting
+velocity file ("Velocities" in "RESULT FILES", see below) if the station
+does not appear in the "Velocities master file".
+
+<p><a href="/$X/DOC/EXAMPLE.VEL">Example</a>
+
+<br><br>
+
+<a name="CRDRES" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>Coordinates:</b>
+Name of the output coordinate file that will contain the complete, merged
+set of coordinates resulting from the merging process (it may have the
+same name as the selected master file).
+
+<a name="VELRES" default=""></a>
+<p><b>Velocities:</b>
+Name of the output velocity file that will contain the complete, merged
+set of velocities resulting from the merging process (it may have the
+same name as the selected master file).
+
+<a name="FIXRES" default=""></a>
+<p><b>Station selection file:</b>
+A station selection file may be created by entering a file name here.
+Whether a station is listed in the selection file or not depends on the
+station flag. The list of accepted flags can be specified in panel
+CRDMERGE 2: Options.
+<br>
+Proceed as follows to create a selection file containing all (and
+only) stations from the master file:
+<ol>
+<li>Use a unique one-character flag for all desired stations in the
+    master file (e.g., '%')
+<li>Specify a filename for the selection file
+<li>Select the corresponding flag in panel CRDMERGE 2: Options
+    (<a href="#FLGFIX">Flag list</a>)
+<li>In the same program run, replace the one-character flag with any
+    flag you like (e.g., 'ITR05') using option <a href="#FLGREP">Replace
+    flags</a>. Make sure that option
+    <a href="#FLGMRG">only in merge files</a> in panel CRDMERGE 2 is
+    deactivated.
+</ol>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="CRDMERGE"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>CRDMERGE 2: Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE:</b>
+<p>
+This title line will be printed as header comment into the program output.
+The title should characterize the program run by, e.g., giving the source
+of the input files. If no master file is selected this line will also
+be written as title into your resulting coordinate/velocity file.
+
+<br><br>
+
+<a name="NEWDAT" default=""></a>
+<p><b>MERGE OPTIONS</b>
+<p><b>New local geodetic datum:</b>
+A local geodetic datum may be specified for the result file.
+If this field is empty the datum from the first merge file will be used.
+Please make sure that your datum string is enlisted in the geodetic datum
+file (<a href="/$X/GEN/DATUM.">$X/GEN/DATUM.</a>), otherwise you may run
+into problems later on in your processing. In case of a master file this
+option will be ignored.
+
+<p><i>Caution:</i>
+This selected local geodetic datum has no effect on
+Cartesian coordinates.
+
+<p><i>Default value:</i> blank
+
+<a name="NEWEPO" default=""></a>
+<p><b>New coordinate epoch:</b>
+A new coordinate epoch may be defined for the result file. If this field is
+empty the epoch will be taken from the first merge file. In case of a master
+file this option will be ignored.
+
+<p><i>Caution:</i>
+Please keep in mind that the specified epoch is only
+written into the resulting coordinate file ("Coordinates" in "RESULT FILES").
+Use the program <a href="PGMLST.HLP#COOVEL">COOVEL</a> for a correct change
+of the epoch with applying station velocities.
+
+<p><i>Default value:</i> blank
+
+<a name="NEWTIM" default=""></a>
+<p><b>New coordinate time:</b>
+A new coordinate time may be defined for the result file. If this field is
+empty the time will be taken from the first merge file. In case of a master
+file this option will be ignored.
+
+<p><i>Default value:</i> blank
+
+<a name="DOMES" default="0"></a>
+<p><b>Adopt master information for antenna-sharing stations:</b>
+If this option is activated all stations with the same DOMES number
+(usually a sign for antenna-sharing stations) will get the same coordinates.
+These new coordinates are either taken from the master file
+or from the coordinates with the flag of highest priority. Two restrictions
+exist:
+<ol>
+<li>only stations are considered with throughout non-blank DOMES number
+<li>if the stations are more than 1 meter apart (or if the velocities differ
+    by more than 1 centimeter/year) the coordinates are not adopted but a
+    warning is issued.
+</ol>
+
+<p><i>Default value:</i> <tt>off</tt>
+
+<a name="FLGPRI" default="R C U T P M A W N I"></a>
+<p><b>Flag priority ascending:</b>
+Here you may specify the flag priority (flags ordered from low to high
+priority, separated by blanks). Flags not contained in this list will all
+be set to lowest priority. In this case you get the station from the merge
+file in which it occurs for the first time.
+
+<p><i>Remark:</i>
+All flags not listed in this priority list have the
+same priority level. They get a priority lower than the first flag in the
+list.
+
+<p><i>Default value:</i> <tt>R C U T P M A W N I</tt>
+
+<a name="FLGREP" default="%% %%"></a>
+<p><b>Replace flags:</b>
+With this option it is possible to replace flags before they are written
+to the result file. This option may be used to replace the
+<nobr>1-character</nobr> flags from programs by meaningful flags
+(e.g., <tt>P</tt> to <tt>PPP</tt>).
+<br>
+There are two characters with a special meaning:
+<table>
+<tr><td><tt> @ </tt></td><td> replace any flag</td>
+<tr><td><tt> # </tt></td><td> replace all non blank flags</td></tr>
+</table>
+
+<a name="FLGMRG" default="1"></a>
+<p><b>Only in merge files:</b>
+Use this option to replace only flags from merge files and not from the
+master file. This is used to get the original master file flags in the
+result file.
+
+<p><i>Default value:</i><tt> on</tt>
+
+<br><br>
+
+<a name="FLGFIX" default="I"></a>
+<p><b>FLAGS TO BE CONSIDERED FOR CREATION OF STATION SELECTION FILE</b>
+<p><b>Flag list:</b>
+Use this option to define which stations should be listed in the
+station selection file. Several flags may be specified separated by blanks.
+Please be aware that only the first character of the flags is used by the
+program.
+
+<p><i>Default value:</i> <tt>I</tt>
+
+<p><hr>
+
+</body>
+</html>

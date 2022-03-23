@@ -1,0 +1,121 @@
+      MODULE s_RXRDNR
+      CONTAINS
+
+C*
+      SUBROUTINE RXRDNR(LFNNAV,LFNERR,ISVN,EPHDAT,IRCODE)
+CC
+CC NAME       :  RXRDNR
+CC
+CC PURPOSE    :  READ  OBSERVATION RECORDS OF A
+CC               RINEX NAVIGATION MESSAGE FILE
+CC
+CC PARAMETERS :
+CC         IN :  LFNNAV : LOGICAL FILE NUMBER                  I*4
+CC               LFNERR : LFN FOR ERROR MESSAGES               I*4
+CC        OUT :  ISVN   : PRN OF SATELLITE                     I*4
+CC               EPHDAT : VECTOR WITH MESSAGE DATA             R*8(28)
+CC                        EPHDAT(1): TOC
+CC                          (2)-(4): A0,A1,A2
+CC                              (5): AODE
+CC                              (6): CRS
+CC                                 .
+CC                             (13): TOE
+CC                                 .
+CC                             (28): AODC
+CC               IRCODE : RETURN CODE                          I*4
+CC                        0: OK
+CC                        3: END OF FILE WITHIN OBS.RECORD
+CC                        4: ERROR DECODING DATA
+CC                        5: START OF NEW HEADER FOUND
+CC                        9: END OF FILE
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  W. GURTNER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  89/04/07 09:05
+CC
+CC CHANGES    :  01-JUL-99 : PF: CALL IYEAR4 FOR CONVERSION YY->YYYY
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1989     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE s_mjdgps
+      USE f_djul
+      USE f_iyear4
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IDAY  , IHOUR , IRCODE, ISVN  , IYEAR ,
+     1          K     , LFNERR, LFNNAV, MINUTE, MONTH , NWEEK
+C
+      REAL*8    DAY   , SEC   , TOC
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+C GLOBAL DECLARATIONS
+C -------------------
+      REAL*8       EPHDAT(*)
+C
+C  LOCAL DECLARATIONS
+C  ------------------
+      CHARACTER    STRING*80
+C
+C RECORD 1
+200   READ(LFNNAV,222,END=990) STRING
+222   FORMAT(A80)
+      IF(STRING.EQ.' ') GOTO 200
+      IF(STRING(61:65).EQ.'RINEX') GOTO 950
+      READ(STRING,1,ERR=940) ISVN,IYEAR,MONTH,IDAY,IHOUR,MINUTE,SEC,
+     1                       (EPHDAT(K),K=2,4)
+1     FORMAT(I2,5I3,F5.1,3D19.12)
+      DAY=IDAY+IHOUR/24.D0+MINUTE/1440.D0+SEC/86400.D0
+      IYEAR = IYEAR4(IYEAR)
+      TOC=DJUL(IYEAR,MONTH,DAY)
+      CALL MJDGPS(TOC,EPHDAT(1),NWEEK)
+C
+C RECORDS 2-7
+      DO 20 I=5,25,4
+        READ(LFNNAV,222,END=930) STRING
+        READ(STRING,2,ERR=940) (EPHDAT(K),K=I,I+3)
+2       FORMAT(3X,4D19.12)
+20    CONTINUE
+C
+      IRCODE=0
+      GOTO 999
+C
+C  END OF FILE WITHIN OBS.RECORD
+930   IRCODE=3
+      WRITE(LFNERR,931)
+931   FORMAT(' SR RXRDNR: END OF FILE WITHIN OBS.RECORD')
+      GOTO 999
+C
+C  ERROR DECODING DATA
+940   IRCODE=4
+      WRITE(LFNERR,941) STRING(1:79)
+941   FORMAT(' SR RXRDNR: ERROR DECODING DATA ON THE FOLLOWING LINE:',
+     1       /,1X,A)
+      GOTO 999
+C
+C  START OF NEW HEADER FOUND
+950   IRCODE=5
+      BACKSPACE LFNNAV
+      WRITE(LFNERR,951) STRING(1:79)
+951   FORMAT(' SR RXRDNR: START OF A NEW HEADER FOUND:',
+     1       /,1X,A)
+      GOTO 999
+C
+C  END OF FILE
+990   IRCODE=9
+      GOTO 999
+C
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

@@ -1,0 +1,57 @@
+      MODULE s_DMABL
+      CONTAINS
+
+C*
+      SUBROUTINE DMABL(IAXE,WINKEL,DRMAT)
+CC
+CC NAME       :  DMABL
+CC
+CC PURPOSE    :  COMPUTES THE DERIVATIVE OF A PARTICULAR ROTATION
+CC               MATRIX
+CC
+CC PARAMETERS :
+CC         IN :  IAXE   : ROTATION AXIS (1,2 OR 3)            I*4
+CC               WINKEL : ANGLE                               R*8
+CC        OUT :  DRMAT  : RESULTING 3*3 MATRIX                R*8(3,3)
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/10/30 17:29
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I   , IAXE
+C
+      REAL*8 DRMAT(3,3),WINKEL,S,C
+      S=DSIN(WINKEL)
+      C=DCOS(WINKEL)
+      DRMAT(1,1)=-S
+      DRMAT(2,2)=-S
+      DRMAT(3,3)=-S
+      DRMAT(1,2)=C
+      DRMAT(2,3)=C
+      DRMAT(3,1)=C
+      DRMAT(2,1)=-C
+      DRMAT(3,2)=-C
+      DRMAT(1,3)=-C
+      DO 1 I=1,3
+        DRMAT(I,IAXE)=0.D0
+        DRMAT(IAXE,I)=0.D0
+1     CONTINUE
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

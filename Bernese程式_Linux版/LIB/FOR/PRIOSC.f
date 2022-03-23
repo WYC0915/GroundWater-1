@@ -1,0 +1,160 @@
+      MODULE s_PRIOSC
+      CONTAINS
+
+C*
+      SUBROUTINE PRIOSC(NARC,NUMSAT,NAVNUM,TBOUND,T,INDEX)
+CC
+CC NAME       :  PRIOSC
+CC
+CC PURPOSE    :  PRINT A LIST OF OSCULATING ELEMENTS FOR THE FIRST
+CC               OBSERVATION TIME OF THE FIRST OBSERVATION FILE
+CC
+CC PARAMETERS :
+CC         IN :  NARC   : NUMBER OF ARCS                      I*4
+CC               NUMSAT(I),I=1,..,NARC: NUMBER OF SATELLITES  I*4
+CC                        IN ARC I
+CC               NAVNUM(J),J=1,..: SATELLITE NR. OF ALL ARCS  I*4
+CC               TBOUND(2,I),I=1,..,NARC: BOUNDARIES OR ARC I R*8
+CC               T      : FIRST OBSERVATION TIME OF FIRST     R*8
+CC                        OBSERVATION FILE
+CC      LOCAL :  INDEX(I),I=1,..,MAXSAT: INDEX FOR ORDERING   I*4
+CC                        OF SATELLITES
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/20 11:06
+CC
+CC CHANGES    :  27-MAY-91 : ??: DON'T PRINT TRAILING BLANKS
+CC               23-SEP-91 : ??: INCLUDE STDORB.FILENAME INTO OUTPUT
+CC               04-JUN-92 : ??: NEW CALL FOR "GETORB" (PREVIOUSLY GETOR0)
+CC                               USE "TIMSTR" TO PRINT TIME
+CC               21-DEC-93 : MR: ORDER OF SATELLITES
+CC               23-FEB-94 : MR: CORRECT INDEX FOR ORDERED SATELLITES
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               26-FEB-96 : MR: CHECK IF SATELLIITE EXISTS
+CC               05-MAR-03 : CU: REMOVE USE OF SKELETON FILE
+CC               15-APR-03 : CU: BUG FIXED (FORMAT STATEMENTS)
+CC               16-JUN-05 : MM: COMCONST.inc REPLACED BY d_const
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               04-MAY-08 : RD: NUMSAT ADDED TO CALL OF SR XYZELE
+CC               26-MAR-12 : RD: USE TIMSTR AS MODULE NOW
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern,   ONLY: LFNPRT, LFNERR
+      USE d_const,  ONLY: GM, PI
+      USE s_iordup
+      USE s_getorb
+      USE s_timstr
+      USE s_exitrc
+      USE s_jmt
+      USE s_radgms
+      USE s_xyzele
+      USE f_lengt1
+      USE s_gtflna
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IARC  , ICRARC, IDAY  , IHOUR , IMIN  , IMONTH, IORSYS,
+     1          IRC   , ISAT  , ISAT0 , IYEAR , JARC  , NARC
+C
+      REAL*8    AA    , DAY   , EE    , PER   , SEC   , T     , TOSC  ,
+     1          TPER0 , TT00  , XII   , XKN   , XM0   , XN
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+      CHARACTER*17  TSTRNG
+      CHARACTER*32  ORBFIL
+      CHARACTER*7   ORBSYS(2)
+      CHARACTER*1   VORZ
+      REAL*8        TBOUND(2,*),XV(6),ELE(7)
+      INTEGER*4     NUMSAT(*),NAVNUM(*),INDEX(*)
+C
+      DATA ORBSYS/'B1950.0','J2000.0'/
+C
+C WRITE TITLE LINES
+C -----------------
+      CALL GTFLNA(0,'STDORB ',ORBFIL,IRC)
+      WRITE(LFNPRT,"(
+     1     ' '
+     2  ,/,' '
+     3  ,/,' OSCULATING ELEMENTS: ',22X,A
+     4  ,/,' -------------------'
+     5  ,/,1X)") ORBFIL(1:LENGT1(ORBFIL))
+C
+C GET AND WRITE ORBIT SYSTEM
+C --------------------------
+      CALL GETORB(NAVNUM(1),0,1,2,T,ICRARC,
+     1            IORSYS,XV,TOSC,ELE,IRC)
+      WRITE(LFNPRT,11) ORBSYS(IORSYS)
+11    FORMAT(' REFERENCE SYSTEM:  ',A)
+C
+C WRITE OSCULATING EPOCH
+C ----------------------
+      CALL JMT(T,IYEAR,IMONTH,DAY)
+      IDAY=DAY
+      CALL RADGMS(3,DAY-IDAY,VORZ,IHOUR,IMIN,SEC)
+      WRITE(LFNPRT,2) T,IYEAR,IMONTH,IDAY,IHOUR,IMIN,SEC
+2     FORMAT(' REFERENCE EPOCH :',F15.7,' MJD   (',I4,4I3,F6.2,')')
+C
+      WRITE(LFNPRT,"(
+     1     ' '
+     2  ,/,' SAT   S.MAJ.AXIS   ECCENTRIC.    INCLINAT.      NODE '
+     2    ,'      PERIGEE     M. ANOMALY   PER.PASS.TIME'
+     3  ,/,1X,131('-')
+     4  ,/,1X)")
+C
+C FIND ARC FOR TIME T
+C -------------------
+      DO 30 IARC=1,NARC
+        IF(TBOUND(1,IARC).LE.T.AND.TBOUND(2,IARC).GE.T) GOTO 40
+30    CONTINUE
+C
+C ARC NOT FOUND
+      CALL TIMSTR(1,(/T/),TSTRNG)
+      WRITE(LFNERR,3) TSTRNG
+3     FORMAT(/,' *** SR PRIOSC: NO ARC FOUND FOR REQUESTED EPOCH',/,
+     1                     16X,'EPOCH: ',A,/)
+      CALL EXITRC(2)
+C
+40    JARC=IARC
+      ISAT0=0
+      DO 50 IARC=1,JARC-1
+        ISAT0=ISAT0+NUMSAT(IARC)
+50    CONTINUE
+C
+C ORDER SATELLITES
+C ----------------
+      CALL IORDUP(NAVNUM(ISAT0+1),NUMSAT(JARC),INDEX)
+C
+C OSCULATING ELEMENTS
+C -------------------
+      DO 60 ISAT=1,NUMSAT(JARC)
+        CALL GETORB(NAVNUM(ISAT0+INDEX(ISAT)),0,1,2,T,ICRARC,
+     1              IORSYS,XV,TOSC,ELE,IRC)
+        IF (IRC.GT.0) GOTO 60
+        CALL XYZELE(GM,0.D0,XV,XV(4),NAVNUM(ISAT0+INDEX(ISAT)),
+     1              AA,EE,XII,XKN,PER,TT00)
+        XN=DSQRT(GM/AA**3)
+        XM0=XN*(0.D0-TT00)*180/PI
+        TPER0=T+TT00/86400.D0
+        XII=XII*180/PI
+        XKN=XKN*180/PI
+        PER=PER*180/PI
+        WRITE(LFNPRT,4) NAVNUM(ISAT0+INDEX(ISAT)),AA,EE,XII,
+     1                  XKN,PER,XM0,TPER0
+4       FORMAT(I4,F13.1,F13.8,4F13.6,F16.7)
+60    CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

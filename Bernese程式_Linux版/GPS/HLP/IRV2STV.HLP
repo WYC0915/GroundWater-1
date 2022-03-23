@@ -1,0 +1,387 @@
+<html>
+<body>
+
+<center>
+<b>CONVERT IRV OR PRE FILES TO STATE VECTORS</b>
+<p>Program: IRV2STV
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+This program converts orbits given in a terrestrial reference frame into
+state vectors or osculating elements.
+One option of the program is to convert an SP3 file (PRE file) into the
+state vector format (system J2000).
+The second option of the program is to convert the orbit predictions of the
+ILRS (International Laser Ranging Service) provided in the old IRV format
+into an ELE file containing osculating elements or into a state vector file.
+
+<br><br>
+
+If you want to use the IRV orbits as a priori orbits for your analysis,
+you have to generate an ELE file and then run the program ORBGEN
+using the ELE file generated here in IRV2STV.
+In this case you have to specify the dynamic orbit modelling already here
+in the program IRV2STV.
+
+<p><hr>
+
+<p><b>IRV2STV 1: Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get the currently active campaign, session and session table.
+
+<a name="WINDOW" default="1"></a>
+<p><b>Use observation window:</b>
+Mark this checkbox for entering a specific time window or epoch for which
+the state vector / osculating elements will be computed.
+
+<p><i>Remark:</i>
+The time window has to overlap with the time interval
+covered by the input orbit. Otherwise no output will be written.
+
+<br><br>
+
+<a name="RADIO_I" default="0"></a>
+<a name="IRVFIL" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>IRV file:</b>
+You may start the program IRV2STV with IRV files as input.
+Mark the checkbox and specify the IRV files.
+If you need orbit predictions before 2006 provided by the ILRS,
+this processing step allows you to get an a priori orbit for your analysis.
+
+<a name="RADIO_P" default="1"></a>
+<a name="PREFIL" default=""></a>
+<p><b>Precise orbit file:</b>
+You may start the program IRV2STV with precise ephemeris files as input.
+Mark the checkbox and specify the PRE files.
+
+<br><br>
+
+<a name="RADIO_V" default="1"></a>
+<a name="STVFIL" default=""></a>
+<p><b>OUTPUT FILES</b>
+<p><b>State vector file:</b>
+If you want to generate state vectors in inertial frame, mark the checkbox
+and specify the name of the resulting STV file.
+
+<a name="RADIO_E" default="0"></a>
+<a name="ELEFIL" default=""></a>
+<p><b>ELE file:</b>
+If you selected IRV files as input, you can generate an ELE file containing
+the osculating elements of the satellites selected.
+This option is needed, e.g., if you want to further use the IRV orbits as a priori
+orbits for your analysis. In this case, you have to subsequently run the program ORBGEN
+using the ELE file generated here in IRV2STV.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="IRV2STV"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or to specify a separate file to which error messages are
+written.
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<p><hr>
+
+<p><b>IRV2STV 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates. It is used
+to apply antenna heights and for the printing of coordinates in the
+local system (north, east, up). You only have to modify this file
+when you want to introduce a new reference ellipsoid.
+
+<p><i>Caution:</i>
+This file has no effect on Cartesian coordinates.
+
+<p>Example: <a href="/$X/GEN/DATUM.">DATUM.</a>
+
+<a name="POLE" default=""></a>
+<p><b>A priori pole file:</b>
+This file contains the Earth rotation parameters (ERPs).
+It is used for the transformation between terrestrial and inertial
+reference frame.
+You should use the same file in all processing steps.
+
+<p><a href="/$X/DOC/EXAMPLE.ERP">Example</a>
+
+<a name="SUBMOD" default="IERS2010XY"></a>
+<p><b>Subdaily pole model:</b>
+This file contains the parameters for the subdaily pole model.
+You should use the same file in all processing steps.
+
+<p>Example: <a href="/$X/GEN/IERS2010XY.SUB">$X/GEN/IERS2010XY.SUB</a>
+
+<a name="NUTMOD" default="IAU2000R06"></a>
+<p><b>Nutation model:</b>
+This file contains the parameters for the nutation model. 
+You should use the same file in all processing steps.
+
+<p>Example: <a href="/$X/GEN/IAU2000R06.NUT">$X/GEN/IAU2000R06.NUT</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems concerning modeling.
+It is used for exclusion of misbehaving satellites
+(and for orbit arc splitting).
+It may also contain (mean) epochs of GPS repositioning events.
+
+<p><i>Note:</i>
+Corresponding year-specific files are maintained by AIUB/CODE.
+You can get the latest version of the current file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SAT_2011.CRX">$X/GEN/SAT_2011.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<a name="GPSUTC" default="GPSUTC."></a>
+<p><b>GPS-UTC seconds:</b>
+Specify the file with GPS-UTC values here. You have to update this file each
+time a leap second is introduced. The GPS-UTC values are needed for the
+conversion, because the time argument of the CPF file is in UTC time and
+the time argument in the SP3 file may be either in GPS or UTC time.
+
+<p>Example: <a href="/$X/GEN/GPSUTC.">$X/GEN/GPSUTC.</a>
+
+<p><i>Default value:</i> <tt>GPSUTC.</tt>
+
+<p><hr>
+
+<p><b>IRV2STV 2: Observation Window</b>
+
+<a name="RADIO_1" default="1"></a>
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>OBSERVATION WINDOW</b>
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the observation window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the observation window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Remark:</i> Only active for PRE input files.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: <tt>00&nbsp;00&nbsp;00</tt>, end date: <tt>$YMD_STR+0</tt>,
+end time: <tt>23&nbsp;59&nbsp;59</tt>
+
+<p><hr>
+
+<p><b>IRV2STV 3: Input Options</b>
+
+<a name="RADIO_A" default="1"></a>
+<p><b>Use all satellites available in precise orbit file:</b>
+All satellites contained in the input orbit file will be included in the
+resulting state vector file.
+
+<a name="RADIO_L" default="0"></a>
+<a name="SATLST" default=""></a>
+<p><b>Use all satellites from the following list:</b>
+Specify the list of satellites, which should be included in the state vector file.
+
+<p><hr>
+
+<p><b>IRV2STV 4: ELE Header Information</b>
+
+<a name="POLDEGR" default="10"></a>
+<p><b>EQUATION OF MOTION</b>
+<p><b>Polynomial degree:</b>
+Select the polynomial degree to be used for the orbit representation.
+
+<p><i>Default value:</i> <tt>10</tt>
+
+<a name="LENINTER" default="00 02 00"></a>
+<p><b>Length of interval:</b>
+Select the interval length to be used for one set of polynomial
+coefficients.
+The length is given in hours, minutes, seconds.
+
+<p><i>Default value:</i> <tt>01 00 00</tt>&nbsp;hours for GPS-orbits,
+                      <tt>00 06 00</tt>&nbsp;minutes for LEO-orbits, and
+                      <tt>00 02 00</tt>&nbsp;minutes for spherical satellites
+
+<br><br>
+
+<a name="VARPOLDG" default="12"></a>
+<p><b>VARIATIONAL EQUATIONS</b>
+<p><b>Polynomial degree:</b>
+Select the polynomial degree to be used for the representation of the
+partial derivatives.
+
+<p><i>Default value:</i> 12
+
+<a name="VARLNINT" default="00 12 00"></a>
+<p><b>Length of interval:</b>
+Select the interval length to be used for one set of polynomial
+coefficients.
+The length is given in hours, minutes, seconds.
+
+<p><i>Default value:</i> <tt>06 00 00</tt>&nbsp;hours for GPS-orbits,
+                      <tt>00 12 00</tt>&nbsp;minutes for LEO-orbits, and
+                      <tt>00 12 00</tt>&nbsp;minutes for spherical satellites
+
+<br><br>
+
+<a name="EMPIRI" default="DRSW"></a>
+<p><b>ORBIT PARAMETERS</b>
+<p><b>System for empirical orbit parameters:</b>
+<p>Specify the system of empirical orbit parameters:
+<ul>
+<li><b>DRSW:</b> Direct satellite-Sun direction and orbit system with
+                 radial (R), along-track (S), cross-track (W)
+                 (default setting for spherical satellites, e.g., LAGEOS).
+<li><b>DYX:</b> Sun-oriented system with Direct, Y, X components
+                (default setting for GNSS satellites).
+<li><b>RSW:</b> Orbit system with radial (R), along-track (S), cross-track (W)
+                components (default setting for LEO satellites).
+</ul>
+
+<br>
+
+<p><b>EARTH GRAVITY FIELD</b>
+<a name="POTCOE" default="EGM2008_SMALL."></a>
+<p><b>Coeff. of Earth potential:</b>
+Specify the file containing the coefficients of the Earth's gravitational
+potential.
+Supported are: GEMT3, GEM10N, JGM3, EGM96, EGM2008, TEG4, EIGEN1, EIGEN2.
+
+<p><i>Default value:</i> <tt>EGM2008.</tt>
+
+<a name="MXPOTDEG" default="70"></a>
+<p><b>Earth potential degree:</b>
+Select the degree of the Earth gravitational potential.
+
+<p><i>Default value:</i> 70
+
+<br><br>
+
+<p><b>OCEAN TIDES</b>
+<a name="OTIDES" default="OT_FES2004"></a>
+<p><b>Ocean tides file:</b>
+Possibility to use a model to account
+for the change of the gravity potential due to the Ocean Tides.
+
+<p><i>Default value:</i> <tt>OT_CSR30</tt>
+
+<a name="MXOCTI" default="8"></a>
+<p><b>Maximum degree of ocean tides:</b>
+Select the maximum degree of the ocean tides to be considered.
+
+<p><i>Default value:</i> 8
+
+<br><br>
+
+<p><b>OTHER MODELS</b>
+<a name="OCNLOAD" default=""></a>
+<p><b>Ocean loading corrections (for CMC):</b>
+If you want to apply center of mass correction (CMC) to the orbits, specify
+the name of the ocean tidal loading file (BLQ) containing CMC coefficients.
+
+<a name="SETIDES" default="TIDE2000"></a>
+<p><b>Solid Earth tides:</b>
+The file contains the parameters for the impact of solid Earth tides on
+the gravity potential.
+Use the same file in all processing steps.
+
+<p><i>Default value:</i> <tt>TIDE2000</tt>
+
+<a name="JPLEPH" default="DE405">
+<p><b>Planetary ephemeris:</b></A>
+You have the possibility to use the JPL planetary and lunar ephemerides to
+compute the position of the Sun, the Moon, and the planets. If not used
+the Newcomb's formula will be used.
+<a href="/$X/DOC/README_JPL_EPH.TXT">Where to get the JPL file</a>?
+
+<p><i>Default value:</i> <tt>DE405</tt>
+
+<p><hr>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+package TIMEST_C;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  TIMEST_C
+#
+# Purpose :  Execute GPSEST for zero-difference files (parallel mode)
+#
+# Remark  :  Only code observation files are selected
+#
+# PARAMs  :  PARAM1 - temporary file for parallel processing
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtMess setUserVar replaceSel prtBPEfile);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($ssss ,
+      $param1 , $subPid ,  $clu) =
+  $bpe->getKeys
+     ('$S+0',
+      'PARAM1', 'SUB_PID', 'V_CLU');
+
+# Set cluster number and input files
+# ----------------------------------
+  my $cluster = $clu eq "" ? "$ssss$param1" : "$ssss$subPid";
+  my $ffff    = $clu eq "" ? $param1        : "____";
+
+  setUserVar($bpe,"CLUSTER",$cluster,"FFFF",$ffff,"CCC",$subPid);
+
+  if ($clu eq "") {
+    prtMess($bpe,"PROCESSING FILE $param1$ssss");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","CZFILES","$param1$ssss");
+  } else {
+    replaceSel($bpe,"GPSEST","CZFILES",$param1);
+  }
+
+# Run program
+# -----------
+  my $PGMNAM = "GPSEST";
+  $bpe->RUN_PGMS($PGMNAM);
+
+# Print processed stations BPE file
+# ---------------------------------
+  prtBPEfile($param1,0) if ($clu ne "");
+
+}

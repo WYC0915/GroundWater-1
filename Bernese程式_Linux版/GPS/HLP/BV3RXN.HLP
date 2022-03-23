@@ -1,0 +1,114 @@
+<html>
+<body>
+
+<center>
+<b>TRANSFER BERNESE NAVIGATION FILES TO RINEX</b>
+<p>Program: BV3RXN
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The purpose of the program BV3RXN is to convert a list of Bernese GNSS
+broadcast files into the corresponding GPS RINEX navigation message files.
+
+<p><hr>
+
+<p><b>BV3RXN 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="BRDFIL" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Bernese broadcast file(s):</b>
+Specify the name(s) of the Bernese GPS broadcast files to be converted.
+
+<br><br>
+
+<a name="RXNFIL" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>RINEX GPS navigation file:</b>
+If you leave this input field blank the names for the RINEX navigation files
+are the same as the Bernese files (but with a different extension).
+If you convert one file only, you can specify another name for the RINEX
+output file.
+
+<p><i>Default value:</i> blank
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="BV3RXN"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+year and day of year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="TITLE" default="">
+<p><b>TITLE</b></a>
+<p>
+This title line will be printed as header comment into the program output
+and will be saved in all the result files to document the program run.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="RUNBY" default=""></a>
+<p><b>RUN BY</b>
+<p>
+Specify the content of the RUNBY section in the header of the RINEX
+navigation file, i.e., the name of the agency responsible for the generation
+of the RINEX file.
+
+<p><hr>
+
+<p><b>BV3RXN 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<p><hr>
+
+</body>
+</html>

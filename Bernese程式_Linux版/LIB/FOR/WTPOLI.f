@@ -1,0 +1,96 @@
+      MODULE s_WTPOLI
+      CONTAINS
+
+C*
+      SUBROUTINE WTPOLI(LFN,POLTIM,POLCOO,GPSUTC,REM,RMSPOL)
+CC
+CC NAME       :  WTPOLI
+CC
+CC PURPOSE    :  WRITE ONE OBSERVATION INTO THE POLE FILE
+CC
+CC PARAMETER  :
+CC        IN  :  LFN     : LOGICAL FILE NUMBER                 I*4
+CC               POLTIM  : TIME OF PARAMETER SET (MJD)         R*8
+CC               POLCOO(I): (I=1,5); POLE COORDINATES          R*8(5)
+CC                         I=1 :VALUE OF X-POLE (ARC SECONDS)
+CC                         I=2 :VALUE OF Y-POLE (ARC SECONDS)
+CC                         I=3 :VALUE OF UT1-UTC (SECONDS)
+CC                         I=4 :VALUE OF DEPS (ARC SECONDS)
+CC                         I=5 :VALUE OF DPSI (ARC SECONDS)
+CC               GPSUTC  : GPS-UTC DIFFERENC GIVEN IN SECONDS  R*8
+CC               REM     : REMARK                             CH*3
+CC               RMSPOL(I): (I=1,5) RMS OF POLE COORDINATES    R*8(5)
+CC                         I=1 :RMS OF X-POLE (ARC SECONDS)
+CC                         I=2 :RMS OF Y-POLE (ARC SECONDS)
+CC                         I=3 :RMS OF UT1-UTC (SECONDS)
+CC                         I=4 :VALUE OF DEPS (ARC SECONDS)
+CC                         I=5 :VALUE OF DPSI (ARC SECONDS)
+CC
+CC REMARKS    :
+CC
+CC AUTHOR     :  S.FANKHAUSER
+CC
+CC VERSION    :  3.3
+CC
+CC CREATED    :  91/11/19 12:00
+CC
+CC CHANGES    :  02-AUG-92 : ??: ERROR WRITING POLE FILE RECORD
+CC               19-APR-94 : SF: INCLUDE EPSILON AND PSI
+CC               13-OCT-94 : MR: REPLACE "X" BY "1X" IN FORMAT 12
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE s_jmt
+      USE s_radgms
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IDAY  , IHOUR , IYEAR , LFN   , MIN   , MONTH
+C
+      REAL*8    DAY   , GPSUTC, POLTIM, SEC
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+C GLOBAL DECLARATIONS
+C -------------------
+      CHARACTER*3 REM
+      REAL*8      POLCOO(5),RMSPOL(5)
+C
+C INTERNAL DECLARATIONS
+C ---------------------
+      CHARACTER*1  HLPSTR
+C
+C
+C PREPARE THE DATE AND TIME OF PARAMETER SET (ROUND TO MINUTE)
+C ------------------------------------------------------------
+      POLTIM=POLTIM+30.D0/86400.0
+      CALL JMT(POLTIM,IYEAR,MONTH,DAY)
+      IDAY=DINT(DAY)
+      CALL RADGMS(3,DAY,HLPSTR,IHOUR,MIN,SEC)
+C
+C WRITE INFORMATION TO FILE
+C -------------------------
+      WRITE(LFN,12,ERR=900) IYEAR,MONTH,IDAY,IHOUR,MIN,
+     1       (POLCOO(I),I=1,3),GPSUTC,REM,(RMSPOL(I),I=1,3),
+     2       (POLCOO(I),I=4,5),(RMSPOL(I),I=4,5)
+12    FORMAT(I4,4(1X,I2),2(1X,F8.5),1X,F9.6,2X,F3.0,1X,A3,1X,2F8.5,F9.6,
+     1       2(1X,F8.5),2F8.5)
+      GOTO 999
+C
+C ERROR WRITING THE RECORD
+C ------------------------
+900   CONTINUE
+      WRITE(LFNERR,901)
+901   FORMAT(/,' *** SR WTPOLI: ERROR WRITING POLE FILE RECORD',/)
+C
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

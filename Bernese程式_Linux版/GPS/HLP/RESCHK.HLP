@@ -1,0 +1,543 @@
+<html>
+<body>
+
+<center>
+<b>DETECT MISBEHAVING STATIONS/SATELLITES</b>
+<p>Program: RESCHK
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<a name="DIR_CZH"  default=""></a>
+<a name="DIR_CZO"  default=""></a>
+<a name="DIR_PZH"  default=""></a>
+<a name="DIR_PZO"  default=""></a>
+<a name="EXT_CZH"  default=""></a>
+<a name="EXT_CZO"  default=""></a>
+<a name="EXT_PZH"  default=""></a>
+<a name="EXT_PZO"  default=""></a>
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+This program analyzes the summary output of the program
+<a href="PGMLST.HLP#RESRMS">RESRMS</a> in order to detect bad stations
+and misbehaving satellites. The residual summary may contain results on
+zero difference as well as on single difference level.
+<br>
+The program RESCHK only handles one problem type per run, following
+the priority
+<ul>
+<li>Satellite repositioning events,
+<li>Bad stations,
+<li>Misbehaving satellites.
+</ul>
+It is mainly used for a fully automated processing.
+
+<p><hr>
+
+<p><b>RESCHK 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RESRMS" default=""></a>
+<p><b>INPUT FILE</b>
+<p><b>Residual summary:</b>
+Select the summary output from program <a href="PGMLST.HLP#RESRMS">RESRMS</a>.
+<br>
+Basically RESCHK expects that
+this file contains two concatenated summaries in succession. The first one
+should have been created before, the second one after a data screening
+step.
+<br>
+If you only want to detect bad stations the program analyzes only the
+first summary table. Therefore it is possible in this case to have only one
+table in the file. In order to detect satellite repositioning events it is
+mandatory to have at least one pair of residual tables in this file.
+
+<p><i>Remark:</i>
+If more than the required number of summaries are found
+in the file the last summary resp. the last pair of summaries are analyzed.
+
+<p><a href="RESRMS.HLP#OUTPUT">Example</a>
+
+<br><br>
+
+<a name="SUMOUT" default=""></a>
+<p><b>OUTPUT FILE</b>
+<p><b>Short summary:</b>
+If you provide a filename in this field, a short summary is created. It
+contains various satellite-specific information such as the relative
+percentage of observations, the total number of observations, and total
+RMS per satellite.  The columns 'before' and 'after' indicate the values
+before and after the data screening - they refer to the first respectively
+the second residual table of a pair in the "Residual summary" file you have
+specified in the section "INPUT FILE".
+
+<p>Output example:<!-- $outr/RESCHK.11_3620 -->
+<pre>
+--------------------------------------------------------------------------------
+PRN | % Observations   Difference   | # Observations   Difference   | RMS       
+    | before   after   abs      rel | before    after  abs      rel | bef    aft
+----+-------------------------------+-------------------------------+-----------
+  1 |   1.96    1.97    0.01   0.56 |  16851   16791     -60  -0.36 |  1.4   1.4
+  2 |   2.19    2.17   -0.02  -0.84 |  18829   18499    -330  -1.75 |  1.7   1.4
+  3 |   2.09    2.10    0.01   0.26 |  17970   17851    -119  -0.66 |  1.5   1.4
+  4 |   2.17    2.18    0.00   0.21 |  18639   18507    -132  -0.71 |  1.6   1.4
+  5 |   2.22    2.21   -0.01  -0.57 |  19090   18807    -283  -1.48 |  1.7   1.5
+  6 |   2.12    2.13    0.01   0.36 |  18199   18098    -101  -0.55 |  1.5   1.4
+  7 |   2.10    2.10    0.01   0.26 |  18010   17891    -119  -0.66 |  1.6   1.4
+  8 |   1.73    1.73   -0.00  -0.04 |  14861   14719    -142  -0.96 |  1.6   1.4
+  9 |   2.12    2.12   -0.01  -0.29 |  18238   18018    -220  -1.21 |  1.7   1.5
+ 10 |   2.08    2.09    0.00   0.15 |  17895   17758    -137  -0.77 |  1.6   1.4
+ 11 |   2.08    2.09    0.01   0.38 |  17854   17758     -96  -0.54 |  1.5   1.4
+ 12 |   2.18    2.17   -0.01  -0.44 |  18699   18446    -253  -1.35 |  1.7   1.5
+ 13 |   2.12    2.13    0.00   0.21 |  18213   18084    -129  -0.71 |  1.6   1.4
+ 14 |   2.12    2.12   -0.01  -0.24 |  18242   18032    -210  -1.15 |  1.6   1.4
+ 15 |   2.16    2.14   -0.02  -0.75 |  18544   18236    -308  -1.66 |  1.7   1.5
+ 16 |   2.18    2.18    0.00   0.22 |  18701   18570    -131  -0.70 |  1.6   1.4
+ 17 |   2.22    2.21   -0.00  -0.14 |  19043   18842    -201  -1.06 |  1.6   1.4
+ 18 |   2.10    2.10   -0.00  -0.03 |  18050   17880    -170  -0.94 |  1.6   1.5
+ 19 |   2.15    2.16    0.01   0.31 |  18459   18347    -112  -0.61 |  1.5   1.4
+ 20 |   2.08    2.08   -0.00  -0.05 |  17849   17677    -172  -0.96 |  1.6   1.4
+ 21 |   2.01    2.00   -0.00  -0.19 |  17237   17046    -191  -1.11 |  1.6   1.4
+ 22 |   2.07    2.06   -0.01  -0.26 |  17757   17549    -208  -1.17 |  1.6   1.4
+ 23 |   2.17    2.17    0.00   0.01 |  18671   18502    -169  -0.91 |  1.6   1.4
+ 25 |   2.01    2.00   -0.00  -0.05 |  17218   17051    -167  -0.97 |  1.6   1.4
+ 26 |   2.11    2.09   -0.02  -0.97 |  18134   17793    -341  -1.88 |  1.8   1.5
+ 27 |   2.15    2.15   -0.00  -0.13 |  18489   18296    -193  -1.04 |  1.6   1.4
+ 28 |   2.07    2.07    0.00   0.09 |  17763   17616    -147  -0.83 |  1.6   1.4
+ 29 |   2.18    2.18   -0.00  -0.01 |  18717   18544    -173  -0.92 |  1.6   1.4
+ 30 |   2.16    2.16    0.00   0.03 |  18554   18390    -164  -0.88 |  1.6   1.4
+ 31 |   2.27    2.28    0.00   0.16 |  19510   19362    -148  -0.76 |  1.5   1.4
+ 32 |   2.15    2.16    0.01   0.26 |  18460   18338    -122  -0.66 |  1.5   1.4
+101 |   1.42    1.42    0.00   0.29 |  12151   12075     -76  -0.63 |  1.5   1.4
+102 |   1.46    1.46    0.00   0.05 |  12537   12429    -108  -0.86 |  1.6   1.4
+103 |   1.43    1.43   -0.00  -0.05 |  12254   12136    -118  -0.96 |  1.6   1.4
+104 |   1.33    1.33    0.00   0.17 |  11416   11331     -85  -0.74 |  1.6   1.4
+105 |   1.51    1.51    0.00   0.27 |  12940   12856     -84  -0.65 |  1.6   1.4
+106 |   1.51    1.51   -0.00  -0.09 |  12988   12857    -131  -1.01 |  1.6   1.4
+107 |   1.42    1.42    0.00   0.15 |  12195   12101     -94  -0.77 |  1.6   1.4
+108 |   1.37    1.37   -0.00  -0.05 |  11764   11650    -114  -0.97 |  1.6   1.4
+109 |   1.37    1.36   -0.01  -0.53 |  11764   11595    -169  -1.44 |  1.6   1.4
+110 |   1.40    1.41    0.00   0.20 |  12040   11954     -86  -0.71 |  1.5   1.4
+111 |   1.35    1.36    0.01   0.38 |  11605   11543     -62  -0.53 |  1.5   1.4
+112 |   1.39    1.39    0.00   0.33 |  11897   11827     -70  -0.59 |  1.5   1.4
+113 |   1.45    1.45    0.00   0.18 |  12450   12358     -92  -0.74 |  1.6   1.4
+114 |   1.50    1.50    0.00   0.07 |  12900   12791    -109  -0.84 |  1.6   1.4
+115 |   1.55    1.55    0.00   0.15 |  13312   13210    -102  -0.77 |  1.6   1.4
+116 |   1.50    1.50   -0.00  -0.18 |  12897   12756    -141  -1.09 |  1.6   1.4
+117 |   1.51    1.51    0.00   0.10 |  12979   12873    -106  -0.82 |  1.6   1.4
+118 |   1.39    1.39    0.00   0.15 |  11920   11828     -92  -0.77 |  1.6   1.4
+119 |   1.42    1.42    0.00   0.02 |  12218   12108    -110  -0.90 |  1.6   1.4
+120 |   1.30    1.31    0.00   0.30 |  11192   11123     -69  -0.62 |  1.6   1.4
+121 |   1.40    1.40    0.00   0.01 |  11987   11878    -109  -0.91 |  1.6   1.4
+122 |   1.38    1.39    0.00   0.34 |  11872   11803     -69  -0.58 |  1.6   1.4
+123 |   1.51    1.51    0.00   0.24 |  12934   12846     -88  -0.68 |  1.6   1.4
+124 |   1.59    1.59   -0.00  -0.03 |  13626   13497    -129  -0.95 |  1.6   1.5
+----+-------------------------------+-------------------------------+-----------
+TOT | 100.00  100.00    0.00   0.00 | 858584  850723   -7861  -0.92 |  1.6   1.4
+--------------------------------------------------------------------------------
+</pre>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="RESCHK"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>RESCHK 1.1: General Files</b>
+
+<a name="ABBREV" default="ABBREV"></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>Abbreviation table:</b>
+The <a href="PGMLST.HLP#RESRMS">RESRMS</a> summary file contains the
+<nobr>4-ID</nobr> for the stations used in that
+program run. To enhance the program output of RESCHK the <nobr>4-IDs</nobr> can
+be converted into the full station names using this table. If no file is
+specified the <nobr>4-IDs</nobr> will be used to write the RESCHK program
+output.
+
+<p><i>Remark:</i>
+If one <nobr>4-ID</nobr> in the abbreviation table refers to
+more than one station name the first site name is used.
+
+<p><a href="/$X/DOC/EXAMPLE.ABB">Example</a>
+
+<p><hr>
+
+<p><b>RESCHK 2: Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+and will be saved in all the result files to document the program run.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="DIFRESI" default="SINGLE"></a>
+<p><b>GENERAL OPTIONS</b>
+<p><b>Difference level of residuals in summary:</b>
+Specify the difference level of the residuals in the "Residual summary" file
+you have specified in the section "INPUT FILE". Use <b>ZERO</b> respective
+<b>SINGLE</b> to indicate a zero or a single difference residual summary.
+
+<p><i>Caution:</i>
+The program does not check your input. If you
+specify a wrong difference level RESCHK assumes, e.g., baselines to stations
+with blank <nobr>4-IDs</nobr> or ignores the second station of all baselines.
+This may affect the detection of bad stations because in the zero resp. single
+difference case the program uses different algorithms.
+
+<a name="BADSTA" default="1"></a>
+<p><b>Detect bad stations:</b>
+Enable the detection of bad stations.
+
+<p><i>Default value:</i> marked
+
+<a name="MANSAT" default="0"></a>
+<p><b>Detect misbehaving satellites:</b>
+Enable the search for misbehaving satellites, e.g., repositioning events.
+
+<p><i>Remark:</i>
+If you have ftp access then you can get the file
+indicating satellite problems (default $X/GEN/SAT_yyyy.CRX, where yyyy
+is the four digit year) from the <a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous
+ftp</a> account of AIUB. This file is updated every time when
+a new satellite problem appears (satellite maneuvers, bad data,...) in the
+routine processing for the IGS at CODE. If you can use this file
+observations to misbehaving satellites will be rejected by the program
+<a href="PGMLST.HLP#RXOBV3">RXOBV3</a> in your processing. It is, therefore,
+not necessary for you to repeat the detection procedure for misbehaving
+satellites.
+
+<p><i>Default value:</i> unmarked
+
+<a name="TSTMODE" default="0"></a>
+<p><b>Analyze only first iteration:</b>
+Usually the last pair of "Residual summary" tables in the "INPUT FILE" is
+analyzed. Using this option you can force the program to analyze the first
+pair of summaries. This may be useful, e.g., for debugging purposes.
+
+<p><i>Default value:</i> unmarked
+
+<br><br>
+
+<a name="SUMMARY" default="SUMMARY"></a>
+<p><b>PROGRAM OUTPUT OPTIONS</b>
+<p><b>Level of detail:</b>
+Select <b>SUMMARY</b> to get a short summary from the program run containing
+only the final result together with the comment
+<ul>
+<li><tt>MANEUVER DETECTED FOR SATELLITE(s)</tt>,
+<li><tt>BAD STATION(S) DETECTED</tt>,
+<li><tt>BAD SATELLITE(s)</tt> detected, or
+<li><tt>NO SPECIAL EVENTS FOUND IN THIS SOLUTION</tt>.
+</ul>
+To get the full information from the tests performed select <b>DETAILS</b>.
+
+<p><i>Default value:</i> <tt>SUMMARY</tt>
+
+<p><hr>
+
+<p><b>RESCHK 2.1: Detection of Bad Stations</b>
+
+<a name="MAXSTA" default="1"></a>
+<p><b>OPTIONS FOR BAD STATION DETECTION</b>
+<p><b>Maximum number of stations to delete:</b>
+Specify the maximum number of stations to be marked as bad in one RESCHK
+run. If more bad stations are found the stations with the biggest total RMS
+errors are selected. If you analyze a single difference "Residual summary"
+the total RMS of a station is computed as the mean RMS over all baselines
+containing the station.
+<br>
+The phase preprocessing <a href="PGMLST.HLP#MAUPRP">MAUPRP</a> does a
+good job in cleaning phase data (at least for baseline files). If the
+options for this program are appropriate, it is, therefore, a very rare event
+that the data of a station cannot be analyzed at all and must be excluded in
+RESCHK. In this case a problem may be attributed to a misbehaving satellite.
+<br>
+On the other hand the results of the preprocessing in the zero difference
+case depend on the quality of the code data (program
+<a ref="PGMLST.HLP#RNXSMT">RNXSMT</a>) or on the quality of introduced
+satellite clocks (program <a ref="PGMLST.HLP#MAUPRP">MAUPRP</a>). It may,
+therefore, be that the data from stations look bad due to problems
+in the preprocessing.
+
+<p><i>Default value:</i> <tt>1</tt> in the single resp. up to <tt>5</tt>
+in the zero difference case
+
+<a name="MAXRMS" default="6.0"></a>
+<p><b>Maximum allowed overall RMS error:</b>
+Specify the maximum allowed RMS error (total RMS of a station/baseline in the
+last column of the "Residual summary" specified in the section "INPUT FILE")
+for a 'good'
+station. If this value is exceeded the station/baseline is assumed to be 'bad'.
+<br>
+In the case of single difference residuals the 'bad' stations are
+extracted in the following way from the list of 'bad' baselines:
+<ul>
+<li>If a station from a 'bad' baseline is also found in addition in any
+    'good' baseline, the station is assumed to be 'good'.
+<li>If a station is found in only one baseline the other station of the
+     baseline is checked. If this other station is found in 'bad' baselines
+     only, the first station is marked as 'good'. If the second station
+     is 'good', the first station is marked as 'bad' (it is assumed
+     that a 'bad' baseline contains only one 'bad' station).
+</ul>
+
+<p><i>Default value:</i> <tt>6&nbsp;millimeters</tt> in the single and
+<tt>30&nbsp;millimeters</tt> in the zero difference case
+
+<a name="BADSOL" default="100.0"></a>
+<p><b>RMS threshold level for a bad solution:</b>
+In case of a zero difference solution usually one station figures as
+clock reference station. If this station shows problems the overall
+RMS errors for several additional stations may become very large and
+the whole solution must be considered as bad.
+<br>
+If the total RMS for at least one station in the last column of the
+"Residual summary" specified in the section "INPUT FILE" exceeds this
+threshold level the whole solution is assumed to be bad. In this case only
+the station with the biggest total RMS error will be marked as bad.
+
+<p><i>Default value:</i> <tt>100&nbsp;millimeters</tt>
+
+<br><br>
+
+<a name="DELSTA" default=""></a>
+<p><b>SPECIAL OUTPUT FILE</b>
+<p><b>File deletion list:</b>
+All stations marked as 'bad' are listed in this file. The full path
+and extension of all four types of Bernese zero difference observation
+files (header and observation files for code and phase measurements) is
+added. The file may be used to delete bad stations from the observation
+directory of the campaign.
+<br>
+In the single difference case a new set of baselines should be created
+without the bad stations using the program
+<a href="PGMLST.HLP#SNGDIF">SNGDIF</a> after deleting the zero difference
+observation files.
+
+<p><hr>
+
+<p><b>RESCHK 2.2: Detection of Misbehaving Satellites</b>
+
+<a name="CODXTR" default=""></a>
+<p><b>SPECIAL INPUT FILES</b>
+<p>
+A <a href="PGMLST.HLP#CODSPP">CODSPP</a> extraction and an arc split
+summary may contain hints for a repositioning of a satellite.  If at least
+one of these files shows an indication of a repositioning a maneuver is
+postulated for the corresponding satellites.  For these satellites the
+<a href="PGMLST.HLP#RESRMS">RESRMS</a> residual summary is checked using the
+option "Maximum ratio of satellite RMS to overall RMS" in section "OPTIONS
+FOR BAD SATELLITE DETECTION". If they show a normal behavior the maneuver
+hypothesis is dropped. If no maneuver can be identified for any satellite,
+the standard procedure to detect 'bad' satellites is started. For satellites
+showing an anomalous behavior the procedure for detection repositioning
+events is initiated.
+
+<p><b>CODSPP extraction file:</b>
+Select a <a href="PGMLST.HLP#CODXTR">CODXTR</a> output file. This is an
+extraction from a <a href="PGMLST.HLP#CODSPP">CODSPP</a> output and may
+contain information about possible repositioning events.
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+ ### SATELLITE REPOSITIONING OR CLOCK RESET DETECTED!
+     # SATELLITES    :  1
+     SATELLITE NUMBER: 24
+</pre>
+
+<a name="ASPLIT" default=""></a>
+<p><b>Arc split summary file:</b>
+Select an arc split summary file (from program
+<a href="PGMLST.HLP#DEFXTR">DEFXTR</a>). It may contain information about
+possible repositioning events.
+<br>
+Satellite 17 in the example below shows a big RMS, a maneuver hypothesis for
+this satellite seems to be justified.
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+  ARC Splitting:  # Sat.:   2  Sat.Crx.: ${X}/GEN/SAT_2003.CRX
+                  Split Sat.   :  17  27
+                  Split RMS    :5207  10
+</pre>
+
+<br>
+
+<a name="MAXORB" default="250"></a>
+<p><b>OPTIONS FOR SATELLITE REPOSITIONING DETECTION</b>
+<p><b>Maximum allowed arc split RMS:</b>
+Analyzing an arc split summary file, a maneuver is postulated for all
+satellites with bigger RMS errors than this value.
+
+<p><i>Default value:</i> <tt>250&nbsp;centimeters</tt>
+
+<a name="MAXMRMS" default="2.5"></a>
+<p><b>Maximum ratio of satellite RMS to overall RMS:</b>
+If a maneuver is indicated in one of the "SPECIAL INPUT FILES" for at least
+one of the satellites showing an anomalous behavior in the RESRMS residual summary
+a test using the threshold specified in this field (instead of the same field
+in section "OPTIONS FOR BAD SATELLITE DETECTION") is performed.
+<br>
+The value specifies the maximum allowed ratio of the overall RMS for one
+satellite w.r.t. the mean total RMS for all satellites. The satellites for
+which this ratio exceeds the specified value are assumed to be repositioned.
+<br>
+Usually a higher value for the RMS ration than in the section "OPTIONS
+FOR BAD SATELLITE DETECTION" is selected in order to identify the correct
+maneuver satellite in case the RMS ratio is increased for several satellites.
+In fact, a maneuvering satellite may affect other satellites which may then
+show an anomalous behavior, too.
+
+<p><i>Remark:</i>
+In the case of a maneuver hypothesis for at least one
+satellite the RMS ratio is the only condition to identify the maneuver
+satellite.
+The percentage of deleted data is not considered.
+
+<p><i>Remark on GLONASS:</i>
+For GLONASS satellites a four times higher value is used.
+
+<p><i>Default value:</i> <tt>2.5</tt>
+
+<br><br>
+
+<a name="MAXARMS" default="5.0"></a>
+<p><b>OPTIONS FOR BAD SATELLITE DETECTION</b>
+<p><b>RMS threshold level for a bad solution:</b>
+If the total RMS of a satellite in the "Residual summary" file (see section
+"INPUT FILE") exceeds this value it is considered
+a 'bad' satellite. If any of the "SPECIAL INPUT FILES" indicate a maneuver
+for this satellite it is assumed that a repositioning occurred. Otherwise
+the satellite is marked as 'bad'. In any case only the satellite with the
+largest RMS exceeding the specified threshold is removed.
+
+<p><i>Default value:</i> <tt>5&nbsp;millimeters</tt>
+
+<a name="MAXRRMS" default="1.5"></a>
+<p><b>Maximum ratio of satellite RMS to overall RMS:</b>
+The ratio of the overall RMS for one satellite w.r.t. the mean total RMS for
+all satellites is computed. If this ratio exceeds the specified maximum
+ratio, the satellite is assumed to be bad because it shows a bigger
+RMS than all the other satellites.
+<br>
+In a first step this value is only checked for possible maneuver
+candidates (indicated by the "SPECIAL INPUT FILES"). If one of these exceeds
+the specified threshold it is considered to be repositioned and the
+corresponding test is repeated using the ratio specified in section "OPTIONS
+FOR SATELLITE REPOSITIONING DETECTION" to confirm the maneuver. Otherwise
+the maneuver hypothesis is rejected.
+<br>
+If all satellites with a maneuver hypothesis are checked this value is
+applied to all remaining satellites to find out 'bad' satellites.
+
+<p><i>Remark on GLONASS:</i>
+For GLONASS satellites a four times higher value is used.
+
+<p><i>Default value:</i> <tt>1.5</tt>
+
+<a name="MAXDEL" default="5.0"></a>
+<p><b>Maximal percentage of deleted data:</b>
+The "Residual summary" lists the total number of the observations to each
+satellite from all stations/baselines. It is assumed that the first table
+in the "Residual summary" was written before and the second table after
+a data screening step using the programs <a href="PGMLST.HLP#RESRMS">RESRMS</a>
+and <a href="PGMLST.HLP#SATMRK">SATMRK</a> respectively.
+<br>
+The two values (before and after the screening step) for each satellite
+are compared to detect satellites where a lot of data was
+removed by the screening procedure. If more than the specified value of data
+was lost, the corresponding satellite is marked as 'bad'.
+<br>
+This value is only checked if there is no maneuver hypothesis for any
+satellite.
+
+<p><i>Remark on GLONASS:</i>
+For GLONASS satellites a four times higher value is used.
+
+<p><i>Default value:</i> <tt>5%</tt>
+
+<a name="MINOBSG" default="1"></a>
+<a name="MINOBSR" default="1"></a>
+<p><b>Minimum number of observations required for GPS</b>/<b>GLONASS:</b>
+If there are less observations available for a satellite than specified in
+this field, the respective satellite is reported as
+<tt>SATELLITE(s) WITH FEW OBSERVATIONS</tt>. The threshold can be specified for
+GPS and GLONASS separately.
+
+<p><i>Default value:</i> <tt>1%</tt>
+
+<a name="DEL1SAT" default="1"></a>
+<p><b>Delete only one satellite per run: </b>
+It is possible that a bad satellite affects additional satellites due
+to correlations. After removing this bad satellite, all other satellites
+are okay. To prevent a wrong removal of 'good' satellites due to this
+effect you can request to remove only one satellite per program run.
+
+<p><i>Default value:</i> marked
+
+<br><br>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>SPECIAL OUTPUT FILE</b>
+<p><b>File with satellite problems:</b>
+If a repositioning or a misbehaving satellite was detected an existing
+satellite problem file may be updated. Specify the name of the file here.
+
+<p><i>Remark:</i>
+The "Residual summary" table contains only the session
+identifiers. If you are using an open <a href="SESSIONS.HLP">session table</a>
+the session identifiers indicate the day of year only. The year is taken
+from the current session you have selected in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>.
+If you are using a fixed session table the session identifier can directly
+be transformed into the sessions time interval.
+
+<p>Example: <a href="/$X/GEN/SAT_2011.CRX">$X/GEN/SAT_2011.CRX</a>
+
+<p><hr>
+
+</body>
+</html>

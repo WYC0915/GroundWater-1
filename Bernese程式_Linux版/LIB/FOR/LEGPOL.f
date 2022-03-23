@@ -1,0 +1,72 @@
+      MODULE s_LEGPOL
+      CONTAINS
+
+C*
+      SUBROUTINE LEGPOL(XGESAT,NTERM,COEFLP,PNM)
+CC
+CC NAME       :  LEGPOL
+CC
+CC PURPOSE    :  COMPUTATION OF LEGENDRE POLYNOMIALS
+CC
+CC PARAMETERS :
+CC         IN :  XGESAT(I): COORD. OF SATELLITE                R*8
+CC                          GEOCENTRIC, EARTHBOUND
+CC               NTERM    : MAXIMUM ORDER OF POTENTIAL         I*4
+CC               COEFLP(I): COEFFICENTS OF LEGENDRE POLYNOMIAL R*8
+CC                          (COMPUTED BY SR. LPCOEF)
+CC        OUT :  PNM(I)   : LEGENDRE POLYNOMIAL                R*8
+CC                          I=(N+3)*(N+2)/2-9+M
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/12/11 11:07
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , I1    , J     , M     , N     , N1    , NTERM
+C
+      REAL*8    COEFLP, COSB  , PNM   , SINB  , TANB  , XGESAT, XR
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+      DIMENSION COEFLP(*),PNM(*),XGESAT(*)
+C
+C  GEOCENTRIC  LATITUDE
+      XR=DSQRT(XGESAT(1)**2+XGESAT(2)**2+XGESAT(3)**2)
+      SINB=XGESAT(3)/XR
+      COSB=DSQRT(1.D0-SINB**2)
+      TANB=SINB/COSB
+C
+      I=0
+      DO 10 N=2,NTERM
+        I=I+1
+        PNM(I+N)  =COEFLP(N-1)*COSB**N
+        PNM(I+N-1)=TANB*PNM(I+N)
+        N1=N-1
+        I1=I+N-1
+        M=N-1
+        DO 20 J=1,N1
+          M=M-1
+          I1=I1-1
+          PNM(I1)=(-PNM(I1+2)+2*(M+1)*TANB*PNM(I1+1))/((N-M)*(N+M+1))
+20      CONTINUE
+        I=I+N+2
+        PNM(I-1)=0.D0
+        PNM(I)  =0.D0
+10    CONTINUE
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

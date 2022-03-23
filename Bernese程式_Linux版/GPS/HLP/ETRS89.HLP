@@ -1,0 +1,264 @@
+<html>
+<body>
+
+<center>
+<b>TRANSFORM COORDINATES TO ETRS89 FRAME</b>
+<p>Program: ETRS89
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program may be used to perform the (time-dependent) transformation
+from ITRF coordinates into a realization ETRFyy of the European Terrestrial
+Reference System 89 (ETRS89) for a specified epoch (19yy or 20yy), or vice
+versa.
+
+<p><i>Caution:</i>
+Be sure not to introduce a resulting ETRF coordinate file
+into any processing program. Bernese processing programs always expect
+coordinates in a realization of the ITRS.
+
+<p><hr>
+
+<p><b>ETRS89 1: Input/Output Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="COORD" default=""></a>
+<p><b>INPUT FILE</b>
+<p><b>Input coordinates:</b>
+Specify the name of the input file containing the coordinates to be
+converted.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<br><br>
+
+<a name="COORDRS" default=""></a>
+<p><b>RESULT FILE</b>
+<p><b>Output coordinates:</b>
+Specify the name of the output file containing the converted coordinates.
+
+<p><i>Caution:</i>
+Be sure not to introduce a resulting ETRF coordinate file
+into any processing program. Bernese processing programs always expect
+coordinates in a realization of the ITRS.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="ETRS89"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>ETRS89 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates. It is used
+to apply antenna heights and for the printing of coordinates in the
+local system (north, east, up). You only have to modify this file
+when you want to introduce a new reference ellipsoid.
+
+<p><i>Caution:</i>
+This file has no effect on Cartesian coordinates.
+
+<p>Example: <a href="/$X/GEN/DATUM.">$X/GEN/DATUM.</a>
+
+<p><hr>
+
+<a name="TITLE" default=""></a>
+<p><b>ETRS89 2: Options</b>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<br><br>
+
+<a name="DATSEL" default="TRF2000"></a>
+<p><b>TARGET FRAME:</b>
+Select the target frame to which the coordinates should be transferred.
+Since this program can be used to convert coordinates from ITRF to ETRF as well
+as from ETRF to ITRF according to the datum string in the input coordinate
+file only the year of the target frame is displayed.
+The frames published in
+<a href="REFERENCES.HLP#Boucher2011">Boucher et al. (2011)</a> are supported.
+<br>
+Use <tt>MANUAL</tt> to set own transformation parameters.
+
+<p><i>Default value:</i> TRF2000
+
+<p><hr>
+
+<p><a name="LGTDAT" default="ETRFyy"></a>
+<b>LOCAL GEODETIC DATUM</b>
+<p>
+Specify the geodetic datum string that shall appear in the header of the
+output file.
+
+<p><i>Default value:</i> ETRFyy
+
+<br><br>
+
+<a name="TRAX" default=""></a>
+<a name="TRAY" default=""></a>
+<a name="TRAZ" default=""></a>
+<a name="ROTX" default=""></a>
+<a name="ROTY" default=""></a>
+<a name="ROTZ" default=""></a>
+<p><b>TRANSLATION AND ROTATION PARAMETERS</b>
+
+<p><b>Translation</b>/<b>Rotation:</b>
+Specify the translation and rotation parameters for the transformation
+from ITRFyy to ETRFyy. The values may be taken from the following table:
+
+<p><table border="1">
+<tr><th align="center">yy</th>
+    <th align="center">T1</th>
+    <th align="center">T2</th>
+    <th align="center">T3</th>
+    <th align="center">dR1</th>
+    <th align="center">dR2</th>
+    <th align="center">dR3</th>
+</tr>
+<tr><th></th>
+    <th colspan="3" align="center">m</th>
+    <th colspan="3" align="center">as/y</th>
+</tr>
+<tr><td>89</td>
+    <td> 0 </td>
+    <td> 0 </td>
+    <td>  0 </td>
+    <td>0.00011 </td>
+    <td>0.00057</td>
+    <td>-0.00071</td>
+</tr>
+<tr><td>90</td>
+    <td>0.019</td>
+    <td>0.028</td>
+    <td>-0.023</td>
+    <td>0.00011 </td>
+    <td>0.00057</td>
+    <td>-0.00071</td>
+</tr>
+<tr><td>91</td>
+    <td>0.021</td>
+    <td>0.025</td>
+    <td>-0.037</td>
+    <td>0.00021 </td>
+    <td>0.00052</td>
+    <td>-0.00068</td>
+</tr>
+<tr><td>92</td>
+    <td>0.038</td>
+    <td>0.040</td>
+    <td>-0.037</td>
+    <td>0.00021 </td>
+    <td>0.00052</td>
+    <td>-0.00068</td>
+</tr>
+<tr><td>93</td>
+    <td>0.019</td>
+    <td>0.053</td>
+    <td>-0.021</td>
+    <td>0.00032 </td>
+    <td>0.00078</td>
+    <td>-0.00067</td>
+</tr>
+<tr><td>94</td>
+    <td>0.041</td>
+    <td>0.041</td>
+    <td>-0.049</td>
+    <td>0.00020 </td>
+    <td>0.00050</td>
+    <td>-0.00065</td>
+</tr>
+<tr><td>96</td>
+    <td>0.041</td>
+    <td>0.041</td>
+    <td>-0.049</td>
+    <td>0.00020 </td>
+    <td>0.00050</td>
+    <td>-0.00065</td>
+</tr>
+<tr><td>97</td>
+    <td>0.041</td>
+    <td>0.041</td>
+    <td>-0.049</td>
+    <td>0.00020 </td>
+    <td>0.00050</td>
+    <td>-0.00065</td>
+</tr>
+<tr><td>00</td>
+    <td>0.054</td>
+    <td>0.051</td>
+    <td>-0.048</td>
+    <td>0.000081</td>
+    <td>0.000490</td>
+    <td>-0.000792</td>
+</tr>
+</table>
+<br>
+These values may be downloaded from <a name="LINKS.HLP#EUREF">EUREF</a>.
+
+<a name="INVTRAFO" default="0"></a>
+<p><b>Inverse transformation:</b>
+If the corresponding checkbox is marked, the inverse transformation is
+computed. Accordingly, ITRFyy should be specified as
+<a href="ETRS89.HLP#LGTDAT">LOCAL GEODETIC DATUM</a>.
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+</body>
+</html>

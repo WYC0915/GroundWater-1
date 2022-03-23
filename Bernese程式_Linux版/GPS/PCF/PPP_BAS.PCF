@@ -1,0 +1,168 @@
+#
+# ============================================================================
+# PPP_BAS.PCF
+# ============================================================================
+#
+# Purpose:      PRECISE POINT POSITIONING (PPP) - basic version
+#               - computes coordinates, troposphere and receiver clocks
+#               - updates the coordinate/velocity files
+#
+# ----------------------------------------------------------------------------
+#
+# A description of the BPE, the use of the BPE server variables, input and
+# output files as well as the important points to be checked in the processing
+# summary are provided in 
+#               ${U}/PCF/PPP_BAS.README    (UNIX/Linux)
+#                %U%\PCF\PPP_BAS.README    (Windows)
+#
+# ----------------------------------------------------------------------------
+#
+# 
+# Author     :  R. Dach
+# Created    :  10-Aug-2011               Last modified: 10-Aug-2011
+#
+# Changes    :  
+#
+# ============================================================================
+#
+#
+PID SCRIPT   OPT_DIR  CAMPAIGN CPU      P WAIT FOR....
+3** 8******* 8******* 8******* 8******* 1 3** 3** 3** 3** 3** 3** 3** 3** 3** 3**
+#
+# Copy required files
+# -------------------
+001 PPP_COP  PPP_GEN           ANY      1
+002 ATX2PCV  PPP_GEN           ANY      1 001
+011 RNX_COP  PPP_GEN           ANY      1 001
+021 OBSMRGAP PPP_GEN           ANY      1 011
+022 OBSMRG_P PPP_GEN           ANY      1 021
+031 ION_MRG  PPP_GEN           ANY      1 011
+099 DUMMY    PPP_GEN           ANY      1 002 022 031
+#
+# Prepare the orbits
+# ------------------
+101 POLUPDH  PPP_GEN           ANY      1 001
+111 ORBMRGH  PPP_GEN           ANY      1 001
+112 PRETAB   PPP_GEN           ANY      1 101 111
+113 ORBGENH  PPP_GEN           ANY      1 112
+121 CCRNXCH  PPP_GEN           ANY      1 001
+122 RNXCLK   PPP_GEN           ANY      1 121
+199 DUMMY    NO_OPT            ANY      1 113 122
+#
+# Preprocess, convert, and synchronize observation data
+# -----------------------------------------------------
+201 RNXGRA   PPP_GEN           ANY      1 099
+211 RNXSMTAP PPP_GEN           ANY      1 099
+212 RNXSMT_H PPP_GEN           ANY      1 211
+221 RXOBV3AP PPP_GEN           ANY      1 212
+222 RXOBV3_H PPP_GEN           ANY      1 221
+223 CRDMRDAT PPP_GEN           ANY      1 222
+231 CODSPPAP PPP_GEN           ANY      1 199 223
+232 CODSPP_P PPP_GEN           ANY      1 231
+233 CODXTR   PPP_GEN           ANY      1 232
+299 DUMMY    NO_OPT            ANY      1 201 233
+#
+# Compute PPP solutions station by station (including data screening)
+# -------------------------------------------------------------------
+301 PPPEDTAP PPP_GEN           ANY      1 299
+302 PPPEDT_P PPP_GEN           ANY      1 301
+303 GPSXTR   PPP_GEN           ANY      1 302
+311 RES_SUM  PPP_AUX           ANY      1 302
+321 CRDMERGE PPP_AUX           ANY      1 302
+322 ADDNEQ2  PPP_AUX           ANY      1 321
+323 PPP_HLM  PPP_AUX           ANY      1 321
+331 CCRNXC   PPP_AUX           ANY      1 321
+341 ADDNEQ2  PPP_SNX           ANY      1 322
+399 DUMMY    NO_OPT            ANY      1 303 311 322 323 331 341
+#
+# Take into account NNR-NUVEL1-A velocities (if desired)
+# ------------------------------------------------------
+401 PPP_UPD  PPP_VEL           ANY      1 399
+402 NUVELO   PPP_VEL           ANY      1 401
+403 COOVEL   PPP_VEL           ANY      1 402
+411 CRDMERGE PPP_VEL           ANY      1 403
+421 CRDMERGE PPP_CRD           ANY      1 403
+499 DUMMY    NO_OPT            ANY      1 411 421
+#
+# Create summary file and delete files
+# ------------------------------------
+901 PPP_SUM  PPP_GEN           ANY      1 499
+902 PPP_SAV  PPP_GEN           ANY      1 901
+903 PPP_DEL  PPP_GEN           ANY      1 902
+991 BPE_CLN  PPP_GEN           ANY      1 903 
+#
+# End of BPE
+# ----------
+999 DUMMY    NO_OPT            ANY      1 991
+#
+#
+PID USER         PASSWORD PARAM1   PARAM2   PARAM3   PARAM4   PARAM5   PARAM6   PARAM7   PARAM8   PARAM9
+3** 12********** 8******* 8******* 8******* 8******* 8******* 8******* 8******* 8******* 8******* 8*******
+# Copy required files
+# -------------------
+011                       NEXTJOB  099
+021                       $021
+022                       PARALLEL $021
+#
+# Prepare the orbits
+# ------------------
+# ....
+#
+# Preprocess, convert, and synchronize observation data
+# -----------------------------------------------------
+211                       $211
+212                       PARALLEL $211
+221                       $221
+222                       PARALLEL $221
+231                       $231
+232                       PARALLEL $231
+#
+# Compute PPP solutions station by station (including data screening)
+# -------------------------------------------------------------------
+301                       $301     V_C
+302                       PARALLEL $301
+#
+# Take into account NNR-NUVEL1-A velocities (if desired)
+# ------------------------------------------------------
+401                       NEXTJOB  499
+#
+# Create summary file and delete files
+# ------------------------------------
+903                       (10)
+#
+#
+VARIABLE DESCRIPTION                              DEFAULT
+8******* 40************************************** 30****************************
+V_A      A priori information                     APR 
+V_B      Orbit/ERP, DCB, CLK information          COD
+V_C      CRD/TRP/TRO/SNX and CLK results          PPP 
+V_E      CRD results at reference epoch           REF 
+V_F      Reduced size NEQs (only with CRD)        RED
+V_RNXDIR Directory with the RINEX files           RINEX
+V_OBSSEL Station selection file (blank: all)      
+V_REFDIR Directory with basic Bernese files       REF52  
+V_REFINF Master/reference CRD/VEL filename        IGB08
+V_REFEPO Epoch of coordinates in reference CRD    2005 01 01
+V_CRDINF Merged CRD/VEL filename                  EXAMPLE
+V_STAINF Station information file                 EXAMPLE
+V_CRXINF Accepted station inform. inconsistencies     
+V_BLQINF BLQ FILE NAME, CMC CORRECTIONS           EXAMPLE         
+V_ATLINF ATL FILE NAME, CMC CORRECTIONS           EXAMPLE         
+V_HOIFIL Ionosphere model for higher order iono   HOI$YSS+0
+V_RESULT Directory name for the PPP results       PPP
+V_SATSYS Select the GNSS (GPS, GPS/GLO)           GPS
+V_SAMPL  Sampling interval                        300
+V_OBSTYP Select observations (CODE, PHASE, BOTH)  BOTH
+V_HOURLY Number of hourly sessions proc. together 8
+V_MYATX  ANTEX file for update (name incl. ext)   
+V_PCV    Absolute/relative PCV model              I08
+V_SATINF Satellite information file               SATELLIT        
+V_PCVINF PCV information file                     PCV       
+V_SATCRX Satellite problem file                   SAT_$Y+0
+V_UPD    Update reference files with PPP results  Y
+V_SAV    Save results?                            Y               
+V_DEL    Delete results?                          Y               
+#
+# DO NOT USE V_D, V_J, V_M, V_Y VARIABLES! 
+# (they are used already by the menu)
+# 

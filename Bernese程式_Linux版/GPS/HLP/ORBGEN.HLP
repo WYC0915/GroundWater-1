@@ -1,0 +1,779 @@
+<html>
+<body>
+
+<center>
+<b>CREATE/UPDATE STANDARD ORBITS</b>
+<p>Program: ORBGEN
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="DELETE_FILES"  default="%AUXFIL%\n%TABAUX%"></a>
+<a name="ITIM"          default="0"></a>
+
+<p><b>GENERAL DESCRIPTION</b></p>
+<p>
+With program ORBGEN you generate a so-called standard orbit (default
+extension STD) and a so-called radiation pressure coefficient file
+(default extension RPR). The orbit will be generated starting
+from tabular orbit file(s), from precise ephemeris file(s), or from an orbit
+element file. The standard orbit is the result of a numerical integration of
+the equations of motions.
+<br>
+The standard orbit file is a binary file containing the satellite orbit
+information as a polynomial representation of inertial Cartesian positions.
+All Bernese programs that access satellite orbit information read a standard
+orbit file. For all applications precise ephemeris files (tabulated Cartesian
+positions of the satellites in Earth-fixed frame) have to be converted to the
+standard orbit format.
+<br>
+The radiation pressure coefficient file is a binary file containing
+partial derivatives of satellite positions with respect to
+orbital parameters (osculating elements and radiation pressure
+coefficients). The file is only required when estimating satellite orbits in
+program <a href="PGMLST.HLP#GPSEST">GPSEST</a>.
+
+<p><i>Remark:</i>
+Wherever a standard orbit is used by a program it has always
+to be used together with the Earth orientation information that was used for the
+generation of the orbit file in order to use the orbit information in a
+consistent way. It is recommended to use the ERP information delivered together
+with the precise ephemeris file, e.g., by the IGS.
+
+<p><hr>
+
+<p><b>ORBGEN 1: Input Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RADIO_T" default="1"></a>
+<a name="TABFIL" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Start with tabular orbits:</b>
+If you converted the precise ephemeris files into tabular format using
+program <a href="PGMLST.HLP#PRETAB">PRETAB</a> you may start ORBGEN with
+the tabular files as input. You may specify more than one file.
+
+<p><i>Remark:</i>
+Make sure that you use the generated standard orbit always
+together with the information used in PRETAB to generate the tabular files.
+
+<a name="RADIO_P" default="0"></a>
+<a name="PREFIL" default=""></a>
+<p><b>Start with precise orbits:</b>
+You may start program ORBGEN directly with precise ephemeris files as input.
+Specify the name(s) in this field. In this case ERP files with the same names
+as the precise ephemeris files (but with different extension) have to exist
+in the same campaign directory as the precise ephemeris files.
+
+<a name="RADIO_E" default="0"></a>
+<a name="IMPORB" default=""></a>
+<a name="IMPORB2" default=""></a>
+<p><b>Update standard orbit</b>, <b>Orbital elements, file 1</b>/<b>2:</b>
+Orbital element files are the result of an orbit improvement in programs
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> or
+<a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a>. After improving initial conditions
+and dynamical parameters the program ORBGEN has to be used to reconstruct the
+corresponding standard orbit.
+<br>
+A second orbital element file may be merged with the first one.
+A standard orbit containing both sets of elements will be produced.
+This option can be used to merge estimated GPS and GLONASS orbits.
+
+<a name="POLE" default=""></a>
+<p><b>Pole file:</b>
+This file contains the Earth rotation parameters (ERPs). It is used for
+the transformation of the Earth's gravitational potential into inertial space.
+Optimally it is the same file as the one used to transform the orbit information
+from the Earth-fixed reference frame into the inertial frame in program
+<a href="PGMLST.HLP#PRETAB">PRETAB</a> or in program ORBGEN using the option
+"Start with precise orbits" above.
+
+<p><a href="/$X/DOC/EXAMPLE.ERP">Example</a>
+
+<!--
+<a name="ALBREFL" default=""></a>
+<p><b>Albedo reflectivity:</b>
+This file contains monthly reflectivity coefficients from the Earth in a
+2.5&nbsp;x&nbsp;2.5 degree grid, obtained from the CERES NASA project (ES-4)
+data set.
+It is necessary for using the Earth radiation pressure numerical model.
+
+<a name="ALBEMIS" default=""></a>
+<p><b>Albedo emissivity:</b>
+This file contains monthly emissivity coefficients from the Earth in a
+2.5&nbsp;x&nbsp;2.5 degree grid, obtained from the CERES NASA project (ES-4)
+data set.
+It is necessary for using the Earth radiation pressure numerical model.
+-->
+
+<a name="OCNLOAD" default=""></a>
+<p><b>Ocean loading corrections:</b>
+If you want to apply center of mass correction (CMC) to the orbits, specify
+the name of the ocean tidal loading file (BLQ) containing CMC coefficients.
+This field will be active if "Apply CMC correction" for OTL is marked.
+
+<a name="ATMLOAD" default=""></a>
+<p><b>Atmospheric loading corrections:</b>
+If you want to apply center of mass correction (CMC) to the orbits, specify
+the name of the atmospheric tidal loading file (ATL) containing CMC
+coefficients.
+This field will be active if "Apply CMC correction" for ATL is marked.
+
+<p><i>Remark:</i>
+This file can be generated by the program
+<a href="PGMLST.HLP#GRDS1S2">GRDS1S2</a>
+
+<p><a href="/$X/DOC/EXAMPLE.ATL">Example</a>
+
+<p><hr>
+
+<p><b>ORBGEN 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems concerning modeling.
+It is used for exclusion of misbehaving satellites
+(and for orbit arc splitting).
+It may also contain (mean) epochs of GPS repositioning events.
+
+<p><i>Note:</i>
+Corresponding year-specific files are maintained by AIUB/CODE.
+You can get the latest version of the current file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SAT_2011.CRX">$X/GEN/SAT_2011.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<a name="JPLEPH" default="DE405">
+<p><b>Planetary ephemeris file:</b></A>
+You have the possibility to use the JPL planetary and lunar ephemerides to
+compute the position of the Sun, the Moon, and the planets. If not used
+the Newcomb's formula will be used.
+<a href="/$X/DOC/README_JPL_EPH.TXT">Where to get the JPL file</a>?
+
+<p><i>Default value:</i> <tt>DE405</tt>
+
+<a name="SUBMOD" default="IERS2010XY"></a>
+<p><b>Subdaily pole model:</b>
+This file contains the parameters for the subdaily pole model. Use the same
+file in all cases where you use the standard orbit generated here.
+
+<p>Example: <a href="/$X/GEN/IERS2010XY.SUB">$X/GEN/IERS2010XY.SUB</a>
+
+<a name="NUTMOD" default="IAU2000R06"></a>
+<p><b>Nutation model:</b>
+This file contains the parameters for the nutation model. Use the same
+file in all cases where you use the standard orbit generated here.
+
+<p>Example: <a href="/$X/GEN/IAU2000R06.NUT">$X/GEN/IAU2000R06.NUT</a>
+
+<a name="POTCOE" default="EGM2008_SMALL."></a>
+<p><b>Coeff. of Earth potential:</b>
+Specify the file containing the coefficients of the Earth's gravitational
+potential.
+Supported are: GEMT3, GEM10N, JGM3, EGM96, TEG4, EIGEN1, EIGEN2.
+
+<p><i>Default value:</i> <tt>JGM3.</tt>
+
+<a name="SETIDES" default="TIDE2000"></a>
+<p><b>Solid Earth tides file:</b>
+The file contains the parameters for the impact of solid Earth tides on
+the gravity potential. Use the same file in all cases where you use the
+standard orbit generated here.
+
+<p><i>Default value:</i> <tt>TIDE2000</tt>
+
+<a name="OTIDES" default="OT_FES2004"></a>
+<p><b>Ocean tides file:</b>
+Possibility to use the CSR (Texas) Ocean Tides models to account
+for the change of the gravity potential due to the Ocean Tides.
+
+<p><i>Default value:</i> <tt>OT_CSR30</tt>
+
+<a name="GPSUTC" default="GPSUTC."></a>
+<p><b>GPS-UTC seconds:</b>
+Select the file containing GPS-UTC values here. You have to update this file
+each time a leap second is introduced.
+<br>
+Example: <a href="/$X/GEN/GPSUTC.">$X/GEN/GPSUTC.</a>
+
+<br><br>
+
+<a name="AUXFIL" default="ORBGEN$J"></a>
+<a name="TABAUX" default="ORBGEN$J"></a>
+<p><b>TEMPORARY FILES</b>
+<p><b>Scratch files:</b>
+Enter the names of the scratch files used by this program. The scratch files
+need to be named differently for different programs running simultaneously. This
+may be achieved, e.g., by adding the job ID
+<tt>$J</tt> to the program name (define the job ID in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>).
+
+<p><i>Default values:</i> <tt>ORBGEN$J</tt>
+
+<p><hr>
+
+<p><b>ORBGEN 2: Result and Output Files</b>
+
+<a name="STDOUT" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>Standard orbits:</b>
+Name of the resulting standard orbit file.
+
+<a name="RPROUT" default=""></a>
+<p><b>Radiation pressure coeff.:</b>
+Name of the resulting radiation pressure coefficients file. This file is
+only needed if you intend to do an orbit improvement in
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> or
+<a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a>.
+
+<p><i>Default value:</i> blank
+
+<a name="RESIDRS" default=""></a>
+<p><b>Residual file:</b>
+Name for an output residual file. Only possible if tabular or
+precise ephemeris files are selected. The binary output file contains the
+differences between the tabulated orbit positions and the generated
+orbit. You may browse through the residuals in the file using program
+<a href="PGMLST.HLP#REDISP">REDISP</a>.
+
+<p><i>Default value:</i> blank
+
+<br><br>
+
+<a name="SUMFIL" default=""></a>
+<p><b>OUTPUT FILES</b>
+<p><b>Summary file:</b>
+If you specify a filename here, the program will write a short summary
+about its run. Only available when using tabular or precise ephemeris files
+as input.
+<br>
+The mean residuals in centimeters for all satellites are listed
+for each input tabular resp. precise ephemeris file. The first column
+contains the day of year to identify each input file. The last line
+gives the total values for all input files. Eclipsing satellites are
+flagged with a character 'E'.
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+ ------------------------------------------------------------------------
+ ORBIT REPEATABILITY FROM A 7-DAY FIT THROUGH DAILY ORBIT SOLUTIONS (CM) 
+ ------------------------------------------------------------------------ ...
+       1   2   3E  4   5   6E  7E  8   9  10  11  13  14  15  16  17  18  ...
+ ------------------------------------------------------------------------ ...
+ 316   5   6  14   5   5   9   9   7   4   2   3   4   4   3   3   5   3  ...
+ 317   4   6  12   2   4   9   8   4   2   3   6   3   3   2   3   5   3  ...
+ 318   5  10  10   3   7  10   8   6   4   3   4   3   4   3   4   5   4  ...
+ 319   2   6  11   4   4  11   7   5   4   3   3   3   4   2   3   7   3  ...
+ 320   3   5   8   5   4  11  11   6   3   3   4   4   5   2   3   4   5  ...
+ 321   3   5  12   3   6  13  12   6   4   4   3   4   3   3   5   3   4  ...
+ 322   2   7  13   2   6  14  11   5   0   2   2   4   6   3   4   3   4  ...
+ ------------------------------------------------------------------------ ...
+ ALL   4   7  11   4   5  11  10   6   4   3   4   4   4   3   4   5   4  ...
+ ------------------------------------------------------------------------ ...
+</pre>
+<br>
+This is the so-called LST file which can be used to weight the orbits
+in the SP3 orbit files using the program
+<a href="PGMLST.HLP#PREWEI">PREWEI</a>.
+
+<p><i>Default value:</i> blank
+
+<a name="SUMACC" default=""></a>
+<p><b>Summary file for IGS-ACC:</b>
+If you specify a filename here, the program will write a short summary
+about its run as in the input field "Summary file" above. The difference
+is a slightly different header of the table and the unit is mm instead of
+cm. Only available when using tabular or precise ephemeris files
+as input.
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+ORBGEN FOR IGS LONG-ARC ANALYSIS: GFZ                           30-AUG-07 10:09
+ TIME FROM DAY : 0 GPS WEEK: 1440
+      TO   DAY : 6 GPS WEEK: 1440
+ ------------------------------------------------------------------------
+ ORBIT REPEATABILITY FROM A 7-DAY FIT THROUGH DAILY ORBIT SOLUTIONS (MM)
+ TIME FROM DAY : 0 GPS WEEK: 1440 TO DAY : 6 GPS WEEK: 1440
+ # ECLIPSING SATELLITES (E):  5
+ ------------------------------------------------------------------------ ...
+ ECL   .   .   E   .   .   E   E   .   .   .   .   .   .   .   .   .   .  ...
+ DOY   1   2   3   4   5   6   7   8   9  10  11  13  14  15  16  17  18  ...
+ ------------------------------------------------------------------------ ...
+ 316  51  61 142  51  51  91  88  72  42  21  28  38  37  26  26  51  29  ...
+ 317  44  65 117  18  36  92  81  40  15  32  63  26  26  16  23  48  28  ...
+ 318  47  99 101  27  74  98  78  59  37  33  36  31  37  33  41  49  36  ...
+ 319  23  62 112  41  43 112  75  54  41  26  28  32  41  21  34  68  34  ...
+ 320  32  51  76  46  41 108 113  63  33  29  41  37  53  18  32  41  50  ...
+ 321  28  46 118  33  57 126 117  61  41  42  32  36  26  32  46  34  43  ...
+ 322  20  67 128  21  58 141 107  48   0  21  19  44  58  34  37  32  36  ...
+ ------------------------------------------------------------------------ ...
+ ALL  42  70 110  44  51 110 102  62  41  34  41  40  41  31  41  53  41  ...
+ ------------------------------------------------------------------------ ...
+</pre>
+
+<p><i>Note:</i>
+This type of LST file cannot be introduced into program
+<a href="PGMLST.HLP#PREWEI">PREWEI</a>.
+
+<p><i>Default value:</i> blank
+
+<a name="RESPLOT" default=""></a>
+<p><b>Plot file of residuals:</b>
+Specify a filename to save the residuals of the orbit fit.
+These residuals may be looked at or checked using the programs
+<a href="PGMLST.HLP#REDISP">REDISP</a> or
+<a href="PGMLST.HLP#RESRMS">RESRMS</a>.
+This option is only active if you start with tabular or precise orbits.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="ORBGEN"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>ORBGEN 3.1: Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<br><br>
+
+<a name="TIMFRAME" default="GPS"></a>
+<p><b>TIME FRAME, POTENTIAL AND TIDAL CORRECTIONS</b>
+<p><b>Time frame:</b>
+Some older receivers used UTC as observation time. Nowadays every
+receiver uses GPS time. Therefore GPS should <i>always</i> be selected here.
+
+<p><i>Default value:</i> GPS
+
+<p><a name="MXPOTDEG" default="12"></a>
+<b>Earth potential degree:</b>
+Select the degree of the Earth gravitational potential
+
+<p><i>Caution:</i>
+Do not change the value for the same project.
+
+<p>
+<table>
+<tr><td><i>Default value:</i></td><td>&nbsp;&nbsp;12</td><td>&nbsp;for GNSS satellites</td></tr>
+<tr><td></td><td>120</td><td>&nbsp;for LEOs</td></tr>
+</table>
+
+<a name="MXOCTI" default="8"></a>
+<p><b>Ocean tides max degree:</b>
+Select the maximum degree of the ocean tides to be considered.
+
+<p>
+<table>
+<tr><td><i>Default value:</i></td><td>&nbsp;&nbsp;8</td><td>&nbsp;for GNSS satellites</td></tr>
+<tr><td></td><td>50</td><td>&nbsp;for LEOs</td></tr>
+</table>
+
+<a name="CMCYN_O" default="1">
+<a name="CMCYN_A" default="1"></a>
+<p><b>Apply CMC correction:</b>
+Mark the checkbox to apply ocean (<b>OTL</b>) and/or atmospheric (<b>ATL</b>)
+tidal loading center of
+mass correction to the orbit positions.
+
+<p><i>Remark:</i>
+The option is only relevant if you are going to process
+Precise orbit files.
+
+<p><i>Default value:</i> marked
+
+<a name="ANTOFF" default="0"></a>
+<p><b>Apply antenna offset:</b>
+Normally the orbit positions are given as center of mass positions.
+However, there are cases where the phase center of the satellite
+antenna is given.
+Only in those, very rare, cases one should check this box.
+
+<p><i>Default value:</i> unmarked
+
+<br><br>
+
+<!--
+<a name="ERPMODFL" default="None"></a>
+<p><b>NON-CONSERVATIVE FORCES</b>
+<p><b>Earth Radiation Pressure:</b>
+The Analytical model uses a constant albedo value of 0.3 for the whole
+Earth. The Numerical model (recommended for tests)
+uses reflectivity and emissivity coefficients from the CERES NASA Project,
+integration is done
+for a 10&nbsp;X&nbsp;10 degree grid. Together with the Earth radiation model a box-wing
+satellite model is used,
+available only for GPS Blocks I, II/IIA and IIR.
+
+<p><i>Default value:</i> None
+
+<a name="ANTTHRFL" default="0"></a>
+<p><b>Navigation Antenna Thrust:</b>
+Small radial constant acceleration due to the power of the navigation
+antennas array (around 80 Watt),
+available only for GPS satellites.
+
+<p><i>Default value:</i> unmarked
+-->
+
+<br><br>
+
+<a name="SYSDYX" default="1"></a>
+<p><b>SYSTEM FOR DYNAMICAL ORBIT PARAMETERS</b>
+<p><b>DYX Sun-oriented (Direct, Y, X):</b>
+The dynamical orbit parameters (constant and once-per-revolution accelerations)
+will be set up in a Sun-oriented system.
+This is the default setting for GNSS satellites.
+
+<a name="SYSRSW" default="0"></a>
+<p><b>RSW (radial, S, cross-track):</b>
+The dynamical orbit parameters (constant and once-per-revolution accelerations)
+will be set up in a system related to the orbital plane (radial, along-track
+and cross-track components).
+This is the default setting for LEO satellites.
+
+<a name="SYSDSW" default="0"></a>
+<p><b>DRSW (Direct, radial, along-track/S, cross-track):</b>
+The dynamical orbit parameters accounting for constant accelerations are set up for
+the direction satellite-Sun (D), along-track (S), and cross-track (W).
+The once-per-revolution accelerations are set up in a system related to the
+orbital plane (radial, along-track and cross-track components).
+This is the default setting for spherical satellites (e.g., LAGEOS).
+
+<p><hr>
+
+<p><b>ORBGEN 3.2: Options</b>
+
+<a name="PRTRESID" default="NO"></a>
+<p><b>PRINT RESIDUALS:</b>
+Select whether or not you want to print residuals into the output file.
+Printing is possible after each iteration step. Specify either
+<ul>
+<li><b>NO</b> to get no residuals,
+<li><b>LAST</b> to get the residuals only from the last iteration,
+<li><b>ALL</b> to get residuals for each iteration, or
+<li>Introduce the iteration number you would like to get the residuals from.
+</ul>
+Only possible when using tabular or precise ephemeris files as input.
+
+<p><i>Default value:</i>  <tt>NO</tt>
+
+<br><br>
+
+<a name="NUMITER" default="2"></a>
+<p><b>NUMERICAL INTEGRATION</b>
+<p><b>Number of iterations:</b>
+Selection of the number of iterations. Only possible if using tabular or
+precise ephemeris files as input. In other cases the option is ignored.
+Usually two iterations are enough.
+
+<p><i>Default value:</i> <tt>2</tt>
+
+<br><br>
+
+<a name="POLDEGR" default="10"></a>
+<p><b>EQUATION OF MOTION</b>
+<p><b>Polynomial degree:</b>
+Select the polynomial degree to be used for the orbit representation.
+
+<p><i>Default value:</i> <tt>10</tt>
+
+<a name="LENINTER" default="01 00 00"></a>
+<p><b>Length of interval:</b>
+Select the interval length to be used for one set of polynomial
+coefficients.
+The length is given in hours, minutes, seconds.
+
+<p><i>Default value:</i> <tt>01 00 00</tt>&nbsp;hours for GPS-orbits,
+                      <tt>00 06 00</tt>&nbsp;minutes for LEO-orbits
+
+<br><br>
+
+<a name="VARPOLDG" default="12"></a>
+<p><b>VARIATIONAL EQUATIONS</b>
+<p><b>Polynomial degree:</b>
+Select the polynomial degree to be used for the representation of the
+partial derivatives.
+
+<p><i>Default value:</i> 12
+
+<a name="VARLNINT" default="06 00 00"></a>
+<p><b>Length of interval:</b>
+Select the interval length to be used for one set of polynomial
+coefficients.
+The length is given in hours, minutes, seconds.
+
+<p><i>Default value:</i> <tt>06 00 00</tt>&nbsp;hours for GPS-orbits,
+                      <tt>00 12 00</tt>&nbsp;minutes for LEO-orbits
+
+<a name="ADDVAR" default="0"></a>
+<p><b>Additional sets:</b>
+Select one additional set if pseudo-stochastic orbit parameters shall be set
+up later in <a href="PGMLST.HLP#GPSEST">GPSEST</a> as piecewise constant
+accelerations (only relevant for LEO orbit determination).
+
+<a name="RPRFRM" default="0"></a>
+<p><b>Use extended RPR Format:</b>
+Mark this checkbox to save pseudo-stochastic parameter estimates from an input
+ELE file in an output RPR file when performing an orbit update step.
+This is only required if a further orbit improvement shall be performed later
+in <a href="PGMLST.HLP#GPSEST">GPSEST</a> (only relevant for iterative LEO
+orbit determination).
+
+<p><hr>
+
+<p><b>ORBGEN 4: Parameter Selection</b>
+
+<a name="PARD0" default="1"></a>
+<a name="PARDP" default="1"></a>
+<a name="PARY0" default="1"></a>
+<a name="PARYP" default="1"></a>
+<a name="PARX0" default="1"></a>
+<a name="PARXP" default="1"></a>
+<a name="PARR0" default="0"></a>
+<a name="PARRP" default="0"></a>
+<a name="PARS0" default="0"></a>
+<a name="PARSP" default="0"></a>
+<a name="PARW0" default="0"></a>
+<a name="PARWP" default="0"></a>
+<p><b>DYNAMICAL ORBIT PARAMETERS</b>
+<p><b>Apart from six osculating elements, estimate the following parameters:</b>
+Select the radiation pressure parameters which will be estimated
+to fit the tabular or precise ephemerides (together with the osculating
+elements).
+<br>
+The radiation pressure model is defined as follows:
+<pre>
+ D = D0 + DC*COS(U) + DS*SIN(U)
+ Y = Y0 + YC*COS(U) + YS*SIN(U)
+ X = X0 + XC*COS(U) + XS*SIN(U)
+</pre>
+<ul>
+<li><tt>D</tt>: stands for the direct solar radiation pressure
+                (direction Sun --&gt; satellite),
+<li><tt>Y</tt>: refers to the 'y-bias' (direction of the
+                satellite's solar panel axis),
+<li><tt>X</tt>: is an acceleration perpendicular to the <i>D</i> and
+                <i>Y</i> directions.
+</ul>
+<br>
+If you use IGS precise orbits we recommend to use the full set of radiation
+pressure parameters. In case you fit broadcast information it may be enough
+to estimate the parameters <i>D0</i> and <i>Y0</i> only.
+
+<p><i>Default value:</i> all marked
+
+<br><br>
+
+<a name="STOCH_NUMBER" default="NONE"></a>
+<p><b>STOCHASTIC PULSES IN (R, S, W)-DIRECTIONS</b>
+<p><b>Satellite selection:</b>
+In addition to the six osculating elements and the radiation pressure
+parameters also so called stochastic pulses (changes in the velocity of
+the satellite) in radial, along-track, and out-of-plane directions may
+be estimated. In this input field you may define the setup of such pulses:
+<ul>
+<li><b>NONE</b>:
+    No stochastic pulses are setup at all.
+<li><b>ALL</b>:
+    Stochastic pulses are setup for all satellites.
+<li><b>SATCRUX</b>:
+    Stochastic pulses are setup according to the specification in the
+    Satellite problem file (Problem flag <tt>4</tt>: satellite modelling;
+    Action flag <tt>4</tt> pulses in ORBGEN). For all other selections
+    in this input field the entries of this file are ignored.
+<li><b>MANUAL</b>:
+    Stochastic pulses for a user defined list of satellites.
+</ul>
+
+<p><i>Note:</i>
+The options to setup stochastic pulses are only inactive if
+no result file with "Radiation pressure coeff." is specified. In this case the
+resulting standard orbits cannot be used as a&nbsp;priori information for
+any orbit improvement. In that case the stochastic pulses may be defined
+later on the programs <a href="PGMLST.HLP#GPSEST">GPSEST</a> or
+<a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a>.
+
+<a name="STOCH_MANUAL" default=""></a>
+<p><b>List of satellites:</b>
+List of satellites for which stochastic pulses are setup if you have chosen
+the manual satellite selection. Several satellites may be specified separated
+by blank delimiters. In case of repositioning events the usual PRN can be used
+here.
+
+<a name="STOCH_INTER" default=""></a>
+<p><b>Parameter spacing:</b>
+Put the spacing of the stochastic pulses to be setup for the previously
+defined list of satellites in this input field.
+
+<p><hr>
+
+<p><b>ORBGEN 5: Orbital Arc Definition</b>
+
+<a name="NUMARCS" default="1"></a>
+<p><b>ORBITAL ARC DEFINITION</b>
+<p>
+When defining the satellite arcs, please keep in mind that you have to cover
+all epochs you want to process in one run of the processing programs,
+especially of <a href="PGMLST.HLP#GPSEST">GPSEST</a>, with a standard orbit.
+Even for a multi-session processing in one GPSEST run you can only
+introduce a single standard orbit. Your "Time window to be covered by
+the standard orbits" needs to be the time interval covering all sessions.
+The "Number of arcs within the time window" has to be chosen in such a way
+that you get one arc per session.
+<br>
+In general it is favorable to process the data session by session in
+GPSEST and produce the multi-session solution in program
+<a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a>. In this case you will need to have
+one standard orbit for each session.
+<br>
+If you have subdaily sessions you should define the arcs in such a way that
+you get daily arcs.
+
+<p><b>Number of arcs within the time window:</b>
+Select the number of arcs to be contained in the standard orbit file.
+<br>
+If you want to include the orbits of several days into one standard orbit
+file, you should set up one arc for each day. Do not, however, split the
+standard orbit into several arcs per day.
+
+<p><i>Default value:</i> <tt>1</tt> per day
+
+<br><br>
+
+<a name="RADIO_1" default="1"></a>
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>Time window to be covered by the standard orbits</b>
+<p>
+This section allows to specify a time window. The output standard orbit
+will be computed for this time window.
+<br>
+You may define the time window either by using session definitions, or by
+explicitly specifying start and end times.
+
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the time window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the time window.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: 00&nbsp;00&nbsp;00, end date: <tt>$YMD_STR+0</tt>,
+end time: 23&nbsp;59&nbsp;59
+
+<p><hr>
+
+<p><b>ORBGEN 6: Selection of Orbital Elements</b>
+
+<a name="NEWOLD" default="NEW"></a>
+<p><b>SELECTION OF ORBITAL ELEMENTS:</b>
+<p>
+The orbital element file, which was generated either by program
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> or
+<a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a> contains two orbit sets, the 'a
+priori' orbit used in the <a href="PGMLST.HLP#GPSEST">GPSEST</a>
+or <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a> parameter estimation programs, and
+the 'improved' or 'estimated' orbit sets as established by GPSEST or ADDNEQ2.
+Here you select which of these two sets
+of elements you want to use. Normally you will use the improved elements!
+
+<p><i>Default value:</i> <tt>NEW</tt>
+
+<br><br>
+
+<a name="ARCINT" default=""></a>
+<p><b>LENGTH OF TIME INTERVAL:</b>
+<p>
+Specify the length of the time interval in days the standard orbit shall
+cover. The start epoch is the osculation epoch specified in the orbital element
+file.
+
+<p><hr>
+
+</body>
+</html>

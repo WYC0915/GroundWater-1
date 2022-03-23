@@ -1,0 +1,205 @@
+<html>
+<body>
+
+<center>
+<b>MERGE STATION INFORMATION FILES</b>
+<p>Program: STAMERGE
+</center>
+<hr width="100%">
+
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="ENVIRONMENT"   default="%% %%"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The program STAMERGE allows the modification of a single station information
+file or the merging of two station files.
+
+<p><hr>
+
+<p><b>STAMERGE 1: Input/Output Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="STAMTR" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Master station information file:</b>
+Specify the master station information file.
+
+<p><a href="/$X/DOC/EXAMPLE.STA">Example</a>
+
+<a name="STASEC" default=""></a>
+<p><b>Secondary station information file:</b>
+Specify the secondary station information file.
+
+<p><a href="/$X/DOC/EXAMPLE.STA">Example</a>
+
+<br><br>
+
+<a name="STARESM" default=""></a>
+<p><b>RESULT FILE</b>
+<p><b>Station information file:</b>
+Specify the name of the station information file to be created.
+
+<p><a href="/$X/DOC/EXAMPLE.STA">Example</a>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="STAMERGE"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>STAMERGE 2: Action options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE:</b>
+<p>
+This title line will be printed as header comment into the program output.
+The title should characterize the program run.
+
+<br><br>
+
+<a name="SORTMA" default=""></a>
+<p><b>ACTION ON MASTER FILE</b>
+
+<p><b>Sort master file:</b>
+If no secondary file is selected, you can sort the master file by marking this
+checkbox.
+
+<p><i>Default value:</i> not marked
+
+<br><br>
+
+<a name="COMBO01" default="MERGE"></a>
+<a name="COMBO02" default="MERGE"></a>
+<a name="COMBO03" default="MERGE"></a>
+<a name="COMBO04" default="MERGE"></a>
+<a name="COMBO05" default="MERGE"></a>
+<p><b>ACTIONS ON BOTH FILES</b></p>
+
+<p>You may specify for each TYPE separately, whether the entries from both
+station files should be <b>DELETE</b>d, <b>MERGE</b>d, <b>COMPARE</b>d or
+ignored (<b>NONE</b>).
+
+<p><i>Default value:</i> <tt>MERGE</tt>
+
+<p><b>TYPE 002: Station information:</b>
+
+
+<a name="REDANT" default=""></a>
+<p><b>Disregard entries for serial antenna number:</b>
+Mark this checkbox to get completely rid of all serial antenna numbers
+(column will be empty in resulting Station information file).
+
+<p><i>Default value:</i> not marked
+
+<a name="REDREC" default=""></a>
+<p><b>Disregard entries for serial receiver number:</b>
+Mark this checkbox to get completely rid of all serial receiver numbers
+(column will be empty in resulting Station information file).
+
+<p><i>Default value:</i> not marked
+
+<p><b>TYPE 003: Handling of station problems:</b>
+
+<a name="CONSID" default=""></a>
+<p><b>Consider entries with '_' in station name:</b>
+An underscore in the station name may be used to mark stations. As long as this
+checkbox remains unmarked, these stations are removed from the resulting
+Station information file.
+
+<p><i>Default value:</i> not marked
+
+<p><hr>
+
+<p><b>STAMERGE 3: Selection options</b>
+
+<a name="FIXSTA" default=""></a>
+<p><b>STATION SELECTION DEFINITION</b>
+<p><b>Selection for both files:</b>
+A list of stations may be used to reduce the contents of the resulting Station
+information file. Only stations listed will be considered.
+
+<p><a href="/$X/DOC/EXAMPLE.FIX">Example</a>
+
+<br><br>
+
+<a name="WINDOW" default=""></a>
+<p><b>Use time window:</b>
+A time window may be specified for the resulting Station information file.
+
+<p><i>Default value:</i> not marked
+
+<p><hr>
+
+<a name="WINDOW" default=""</a>
+<p><b>TIME WINDOW DEFINITION</b>
+<p><b>Time window to be covered:</b>
+Select the time window to be covered by the resulting Station information file
+between year and session identifier or start and end times.
+
+<a name="RADIO_2" default="1"></a>
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the time window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_3" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the time window.
+<p>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: <tt>00&nbsp;00&nbsp;00</tt>, end date: <tt>$YMD_STR+0</tt>,
+end time: <tt>23&nbsp;59&nbsp;59</tt>
+
+<p><hr>
+
+</body>
+</html>

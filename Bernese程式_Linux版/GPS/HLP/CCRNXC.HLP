@@ -1,0 +1,762 @@
+<html>
+<body>
+
+<center>
+<b>COMBINE/MANIPULATE CLOCK RINEX FILES</b>
+<p>Program: CCRNXC
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="STALST"        default=""></a>
+<a name="SATLST"        default=""></a>
+<a name="ONEREF"        default="1"></a>
+<a name="DOINTER"       default="0"></a>
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+The program CCRNXC is the utility in the Bernese GNSS Software for
+manipulating clock files in the clock RINEX format. Apart from combining
+different clock files the program also allows to cut or to resample a
+single clock RINEX file, or to extract specific clock values.
+<br>
+The main purpose of this program is the combination of clock RINEX files.
+A time offset between the clock RINEX files is estimated once per epoch in
+order to account for different reference clocks in the files. The clock
+corrections from the input files are then corrected for this offset and are
+combined using a weighted arithmetic mean. The reference clock for the
+resulting clock file may be taken from one of the input files or it may be
+selected automatically from a list of station and/or satellite clocks.
+<br>
+If the user specified time window exceeds the time interval covered
+by the input file the clock corrections may be extrapolated. The clock
+model function for the extrapolation may consist of a polynomial and
+periodic terms. The clock model considers clock jumps detected by the
+program.
+<br>
+The resulting clock values may be written into a clock RINEX file or
+into a Bernese satellite clock file.
+Ignoring most of the options, this program can be used to convert a clock
+RINEX file to the Bernese clock format.
+
+<p><i>Remark:</i>
+If station coordinates, terrestrial reference frame, and
+leap seconds given in the headers of the input files are not identical, the
+files are not combined.
+
+<p><hr>
+
+<p><b>CCRNXC 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RCLKINP" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Clock RINEX files:</b>
+Select the clock RINEX files you want to process.
+
+<a name="COORD" default=""></a>
+<p><b>Replace station coordinates:</b>
+The coordinates from this file are used to replace the coordinates for the
+station clocks in the header of the clock RINEX input files.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<br><br>
+
+<a name="RCLKOUT" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>Combined clock RINEX file:</b>
+Specify the name of the resulting combined clock RINEX file. If this field is
+empty, no file will be written.
+
+<a name="SCLKOUT" default=""></a>
+<p><b>Bernese satellite clock file:</b>
+It is possible to write extracted satellite clock corrections to a Bernese
+satellite clock file. Provide the filename in this field. If the field is
+empty, no file will be written.
+
+<p><a href="/$X/DOC/EXAMPLE1.CLK">Example</a>
+
+<a name="LINFITRS" default=""></a>
+<p><b>Sigma file with linear fit RMS:</b>
+A file in the format of the station sigma file may be written containing for
+each station and each satellite the RMS value of a linear fit of the combined
+clock corrections in microseconds.
+<br>
+This file may be introduced, e.g., in the program
+<a href="PGMLST.HLP#MKCLUS">MKCLUS</a> to identify good and bad clocks when
+selecting stations.
+
+<p><a href="/$X/DOC/EXAMPLE.SIG">Example</a>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="CCRNXC"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>CCRNXC 2: Clock/Epoch Selection for Processing</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+and will be saved in the result files to document the program run.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="USEWIN" default="0"></a>
+<p><b>DEFINE EPOCHS TO BE PROCESSED</b>
+<p><b>Use time window:</b>
+Mark this checkbox to specify the time window to be processed. The option may be used
+to cut the input clock RINEX files to a time interval or to extrapolate clock
+values.
+
+<p><i>Default value:</i> unmarked
+
+<a name="DELTAT" default=""></a>
+<p><b>Sampling rate for clocks:</b>
+Specify the sampling rate of the clock values for the output file. Leave
+the input field blank to take the highest sampling rate from the input
+clock RINEX files (for option "Select a new reference clock for the output
+file")
+or that from the reference clock RINEX file (for option "Retain the reference
+clock from an input file" in section "REFERENCE CLOCK SELECTION").
+<br>
+Only clocks for epochs corresponding to this sampling rate are
+included in the clock combination. If you have, e.g., input files with a
+sampling rate of 300 seconds and you request a sampling rate of 450 seconds,
+the resulting file will contain clock values for only every 900 seconds.
+
+<p><i>Default value:</i> blank
+
+<br><br>
+
+<a name="SELSTA" default="ALL"></a>
+<a name="SELSAT" default="ALL"></a>
+<p><b>DEFINE A LIST OF CLOCKS TO BE PROCESSED</b>
+<p>
+Define a list of clocks you want to process. Only the
+clocks specified in this list will be used for the entire combination process.
+Use this option to extract clocks of interest from the full set of available
+input file clocks.
+
+<p><i>Remark:</i>
+If the reference clock from an input clock RINEX file
+is retained (see "REFERENCE CLOCK SELECTION") the reference clocks from
+all input files are kept independently from the selection here.
+
+<p><b>Selection of station clocks</b>,
+   <b>Selection of satellite clocks:</b>
+Clocks may be selected separately for stations and satellites.
+You have several options to define the list of clocks.
+<ul>
+<li>NONE: No clocks will be included.
+<li>FROM_FILE: The list with requested clocks is taken from a file.
+<li>FROM_LIST: The desired clocks can be chosen manually.
+<li>ALL: All clocks will be included.
+</ul>
+
+<a name="SFILSTA" default=""></a>
+<a name="SFILSAT" default=""></a>
+<p><b>List from file:</b>
+The list with desired station/satellite clocks is taken from this selection
+file.
+
+<p><a href="/$X/DOC/EXAMPLE.FIX">Example</a>
+
+<a name="SLSTSTA" default=""></a>
+<a name="SLSTSAT" default=""></a>
+<p><b>Manual selection:</b>
+The desired clocks may be selected manually. This is possible for stations
+and satellites separately.
+
+<a name="DELECLIPS" default="KEEP"></a>
+<p><b>Remove clocks with eclipse flag:</b>
+Handle entries with eclipse flags in the input clock files by keeping the flags
+and records (<tt>KEEP</tt>), removing only the flags
+(<tt>REMOVE_FLAG_ONLY</tt>),
+or removing the whole corresponding records (<tt>REMOVE_ALL_RECORDS</tt>).
+
+<p><hr>
+
+<p><b>CCRNXC 2.1: Time Window</b>
+
+<a name="RADIO_1" default="1"></a>
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>TIME INTERVAL TO BE PROCESSED</b>
+<p>
+This panel allows to specify a time window. Only clocks within this
+time window will be used for processing. This window may be used to cut
+large input clock RINEX files to a smaller time interval or to define the
+clock extrapolation interval.
+<br>
+A time window definition without fixed dates is not possible in case of
+extrapolation.
+<br>
+You may define the time window either by using session definitions, or by
+explicitly specifying start and end times.
+
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the observation window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the observation window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: 00&nbsp;00&nbsp;00, end date: <tt>$YMD_STR+0</tt>,
+end time: 23&nbsp;59&nbsp;59
+
+<p><hr>
+
+<p><b>CCRNXC 3: Options for Clock RINEX File Combination</b>
+
+<a name="USESTA" default="1"></a>
+<a name="USESAT" default="1"></a>
+<p><b>CLOCK RINEX FILE OFFSET ESTIMATION</b>
+<p><b>Use all station clocks</b>,
+   <b>Use all satellite clocks:</b>
+The clock RINEX files can refer to different reference clocks. To
+transform all files to the same reference, offsets between the individual
+files have to be estimated. This is done epoch-wise by a least squares
+adjustment for all files. You can include stations and/or satellite clocks
+for this offset estimation.
+
+<p><i>Default value:</i> marked for station and satellite clocks
+
+<a name="ONLYREF" default="0"></a>
+<p><b>Use only reference clocks:</b>
+Usually all station and satellite clocks in the clock RINEX files can be used
+to estimate the clock offsets. Marking this checkbox, only reference clock(s)
+of the clock RINEX files are used for the offset estimation. In this case you
+loose the information from all other clocks.
+
+<p><i>Default value:</i> unmarked
+
+<a name="SIGMA0" default="0.02"></a>
+<p><b>A priori sigma of unit weight:</b>
+Specify the a priori sigma of unit weight for the offset estimation. The offset
+between the clocks in each input clock file is computed independently for
+each epoch in order to to absorb
+the differences in the reference clocks from the individual input files.
+
+<p><i>Default value:</i> <tt>0.02</tt> nanoseconds
+
+<a name="MAXRESI" default="5"></a>
+<p><b>Maximum residuum allowed:</b>
+In a first iteration all clocks of an epoch are used for the offset estimation.
+From this result the residuals for each clock are computed. Because bad
+clock values may bias the estimation they are excluded from the final
+estimation step if their residual exceeds the specified threshold.
+<br>
+To disable this option leave the input field empty.
+
+<p><i>Default value:</i> <tt>5</tt> nanoseconds
+
+<br><br>
+
+<a name="COMBI" default="COMBINATION"></a>
+<p><b>OPTIONS FOR CLOCK COMBINATION</b>
+<p><b>Strategy for computation of mean value:</b>
+After estimating and applying the individual clock offsets a mean value
+of all clock values for stations and satellites from the different files is
+computed for each epoch. These mean values are written into the resulting
+clock file.
+<br>
+You may apply one of three weighting strategies to compute the arithmetic
+mean of the aligned clocks:
+<ul>
+<li>UNWEIGHTED: Compute an unweighted mean.
+<li>COMBINATION: The weights are taken from the deviation of the
+    individual clock values from an unweighted mean. This option is
+    appropriate for most cases.
+<li>INPUT_FILES: The weights are defined by the sigma values given in
+    the clock RINEX files. This may be useful if there are significant
+    differences in the clock sigma values from different files. Make sure
+    that all input clock RINEX files have comparable sigma values
+    (which may, e.g., not be the case if using clock RINEX files from
+    different software packages.)
+</ul>
+
+<p><i>Remark:</i> If a reference clock RINEX file is selected (see option
+"Retain the reference clock from an input file" in the section "REFERENCE
+CLOCK SELECTION") the values of the reference clocks from this file
+remain unchanged.
+
+<p><i>Default value:</i> <tt>COMBINATION</tt>
+
+<a name="MAXMEAN" default="5"></a>
+<p><b>Maximum deviation from mean:</b>
+If the difference between the computed (weighted) arithmetic mean and
+a corrected clock value exceeds the threshold specified here, the corresponding
+clock value will not be used to compute the mean value.
+<br>This option is independent from the option "Maximum residuum allowed"
+specified for the offset estimation (section "CLOCK RINEX FILE OFFSET
+ESTIMATION").
+<br>
+To disable this option leave the input field empty.
+
+<p><i>Default value:</i> <tt>5</tt> nanoseconds
+
+<a name="MINSAT" default="1"></a>
+<a name="MINSTA" default="1"></a>
+<p><b>Minimum number of valid clocks for mean:</b>
+This option is useful to define a minimum redundancy for each clock when
+combining clock RINEX files.
+Specify the minimum number of clock values required to compute the mean (after
+removal of the outliers). You may specify separate numbers for stations
+and satellites. If less than the specified clock contributions are available
+for an epoch no clock corrections are written for the corresponding clock.
+
+<p><i>Default value:</i> <tt>1</tt> (in both cases)
+
+<a name="OUTSIG" default="INPUT_FILES"></a>
+<p><b>Compute sigma in resulting clock RINEX file from:</b>
+There are two possibilities to compute clock sigma values for the
+clock RINEX output file:
+<ul>
+<li><b>INPUT_FILES:</b> based on the values from the input files the resulting
+    sigmas are computed using the error propagation law.
+<li><b>COMBINATION:</b> the sigmas are computed using the standard deviation
+    of the corrected clock values.
+</ul>
+The weighting strategy for the arithmetic mean is taken into account in
+both cases.
+<br>
+If the values for a clock are given in one input file only, the standard
+deviation of the corrected clock values is zero. If the COMBINATION
+option is selected the sigma for the clock is set to zero. If the combined
+clocks originate from more than one input file the difference between both
+options is in general not significant.
+
+<p><i>Default value:</i> <tt>INPUT_FILES</tt>
+
+<p><hr>
+
+<p><b>CCRNXC 4: Select Program Functions, Program Output</b>
+
+<a name="RADIO_N" default="1"></a>
+<p><b>REFERENCE CLOCK SELECTION</b>
+<p><b>Select a new reference clock for the output file:</b>
+Independent of the reference clocks in the input files, a new reference clock
+may be defined for the resulting clock RINEX file. In one of the
+following panels you may specify detailed input options.
+<br>
+In any case a single reference clock is selected for the entire time
+interval. Because no output can be written for epochs where the reference
+clock is not available it is necessary to carefully select the reference clock.
+
+<a name="RADIO_F" default="0"></a>
+<a name="RCLKREF" default=""></a>
+<p><b>Retain the reference clock from an input file:</b>
+One of the input clock RINEX files may be selected as reference file.
+When using this option please keep in mind that results can only be obtained
+for epochs where the reference clock is available.
+<br>
+The reference clock from this file will be written unchanged into the
+output clock RINEX file.
+<br>
+If no file is specified the first input file is selected as reference.
+
+<p><i>Remark:</i>
+An output clock file is only written if a reference clock
+is available. If the input clock RINEX file has no reference clock specified
+in the header you must use the option "Select a new reference clock for the
+output file".
+
+<br><br>
+
+<a name="DOJUMP" default="1"></a>
+<p><b>ENABLE OTHER PROGRAM FUNCTIONS</b>
+<p><b>Enable clock jump detection:</b>
+Switch clock jump detection on or off. The detected clock jumps are reported
+in the program output. They are considered for the computation of the
+statistical clock characteristics for the program output.
+
+<p><i>Remark:</i>
+If clocks are extrapolated, the detected clock jumps are taken into account to compute the clock model.
+It is therefore recommended to enable the clock jump detection for
+the clock extrapolation.
+
+<p><i>Default value:</i> marked
+
+<a name="DOEXTRA" default="0"></a>
+<p><b>Enable extrapolation:</b>
+Activate extrapolation of clocks. Detected clock jumps may be considered
+when the clock model is computed. We recommend to mark the option "Enable
+clock jump detection", too.
+<br>
+The length of the extrapolated time interval is defined by the time window
+(option "Use time window" in section "DEFINE EPOCHS TO BE PROCESSED").
+
+<br><br>
+
+<a name="PRTINP" default="0"></a>
+<a name="PRTCMB" default="0"></a>
+<a name="PRTREF" default="0"></a>
+<a name="PRTJMP" default="0"></a>
+<a name="PRTEXT" default="0"></a>
+<p><b>PROGRAM OUTPUT OPTIONS</b>
+<p><b>Detailed report: </b>
+You may select the parts of the program for which you want to have detailed
+information about in the program output. You may separately enable or
+disable the extended program output on input clock RINEX files,
+clock combination, reference clock selection, clock jump detection, and
+clock extrapolation.
+
+<p><i>Default value:</i> unmark
+
+<a name="PRTRES" default="1"></a>
+<p><b>Statistic about the resulting clocks:</b>
+The RMS of a low order polynomial fit and the number of clock values
+in the input and output files are summarized in a table in the program
+output.
+<br>
+If the jump detection is active clock jumps are considered when the
+RMS of the polynomial fit is computed.
+
+<p><i>Default value:</i> mark
+
+<a name="CLKSORT" default="SIGMA"></a>
+<p><b>Sort order for clock statistics:</b>
+In the statistics table the clocks may be sorted in three different ways:
+<ul>
+<li><b>NONE:</b> No sorting is done.
+<li><b>ALPHA:</b> Sort alphabetically.
+<li><b>SIGMA:</b> The clocks are sorted according to the linear fit RMS; station
+    and satellite clocks are not mixed.
+</ul>
+
+<p><hr>
+
+<p><b>CCRNXC 5: Select a New Reference Clock for Output File</b>
+
+<a name="REFCLOCK" default="ALL_STATIONS"></a>
+<a name="STAMAN" default=""></a>
+<a name="SATMAN" default=""></a>
+<a name="STAFIL" default=""></a>
+<a name="SATFIL" default=""></a>
+<p><b>REFERENCE CLOCK SELECTION</b>
+<p><b>Selection of potential reference clocks:</b>
+To find a new reference clock the program needs a list with potential
+reference clock candidates. The reference clock is selected automatically
+from this list optimizing the number of epochs and the alignment of
+all clocks.
+<br>
+You have several options to define this list:
+<ul>
+<li><b>FIRST_STATION:</b> The first station is used as new reference.
+<li><b>LAST_STATION:</b> The last station is used as new reference.
+<li><b>ALL_STATIONS:</b> The list of candidates contains all stations.
+<li><b>MANUAL:</b> Allows you to manually select a list of station and/or
+    satellites as candidates for a new reference.
+<li><b>FROM_FILE:</b> Get the station and/or satellite list from a file.
+    <br>
+    <a href="/$X/DOC/EXAMPLE.FIX">Example</a>
+</ul>
+Usually it is the best choice to select one of the station clocks as reference
+for the output.
+
+<p><i>Default value:</i> <tt>ALL_STATIONS</tt>
+
+<br><br>
+
+<a name="NALIGN" default="1"></a>
+<p><b>ALIGNMENT OF NEW REFERENCE CLOCK</b>
+<p><b>Polynomial degree for alignment:</b>
+If no reference clock file is specified (option "Select a new reference
+clock for the output file" in the section "REFERENCE CLOCK SELECTION")
+the reference clock is
+replaced by a zero mean condition during the combination process.
+After the combination an alignment of the clock values to a new reference
+clock is necessary. This is done using a low order polynomial fit for all
+reference clock candidates from the list specified above. The alignment
+of all clocks is checked (RMS of a polynomial fit) when using a potential
+reference clock. Finally that clock is selected as reference clock for which the
+best polynomial fit for all clocks is obtained. In addition, of course, the
+number of available epochs for the reference clock is taken into account.
+<br>
+Specify the degree of the alignment polynomial in this field.
+
+<p><i>Default value:</i> <tt>1</tt>
+
+<a name="MAXREF" default=""></a>
+<p><b>Maximum allowed RMS error for alignment:</b>
+If the RMS error for the alignment exceeds this value it is assumed that the
+alignment of the reference clock failed. The corresponding clock will not
+be selected as new reference clock. If no clock fulfills the criterion no
+reference clock is selected. Leave this field empty if the RMS error
+should not be checked.
+
+<p><i>Remark:</i>
+This option may be useful if the clocks in the input
+clock RINEX files are already aligned in order to speed up the alignment
+process. The RMS has to be selected according to the quality of the
+alignment of the clocks in the input files. This option may also be used
+to prevent the use of a bad reference clock only based on the condition
+of a maximum number of epochs (always fulfilled for an input reference clock).
+
+<p><i>Default value:</i> blank
+
+<p><hr>
+
+<p><b>CCRNXC 6: Options for Clock Jump Detection</b>
+
+<a name="NJMPSIG" default="5"></a>
+<p><b>CLOCK JUMP DETECTION</b>
+<p><b>Confidence interval:</b>
+The mean change of the clock values per seconds (the drift of the clock) is
+computed together with its RMS (noise of the clock). A jump hypothesis is
+setup if the change of the clock value between consecutive epochs is significantly
+different from the mean change. The clock noise value is multiplied with the
+confidence interval specified here in order to obtain the corresponding
+threshold.
+<br>
+For each identified potential jump the mean change of the clock value is
+computed together with its
+RMS for the interval starting at 10 epochs before and ending 10 epochs after
+the jump. This computation is done twice: once applying the jump at the epoch
+and once ignoring the jump. The jump hypothesis holds if the RMS can be reduced
+significantly by introducing the jump (the ratio between both RMS
+values exceeds the confidence interval).
+
+<p><i>Default value:</i> <tt>5</tt> sigmas
+
+<a name="MJMPRMS" default="1"></a>
+<p><b>Minimum RMS for jump detection:</b>
+Specify a minimum clock RMS value. If the RMS error obtained from the
+computation of the mean clock rate is smaller than this value it is
+replaced by this minimum RMS. This is important for good clocks where
+very small events with a size of a few ten picoseconds may otherwise
+erroneously be detected as clock jumps.
+
+<p><i>Default value:</i> <tt>1</tt> nanoseconds/300 seconds
+
+<br><br>
+
+<a name="NJMPEPO" default="5"></a>
+<p><b>CLOCK JUMP OR OUTLIER</b>
+<p><b>Maximum time interval for outlier detection:</b>
+If two clock jumps are found for the
+same clock within the time interval specified in this field (in number of
+epochs) with the same size (but the opposite sign),
+the clock values between these two events are marked as outliers and both
+jumps are removed from the list of jumps. A test
+assures that no jump is assumed for the last epoch before the first jump and
+the first epoch after the second jump.
+
+<p><i>Default value:</i> <tt>5</tt> epochs
+
+<a name="DJMPSTA" default="0"></a>
+<a name="DJMPSAT" default="0"></a>
+<p><b>Remove outliers from output for stations</b>,
+   <b>Remove outliers from output for satellites:</b>
+Switch this option on to remove outliers (see above) in station and/or
+satellite clocks. The removed outliers will not be written into the
+resulting combined clock RINEX file.
+<br>
+Outliers may indicate real clock events. Therefore the clock values
+should in general not be deleted if there is no further indication for the
+outlier hypothesis.
+<br>
+In case of an extrapolation this is different. The outliers
+may affect the estimated clock model and must be deleted.
+
+<p><i>Default value:</i> unmarked
+
+<br><br>
+
+<a name="DJMPEST" default="0"></a>
+<p><b>CLOCK JUMP VERIFICATION</b>
+<p><b>Enable the clock jump verification:</b>
+To estimate the size of the clock jumps a polynomial (the degree is specified
+in the option "Polynomial degree for jump size estimation" below)
+is set up for the entire time interval together
+with a parameter for each detected jump for this clock. This is done for
+statistical purposes only (to check the reliability of the jump detection).
+<br>
+Mark the checkbox to enable this computation.
+
+<p><i>Default value:</i> mark
+
+<a name="NJMPPOL" default="10"></a>
+<p><b>Polynomial degree for jump size estimation:</b>
+Specify the polynomial degree to verify the clock jumps. A polynomial
+with the specified degree is estimated for each clock with a clock jump.
+The clock jumps are setup as offset parameters which may be compared with
+the size of the clock jump in the clock values for the epochs before and
+after the event. This implies that the clock can be modeled as a polynomial
+with the specified degree.
+
+<p><i>Default value:</i> <tt>10</tt>
+
+<p><hr>
+
+<p><b>CCRNXC 7: Options for Clock Extrapolation</b>
+
+<a name="POLYNOM" default="1"></a>
+<p><b>DEFINE EXTRAPOLATION MODEL</b>
+<p>
+Clock values are extrapolated using a model based on a polynomial and a
+set of periodical functions. Clock specific model parameters are estimated
+from the available data using the sigma values of the combined clock
+values as weights. Jumps in clock values are taken into account if jump
+detection is activated.
+<br>
+The estimated errors define the new accuracy codes for the resulting
+extrapolated clock values which may therefore be very different
+from the accuracy codes of the original clock values.
+
+<p><b>Polynomial degree:</b>
+One component of the extrapolation model is a polynomial of specified degree.
+It is recommended to use a first order polynomial to model the clock drift
+only.
+
+<p><i>Default value:</i> <tt>1</tt>
+
+<a name="PERIOD" default="2"></a>
+<p><b>Periodical terms:</b>
+Periodical functions with frequencies once/day, twice/day, etc. may be set
+up in addition to the polynomial. For each component a sine and cosine term
+are set up for each clock. Select the maximum frequency you want
+to use (n times per day). A zero indicates that no periodical functions shall
+be set up.
+
+<p><i>Default value:</i> <tt>2</tt>
+
+<a name="MOREINEX" default="0"></a>
+<p><b>Detailed setup for model function:</b>
+This option enables a time dependent setup of the polynomial degree and
+the periodical terms. You may specify the detailed setup of the
+extrapolation model in the next panel.
+
+<p><i>Default value:</i> unmarked
+
+<br><br>
+
+<a name="POLYRMS" default="5"></a>
+<p><b>APPLY EXTRAPOLATION MODEL</b>
+<p><b>Maximum allowed RMS for fit:</b>
+If the RMS of the clock model estimation is bigger than the threshold
+defined in this input field no extrapolation is performed for this clock.
+<br>
+An empty field disables this check.
+
+<p><i>Default value:</i> <tt>5</tt> nanoseconds
+
+<a name="POLYOBS" default="0"></a>
+<p><b>Minimum number of clock values for fit:</b>
+Specify the minimum number of clock values you want to use for the
+estimation of the extrapolation model function. If the number of
+available epochs is lower no extrapolation is performed for
+this clock. A clock should be present for about 90% of the time
+interval to compute a reliable clock model function for extrapolation.
+<br>
+The value <tt>0</tt> disables this option.
+
+<p><i>Default value:</i> <tt>0</tt>
+
+<p><hr>
+
+<p><b>CCRNXC 7.1: Extrapolation, Advanced Setup</b>
+
+<a name="FUNCSTR" default="%% %% %% %% %% %%"></a>
+<p><b>DETAILED SETUP FOR MODEL FUNCTION</b>
+<p>
+Specify individual parameters for the extrapolation model
+function. The polynomial degree and periodical terms may be set up
+independently for defined time intervals. In this way different model
+functions for extrapolation may be used.
+<br>
+Define the maximum polynomial degree and the frequency of
+periodical terms (in periods per day, e.g., 0.5 for a two days period).
+
+<p><hr>
+
+<p><b>CCRNXC 8: Clock RINEX File Output</b>
+
+<a name="RUNBY" default=""></a>
+<p><b>HEADER ENTRIES FOR THE OUTPUT CLOCK RINEX FILE</b>
+<p><b>Run by:</b>
+Content of the RUNBY line in the resulting clock RINEX file header (e.g., the
+name of the operator of this program run).
+
+<a name="AC" default=""></a>
+<p><b>AC:</b>
+Content of the AC line in the resulting clock RINEX file header (the acronym of
+the analysis center).
+
+<a name="ACNAME" default=""></a>
+<p><b>AC name:</b>
+Content of the ACNAME line in the resulting clock RINEX file header (the name
+of the analysis center).
+
+<a name="COMMENT" default="%%"></a>
+<p><b>Comment lines:</b>
+Any comment lines to be included in the resulting clock RINEX file header.
+
+<p><hr>
+
+</body>
+</html>
+

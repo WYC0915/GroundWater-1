@@ -1,0 +1,596 @@
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! Some title information
+! ----------------------
+CAMPAIGN     0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+! Show general files
+! ------------------
+SHOWGEN     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+! General Constants
+! -----------------
+CONST     1  "CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_CONST 1  "General constants"
+
+
+! Select obs type
+! ---------------
+OBSTYPE     1  "GNSS"
+  ## widget = combobox; editable = false; cards = GNSS Range
+
+MSG_OBSTYPE 1  "Select obs type"
+
+! Zero diff., Code
+! ----------------
+CZHFIL     0
+  ## widget = selwin; path = DIR_CZH; ext = EXT_CZH; maxfiles = 999
+  ## emptyallowed = true; activeif = OBSTYPE = GNSS
+
+MSG_CZHFIL 1  "Zero diff. Code"
+
+CZHFIL_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_PZH
+
+CZHFIL_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_PZH
+
+
+! Zero diff., Phase
+! -----------------
+PZHFIL     0
+  ## widget = selwin; path = DIR_PZH; ext = EXT_PZH; maxfiles = 999
+  ## emptyallowed = true; activeif = OBSTYPE = GNSS
+
+MSG_PZHFIL 1  "Zero diff. Phase"
+
+PZHFIL_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_CZH
+
+PZHFIL_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_CZH
+
+! Zero diff., Code=Phase
+! ----------------------
+BOTHZERO     1  "0"
+  ## widget = checkbox; activeif = CZHFIL /= _ OR PZHFIL /= _ AND OBSTYPE = GNSS
+
+MSG_BOTHZERO 1  "Zero difference (both)"
+
+! Single diff., Code
+! ------------------
+CSHFIL     0
+  ## widget = selwin; path = DIR_CSH; ext = EXT_CSH; maxfiles = 999
+  ## emptyallowed = true; activeif = OBSTYPE = GNSS
+
+MSG_CSHFIL 1  "Single diff. Code"
+
+CSHFIL_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_PSH
+
+CSHFIL_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_PSH
+
+! Single diff., Phase
+! -------------------
+PSHFIL     0
+  ## widget = selwin; path = DIR_PSH; ext = EXT_PSH; maxfiles = 999
+  ## emptyallowed = true; activeif = OBSTYPE = GNSS
+
+MSG_PSHFIL 1  "Single diff. Phase"
+
+PSHFIL_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_CSH
+
+PSHFIL_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_CSH
+
+
+! Single diff., Code=Phase
+! ------------------------
+BOTHSING     1  "0"
+  ## widget = checkbox; activeif = CSHFIL /= _ OR PSHFIL /= _ AND OBSTYPE = GNSS
+
+MSG_BOTHSING 1  "Single difference (both)"
+
+
+! Range obs
+! ---------
+RZHFIL     0
+  ## widget = selwin; path = DIR_RZH; ext = EXT_RZH; maxfiles = 999
+  ## emptyallowed = true; activeif = OBSTYPE = Range
+
+MSG_RZHFIL 1  "Range obs"
+
+RZHFIL_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_RZH
+
+RZHFIL_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_RZH
+
+
+! Station Problem File
+! --------------------
+STAINFO     0
+  ## widget = selwin; path = DIR_STA; ext = EXT_STA; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_STAINFO 1  "Station information"
+
+! Program Output File
+! -------------------
+SYSODEF     1  "1"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "CHGHED"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG     1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR     1  "ERROR"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+
+MSG_SYSERR 1 "Error message"
+
+! Program run title line
+! ----------------------
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+! Use station information file flags
+! ----------------------------------
+USEFLG     1  "0"
+  ## widget = checkbox; activeif = STAINFO /= _
+
+MSG_USEFLG 1  "Consider flags"
+
+! Flag to use in STAINFO: type 001
+! --------------------------------
+FLG001     1  "999"
+  ## widget = lineedit; activeif = STAINFO /= _ AND USEFLG = 1
+
+MSG_FLG001 1  "Renaming of stations"
+
+! Flag to use in STAINFO: type 002
+! --------------------------------
+FLG002     1  "999"
+  ## widget = lineedit; activeif = STAINFO /= _ AND USEFLG = 1
+
+MSG_FLG002 1  "Type 002: Station information"
+
+! TITLE: option
+! -------------
+OPTTIT     1  "0"
+  ## widget = checkbox
+
+MSG_OPTTIT 1  "Title option"
+
+! Title: new entry
+! ----------------
+OBSTITLE     0
+  ## widget = lineedit; activeif = OPTTIT == 1
+
+MSG_OBSTITLE 1  "New line"
+
+! Campaign: option
+! ----------------
+OPTCMP     1  "0"
+  ## widget = checkbox
+
+MSG_OPTCMP 1  "Campaign name option"
+
+! Campaign: old entry
+! -------------------
+CMPNAM_O     0
+  ## widget = lineedit; activeif = OPTCMP /= 0
+
+MSG_CMPNAM_O 1  "Campaign name: From"
+
+! Campaign: new entry
+! -------------------
+CMPNAM_N     0
+  ## widget = lineedit; activeif = OPTCMP /= 0
+
+MSG_CMPNAM_N 1  "Campaign name: To"
+
+! Station Name: option
+! --------------------
+OPTSTA     1  "NONE"
+  ## widget = combobox; editable = false; cards = NONE 1ST 2ND BOTH
+
+MSG_OPTSTA 1  "Station name option"
+
+! Station Name: old entry
+! -----------------------
+STANAM_O     0
+  ## widget = lineedit; activeif = OPTSTA /= NONE
+
+MSG_STANAM_O 1  "Station name: From"
+
+! Station Name: new entry
+! -----------------------
+STANAM_N     0
+  ## widget = lineedit; activeif = OPTSTA /= NONE
+
+MSG_STANAM_N 1  "Station name: To"
+
+! Receiver Type: option
+! ---------------------
+OPTREC     1  "NONE"
+  ## widget = combobox; editable = false; cards = NONE 1ST 2ND BOTH
+
+MSG_OPTREC 1  "Receiver type option"
+
+! Receiver Type: old entry
+! ------------------------
+RECNAM_O     0
+  ## widget = lineedit; activeif = OPTREC /= NONE
+
+MSG_RECNAM_O 1  "Receiver type: From"
+
+! Receiver Type: new entry
+! ------------------------
+RECNAM_N     0
+  ## widget = lineedit; activeif = OPTREC /= NONE
+
+MSG_RECNAM_N 1  "Receiver type: To"
+
+! Antenna Type: option
+! --------------------
+OPTANT     1  "NONE"
+  ## widget = combobox; editable = false; cards = NONE 1ST 2ND BOTH
+
+MSG_OPTANT 1  "Antenna type option"
+
+! Antenna Type: old entry
+! -----------------------
+ANTNAM_O     0
+  ## widget = lineedit; activeif = OPTANT /= NONE
+
+MSG_ANTNAM_O 1  "Antenna type: From"
+
+! Antenna Type: new entry
+! -----------------------
+ANTNAM_N     0
+  ## widget = lineedit; activeif = OPTANT /= NONE
+
+MSG_ANTNAM_N 1  "Antenna type: To"
+
+! Operator Name: option
+! ---------------------
+OPTOBS     1  "NONE"
+  ## widget = combobox; editable = false; cards = NONE 1ST 2ND BOTH
+
+MSG_OPTOBS 1  "Operator name option"
+
+! Operator Name: old entry
+! ------------------------
+OBSNAM_O     0
+  ## widget = lineedit; activeif = OPTOBS /= NONE
+
+MSG_OBSNAM_O 1  "Operator name: From"
+
+! Operator Name: new entry
+! ------------------------
+OBSNAM_N     0
+  ## widget = lineedit; activeif = OPTOBS /= NONE
+
+MSG_OBSNAM_N 1  "Operator name: To"
+
+! Session ID: option
+! ------------------
+OPTSES     1  "0"
+  ## widget = checkbox
+
+MSG_OPTSES 1  "Session Ident. option"
+
+! Session ID: old entry
+! ---------------------
+SESNAM_O     0
+  ## widget = lineedit; activeif = OPTSES /= 0
+
+MSG_SESNAM_O 1  "Session Ident.: From"
+
+! Session ID: new entry
+! ---------------------
+SESNAM_N     0
+  ## widget = lineedit; activeif = OPTSES /= 0
+
+MSG_SESNAM_N 1  "Session Ident.: To"
+
+! Sess File Chr.: option
+! ----------------------
+OPTSFL     1  "0"
+  ## widget = checkbox
+
+MSG_OPTSFL 1  "Sess. file char. option"
+
+! Sess File Chr.: old entry
+! -------------------------
+SFLNAM_O     0
+  ## widget = lineedit; activeif = OPTSFL /= 0
+
+MSG_SFLNAM_O 1  "Sess. file char.: From"
+
+! Sess File Chr.: new entry
+! -------------------------
+SFLNAM_N     0
+  ## widget = lineedit; activeif = OPTSFL /= 0
+
+MSG_SFLNAM_N 1  "Sess. file char.: To"
+
+! Receiver Number: option
+! -----------------------
+OPTRCN     1  "NONE"
+  ## widget = combobox; editable = false; cards = NONE 1ST 2ND BOTH
+
+MSG_OPTRCN 1  "Receiver number option"
+
+! Receiver Number: old entry
+! --------------------------
+RECNUM_O     0
+  ## widget = lineedit; activeif = OPTRCN /= NONE
+
+MSG_RECNUM_O 1  "Receiver number: From"
+
+! Receiver Number: new entry
+! --------------------------
+RECNUM_N     0
+  ## widget = lineedit; activeif = OPTRCN /= NONE
+
+MSG_RECNUM_N 1  "Receiver number: To"
+
+! Antenna Number: option
+! ----------------------
+OPTANN     1  "NONE"
+  ## widget = combobox; editable = false; cards = NONE 1ST 2ND BOTH
+
+MSG_OPTANN 1  "Antenna number option"
+
+! Antenna Number: old entry
+! -------------------------
+ANTNUM_O     0
+  ## widget = lineedit; activeif = OPTANN /= NONE
+
+MSG_ANTNUM_O 1  "Antenna number: From"
+
+! Antenna Number: new entry
+! -------------------------
+ANTNUM_N     0
+  ## widget = lineedit; activeif = OPTANN /= NONE
+
+MSG_ANTNUM_N 1  "Antenna number: To"
+
+! Remark Number: option
+! ---------------------
+OPTRMK     1  "0"
+  ## widget = checkbox
+
+MSG_OPTRMK 1  "Remark number option"
+
+! Remark Number: old entry
+! ------------------------
+REMARK_O     0
+  ## widget = lineedit; activeif = OPTRMK /= 0
+
+MSG_REMARK_O 1  "Remark number: From"
+
+! Remark Number: new entry
+! ------------------------
+REMARK_N     0
+  ## widget = lineedit; activeif = OPTRMK /= 0
+
+MSG_REMARK_N 1  "Remark number: To"
+
+! Observation Interval: option
+! ----------------------------
+OPTINT     1  "0"
+  ## widget = checkbox
+
+MSG_OPTINT 1  "Observation interval option"
+
+! Observation Interval: old entry
+! -------------------------------
+OBSINT_O     0
+  ## widget = lineedit; activeif = OPTINT /= 0
+
+MSG_OBSINT_O 1  "Observation interval: From"
+
+! Observation Interval: new entry
+! -------------------------------
+OBSINT_N     0
+  ## widget = lineedit; activeif = OPTINT /= 0
+
+MSG_OBSINT_N 1  "Observation interval: To"
+
+! Poss. Ecc. North: option
+! ------------------------
+OPTEXN     1  "NONE"
+  ## widget = combobox; editable = false; cards = NONE 1ST 2ND BOTH
+
+MSG_OPTEXN 1  "Pos. eccentr. north option"
+
+! Poss. Ecc. North: old entry
+! ---------------------------
+EXENTN_O     0
+  ## widget = lineedit; activeif = OPTEXN /= NONE
+
+MSG_EXENTN_O 1  "Pos. eccentr. north: From"
+
+! Poss. Ecc. North: new entry
+! ---------------------------
+EXENTN_N     0
+  ## widget = lineedit; activeif = OPTEXN /= NONE
+
+MSG_EXENTN_N 1  "Pos. eccentr. north: To"
+
+! Poss. Ecc. East: option
+! -----------------------
+OPTEXE     1  "NONE"
+  ## widget = combobox; editable = false; cards = NONE 1ST 2ND BOTH
+
+MSG_OPTEXE 1  "Pos. eccentr. east option"
+
+! Poss. Ecc. East: old entry
+! --------------------------
+EXENTE_O     0
+  ## widget = lineedit; activeif = OPTEXE /= NONE
+
+MSG_EXENTE_O 1  "Pos. eccentr. east: From"
+
+! Poss. Ecc. East: new entry
+! --------------------------
+EXENTE_N     0
+  ## widget = lineedit; activeif = OPTEXE /= NONE
+
+MSG_EXENTE_N 1  "Pos. eccentr. east: To"
+
+! Poss. Ecc. Up: option
+! ---------------------
+OPTEXU     1  "NONE"
+  ## widget = combobox; editable = false; cards = NONE 1ST 2ND BOTH
+
+MSG_OPTEXU 1  "Pos. eccentr. up option"
+
+! Poss. Ecc. Up: old entry
+! ------------------------
+EXENTU_O     0
+  ## widget = lineedit; activeif = OPTEXU /= NONE
+
+MSG_EXENTU_O 1  "Pos. eccentr. up: From"
+
+! Poss. Ecc. Up: new entry
+! ------------------------
+EXENTU_N     0
+  ## widget = lineedit; activeif = OPTEXU /= NONE
+
+MSG_EXENTU_N 1  "Pos. eccentr. up: To"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CHANGE HEADER OF OBSERVATION FILES - CHGHED 1: Input/Output Files            #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files  > % <                                              # SHOWGEN
+#                                                                              #
+# OBSERVATION FILES   > %%%%%%%%% <                                            # OBSTYPE
+#   Zero diff.@@ Code > %%%%%%%% <      Phase > %%%%%%%% <       both > % <    # CZHFIL    PZHFIL  BOTHZERO
+#   Single diff. Code > %%%%%%%% <      Phase > %%%%%%%% <       both > % <    # CSHFIL    PSHFIL  BOTHSING
+#   Range             > %%%%%%%% <                                             # RZHFIL
+#                                                                              #
+# INPUT FILE                                                                   #
+#   Station information  > %%%%%%%% <     (blank: take entries from panels)    # STAINFO
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output          > % < use CHGHED.Lnn            or    > %%%%%%%% < # SYSODEF SYSOUT
+#   Error messages          > % < merged to program output  or    > %%%%%%%% < # ERRMRG SYSERR
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <      # TITLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# CHGHED 1.1: General Files                                                    #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants       > %%%%%%%%%%%% <                                   # CONST
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL STAINFO / _ AND USEFLG == 999 ####################################
+# CHGHED 2.1.1: Select Flags from Station Information File to be Used          #
+#                                                                              #
+# ATTENTION!!!!    THIS IS DUMMY AT THE MOMENT!!!!                             #
+# To make the flag handling active, please modify SR GTSTAFLG.f90              #
+#                                                                              #
+# FLAGS CONCERNING STATION INFORMATION FILE                                    #
+#   Consider flags                                    > % <                    # USEFLG
+#                                                                              #
+# FLAGS TO BE CONSIDERED                                                       #
+#   Type 001: Renaming of stations  > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <    # FLG001
+#   Type 002: Station information   > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <    # FLG002
+#                                                                              #
+#   Flag 999: Any flag will be considered                                      #
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL STAINFO = _ ######################################################
+# CHGHED 2.1: Changes in Observation Header File (1)                           #
+#                                                                              #
+#           Option                        New line                             #
+#   TITLE    > % <   > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <    # OPTTIT   OBSTITLE
+#                                                                              #
+# OTHER CHANGES:      Option            From                    To             #
+#                                (blank: change any)                           #
+#   Campaign name   > % <      > %%%%%%%% <            > %%%%%%%% <            # OPTCMP   CMPNAM_O CMPNAM_N
+#   Station@ name   > %%%%% <  > %%%%%%%%%%%%%%%%%%%% <> %%%%%%%%%%%%%%%%%%%% <# OPTSTA   STANAM_O STANAM_N
+#   Receiver type   > %%%%% <  > %%%%%%%%%%%%%%%%%%%% <> %%%%%%%%%%%%%%%%%%%% <# OPTREC   RECNAM_O RECNAM_N
+#   Antenna@ type   > %%%%% <  > %%%%%%%%%%%%%%%%%%%% <> %%%%%%%%%%%%%%%%%%%% <# OPTANT   ANTNAM_O ANTNAM_N
+#   Operator name   > %%%%% <  > %%%%%%%%%%%%%%%%%%%% <> %%%%%%%%%%%%%%%%%%%% <# OPTOBS   OBSNAM_O OBSNAM_N
+#                                                                              #
+#   Session ident.  > % <      > %%%% <                > %%%% <                # OPTSES   SESNAM_O SESNAM_N
+#   Sess. file char.> % <      > % <                   > % <                   # OPTSFL   SFLNAM_O SFLNAM_N
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL STAINFO = _ ######################################################
+# CHGHED 2.2: Changes in Observation Header File (2)                           #
+#                                                                              #
+#  OTHER CHANGES            Option          From            To                 #
+#                                   (blank: change any)                        #
+#    Receiver number@      > %%%%% <     > %%%%%%%% <   > %%%%%%%% <           # OPTRCN   RECNUM_O RECNUM_N
+#    Antenna@ number@      > %%%%% <     > %%%%%%%% <   > %%%%%%%% <           # OPTANN   ANTNUM_O ANTNUM_N
+#    Remark@@ number@      > % <         > %%%%%%%% <   > %%%%%%%% <           # OPTRMK   REMARK_O REMARK_N
+#    Observation interval@ > % <         > %%%%%%%% <   > %%%%%%%% <           # OPTINT   OBSINT_O OBSINT_N
+#                                                                              #
+#    Pos. eccentr. north   > %%%%% <     > %%%%%%%% <   > %%%%%%%% <           # OPTEXN   EXENTN_O EXENTN_N
+#    Pos. eccentr. east    > %%%%% <     > %%%%%%%% <   > %%%%%%%% <           # OPTEXE   EXENTE_O EXENTE_N
+#    Pos. eccentr. up      > %%%%% <     > %%%%%%%% <   > %%%%%%%% <           # OPTEXU   EXENTU_O EXENTU_N
+#                                                                              #
+# END_PANEL ####################################################################

@@ -1,0 +1,288 @@
+<html>
+<body>
+
+<center>
+<b>CONVERT KINEMATIC POSITIONS TO PRECISE ORBITS</b>
+<p>Program: KINPRE
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program is used to transform kinematic positions (KIN file) from a Low
+Earth Orbiting (LEO) satellite into a sp3-file (PRE file).
+
+<p><hr>
+
+<p><b>KINPRE 1: Input/Output files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get the currently active campaign, session and session table.
+
+<br><br>
+
+<a name="KININP" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Kinematic file:</b>
+Select the file with the kinematic positions, which should be transformed.
+
+<a name="RNXCLK" default=""></a>
+<p><b>Satellite clocks (RINEX):</b>
+You may select a clock RINEX file with clock values for the LEO
+satellite. This is necessary when the observation epochs of the LEO
+satellite are not at integer seconds and/or the receiver clock correction
+is larger than 1.5 us. Then the observation epoch in the sp3-file has to be
+corrected according to the entries in the clock RINEX file.
+
+<br><br>
+
+<a name="PREOUT" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>Output file precise orbits:</b>
+The file will contain the transformed LEO satellite positions in sp3-format.
+
+<a name="ICHKKIN" default="0"></a>
+<p><b>Check kinematic positions:</b>
+Check this box if you would like to check the kinematic positions for
+outliers. This will be done by comparing the kinematic positions with a
+(reduced-)dynamic orbit, see option <a href="#EDTKIN">Max. 3D
+difference</a> and <a href="#LEOSTD">Standard orbits</a> .
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="KINPRE"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or to specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>KINPRE 1.1: General files</b>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<a name="CONST" default="CONST."></a>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="POLE" default=""></a>
+<p><b>Pole file:</b>
+This file contains the Earth rotation parameters (ERP's). It is used for
+the transformations between the International Celestial Reference Frame
+(ICRF) and the International Terrestrial Reference Frame (ITRF).
+
+<p><i>Remark:</i>
+The file is only needed if you would like to check the
+quality of the kinematic positions with respect to a (reduced-)dynamic orbit,
+see also option <a href="#ICHKKIN">Check kinematic positions</a> .
+
+<p><a href="/$X/DOC/EXAMPLE.ERP">Example</a>
+
+<a name="SUBMOD" default="IERS2010XY"></a>
+<p><b>Subdaily pole model:</b>
+This file contains the parameters for the subdaily pole model. Use the
+same file used for the generation of the standard orbits.
+
+<p><i>Remark:</i>
+The file is only needed if you would like to check the
+quality of the kinematic positions with respect to a (reduced-)dynamic orbit,
+see also option <a href="#ICHKKIN">Check kinematic positions</a> .
+
+<p>Example: <a href="/$X/GEN/IERS2010XY.SUB">$X/GEN/IERS2010XY.SUB</a>
+
+<a name="NUTMOD" default="IAU2000R06"></a>
+<p><b>Nutation model:</b>
+This file contains the parameters for the nutation model. Use the
+same file used for the generation of the standard orbits.
+
+<p><i>Remark:</i>
+The file is only needed if you would like to check the
+quality of the kinematic positions with respect to a (reduced-)dynamic orbit,
+see also option <a href="#ICHKKIN">Check kinematic positions</a> .
+
+<p>Example: <a href="/$X/GEN/IAU2000R06.NUT">$X/GEN/IAU2000R06.NUT</a>
+
+<p><hr>
+
+<p><b>KINPRE 1.2: Check kinematic positions with dynamic orbit</b>
+
+<a name="EDTKIN" default="0.13"></a>
+<p><b>Max. 3D difference:</b>
+This option defines the maximum absolute value for the difference between
+the kinematic position and the (reduced-)dynamic orbit. If the threshold is
+exceeded the kinematic position of this epoch is removed.
+
+<p><i>Default value:</i> 0.13
+
+<a name="LEOSTD" default=""></a>
+<p><b>Standard orbits:</b>
+Specify the name of the standard orbit file with the (reduced-)dynamic orbit,
+which will be used for checking the kinematic positions.
+
+<a name="KINOUT" default=""></a>
+<p><b>Write edited KIN file:</b>
+Specify the name of the output KIN file for the edited kinematic positions
+of the LEO.
+
+<p><hr>
+
+<p><b>KINPRE 2: Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<br><br>
+
+<a name="DATADES" default=""></a>
+<p><b>SPECIAL INFORMATION FOR PRECISE ORBIT FILE</b>
+<p><b>Data description:</b>
+Identification of the observations used to generate the orbit. You can
+specify the measurement type (PHASE, CODE, BOTH) that was used as well as
+the difference-level (ZERO, SINGLE, DOUBLE).
+
+<p><i>Default value:</i> <tt>ZERO</tt>
+
+<a name="ORBTYP" default="KIN"></a>
+<p><b>Orbit type:</b>
+3 character identification of the orbit solution type in the header of
+the PRE file. Predefined are the following abbreviations: KIN (kinematic
+orbit), FIT (fitted), EXT (extrapolated or predicted), BCT (broadcast),
+and HLM (fitted after applying a Helmert transformation).
+
+<p><i>Remark</i>:
+Applicable for this program is only KIN.
+
+<a name="AGENCY" default=""></a>
+<p><b>Agency gen. orbit:</b>
+Identification of the institute which created this precise file.
+For files created by the Astronomical Institute in Bern we use AIUB.
+
+<a name="ACCURA" default="0"></a>
+<p><b>LEO spec. accuracy:</b>
+Specify a LEO specific accuracy (integer number), which will be included
+into the header of the SP3-file. The meaning of these satellite specific
+accuracies is explained in the detailed format description for
+<a href="LINKS.HLP#SP3">SP3</a> and <a href="LINKS.HLP#SP3c">SP3c</a>.
+
+<a name="TIPRE1" default=""></a>
+<a name="TIPRE2" default=""></a>
+<a name="TIPRE3" default=""></a>
+<a name="TIPRE4" default=""></a>
+<p><b>Title lines:</b>
+Up to four title lines can appear in the SP3-file. If you leave the first
+line blank, this line will be taken from the title line in the
+KIN-file. You are free to fill in other important information into the
+three remaining lines.
+
+<a name="IWRQXX" default="0"></a>
+<p><b>Write accuracy info:</b>
+Check this box if you would like to include accuracy information into the
+output orbit file. If you have selected the option
+to <a href="#ICHKKIN">Check kinematic positions</a> with respect to a
+(reduced-)dynamic orbit the accuracy information is also written into the
+edited kinematic output file.
+
+<p><hr>
+
+<p><b>KINPRE 3: Observation window</b>
+
+<a name="RADIO_0" default="1"></a>
+<p><b>USE OBSERVATION WINDOW</b>
+This panel allows to specify a time window. Only observations
+within this time window will be used for processing.
+
+<p><b>Take all kinematic positions:</b>
+When checking this option, no observation window is set and all available
+kinematic positions are converted.
+
+<a name="RADIO_1" default="0"></a>
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>Defined by Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the observation window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Defined by Start and End times:</b>
+Specify date and time for the begin and the end of the observation window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: 00&nbsp;00&nbsp;00, end date: <tt>$YMD_STR+0</tt>,
+end time: 23&nbsp;59&nbsp;59
+
+<p><hr>
+
+</body>
+</html>

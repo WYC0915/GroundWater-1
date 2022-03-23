@@ -1,0 +1,618 @@
+      MODULE s_PRIPR1
+      CONTAINS
+
+C*
+      SUBROUTINE PRIPR1(PRIOPT,LFN   ,NPAR  ,LOCQ  ,STNAME,TIMISB)
+CC
+CC NAME       :  PRIPR1
+CC
+CC PURPOSE    :  PRINT PARAMETER CHARACTERIZATION LIST
+CC               ON FILE WITH LFN "LFN"
+CC               *** MODIFICATION OF SR PRIPAR ***
+CC
+CC PARAMETERS :
+CC         IN :  PRIOPT : FLAG, IF PARAMETER LIST IS PRINTED  I*4
+CC                         =0 : NO PRINT
+CC                         =1 : PRINT
+CC               LFN    : LOGICAL FILE NUMBER FOR OUTPUT      I*4
+CC               NPAR   : TOTAL NUMBER OF PARAMETERS          I*4
+CC               LOCQ(K,I),K=1,..,MAXLCQ, I=1,..,NPAR: PARA-  I*4
+CC                        METER CHARACTERIZATION ARRAY
+CC               STNAME(I),I=1,..,NSTAT: STATION NAMES FOR    CH*16
+CC                        ALL STATIONS
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G. BEUTLER, M.ROTHACHER, S.FANKHAUSER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/11 14:36
+CC
+CC CHANGES    :  13-FEB-92 : ??: CHANGES DUE TO ERP-ESTIMATION
+CC               06-JUL-92 : ??: PRINT COEFF NUMBER OF ERP'S
+CC               22-MAR-93 : ??: STOCHASTIC ORBIT PARAMETERS
+CC               03-APR-93 : ??: SATELLITE ANTENNA OFFSET PARAMETERS
+CC               28-DEC-93 : MR: TIME WINDOWS FOR SAT.ANT. OFFSETS
+CC               14-APR-94 : SS: DIFFERENTIAL IONOSPHERE PARAMETERS
+CC               19-APR-94 : RW: CPO-MODEL PARAMETERS
+CC               06-NOV-94 : MR: ANTENNA PHASE CENTER PARAMETERS
+CC               06-JUN-95 : SS: GLOBAL IONOSPHERE MODEL PARAMETERS
+CC               05-DEC-95 : SS: NEW IONOSPHERE MODEL (TYPE 2)
+CC               25-JAN-96 : GB: NEW ORBIT MODEL IMPLEMENTED
+CC               26-MAR-96 : MR: RECEIVER ANTENNA OFFSETS
+CC               08-JUN-96 : MR: TOO MANY CONT. LINES IN DATA PARTYP
+CC               08-APR-97 : SS: NIELL MAPPING, TROPOSPHERE GRADIENTS
+CC               14-AUG-97 : SS: DIFFERENTIAL CODE BIASES
+CC               29-APR-98 : SS: DTEC LC
+CC               14-APR-00 : SS: ESTIMATE (P1-C1) CODE BIASES
+CC               30-JAN-02 : RD: ADD PARAMETER TYPES FOR EPOCHWISE CLOCKS
+CC               07-MAY-02 : SS: DCB UPDATE
+CC               14-NOV-02 : RS: SATELLITE ANTENNA PHASE CENTER VARIATIONS
+CC               19-NOV-03 : RS: PRINT GNROFF, PRINT CORRECT #AZI
+CC               23-NOV-04 : AJ: UPDATE FOR STOCHASTIC ORBIT PARAMETERS
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               15-FEB-08 : RD: ENABLE RAO/RAP FOR ADDNEQ2
+CC               28-OCT-08 : DT: Use maxVar from M_MAXDIM
+CC               04-MAY-09 : RD: SCALING OF LOADING MODELS ADDED
+CC               10-MAY-09 : RD: SAT/FRQ-SPECIFIC RECEIVER CLOCK BIASES
+CC               10-MAY-09 : RD: SEPERATE RECEIVER CLOCKS FOR GPS/GLONASS
+CC               04-JAN-10 : SL: HOI SCALING PARAMETERS ADDED
+CC               12-AUG-10 : DT: RANGE BIASES ADDED; LC for SAO
+CC               27-AUG-10 : HB: MAXVAR REPLACED BY MAXELE
+CC               08-SEP-10 : RD: MERGE SLR-TIME BIAS OPTION
+CC               06-DEC-10 : DT: ADD HELMERT PARAMETERS (28)
+CC               15-DEC-10 : MM: ADD GNSS-SPECIFIC PARAMETERS
+CC               12-MAR-12 : HB: LAYOUT UNIFICATION FOR STOCHASTIC
+CC                               ORBIT PARAMETERS
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE m_global, ONLY: g_strsys,g_svnsys
+      USE d_grid,   ONLY: grdNeq
+      USE s_maxtst
+      USE s_exitrc
+      USE s_timst2
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IFRPAR, IGRP  , II    , IPAR  , IRCMAX, IREQ  ,
+     1          ITYP  , ITYPE , LFN   , MAXTYP, MXCLCQ, MAXELE,
+     2          NPAR  , IFRQ  , ICOR
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      PARAMETER (MAXTYP=30, MAXELE=15)
+C
+      CHARACTER*24  PARTYP(MAXTYP)
+      CHARACTER*16  STNAME(*),STHELP,FRCTXT(6)
+      CHARACTER*19  EPOSTR
+      CHARACTER*1   COOTYP(3),HILCMP(3),CO2TYP(3),DCBSYS(2),GSPTYP(4)
+      CHARACTER*3   COSSIN(2),HILTYP(3),GIMTXT(3),DCBTXT(2)
+      CHARACTER*4   ELETYP(MAXELE)
+      CHARACTER*8   TYPTXT(3)
+      CHARACTER*7   POLTYP(5),HLMTYP(7)
+      CHARACTER*6   MXNLCQ
+      CHARACTER*5   DCBTYP(3)
+      CHARACTER*3   GRDTYP(3,3)
+      CHARACTER*1   CHR1
+      REAL*8        TIMISB(3,*)
+      INTEGER*4     PRIOPT,LOCQ(MXCLCQ,*),NPATYP(MAXTYP)
+      INTEGER*4     FRCHLP,TYPHLP
+C
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+C
+      DATA COOTYP/'X','Y','Z'/
+      DATA CO2TYP/'N','E','U'/
+      DATA ELETYP/'A','E','I','NODE','PER','U0','D0','Y0','X0',
+     1                                          'DC','YC','XC',
+     2                                          'DS','YS','XS'/
+      DATA POLTYP/'X-POLE','Y-POLE','UT1-UTC','DEPS','DPSI'/
+      DATA FRCTXT/'radial          ','along-track     ',
+     1            'out-of-plane    ',
+     2            'Direction to Sun','y-direction     ',
+     3            'x-direction     '/
+      DATA TYPTXT/'epoch   ','constant','linear  '/
+      DATA COSSIN/'COS','SIN'/
+      DATA HILTYP/'CON','COS','SIN'/
+      DATA HILCMP/'R','S','W'/
+      DATA GIMTXT/'COE','HGT','VAR'/
+      DATA DCBTXT/'SAT','REC'/,DCBSYS/'G','R'/
+      DATA DCBTYP/'P1-P2','P1-C1','LC'/
+      DATA GSPTYP/'X','Y','Z','T'/
+      DATA (GRDTYP(1,II),II=1,3)/'ALL','   ','   '/
+      DATA (GRDTYP(2,II),II=1,3)/'UP ','N/E','   '/
+      DATA (GRDTYP(3,II),II=1,3)/'U  ','N  ','E  '/
+      DATA HLMTYP/'X-TRANS','Y-TRANS','Z-TRANS',
+     1            'X-ROT  ','Y-ROT  ','Z-ROT  ','SCALE  '/
+      DATA PARTYP/'STATION COORDINATES     ','RECEIVER CLOCKS BIASES  ',
+     1            'ORBITAL ELEMENTS        ','AMBIGUITIES             ',
+     2            'RECEIVER ANTENNA OFFSETS','TROPOSPHERE FOR STATIONS',
+     3            'LOCAL IONOSPHERE MODELS ','DIFFERENTIAL CODE BIASES',
+     4            'LOCAL TROPOSPHERE MODELS','EARTH ROTATION          ',
+     5            'STOCHASTIC ORBIT PARAM. ','SATELLITE ANTENNA OFFSET',
+     6            'EARTH POTENTIAL COEFF.  ','HILL RESONANCE TERMS    ',
+     7            'EARTH ALBEDO PARAMETERS ','CENTER OF MASS COORD.   ',
+     8            'DIFF. ION. PARAMETERS   ','REC ANT PHASE CENTER VAR',
+     9            'GLOBAL ION. PARAMETERS  ','STATION VELOCITIES      ',
+     1            'KINEMATIC SITE COORDIN. ','SCALING FOR VIENNA GRIDS',
+     2            'EPOCH WISE STA. CLOCKS  ','EPOCH WISE SAT. CLOCKS  ',
+     3            'SAT ANT PHASE CENTER VAR','SLR RANGE BIASES        ',
+     4            'HOI SCALING PARAMETERS  ','HELMERT PARAMETERS      ',
+     5            'NOT USED                ','GNSS-SPECIFIC PARAMETERS'/
+C
+C PRINT NUMBER OF PARAMETERS
+C --------------------------
+      DO 10 ITYP=1,MAXTYP
+        NPATYP(ITYP)=0
+10    CONTINUE
+      DO 20 IPAR=1,NPAR
+        ITYP=LOCQ(1,IPAR)
+        NPATYP(ITYP)=NPATYP(ITYP)+1
+20    CONTINUE
+C
+      WRITE(LFN,21)
+21    FORMAT('PARAMETERS:',/,
+     1       '----------',/)
+C
+      DO 30 ITYP=1,MAXTYP
+        IF(NPATYP(ITYP).NE.0) WRITE(LFN,22) PARTYP(ITYP),NPATYP(ITYP)
+22        FORMAT('# ',A24,' :',I8)
+30    CONTINUE
+      WRITE(LFN,31) NPAR
+31    FORMAT(/,'TOTAL # OF PARAMETERS      :',I8,//)
+C
+C PRINT PARAMETER CHARACTERIZATION LIST
+C -------------------------------------
+      WRITE(LFN,32)
+32    FORMAT('PARAMETER CHARACTERIZATION LIST:',/,
+     1       '-------------------------------')
+C
+      DO 9100 ITYP=1,MAXTYP
+        IFRPAR=1
+C
+C LOOP OVER ALL PARAMETERS
+        DO 9000 IPAR=1,NPAR
+          ITYPE=LOCQ(1,IPAR)
+          IF(ITYPE.NE.ITYP) GOTO 9000
+          GOTO ( 100, 200, 300, 400, 500, 600, 700, 800, 900,1000,
+     1          1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,
+     2          2100,2200,2300,2400,2500,2600,2700,2800,2900,3000)
+     3    ITYPE
+C
+C STATION PARAMETERS
+100       IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,101)
+101         FORMAT(/,'PARAM  TYPE  STATION NAME     COORDINATE',/)
+          ENDIF
+C
+          WRITE(LFN,102) IPAR,ITYP,STNAME(LOCQ(2,IPAR)),
+     1                      COOTYP(LOCQ(3,IPAR))
+102       FORMAT(I4,I6,3X,A16,5X,A1)
+          GOTO 9000
+C
+C RECEIVER CLOCKS
+200       IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,201)
+201         FORMAT(/,'PARAM  TYPE  REQUEST  STATION NAME',/)
+          ENDIF
+C
+          IF (LOCQ(6,IPAR).EQ.0.AND.LOCQ(7,IPAR).EQ.0) THEN
+            WRITE(LFN,202) IPAR,ITYP,LOCQ(3,IPAR),
+     1                        STNAME(LOCQ(2,IPAR))
+202         FORMAT(I5,I6,I7,5X,A16)
+          ELSE IF (ABS(LOCQ(6,IPAR)).EQ.0) THEN
+            WRITE(LFN,203) IPAR,ITYP,LOCQ(3,IPAR),
+     1                        STNAME(LOCQ(2,IPAR)),'SAT',LOCQ(7,IPAR)
+          ELSE IF (ABS(LOCQ(6,IPAR)).EQ.1) THEN
+            WRITE(LFN,203) IPAR,ITYP,LOCQ(3,IPAR),
+     1                        STNAME(LOCQ(2,IPAR)),'FRQ',LOCQ(4,IPAR)
+203         FORMAT(I5,I6,I7,5X,A16,5X,A,I5)
+          ELSE IF (ABS(LOCQ(6,IPAR)).EQ.2) THEN
+            WRITE(LFN,203) IPAR,ITYP,LOCQ(3,IPAR),
+     1                        STNAME(LOCQ(2,IPAR)),'SAT',LOCQ(4,IPAR)
+          ELSE IF (ABS(LOCQ(6,IPAR)).EQ.4) THEN
+            WRITE(LFN,203) IPAR,ITYP,LOCQ(3,IPAR),
+     1                        STNAME(LOCQ(2,IPAR)),
+     2                       'FRQ   polynomial n =',LOCQ(4,IPAR)-1
+          ELSE IF (ABS(LOCQ(6,IPAR)).EQ.5) THEN
+            CALL timst2(1,1,timisb(1,locq(4,ipar)),EPOSTR)
+            WRITE(LFNPRT,204) IPAR,ITYP,LOCQ(2,IPAR),
+     1                        STNAME(LOCQ(2,IPAR)),
+     2                       'Time-dep. intersystem bias: ',
+     3                        EPOSTR
+204         FORMAT(I5,I6,I7,5X,A16,5X,A,A)
+          ENDIF
+          GOTO 9000
+C
+C ORBITAL ELEMENTS
+300       IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,301)
+301         FORMAT(/,'PARAM  TYPE  ARC  SAT.  ELEMENT',/)
+          ENDIF
+C
+          WRITE(LFN,302) IPAR,ITYP,LOCQ(2,IPAR),LOCQ(3,IPAR),
+     1                      ELETYP(LOCQ(4,IPAR))
+302       FORMAT(I4,I6,I5,I6,5X,A4)
+          GOTO 9000
+C
+C AMBIGUITIES
+400       IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,401)
+401         FORMAT(/,'PARAM  TYPE  FILE  CLUSTER  AMB.FRQ.  FREQ.  ',
+     1               'L5-CLUSTER',/)
+          ENDIF
+C
+          WRITE(LFN,402) IPAR,ITYP,(LOCQ(I,IPAR),I=2,6)
+402       FORMAT(I4,2I6,I8,7X,'L',I1,6X,'L',I1,I11)
+          GOTO 9000
+C
+C RECEIVER ANTENNA OFFSETS
+500       IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,501)
+501         FORMAT(/,'PARAM  TYPE  REQUEST  FREQ.  COORDINATE',/)
+          ENDIF
+C
+          IF (LOCQ(4,IPAR).GT.100) THEN
+            IREQ=MOD(LOCQ(5,IPAR) , 100)
+            IFRQ=MOD(LOCQ(4,IPAR) , 100)
+            ICOR=LOCQ(4,IPAR) / 100
+          ELSE
+            IREQ=LOCQ(2,IPAR)
+            IFRQ=LOCQ(3,IPAR)
+            ICOR=LOCQ(4,IPAR)
+          ENDIF
+          WRITE(LFN,502) IPAR,ITYP,LOCQ(2,IPAR),LOCQ(3,IPAR),
+     1                   CO2TYP(LOCQ(4,IPAR))
+502       FORMAT(I4,I6,2I7,9X,A1)
+          GOTO 9000
+C
+C TROPOSPHERE PARAMETERS FOR INDIVIDUAL STATIONS
+600       IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,601)
+601         FORMAT(/,'PARAM  TYPE  REQUEST  STATION NAME     ',
+     1        'COMPONENT',/)
+          ENDIF
+C
+          WRITE(LFN,602) IPAR,ITYP,LOCQ(2,IPAR),
+     1                      STNAME(LOCQ(3,IPAR)),CO2TYP(LOCQ(4,IPAR))
+602       FORMAT(I4,I6,I7,5X,A16,6X,A1)
+          GOTO 9000
+C
+C LOCAL IONOSPHERE MODELS
+700       IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,701)
+701         FORMAT(/,'PARAM  TYPE  MODEL  DEG.TIME  DEG.LAT.',/)
+          ENDIF
+C
+          WRITE(LFN,702) IPAR,ITYP,LOCQ(2,IPAR),LOCQ(4,IPAR),
+     1                      LOCQ(3,IPAR)
+702       FORMAT(I4,2I6,I9,I10)
+          GOTO 9000
+C
+C DIFFERENTIAL CODE BIASES
+800       IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,801)
+801         FORMAT(/,'PARAM  TYPE  GROUP  SVN / STATION NAME  ',
+     1        'SYSTEM  TYPE'/)
+          ENDIF
+C
+          IGRP=LOCQ(2,IPAR)
+          IF (IGRP.EQ.1) THEN
+            WRITE(LFN,802) IPAR,ITYP,DCBTXT(IGRP),LOCQ(3,IPAR),
+     1        DCBTYP(LOCQ(5,IPAR))
+802         FORMAT(I4,I6,3X,A3,I8,24X,A5)
+          ELSE
+            WRITE(LFN,803) IPAR,ITYP,DCBTXT(IGRP),
+     1        STNAME(LOCQ(3,IPAR)),DCBSYS(LOCQ(5,IPAR)),
+     2        DCBTYP(IABS(LOCQ(6,IPAR)))
+803         FORMAT(I4,I6,3X,A3,4X,A16,4X,A1,7X,A5)
+          ENDIF
+          GOTO 9000
+C
+C LOCAL TROPOSPHERE MODELS
+900       IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,901)
+901         FORMAT(/,'PARAM  TYPE  MODEL  DEG.HEIGHT',/)
+          ENDIF
+C
+          WRITE(LFN,902) IPAR,ITYP,LOCQ(2,IPAR),LOCQ(3,IPAR)
+902       FORMAT(I4,2I6,I10)
+          GOTO 9000
+C
+C EARTH ROTATION PARAMETERS
+1000      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,1001)
+1001        FORMAT(/,'PARAM  TYPE  MODEL SET NR   PAR.TYP   ',
+     1               'COEFF NR.',/)
+          ENDIF
+C
+          WRITE(LFN,1002) IPAR,ITYP,LOCQ(2,IPAR),LOCQ(3,IPAR),
+     1                    POLTYP(LOCQ(4,IPAR)),LOCQ(5,IPAR)
+1002      FORMAT(I4,3I6,6X,A7,I7)
+          GOTO 9000
+C
+C STOCHASTIC ORBIT PARAMETERS
+1100      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,1101)
+1101        FORMAT(/,
+     1         'PARAM  TYPE   ARC   SAT.  SET   TYPE      DIRECTION',/)
+          ENDIF
+C
+          FRCHLP = mod(LOCQ(5,IPAR),10)
+          TYPHLP = 1+(LOCQ(5,IPAR)-mod(LOCQ(5,IPAR),10))/10
+C
+          WRITE(LFN,1102) IPAR,ITYP,LOCQ(2,IPAR),LOCQ(3,IPAR),
+     1                    LOCQ(4,IPAR),TYPTXT(TYPHLP),FRCTXT(FRCHLP)
+1102      FORMAT(I4,4I6,4X,A8,3(2X,A16))
+          GOTO 9000
+C
+C SATELLITE ANTENNA OFFSETS
+1200      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,1201)
+1201        FORMAT(/,'PARAM  TYPE  REQUEST  GROUP  COORDINATE  TECHN',/)
+          ENDIF
+C
+          WRITE(LFN,1202) IPAR,ITYP,LOCQ(2,IPAR),LOCQ(5,IPAR),
+     1                    COOTYP(LOCQ(3,IPAR)),LOCQ(6,IPAR)
+1202      FORMAT(I4,I6,2I8,8X,A1,4X,I6)
+          GOTO 9000
+C
+C EARTH POTENTIAL PARAMETERS
+1300      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,1301)
+1301        FORMAT(/,'PARAM  TYPE  DEGREE N  ORDER M  SIN/COS',/)
+          ENDIF
+C
+          WRITE(LFN,1302) IPAR,ITYP,LOCQ(5,IPAR),LOCQ(6,IPAR),
+     1                    COSSIN(LOCQ(4,IPAR))
+1302      FORMAT(I4,I6,2I9,7X,A3)
+          GOTO 9000
+C
+C HILL'S RESONANCE TERMS
+1400      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,1401)
+1401        FORMAT(/,'PARAM  TYPE  ARC  SAT  R/S/W  CONST/SIN/COS',/)
+          ENDIF
+C
+          WRITE(LFN,1402) IPAR,ITYP,LOCQ(2,IPAR),LOCQ(3,IPAR),
+     1                    HILCMP(LOCQ(4,IPAR)),
+     2                    HILTYP(LOCQ(5,IPAR))
+1402      FORMAT(I4,2I6,I5,4X,A1,9X,A3)
+          GOTO 9000
+C
+C EARTH ALBEDO PARAMETERS
+1500      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,1501)
+1501        FORMAT(/,'PARAM  TYPE  GROUP  MODEL',/)
+          ENDIF
+C
+          WRITE(LFN,1502) IPAR,ITYP,LOCQ(5,IPAR),LOCQ(4,IPAR)
+1502      FORMAT(I4,I6,I7,I6)
+          GOTO 9000
+C
+C CENTER OF MASS COORDINATES
+1600      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,1601)
+1601        FORMAT(/,'PARAM  TYPE  COORDINATE',/)
+          ENDIF
+C
+          WRITE(LFN,1602) IPAR,ITYP,COOTYP(LOCQ(2,IPAR))
+1602      FORMAT(I4,I6,7X,A1)
+          GOTO 9000
+C
+C DIFFERENTIAL IONOSPHERE PARAMETERS
+1700      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,1701)
+1701        FORMAT(/,'PARAM  TYPE  FILE  SAT  EPOCH',/)
+          ENDIF
+C
+          WRITE(LFN,1702) IPAR,ITYP,(LOCQ(II,IPAR),II=2,4)
+1702      FORMAT(I4,3I6,I7)
+          GOTO 9000
+C
+C RECEIVER ANTENNA PHASE CENTER VARIATIONS
+1800      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,1801)
+1801        FORMAT(/,'PARAM  TYPE  REQUEST  FREQ  ZENITH AZIMUTH',
+     1             '   #ZEN   #AZI',/)
+          ENDIF
+C
+          IF (LOCQ(6,IPAR).GT.0) THEN
+            WRITE(LFN,1802) IPAR,ITYP,(LOCQ(II,IPAR),II=2,6),
+     1                      (LOCQ(7,IPAR)-1)
+          ELSE
+            WRITE(LFN,1802) IPAR,ITYP,(LOCQ(II,IPAR),II=2,7)
+          ENDIF
+1802      FORMAT(I4,I6,I8,3I7,I10,I7)
+          GOTO 9000
+C
+C GLOBAL IONOSPHERE MODEL PARAMETERS
+1900      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,1901)
+1901        FORMAT(/,'PARAM  TYPE  REQUEST  MODEL  DEGREE  ORDER',/)
+          END IF
+C
+          IREQ=LOCQ(2,IPAR)
+          IF (IREQ.EQ.1 .OR. IREQ.EQ.3) THEN
+            WRITE(LFN,1902) IPAR,ITYP,GIMTXT(IREQ),
+     1                      (LOCQ(II,IPAR),II=3,5)
+          ELSE
+            WRITE(LFN,1902) IPAR,ITYP,GIMTXT(IREQ),
+     1                      LOCQ(3,IPAR)
+          END IF
+1902      FORMAT(I4,I6,3X,A3,I9,I7,I8)
+          GOTO 9000
+C
+C STATION VELOCITIES
+2000      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,2001)
+2001        FORMAT(/,'PARAM  TYPE',/)
+          END IF
+C
+          WRITE(LFN,2002) IPAR,ITYP,(LOCQ(II,IPAR),II=2,5)
+2002      FORMAT(I5,2I6,I7,I5,I10)
+          GOTO 9000
+C
+C KINEMATIC STATION COORDINATES
+2100      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,2101)
+2101        FORMAT(/,'PARAM  TYPE  STATION NAME     COORDINATE  ',
+     1               'EPOCH',/)
+          END IF
+C
+          WRITE(LFN,2102) IPAR,ITYP,STNAME(LOCQ(2,IPAR)),
+     1                       COOTYP(LOCQ(3,IPAR)),LOCQ(4,IPAR)
+2102      FORMAT(I4,I6,3X,A16,5X,A1,I12)
+          GOTO 9000
+C
+C SCALING FACTORS FOR VIENNA GRID FILES
+2200      STHELP = ''
+          IF (LOCQ(3,IPAR) == -1) THEN
+            STHELP = 'ALL STATIONS'
+          ELSE IF (LOCQ(3,IPAR) == 0) THEN
+            STHELP = STNAME(LOCQ(7,IPAR))
+          ELSE IF (LOCQ(3,IPAR) > 0) THEN
+            STHELP = 'GROUP '
+            WRITE(STHELP(7:9),'(I3.3)') LOCQ(3,IPAR)
+          ENDIF
+          WRITE(LFN,2201) IPAR,ITYP,GRDNEQ(LOCQ(2,IPAR)),
+     1                    STHELP,GRDTYP(LOCQ(5,IPAR),LOCQ(4,IPAR))
+2201      FORMAT(I5,I6,3X,A9,3X,A16,6X,A3)
+          GOTO 9000
+C
+C EPOCH WISE STATION CLOCKS
+2300      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,2301)
+2301        FORMAT(/,'PARAM  TYPE  STATION NAME           EPOCH    ',
+     1             'REF',/)
+          END IF
+C
+          CHR1=' '
+          IF (LOCQ(7,IPAR).GT.0) CHR1='R'
+          IF (LOCQ(3,IPAR).EQ.0) THEN
+            WRITE(LFN,2302) IPAR,ITYP,STNAME(LOCQ(2,IPAR)),
+     1                      LOCQ(4,IPAR),CHR1,' '
+          ELSE
+            WRITE(LFN,2302) IPAR,ITYP,STNAME(LOCQ(2,IPAR)),
+     1                      LOCQ(4,IPAR),CHR1,g_strsys(LOCQ(3,IPAR)-1)
+          ENDIF
+2302      FORMAT(I5,I6,3X,A16,I12,5X,A1,5X,A)
+          GOTO 9000
+C
+C EPOCH WISE SATELLITE CLOCKS
+2400      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,2401)
+2401        FORMAT(/,'PARAM  TYPE  SAT       EPOCH    REF',/)
+          END IF
+C
+          CHR1=' '
+          IF (LOCQ(7,IPAR).GT.0) CHR1='R'
+          WRITE(LFN,2402) IPAR,ITYP,LOCQ(3,IPAR),LOCQ(4,IPAR),CHR1
+2402      FORMAT(I4,2I6,I12,5X,A1)
+          GOTO 9000
+C
+C SATELLITE ANTENNA PHASE CENTER VARIATIONS
+2500      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,2501)
+2501        FORMAT(/,'   PARAM    TYPE    REQ.   GROUP  ZENITH',
+     1             ' AZIMUTH    #ZEN    #AZI',/)
+          ENDIF
+C
+          WRITE(LFN,2502) IPAR,ITYP,(LOCQ(II,IPAR),II=2,6),
+     1                    (LOCQ(7,IPAR)-1)
+2502      FORMAT(8I8)
+          GOTO 9000
+C
+C SLR RANGE BIASES
+2600      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,2601)
+2601        FORMAT(/,' PARAM   TYPE    STATION NAME      SAT    WL',/)
+          ENDIF
+
+          WRITE(LFN,2602) IPAR,ITYP,STNAME(LOCQ(2,IPAR)),LOCQ(5,IPAR),
+     1                    LOCQ(4,IPAR)
+2602      FORMAT(I6,I6,A20,I6,I6)
+          GOTO 9000
+C
+C HOI SCALING PARAMETERS
+2700      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,2701)
+2701        FORMAT(/,'PARAM  TYPE   HOI    STATION NAME',/)
+          ENDIF
+C
+          IF(LOCQ(3,IPAR).EQ.1) THEN
+            WRITE(LFN,2702) IPAR,ITYP,LOCQ(2,IPAR),' '
+          ELSEIF(LOCQ(3,IPAR).EQ.2) THEN
+            WRITE(LFN,2702) IPAR,ITYP,LOCQ(2,IPAR),STNAME(LOCQ(4,IPAR))
+          ENDIF
+2702      FORMAT(I4,I6,4X,I2,5X,A16)
+          GOTO 9000
+C
+C HELMERT TRANSFORMATION PARAMETERS
+2800      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,2801)
+2801        FORMAT(/,'PARAM  TYPE   COMPONENT   GROUP',/)
+          ENDIF
+C
+          WRITE(LFN,2802) IPAR,ITYP,HLMTYP(LOCQ(2,IPAR)),
+     1                    STNAME(LOCQ(4,IPAR))
+2802      FORMAT(I4,I6,A15,2X,A3)
+
+          GOTO 9000
+C
+C SURFACE LOAD
+2900      GOTO 9000
+C
+C GNSS-SPECIFIC PARAMETERS
+3000      IF(IFRPAR.EQ.1) THEN
+            IFRPAR=0
+            WRITE(LFN,3001)
+3001        FORMAT(/,'PARAM  TYPE   SYS  TYP    STATION NAME',/)
+          ENDIF
+C
+          WRITE(LFN,3002) IPAR,ITYP,G_SVNSYS(LOCQ(4,IPAR)-1),
+     1                    GSPTYP(LOCQ(3,IPAR)),STNAME(LOCQ(2,IPAR))
+3002      FORMAT(I4,I6,5X,A1,4X,A1,5X,A)
+          GOTO 9000
+C
+9000    CONTINUE
+9100  CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

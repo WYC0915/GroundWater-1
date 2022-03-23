@@ -1,0 +1,89 @@
+      MODULE s_CTRDEF
+      CONTAINS
+
+C*
+      SUBROUTINE CTRDEF(IPAR,KPAR,XXX,INDEX,INDCOE,INDIPA,COETRA)
+CC
+CC NAME       :  CTRDEF
+CC
+CC PURPOSE    : DEFINE NON-ZERO COEFFICIENTS OF COEFFICIENT MATRIX COETRA
+CC              PLUS CORRESPONDING INDEX ARRAY
+CC
+CC PARAMETERS :
+CC              IPAR    : LINE OF COEFFICIENT MATRIX                I*4
+CC              KPAR    : COLUMN OF COEFFICIENT MATRIX              I*4
+CC              XXX     : VALUE OF ELEMENT                          I*4
+CC      IN/OUT: INDEX   : CURRENT NUMBER OF NON-ZERO ELEMENTS       I*4
+CC        OUT : INDCOE  : INDEX ARRAY                               I*4(*,*)
+CC              INDIPA  : INDEX OF FIRST NON-ZERO ELEMENT OF LINE I I*4(*)
+CC              COETRA  : NON-ZERO ELEMENTS                         R*8(*)
+CC
+CC REMARKS    :
+CC
+CC AUTHOR     :  G.BEUTLER
+CC
+CC VERSION    :  3.5  (MAY 94)
+CC
+CC CREATED    :  94/05/11
+CC
+CC CHANGES    :  25-OCT-96 : TS: BETTER ERROR MESSAGE
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               02-DEC-05 : RD: CORRECT CHECK FOR ARRAY SIZE
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1994     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 INDEX , IPAR  , KPAR  , MXCCOE
+C
+      REAL*8    XXX
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+C
+      CHARACTER*6   MXNCOE
+C
+      REAL*8        COETRA(*)
+C
+      INTEGER*4     INDCOE(2,*),INDIPA(*)
+C
+      COMMON/MCMCOE/MXCCOE,MXNCOE
+C
+C
+C ADD NON-ZERO ELEMENT
+C --------------------
+      IF(XXX.NE.0.D0)THEN
+C
+        IF(INDEX+1.GT.MXCCOE)THEN
+          WRITE(LFNERR,10)INDEX,MXCCOE
+10        FORMAT(///,' *** SR CTRDEF : "MAXCOE" EXCEEDED'/,
+     1                           16X,' NEEDED:  ',I5,/
+     2                           16X,' MAXIMUM: ',I5,//)
+          CALL EXITRC(2)
+        END IF
+        INDEX=INDEX+1
+        COETRA(INDEX)=XXX
+        INDCOE(1,INDEX)=IPAR
+        INDCOE(2,INDEX)=KPAR
+        INDCOE(1,INDEX+1)=-1
+        IF(INDEX.EQ.1) THEN
+          INDIPA(IPAR)=INDEX
+          INDIPA(IPAR+1)=-1
+        ELSE IF(INDCOE(1,INDEX-1).EQ.IPAR-1)THEN
+          INDIPA(IPAR)=INDEX
+          INDIPA(IPAR+1)=-1
+        END IF
+      END IF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

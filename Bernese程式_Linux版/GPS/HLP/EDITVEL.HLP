@@ -1,0 +1,105 @@
+<html>
+<body>
+
+<center>
+<b>CREATE/UPDATE STATION VELOCITIES</b>
+<p>Editor: EDITVEL
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT" default="%% %%"></a>
+<a name="DATUM"       default="DATUM."></a>
+<a name="AUXFIL"      default="EDITVEL$J"></a>
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+The velocity file contains the station velocity information. This
+input panel helps you to create or to edit this type of files.
+<br>
+To create a new velocity file specify a new filename in the file
+selection dialogue. In this case you will be asked to select an existing
+coordinate file. The station names will be read from this
+file to generate a velocity file template.
+
+<p><i>Remark:</i>
+The end of the velocity file is indicated by a blank line. Lines below the
+blank line are ignored. If you use this input mask to edit a velocity file
+these additional lines will be lost. If you want to keep them in the file
+you have to use an external text file editor.
+
+<p><a href="/$X/DOC/EXAMPLE.VEL">Example</a>
+
+<p><hr>
+
+<p><b>STATION VELOCITIES</b>
+
+<a name="VELORS" default=""></a>
+<p><b>Filename:</b>
+The absolute path and the name of the station velocity file is given here.
+
+<a name="TITLE" default=""></a>
+<p><b>Title:</b>
+The title line is saved in the file and should indicate where the velocity
+information come from. If they are estimated by processing programs, the title
+line entered for the program runs will appear here.
+
+<a name="DATUM_STRG" default=""></a>
+<p><b>Geodetic datum:</b>
+The name of the geodetic datum specified here has to be identical to the one
+used in the coordinate file.
+<br>
+The specified geodetic datum must be contained in the "Geodetic datum" file
+(default: $X/GEN/DATUM.) you are using together with the velocity file.
+
+<a name="STAVEL" default="%% %% %% %% %% %% %%"></a>
+<p><b>Num:</b>
+The station numbers have to be identical to the station numbers provided
+in the coordinate file or assigned to the center names in a site eccentricity
+file.
+
+<p><b>Station name:</b>
+The station names have to be identical to the station names in the coordinate
+file or the center names in the site eccentricity file.
+
+<p><b>vX</b>, <b>vY</b>, <b>vZ:</b>
+The velocity information has to be given in the geocentric coordinate
+system. The unit is meters per year with 13&nbsp;digits including
+4&nbsp;decimal places.
+
+<p><b>Flag:</b>
+Different programs mark the estimated coordinates with different flags:
+<br>
+<table>
+<tr><td><tt>V:</tt></td>
+    <td>Coordinates from NNR-NUVEL1 or NNR-NUVEL1A model,
+        from program <a href="PGMLST.HLP#NUVELO">NUVELO</a></td></tr>
+<tr><td><tt>A:</tt></td>
+    <td>Coordinates estimated without constraints in the
+        normal equation combination step,
+        from program <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a></td></tr>
+<tr><td><tt>W:</tt></td>
+    <td>Coordinates estimated with constraints in the
+        normal equation combination step,
+        from program <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a></td></tr>
+<tr><td><tt>N:</tt></td>
+    <td>Estimated coordinates for a station used to define a free network
+        condition in the normal equation combination step,
+        from program <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a></td></tr>
+<tr><td><tt>I:</tt></td>
+    <td>ITRF velocities</td></tr>
+<tr><td>others:</td>
+    <td>Not estimated, not used, or unknown</td></tr>
+</table>
+
+<p><b>Plate:</b>
+In most cases the plate information may be left blank.
+<br>
+The tectonic plate information is only important to compute station
+velocities based on <nobr>NNR-NUVEL1</nobr> or <nobr>NNR-NUVEL1A</nobr> models
+using program <a href="PGMLST.HLP#NUVELO">NUVELO</a>. In this case the plate
+ID must correspond to the table <a href="PLATES.HLP">here</a>.
+
+<p><hr>
+
+</body>
+</html>

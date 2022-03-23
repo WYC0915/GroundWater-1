@@ -1,0 +1,18 @@
+CLKDET_102070: Compute weights for code observ. (CW)             18-JUL-13 09:46
+--------------------------------------------------------------------------------
+                                        VALID:  from                  to
+STATION NAME          MEATYP  SIG-FACT  yyyy mm dd hh mm ss  yyyy mm dd hh mm ss
+****************      *****   ****.***  **** ** ** ** ** **  **** ** ** ** ** **
+GANP 11515M001        CODE       1.414  
+HERT 13212M010        CODE       1.000  
+JOZ2 12204M002        CODE       1.000  
+LAMA 12209M001        CODE       1.000  
+MATE 12734M008        CODE       1.000  
+ONSA 10402M004        CODE       1.414  
+PTBB 14234M001        CODE       1.000  
+TLSE 10003M009        CODE       1.414  
+WSRT 13506M005        CODE       1.414  
+WTZR 14201M010        CODE       1.414  
+WTZZ 14201M014        CODE       1.414  
+ZIM2 14001M008        CODE       1.732  
+ZIMM 14001M004        CODE       1.000  

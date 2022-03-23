@@ -1,0 +1,283 @@
+<html>
+<body>
+
+<center>
+<b>TRANSFER RINEX NAVIGATION FILES TO PRECISE ORBITS</b>
+<p>Program: RXNPRE
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="PRT_RNXINP"    default=""></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program is used to transfer RINEX navigation files into the
+precise orbit file format. The precise orbits may then be converted to
+standard orbits using the program <a href="PGMLST.HLP#ORBGEN">ORBGEN</a>.
+For GLONASS this is the only way to convert navigation messages to standard
+orbits. This program applies the transformation from the PZ-90 coordinate
+system to WGS-84. For GPS the intermediary steps through Bernese
+broadcast orbits (programs <a href="PGMLST.HLP#RXNBV3">RXNBV3</a> and
+<a href="PGMLST.HLP#BRDTAB">BRDTAB</a>) may be skipped.
+
+<p><hr>
+
+<p><b>RXNPRE 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RNXGPS" default="????$S+0"></a>
+<a name="RNXGLO" default="????$S+0"></a>
+<a name="RNXGAL" default="????$S+0"></a>
+<p><b>INPUT FILES</b>
+<p>
+The program can either convert a list of GPS RINEX navigation files or
+a list of GLONASS RINEX navigation files. A third possibility is to merge
+GLONASS and GPS RINEX navigation message files before conversion. In this
+case corresponding lists of GLONASS and GPS files have to be selected.
+<br>
+Each input file (or pair of input files) will be converted into one
+output precise file.
+<br>
+You may use the programs <a href="PGMLST.HLP#CCRINEXN">CCRINEXN</a> (for
+GPS) and <a href="PGMLST.HLP#CCRINEXG">CCRINEXG</a> (for GLONASS) to
+concatenate RINEX navigation files before starting this transfer
+program here.
+
+<p><i>Remark:</i>
+To make sure that merging of GPS and GLONASS RINEX navigation files does
+not cause troubles it is recommended to select only one pair of files
+at a time.
+
+<p><b>GPS navigation file:</b>
+In this field you may select the list of GPS RINEX navigation files.
+
+<p><i>Default value:</i> <tt>????$S+0</tt>
+
+<p><b>GLONASS navigation file: </b>
+In this field you may select the list of GLONASS RINEX navigation files.
+
+<p><i>Default value:</i> <tt>????$S+0</tt>
+
+<p><b>Galileo navigation file: </b>
+In this field you may select the list of Galileo RINEX navigation files.
+
+<p><i>Default value:</i> <tt>????$S+0</tt>
+
+<a name="EXSHFT" default="0"></a>
+<p><b>Exclude sat. with shifts: </b>
+If you check this box GLONASS satellites which show a shift in the navigation
+messages (e.g., due to a maneuver) are not written to the precise orbit file.
+
+<p><i>Remark:</i>
+This checkbox affects only GLONASS satellites. Shifted GPS
+satellites are skipped in any case.
+
+<br><br>
+
+<a name="PREFIL" default=""></a>
+<p><b>RESULT FILE</b>
+<p><b>Precise orbit file:</b>
+If you specified only one navigation file (or one pair of navigation
+files) you may specify a different output filename.
+<br>
+If you specified lists of input files or if you leave this field empty
+the resulting precise orbit files will
+get the same name as the GPS RINEX navigation files (or GLONASS RINEX
+navigation files if no GPS files are available). Only the directory and
+extension for the output files will be changed.
+<br>
+
+<p><i>Default value:</i> blank
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="RXNPRE"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>RXNPRE 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates.
+
+<p><i>Remark:</i>
+Make sure that the transformation parameters
+for the PZ-90 coordinate system of the GLONASS navigation messages
+are given in this file (even if you only process GPS navigation files).
+
+<p>Example: <a href="/$X/GEN/DATUM.">$X/GEN/DATUM.</a>
+
+<a name="GPSUTC" default="GPSUTC."></a>
+<p><b>GPS-UTC seconds:</b>
+Select the file with GPS-UTC values here. You have to update this file each
+time a leap second is introduced.
+
+<p>Example: <a href="/$X/GEN/GPSUTC.">$X/GEN/GPSUTC.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<p><hr>
+
+<p><b>RXNPRE 2.1: Input Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE:</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="FORMAT" default="SP3C"></a>
+<p><b>PRECISE ORBIT FILE</b>
+<p><b>Format type:</b>
+You may select the file format of the precise orbit file. SP3C is the successor
+of the SP3 format. Format descriptions may be obtained from ftp server of the
+IGS Central Bureau.
+
+<p><i>Default value:</i> <tt>SP3C</tt>
+
+<a name="TABINT" default="900"></a>
+<p><b>Tabular interval:</b>
+You have to specify the interval between the entries for the precise orbit
+file in seconds.
+
+<p><i>Default value:</i> <tt>900</tt>&nbsp;seconds
+
+<br><br>
+
+<a name="RADIO_1" default="1"></a>
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>TIME WINDOW FOR PRECISE ORBIT FILE</b>
+<p>
+The options below allow to specify a time window. Only ephemerides
+within this time window will be used for the resulting precise orbit file.
+<br>
+You may define the time window either by using session definitions, or by
+explicitly specifying start and end times.
+
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the observation window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the observation window.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: <tt>00&nbsp;00&nbsp;00</tt>, end date: <tt>$YMD_STR+0</tt>,
+end time: <tt>23&nbsp;59&nbsp;59</tt>
+
+<p><hr>
+
+<p><b>RXNPRE 2.2: Input Options</b>
+
+<a name="TITLE1" default=""></a>
+<a name="TITLE2" default=""></a>
+<a name="TITLE3" default=""></a>
+<a name="TITLE4" default=""></a>
+<p><b>COMMENT LINES</b>
+<p><b>Title 1</b> - <b>Title 4:</b>
+You may specify four title lines that will appear in the header of the precise
+orbit file.
+
+<br><br>
+
+<a name="SYSTEM" default="WGS84"></a>
+<p><b>AUXILIARY INFORMATION</b>
+<p><b>Reference system:</b>
+You have to select the reference system of your orbit. The string will be
+written into the header of the precise orbit file.
+
+<p><i>Default value:</i> <tt>WGS84</tt>
+
+<a name="AGENCY" default=""></a>
+<p><b>Agency:</b>
+You may specify the agency which is responsible for the generation of the
+precise orbit file. The string will be written into the header of the precise
+orbit file.
+
+<p><hr>
+
+</body>
+</html>

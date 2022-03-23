@@ -1,0 +1,116 @@
+<html>
+<body>
+
+<center>
+<b>SET SESSION/COMPUTE DATE</b>
+<p>Editor: SETDATE
+</center>
+<hr width="100%">
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+This dialog box is used to define the current session which is
+one of the basic settings for the processing. It is used to define the
+<a href="MENU_VAR.HLP#VAR_PLUS">time variables</a> provided by the menu.
+The current session is defined by specifying the day to be processed,
+the session character, and the <a href="SESSIONS.HLP">session table</a> which
+must contain the session to provide the corresponding time window.
+<br>
+In addition the dialogue provides an input field to define a "Job ID"
+which can be used to distinguish the output of several runs of the
+same program running at the same time.
+
+<p><hr>
+
+<p><b>DEFINE THE DAY</b>
+<p>
+The day of the session you have to specify in this first part of the
+dialogue defines the first three character of the default session. There
+are four possibilities to define the day of the session:
+<ul>
+<li><b>Year, Month, Day</b>
+<li><b>Modified Julian Date</b>
+<li><b>GPS Week, Day of Week</b>
+<li><b>Year, Day of Year</b>
+</ul>
+You can enter the requested date in one of these input fields by pushing the
+button just right of the field. To complete the other fields with the
+corresponding representation of the day press the <tt>Compute</tt> button below
+this section.
+<br>
+Using the buttons <tt>+1</tt> and <tt>-1</tt> you may increment or decrement
+the current day by one.
+
+<br><br>
+
+<p><b>DEFINE THE SESSION</b>
+<p><b>Session Char:</b>
+Enter a character or a digit to complete the session identifier. The menu
+system adds this character to the day of year specified above. The resulting
+string is the current session of the processing.
+
+<p><b>Session Table:</b>
+This file contains the <a href="SESSIONS.HLP">session definition</a>, defining
+the time interval for the sessions to be processed. It must contain at least
+the current session you have defined above.
+
+<p><i>Default value: </i><tt>SESSIONS</tt>
+
+<br><br>
+
+<p><b>DEFINE THE JOB ID</b>
+<p><b>Job ID:</b>
+The Job ID is appended to the extension of the program input files in your
+user specific panel directory. In this way you may predefine panels with
+different settings of options for the same program which you may address
+with the Job ID.
+<br>
+If you would like to run more than one job of the same program at the
+same time, you have to use different job identification characters to obtain
+independent input files for the program runs.
+<br>
+The Job ID defines the value of the predefined
+<a href"=MENU_VAR.HLP">menu variable</a> <tt>$J</tt>, which you can use in all
+input panels. It may be used, e.g., to easily distinguish the temporary file if
+you run the same program more than once at the same time.
+<br>
+You should not specify more than two characters for the Job ID.
+
+<p><i>Remark:</i>
+For the BPE no Job ID is used at all - even if you have specified one.
+
+<br><br>
+
+<p><b>CLOSE THE DIALOGUE</b>
+<p>
+There are three buttons to close the dialogue:
+<br>
+<table width="100%">
+<tr><td valign="top"><b>Set:</b></td>
+    <td>Completes the computation for the day of the
+        session and composes the current session
+        from the day and the session character. The session table is checked
+        to get the corresponding time window and to find the preceding and
+        following sessions to create the menu time variables.
+        <br>The current session and the Job ID are taken over by the actual
+        menu processing but the dialogue box remains opened.</td>
+</tr>
+<tr><td valign="top"><b>OK:</b></td>
+    <td>The current session and the time variables are
+        constructed in the same way than for the
+        Set-button. The current session and the Job ID are taken over by
+        the actual menu processing and the dialogue box is closed.</td>
+</tr>
+<tr><td valign="top"><b>Cancel:</b></td>
+    <td>Exit the dialog box without changing the value
+        of the current session, of the Job ID, and of the menu time
+        variables.</td>
+</tr>
+</table>
+The current session and year are displayed in the status bar of
+the menu. If you have defined a Job ID it is shown, too.
+
+<p><hr>
+
+</body>
+</html>

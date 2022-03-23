@@ -1,0 +1,108 @@
+C*
+      SUBROUTINE EXIT_PGM(IRCODE)
+CC
+CC NAME       : EXIT_PGM
+CC
+CC PURPOSE    : USER EXIT ROUTINE
+CC
+CC PARAMETERS :
+CC         IN : IRCODE : RETURN CODE                                 I*4
+CC                       0,1 : NORMAL EXIT
+CC                       ELSE: ERROR  EXIT
+CC
+CC REMARKS    : VAX VERSION:
+CC
+CC                NORMAL EXIT:  CALL EXIT(1)
+CC                ERROR  EXIT:  CALL EXIT(3)
+CC
+CC                EXIT SETS THE LOGICAL $SEVERITY TO 1 OR 3 RESPECTI-
+CC                VELY.
+CC                TEST OF $SEVERITY .GE. 2 WILL REACT TO SEVERITY CODES
+CC                FROM THE SYSTEM (2=ERROR, 4=SEVERE ERROR) AND FROM
+CC                THIS ROUTINE (3).
+CC
+CC              DOS VERSION AND UNIX VERSIONS:
+CC
+CC                NORMAL EXIT:  CALL EXIT(0)
+CC                ERROR  EXIT:  CALL EXIT(1)
+CC
+CC
+CC AUTHOR     : W. GURTNER
+CC              ASTRONOMICAL INSTITUTE, UNIVERSITY OF BERN
+CC              SWITZERLAND
+CC
+CC CREATED    : 11-AUG-94
+CC
+CC CHANGES    : 23-AUG-94 : MR: SOURCE CONTAINS ALL THREE VERSIONS
+CC              07-MAY-96 : MR: USE SUBROUTINE "SYSTYP"
+CC              04-JUN-96 : MR: USE SYSTYP ONLY FOR UNIX
+CC              12-NOV-96 : MR: CLOSE ALL OPEN FILES (AIX PROBLEM)
+CC                              USE EXITCC C-SUBROUTINE FOR UNIX
+CC              06-FEB-03 : RD: SET MENUAUX_IRCODE
+CC              19-FEB-03 : RD: REMEMBER INP FILE NAME FOR MENUAUX
+CC              10-MAR-03 : RD: TRY TO OPEN INP-FILE FOR MENUAUX
+CC              15-MAY-03 : HU: INITIALIZE STRUCTURES
+CC              14-AUG-03 : RD: CLOSE OPENED FILE BEFORE READKEYS
+CC              05-NOV-03 : RD: PUT MENUAUX STUFF INTO EXIT_MEN
+CC                              ADD SR MENU_DEL TO DELETE SCRATCH FILES
+CC              17-NOV-03 : RD: COPY OF OLD EXITRC.f, TO PREVENT "PANIC-LOOP"
+CC              15-JUN-04 : RD: ERROR STATUS FOR CLOSING FILES
+CC              21-JUN-05 : MM: COMLFNUM.INC REMOVED, M_BERN ADDED
+CC              23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC              04-AUG-05 : RD: MAKE A CRASH IF A FILE CANNOT BE CLOSED
+CC              04-DEC-06 : PW: EXIT PGM WITH FORTRAN COMMAND (FOR G95)
+CC              27-APR-10 : SL: G95->GNU, GNU ADDED WITH SAME CALL
+CC              23-SEP-10 : RD: END CPU COUNTER
+CC              29-OCT-12 : RD: REMOVE #ifdef OS_VMS
+CC
+C*
+      USE m_bern,ONLY: lfnloc
+      USE m_cpu, ONLY: cpu_end
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 ILFN  , IOS   , IRCODE
+C
+      LOGICAL*4     LOPEN
+C
+
+C
+C Give the last CPU time stamp
+C ----------------------------
+      CALL cpu_end(IRCODE)
+C
+C CLOSE ALL FILES THAT ARE STILL OPEN (AIX 4.1.4 PROBLEM)
+C -------------------------------------------------------
+      DO ILFN=10,LFNLOC
+        INQUIRE(UNIT=ILFN,OPENED=LOPEN)
+        IOS = 0
+        IF (LOPEN) CLOSE(UNIT=ILFN,IOSTAT=IOS)
+        IF (IOS.NE.0) THEN
+          WRITE(*,*) ' *** SR EXIT_PGM: Cannot close LFN',ilfn
+          WRITE(ILFN,*)
+        ENDIF
+      ENDDO
+C
+C  RETURN CODES
+C  ------------
+#ifdef OS_WIN32
+      IF(IRCODE.EQ.0.OR.IRCODE.EQ.1) THEN
+        CALL EXIT(0)
+      ELSE
+        CALL EXIT(1)
+      ENDIF
+#endif
+
+#ifdef OS_UNIX
+#ifdef CMP_G95
+      CALL EXIT(ircode)
+#elif CMP_GNU
+      CALL EXIT(ircode)
+#else
+      CALL EXITCC(IRCODE)
+#endif
+#endif
+
+      RETURN
+      END SUBROUTINE

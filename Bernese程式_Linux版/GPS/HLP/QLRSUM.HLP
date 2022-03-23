@@ -1,0 +1,280 @@
+<html>
+<body>
+
+<center>
+<b>CREATE SLR QUICK-LOOK RESIDUAL STATISTICS</b>
+<p>Program: QLRSUM
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program does a quick look residual analysis and creates a report.
+The report may be written to a special summary file, which is suited to be
+sent as slrmail (mail list from the ILRS).
+
+<p><hr>
+
+<p><b>QLRSUM 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RESFIL" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Residual files:</b>
+Select the SLR residual files from which a summary should be made.
+The residual files result from <a href="PGMLST.HLP#GPSEST">GPSEST</a> runs.
+
+<a name="STDORB" default=""></a>
+<p><b>Standard orbit files:</b>
+Select the corresponding standard orbit files containing orbits for the
+satellites to be analysed.
+
+<a name="SKLFIL" default="SLRMAIL"></a>
+<p><b>Skeleton file for slrmail:</b>
+This skeleton file is used to create a summary file, that may be sent as slrmail.
+
+<a name="CRDFIL" default=""></a>
+<p><b>Station coordinates:</b>
+Select the file with the SLR station coordinates.
+
+<a name="POLE" default=""></a>
+<p><b>ERP file:</b>
+Select the pole file, which has been used in the SLR processing and which
+is consistent with the standard orbits.
+
+<br><br>
+
+<a name="SUMFIL" default=""></a>
+<p><b>OUTPUT FILES</b>
+<p><b>Summary file for slrmail:</b>
+Specify the name of a summary file, which may be sent as slrmail.
+
+<a name="ALLFIL" default=""></a>
+<p><b>Detailed residual output:</b>
+Specify the name of the file with the detailed residual output.
+
+<a name="PLTFIL" default=""></a>
+<p><b>Detailed residual output for graphic tools:</b>
+A plot-file with the residuals may be created (to be used to display
+the residuals graphically with appropriate tools, e.g., gnuplot).
+
+<a name="EDITRS" default=""></a>
+<p><b>Edit file</b> <b>(observations during shadow passage):</b>
+Observations during phases when the satellite is in the Earth's shadow
+will be written to this file.
+<br>
+It may later be used by the program <a href="PGMLST.HLP#SATMRK">SATMRK</a>
+to mark these observations.
+
+<a name="EDTFIL" default=""></a>
+<p><b>Edit file</b> <b>(outlier detection; too few observations):</b>
+Observations that are detected as outlier according to the program settings
+made in panel "QLRSUM 3: Outlier detection" will be written to this file.
+<br>
+It may later be used by the program SATMRK to mark these observations.
+
+<p><a href="/$X/DOC/EXAMPLE.EDT">Example</a> for an editing file.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="QLRSUM"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or to specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>QLRSUM 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">CONST.</a>
+
+<a name="SUBMOD" default="IERS2010XY"></a>
+<p><b>Subdaily pole model:</b>
+This file contains the parameters for the subdaily pole model. It
+has to be identical to the one used for the computation of the
+standard orbit.
+
+<p>Example: <a href="/$X/GEN/IERS2010XY.SUB">$X/GEN/IERS2010XY.SUB</a>
+
+<a name="NUTMOD" default="IAU2000R06"></a>
+<p><b>Nutation model:</b>
+This file contains the parameters for the nutation model. It
+has to be identical to the one used for the computation of the
+standard orbit.
+
+<p>Example: <a href="/$X/GEN/IAU2000R06.NUT">$X/GEN/IAU2000R06.NUT</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO/SLR)
+satellites.  For the session to be processed, each satellite has to appear
+once in this file within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">SATELLIT.I08</a>
+
+<a name="GPSUTC" default="GPSUTC."></a>
+<p><b>GPS-UTC seconds:</b>
+Specify the file with GPS-UTC values here. You have to update this file
+each time a leap second is introduced. The GPS-UTC values are needed for
+this program, because the time argument in the summary file is in UTC time.
+
+<p>Example: <a href="/$X/GEN/GPSUTC.">$X/GEN/GPSUTC.</a>
+
+<a name="ABBREV" default="ABBREV"></a>
+<p><b>Abbreviation table:</b>
+This file contains a station name abbreviation table containing
+<nobr>4-character</nobr> and <nobr>2-character</nobr> abbreviations for a
+list of station names.
+
+<p><a href="/$X/DOC/EXAMPLE.ABB">Example</a>
+
+<a name="STAINFO" default=""></a>
+<p><b>Station information:</b>
+This file contains station specific information. QLRSUM only needs the
+information on the SLR stations.
+
+<p><a href="/$X/DOC/EXAMP_SLR.STA">Example</a>
+
+<p><hr>
+
+<p><b>QLRSUM 2: Input Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<br><br>
+
+<a name="SATLST" default="%%"></a>
+<p><b>LIST OF SATELLITES</b>
+<p><b>Satellite number according to satellite information file:</b>
+Specify the satellite numbers to be processed according to the satellite
+information file. The example list shows different satellite numbers.
+
+<p><i>Remark:</i>
+The example list is not valid for all time intervals. The
+PRN of the GPS and GLONASS satellites may change from time to time. Please
+carefully check the satellite information file for the correct numbering.
+
+<p><hr>
+
+<p><b>QLRSUM 3: Outlier detection</b>
+
+<a name="RESMAX" default="1.0"></a>
+<p><b>EDITING LEVEL</b>
+<p><b>Absolute maximum of the residuals:</b>
+Specify a threshold for the observation residuals. If a residual exceeds this
+threshold, an entry in the corresponding "Edit file" (panel 1) will be made
+for this observation.
+
+<a name="SIGMAX" default="1000.0"></a>
+<p><b>Maximum overall sigma:</b>
+Specify a sigma which the residual time series for a station / satellite 
+should not exceed.
+
+<a name="SIGFAC" default="1000.0"></a>
+<p><b>Multiplication factor for overall sigma:</b>
+Specify a factor for multiplying the overall sigma given above. If a residual
+exceeds this threshold, an entry in the corresponding "Edit file" will be
+made for this observation.
+
+<p><i>Remark:</i>
+Each pair of station and satellite is treated independently.
+
+<p><i>Remark:</i>
+By specifying a large multiplication factor, e.g. 1000, the outlier detection
+is de facto switched off.
+
+<br><br>
+
+<a name="EDIT_1" default="1"></a>
+<p><b>OUTLIER DETECTION</b>
+<p><b>Edit only station/satellite with largest RMS:</b>
+Only the station with the largest RMS will be checked for outliers according to
+the editing criteria specified above. And only outliers of this station are
+written to the corresponding "Edit file".
+
+<a name="EDIT_2" default="0"></a>
+<p><b>Edit all residuals according to editing criteria above:</b>
+All stations are checked for outliers according to the editing criteria
+specified above.
+
+<br><br>
+
+<a name="CHKNUM" default="0"></a>
+<p><b>CHECK NUMBER OF OBSERVATIONS</b>
+<p><b>Mark observations if number of observations too small:</b>
+Mark this checkbox if you want to exclude stations with too few observations.
+An entry will be made in the corresponding "Edit file" for each of these
+observations.
+
+<a name="MINOBS" default="10"></a>
+<p><b>Minimum number of observations requested:</b>
+Specify the minimum number of observations for a station (/satellite).
+If less observations are available, an entry in the corresponding "Edit file"
+will be made.
+
+<a name="CHKNUM_1" default="1"></a>
+<a name="CHKNUM_2" default="0"></a>
+<p><b>Check number of observations:</b>
+Select whether the minimum number of observations is requested <b>per station</b>
+(computed as the sum over all satellites tracked by this station), or whether
+the minimum number of observations is requested for each pair of <b>station and
+satellite</b>.
+
+<p><hr>
+
+</body>
+</html>

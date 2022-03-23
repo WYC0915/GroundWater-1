@@ -1,0 +1,92 @@
+      MODULE s_ELLXYZ
+      CONTAINS
+
+C*
+      SUBROUTINE ELLXYZ(AELL,BELL,DXELL,DRELL,SCELL,XSTELL,XSTAT)
+CC
+CC NAME       :  ELLXYZ
+CC
+CC PURPOSE    :  COMPUTATION OF CARTESIAN COORDINATES "XSTAT"
+CC               GIVEN THE ELLIPSOIDAL COORDINATES "XSTELL"
+CC
+CC PARAMETERS :
+CC         IN :  AELL   : SEMI-MAJOR AXIS OF THE REFERENCE    R*8
+CC                        ELLIPSOID IN METERS
+CC               BELL   : SEMI-MINOR AXIS OF THE REFERENCE    R*8
+CC                        ELLIPSOID IN METERS
+CC               DXELL(3): TRANSLATION COMPONENTS FROM THE    R*8
+CC                        ORIGIN OF THE CART. COORD. SYSTEM
+CC                        (X,Y,Z) TO THE CENTER OF THE REF.
+CC                        ELLIPSOID (IN METRES)
+CC               DRELL(3): ROTATIONS TO WGS-84 (RADIAN)       R*8
+CC               SCELL  : SCALE FACTOR BETWEEN REF. ELLIPSOID R*8
+CC                        AND WGS-84
+CC               XSTELL(3): ELLIPSOIDAL COORDINATES           R*8
+CC                        XSTELL(1): ELL. LATITUDE (RADIAN)
+CC                        XSTELL(2): ELL. LONGITUDE (RADIAN)
+CC                        XSTELL(3): ELL. HEIGHT (M)
+CC        OUT :  XSTAT(3): CARTESIAN COORDINATES (M)          R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M. ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/03 12:32
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE s_dmlmav
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      REAL*8    AELL , BELL , CA   , CB   , CC   , CP   , E2   , N    ,
+     1          SA   , SB   , SC   , SCELL, SP
+C
+CCC       IMPLICIT REAL*8 (A-Z)
+      REAL*8 DXELL(3),DRELL(3),XSTAT(3),XSTELL(3),ROT(3,3)
+      INTEGER*4 I
+C
+      E2=(AELL*AELL-BELL*BELL)/(AELL*AELL)
+      SP=DSIN(XSTELL(1))
+      CP=DCOS(XSTELL(1))
+      N=AELL/DSQRT(1.D0-E2*SP**2)
+C
+      XSTAT(1)=(N+XSTELL(3))*CP*DCOS(XSTELL(2))
+      XSTAT(2)=(N+XSTELL(3))*CP*DSIN(XSTELL(2))
+      XSTAT(3)=(N*(1.D0-E2)+XSTELL(3))*SP
+C
+      SA=DSIN(DRELL(1))
+      CA=DCOS(DRELL(1))
+      SB=DSIN(DRELL(2))
+      CB=DCOS(DRELL(2))
+      SC=DSIN(DRELL(3))
+      CC=DCOS(DRELL(3))
+C
+      ROT(1,1)=CB*CC
+      ROT(1,2)=CA*SC+SA*SB*CC
+      ROT(1,3)=SA*SC-CA*SB*CC
+      ROT(2,1)=-CB*SC
+      ROT(2,2)=CA*CC-SA*SB*SC
+      ROT(2,3)=SA*CC+CA*SB*SC
+      ROT(3,1)=SB
+      ROT(3,2)=-SA*CB
+      ROT(3,3)=CA*CB
+C
+      CALL DMLMAV(XSTAT,ROT,XSTAT)
+C
+      DO 10 I=1,3
+        XSTAT(I)=DXELL(I)+SCELL*XSTAT(I)
+10    CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

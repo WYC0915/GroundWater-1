@@ -1,0 +1,126 @@
+<html>
+<body>
+
+<center>
+<b>CONVERT STATION INFORMATION FILES</b>
+<p>Program: STA2STA
+</center>
+<hr width="100%">
+
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="ENVIRONMENT"   default="%% %%"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The program STA2STA allows the conversion between different format versions
+of the station information file and the station problem file.
+
+<p><hr>
+
+<p><b>STA2STA 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RADIO_S"  default="1"></a>
+<a name="STAFILE1" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Station information input:</b>
+Specify the station information file from which a station information file
+with a different format version should be created.
+
+<p><a href="/$X/DOC/EXAMP_OLD.STA">Example for Version 0.00</a>
+
+<a name="RADIO_C"  default="0"></a>
+<a name="CRXFILE1" default=""></a>
+<p><b>RINEX inconsistency input:</b>
+Specify the RINEX inconsistency file from which a RINEX inconsistency file
+with a different format version should be created.
+
+<br><br>
+
+<a name="STAFILE2" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>Station information output:</b>
+Specify the name of the station information file to be created from the input
+file.
+
+<p><a href="/$X/DOC/EXAMPLE.STA">Example for Version 1.01</a>
+
+<a name="CRXFILE2" default=""></a>
+<p><b>RINEX inconsistency output:</b>
+Specify the name of the RINEX inconsistency file to be created from the input
+file.
+
+<p><a href="/$X/DOC/EXAMPLE.CRX">Example</a>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="STA2STA"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>STA2STA 2: Settings</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE:</b>
+<p>
+This title line will be printed as header comment into the program output.
+The title should characterize the program run.
+
+<br><br>
+
+<a name="OUTFORM" default="1.01"></a>
+<p><b>OUTPUT FORMAT</b>
+<p><b>Select output format version:</b>
+With this switch the format version of the output station information file
+or RINEX inconsistency file can be selected.
+
+<p><i>Default value:</i> 1.01
+
+<br><br>
+
+<a name="TYP2TECH" default="GNSS"></a>
+<p><b>TECHNIQUE-SPECIFIC OUTPUT</b>
+<p><b>Write TYPE 002 for technique:</b>
+Since format version 1.00 it is possible to have a technique specific TYPE 002
+(STATION INFORMATION) block in the station information file.
+
+<p><i>Default value:</i> GNSS
+
+<p><hr>
+
+</body>
+</html>

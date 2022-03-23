@@ -1,0 +1,241 @@
+<html>
+<body>
+
+<center>
+<b>COMPARE OSCULATING ELEMENTS</b>
+<p>Program: STDELE
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b></p>
+<p>
+The program STDELE compares the positions, velocities, and osculating
+elements stemming from different standard orbit files. The program assumes
+that you specify at least two standard orbit files, each containing one
+orbit arc. The first arc covers the time interval <tt>[t1,t2]</tt>
+the second arc (from the second standard orbit file) covers the time interval
+<tt>[t3,t4]</tt>. The program compares the positions, velocities,
+and osculating elements at time <tt>(t2+t3)/2</tt> if <tt>t1 &lt;= t3</tt>
+or at time <tt>(t4+t1)/2</tt> if <tt>t1 &gt; t3</tt>.
+If more than two files are specified, successive files are compared.
+
+<p>Output example:<!-- $outr/STDELE.L?? -->
+<pre>
+...
+ EPOCH  SAT     A      E      I    NODE    PER     LAT    RAD    ALO    OUT    POS    VEL
+ -----------------------------------------------------------------------------------------
+ 55945.  1     -12     -5      4    -16  -34701    -38      8    -47     -3     48      8
+ 55945.  2      15      6     14     -9    1650    -33     15    -39      7     42      9
+ 55945.  3E    -31    -10     -7     -3    -260    102    -40    102      5    110     16
+ 55945.  4      12     -9     17      2    -317    -40     19    -39      6     43      7
+ 55945.  5      27     -1      1    -25    -825    -54     25    -68      4     73     11
+ 55945.  6E     -1    -11    -18     -7   -3759     57    -25     53     14     59      7
+ 55945.  7       8      8      3     -4    3098     33     -9     31     -3     32      4
+ 55945.  8     -59    -30      3     -8   -3570     17     -7     13     -6     16      3
+ 55945.  9     -65    -50     -9     14   -1038     13    -13     20      0     24      6
+ 55945. 10     -11      1     15    -21     961      2     -1    -10      9     14      3
+ 55945. 11      37    -43    -10     -8    1533    -93     21    -97    -11    100      8
+ 55945. 12     -23      4    -11    -13   -9859     -1      9     -8     -5     13      5
+ 55945. 13E     21    -28      5    -27   -1836     23     -7      8     15     18      4
+ 55945. 14E     25    -28     16    -21   -3712     43    -11     32     14     37      7
+ 55945. 15E     37    -43     -2    -23    8989     23      5      9    -18     21      6
+ 55945. 16     -29     18    -14     -4    4143      5    -12      3     15     19      4
+...
+ 55945.119      18    -24     15    -15  139293    -58      8    -64    -20     68      6
+ 55945.120      19    -39    -29    -28    5703    -36    -20    -48    -29     60     10
+ 55945.121      27     14    -20    -14  -10746    -32      1    -38    -23     44      7
+ 55945.122      61     15     18     22    4029    -76     48    -67     16     84     13
+ 55945.123      36    -26     21      5   33108    -53     54    -51      9     75     13
+ 55945.124      31    -21     -6    -26  -18667    -10     13    -21     24     35      6
+ -----------------------------------------------------------------------------------------
+ #  22          34     25     13     16    8040     35     12     37     13     41      6
+ #   9   E      28     26     12     16    7667     51     21     49     14     55      8
+ -----------------------------------------------------------------------------------------
+ g  24          27     26     21     22   60246     52     28     54     23     65     11
+ g   0   E       0      0      0      0       0      0      0      0      0      0      0
+ -----------------------------------------------------------------------------------------
+  MEAN 
+ -----------------------------------------------------------------------------------------
+ M  22         -14     -8      2    -12   -1285     -4      0    -11      1
+ M   9   E      10     -8     -1    -12    2692     23     -7     16      1
+ -----------------------------------------------------------------------------------------
+  MEANg
+ -----------------------------------------------------------------------------------------
+ M  24          11     -7      4    -12   14355    -14      9    -19     -6
+ M   0   E       0      0      0      0       0      0      0      0      0
+ -----------------------------------------------------------------------------------------
+
+ REMARK: All values are given in units of millimeters.
+         Angles are scaled to the semimajor axis.
+</pre>
+<br>
+The columns give
+<ul>
+<li>epoch in MJD, PRN number together with eclipsing flag,
+<li>differences in the osculating elements semi-major axis (<tt>A</tt>),
+    eccentricity (<tt>E</tt>), inclination (<tt>I</tt>), right ascension of
+    ascending node (<tt>NODE</tt>), argument of perigee (<tt>PER</tt>),
+    argument of latitude (<tt>LAT</tt>),
+<li>position difference in radial (<tt>RAD</tt>), along track (<tt>ALO</tt>),
+    and out of plane (<tt>OUT</tt>) directions, and
+<li>absolute value of the <nobr>3-dim</nobr> position (<tt>POS</tt>) and
+    velocity (<tt>VEL</tt>) difference vector
+</ul>
+for all satellites contained in both standard orbits. The units for all
+differences except velocity are millimeters, i.e., eccentricity and all angles
+are multiplied with the semi-major axis of the satellite. The velocity
+is specified in micrometers per second.
+<br>
+The footer lines of the table give the number of satellites and the
+standard deviation of the differences, separately for eclipsing and non
+eclipsing satellites as well as GPS (first column: <tt>#</tt>) and GLONASS
+(first column: <tt>g</tt>) satellites. Following lines give the average
+values for the differences.
+
+<p><hr>
+
+<p><b>STDELE 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a NAME="STDFIL" default=""></a>
+<p><b>INPUT FILE(S)</b>
+<p><b>Standard orbit files:</b>
+Here you should specify at least two standard orbit files. If more files are
+specified successive files will be compared pairwise. The files are ordered
+with ascending osculation epoch.
+
+<a NAME="POLFIL" default="1"></a>
+<p><b>Use pole file accompanying the standard orbit:</b>
+If this box is checked the program assumes that each standard orbit is
+accompanied with a corresponding pole file with the same name. The necessary
+system transformations are performed using the orbit specific pole
+information.
+<br>
+If the box is unmarked, the pole file specified in the field "Pole file"
+in "GENERAL INPUT FILES" is used for all system transformations.
+
+<p><i>Default value:</i> marked
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="STDELE"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment in the program output.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<p><hr>
+
+<p><b>STDELE 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="POLE" default=""></a>
+<p><b>Pole file:</b>
+This file contains the Earth rotation parameters (ERPs). It is used for
+the transformations between the International Celestial Reference Frame
+(ICRF) and the International Terrestrial Reference Frame (ITRF). This
+pole file has to be consistent with the standard orbit files to be compared
+in the current program run.
+
+<p><i>Remark:</i> The nutation model is always read from this file. So it
+has to be given, even if the standard orbits are accompanied by their own
+pole files.
+
+<p><a href="/$X/DOC/EXAMPLE.ERP">Example</a>
+
+<a name="SUBMOD" default="IERS2010XY"></a>
+<p><b>Subdaily pole model:</b>
+This file contains the parameters for the subdaily pole model. It
+has to be identical to the one used for the computation of all
+standard orbits to be compared in the current program run.
+
+<p>Example: <a href="/$X/GEN/IERS2010XY.SUB">$X/GEN/IERS2010XY.SUB</a>
+
+<a name="NUTMOD" default="IAU2000R06"></a>
+<p><b>Nutation model:</b>
+This file contains the parameters for the nutation model. It
+has to be identical to the one used for the computation of all
+standard orbits to be compared in the current program run.
+
+<p>Example: <a href="/$X/GEN/IAU2000R06.NUT">$X/GEN/IAU2000R06.NUT</a>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems concerning modeling.
+It is used for exclusion of misbehaving satellites
+(and for orbit arc splitting).
+It may also contain (mean) epochs of GPS repositioning events.
+
+<p><i>Note:</i>
+Corresponding year-specific files are maintained by AIUB/CODE.
+You can get the latest version of the current file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SAT_2011.CRX">$X/GEN/SAT_2011.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<a name="JPLEPH" default="DE405">
+<p><b>Planetary ephemeris:</b></A>
+Possibility to use the JPL Development Ephemeris (DE) to compute
+the position of the planets, the Sun and the moon(s). If not used
+the Newcomb's formula will be used. The ephemeris of the Sun are
+used to find eclipsing satellites.
+
+<p><i>Default value:</i> <tt>DE405</tt>
+
+<p><hr>
+
+</body>
+</html>

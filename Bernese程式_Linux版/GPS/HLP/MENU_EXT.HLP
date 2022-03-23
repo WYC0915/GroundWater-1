@@ -1,0 +1,1103 @@
+<html>
+<body>
+
+<center>
+<b>PATHS AND EXTENSIONS</b>
+<p>Menu: MENU_EXT
+</center>
+<hr width="100%">
+
+<a name="NO_PTH"  default=""></a>
+<a name="NO_EXT"  default=""></a>
+<a name="PTH_INP_OUT"    default="${U}/PAN"></a>
+<a name="EXT_IN1"        default="IN1"></a>
+<a name="MENUAUX_EXE"    default="MENUAUX"></a>
+<a name="MENUAUX_INP"    default="MENUAUX.INP"></a>
+<a name="MENUAUX_SCR"    default="MENUAUX.SCR"></a>
+<a name="MENUAUX_ERR"    default="MENUAUX.ERR"></a>
+<a name="MENUAUX_DEBUG"  default="0"></a>
+<a name="GEN_CONST_FILE" default="CONST."></a>
+<a name="GEN_DATUM_FILE" default="DATUM."></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+These panels specify paths and extensions for all files.
+
+<p><i>Remark:</i>
+The default values should <b>NOT</b> be changed by the user.
+<br>
+Filenames are unfortunately limited to 32 characters
+in the Bernese GNSS Software. The campaign subdirectories should, therefore,
+not exceed 3 characters. It is in addition
+recommended to use environment variables to specify the campaign drive,
+instead of the complete path name. The environment
+variables used have to be contained in the corresponding list in
+<b>Menu &gt; Configure &gt; Menu variables</b>. Curly brackets enclosing
+the environment variables are mandatory.
+
+<p><hr>
+
+<p><b>MENU_EXT 1: General Files</b>
+
+<a name="PTH_GEN" default="${X}/GEN"></a>
+<a name="EXT_SUB" default="SUB"></a>
+<a name="EXT_NUT" default="NUT"></a>
+<a name="EXT_EPH" default="EPH"></a>
+<a name="EXT_TID" default="TID"></a>
+<a name="EXT_CRX" default="CRX"></a>
+<a name="EXT_TPO" default="TPO"></a>
+<a name="EXT_FRQ" default="FRQ"></a>
+<a name="EXT_TRN" default="TRN"></a>
+<p><b>GENERAL FILES</b>
+<p>
+All entry fields of this panel specify paths and extensions of the general
+files.
+
+<p><i>Remark:</i>
+The default values should <b>NOT</b> be changed by the user.
+<br>
+Filenames are unfortunately limited to 32 characters
+in the Bernese GNSS Software. It is
+recommended to use environment variables to specify the campaign drive,
+instead of the complete path name. The environment
+variables used have to be contained in the corresponding list in
+<b>Menu &gt; Configure &gt; Menu variables</b>. Curly brackets enclosing
+the environment variables are mandatory.
+<br>
+<table width="88%">
+<tr><td><hr color=white>File Type</td>
+    <td align=center>Default<br>Path</td>
+    <td align=center>Default<br>Extension</td>
+</tr>
+<tr><td>Directory of the general files</td>
+     <td align=center><tt>${X}/GEN</tt></td>
+     <td align=center></td>
+</tr>
+<tr><td>Sub-daily Earth rotation model model</td>
+     <td align=center></td>
+     <td align=center><tt>SUB</tt></td>
+</tr>
+<tr><td>Nutation model</td>
+     <td align=center></td>
+     <td align=center><tt>NUT</tt></td>
+</tr>
+<tr><td>Planetary ephemeris</td>
+     <td align=center></td>
+     <td align=center><tt>EPH</tt></td>
+</tr>
+<tr><td>Satellite problem file/old station problem file</td>
+     <td align=center></td>
+     <td align=center><tt>CRX</tt></td>
+</tr>
+<tr><td> Solid Earth tides odel</td>
+     <td align=center></td>
+     <td align=center><tt>TPO</tt></td>
+</tr>
+<tr><td>Ocean tide model</td>
+     <td align=center></td>
+     <td align=center><tt>TID</tt></td>
+</tr>
+<tr><td>Frequency information</td>
+     <td align=center></td>
+     <td align=center><tt>FRQ</tt></td>
+</tr>
+<tr><td>Old antenna/receiver name translation table</td>
+     <td align=center></td>
+     <td align=center><tt>TRN</tt></td>
+</tr>
+</table>
+
+<p><hr>
+
+<p><b>MENU_EXT 2.1: Campaign Data, Orbit and EOP Files</b>
+
+<a name="DIR_BRD" default="ORB"></a>
+<a name="EXT_BRD" default="BRD"></a>
+<a name="DIR_OPR" default="ORB"></a>
+<a name="DIR_PRE" default="ORB"></a>
+<a name="EXT_PRE" default="PRE"></a>
+<a name="DIR_TAB" default="ORB"></a>
+<a name="EXT_TAB" default="TAB"></a>
+<a name="DIR_STD" default="ORB"></a>
+<a name="EXT_STD" default="STD"></a>
+<a name="DIR_RPR" default="ORB"></a>
+<a name="EXT_RPR" default="RPR"></a>
+<a name="DIR_ELE" default="ORB"></a>
+<a name="EXT_ELE" default="ELE"></a>
+<a name="DIR_ERP" default="ORB"></a>
+<a name="EXT_ERP" default="ERP"></a>
+<a name="DIR_IEP" default="ORB"></a>
+<a name="EXT_IEP" default="IEP"></a>
+<a name="DIR_GCC" default="ORB"></a>
+<a name="EXT_GCC" default="GCC"></a>
+<a name="DIR_CLK" default="ORB"></a>
+<a name="EXT_CLK" default="CLK"></a>
+<a name="DIR_DCB" default="ORB"></a>
+<a name="EXT_DCB" default="DCB"></a>
+<a name="DIR_ISB" default="ORB"></a>
+<a name="EXT_ISB" default="ISB"></a>
+<a name="DIR_BIA" default="ORB"></a>
+<a name="EXT_BIA" default="BIA"></a>
+<a name="DIR_IRV" default="ORB"></a>
+<a name="EXT_IRV" default="IRV"></a>
+<a name="DIR_CPF" default="ORB"></a>
+<a name="EXT_CPF" default="CPF"></a>
+<a name="DIR_STV" default="ORB"></a>
+<a name="EXT_STV" default="STV"></a>
+<p><b>ORBIT FILES</b>
+<p>
+All entry fields of this panel specify paths and extensions of the orbit
+and EOP files.
+
+<p><i>Remark:</i>
+The default values should <b>NOT</b> be changed by the user.
+<br>
+Filenames are unfortunately limited to 32 characters
+in the Bernese GNSS Software. The campaign subdirectories should, therefore,
+not exceed 3 characters.
+<br>
+<table width="88%">
+<tr><td><hr color=white>File Type</td>
+    <td align=center>Default<br>Directory</td>
+    <td align=center>Default<br>Extension</td>
+</tr>
+<tr><td>Broadcast orbits</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>BRD</tt></td>
+</tr>
+<tr><td>Precise orbits (original)</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center></td>
+</tr>
+<tr><td>Precise orbits</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>PRE</tt></td>
+</tr>
+<tr><td>Tabular orbits</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>TAB</tt></td>
+</tr>
+<tr><td>Standard orbits</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>STD</tt></td>
+</tr>
+<tr><td>Radian pressure coefficients</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>RPR</tt></td>
+</tr>
+<tr><td>Improved orbit elements</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>ELE</tt></td>
+</tr>
+<tr><td>Earth orientation parameters</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>ERP</tt></td>
+</tr>
+<tr><td>Earth orientation parameters (IERS format)</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>IEP</tt></td>
+</tr>
+<tr><td>Geocenter coordinates</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>GCC</tt></td>
+</tr>
+<tr><td>Satellite/Receiver clocks</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>CLK</tt></td>
+</tr>
+<tr><td>Differential code biases</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>DCB</tt></td>
+</tr>
+<tr><td>Inter-system biases</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>ISB</tt></td>
+</tr>
+<tr><td>Bias SINEX</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>BIA</tt></td>
+</tr>
+<tr><td></td></tr>
+<tr><td>IRV file</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>IRV</tt></td>
+</tr>
+<tr><td>Precise orbit in CPF orbit format</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>CPF</tt></td>
+</tr>
+<tr><td>State vector file</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>STV</tt></td>
+</tr>
+</table>
+
+<p><hr>
+
+<p><b>MENU_EXT 2.2: Campaign Data, Orbit Files for LEOs</b>
+
+<a name="DIR_ACC" default="ORB"></a>
+<a name="EXT_ACC" default="ACC"></a>
+<a name="DIR_ATT" default="ORB"></a>
+<a name="EXT_ATT" default="ATT"></a>
+<a name="DIR_MAN" default="ORB"></a>
+<a name="EXT_MAN" default="MAN"></a>
+<a name="DIR_CHO" default="ORB"></a>
+<a name="EXT_CHO" default="CHO"></a>
+<a name="DIR_POE" default="ORB"></a>
+<a name="EXT_POE" default="POE"></a>
+<a name="DIR_KVL" default="STA"></a>
+<a name="EXT_KVL" default="VEL"></a>
+<a name="DIR_AUX" default="ORB"></a>
+<a name="EXT_AUX" default="AUX"></a>
+<p><b>LEO FILES</b>
+<p>
+All entry fields of this panel specify paths and extensions of the orbit
+files for LEOs.
+<p><i>Remark:</i>
+The default values should <b>NOT</b> be changed by the user.
+<br>
+Filenames are unfortunately limited to 32 characters
+in the Bernese GNSS Software. The campaign subdirectories should, therefore,
+not exceed 3 characters.
+<br>
+<table width="88%">
+<tr><td><hr color=white>File Type</td>
+    <td align=center>Default<br>Directory</td>
+    <td align=center>Default<br>Extension</td>
+</tr>
+<tr><td>Accelerometer data</td>
+     <td align=center><tt>ORB</tt></td>
+     <td align=center><tt>ACC</tt></td>
+</tr>
+<tr><td>Attitude data</td>
+    <td align=center><tt>ORB</tt></td>
+    <td align=center><tt>ATT</tt></td>
+</tr>
+<tr><td>LEO maneuvers</td>
+    <td align=center><tt>ORB</tt></td>
+    <td align=center><tt>MAN</tt></td>
+</tr>
+<tr><td>File in CHAMP orbit format</td>
+    <td align=center><tt>ORB</tt></td>
+    <td align=center><tt>CHO</tt></td>
+</tr>
+<tr><td>File in POE orbit format</td>
+    <td align=center><tt>ORB</tt></td>
+    <td align=center><tt>POE</tt></td>
+</tr>
+<tr><td>LEO velocities (epoch-wise)</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>VEL</tt></td>
+</tr>
+<tr><td>LEO external aux. information</td>
+    <td align=center><tt>ORB</tt></td>
+    <td align=center><tt>AUX</tt></td>
+</tr>
+</table>
+
+<p><hr>
+
+<p><b>MENU_EXT 3: Campaign Data, RINEX Files</b>
+
+<a name="DIR_OXO" default="ORX"></a>
+<a name="DIR_RXO" default="RAW"></a>
+<a name="EXT_RXO" default="$YO"></a>
+<a name="DIR_SMT" default="RAW"></a>
+<a name="EXT_SMT" default="SMT"></a>
+<a name="DIR_OXN" default="ORX"></a>
+<a name="DIR_RXN" default="RAW"></a>
+<a name="EXT_RXN" default="$YN"></a>
+<a name="DIR_OXG" default="ORX"></a>
+<a name="DIR_RXG" default="RAW"></a>
+<a name="EXT_RXG" default="$YG"></a>
+<a name="DIR_OGA" default="ORX"></a>
+<a name="DIR_RGA" default="RAW"></a>
+<a name="EXT_RGA" default="$YE"></a>
+<a name="DIR_RXM" default="RAW"></a>
+<a name="EXT_RXM" default="$YM"></a>
+<p><b>RINEX FILES</b>
+<p>
+All entry fields of this panel specify paths and extensions of the RINEX
+files. The menu variable <tt>$Y</tt> (two-digit year of the current session)
+is used for the extension of the RINEX files. It will be updated automatically
+in the program input panels if the current session has been changed in the
+dialogue <a href="SETDATE.HLP">Menu &gt; Configure &gt; Session/compute date</a>.
+
+<p><i>Remark:</i>
+The default values should <b>NOT</b> be changed by the user.
+<br>
+Filenames are unfortunately limited to 32 characters
+in the Bernese GNSS Software. The campaign subdirectories should, therefore,
+not exceed 3 characters.
+<br>
+<table width="88%">
+<tr><td><hr color=white>File Type</td>
+    <td align=center>Default<br>Directory</td>
+    <td align=center>Default<br>Extension</td>
+</tr>
+<tr><td>RINEX observations (original)</td>
+    <td align=center><tt>ORX</tt></td>
+    <td align=center></td>
+</tr>
+<tr><td>RINEX observations</td>
+    <td align=center><tt>RAW</tt></td>
+    <td align=center><tt>$YO</tt></td>
+</tr>
+<tr><td>Smoothed RINEX observations</td>
+    <td align=center><tt>RAW</tt></td>
+    <td align=center><tt>SMT</tt></td>
+</tr>
+<tr><td>RINEX navigation messages (GPS, original)</td>
+    <td align=center><tt>ORX</tt></td>
+    <td align=center></td>
+</tr>
+<tr><td>RINEX navigation messages (GPS)</td>
+    <td align=center><tt>RAW</tt></td>
+    <td align=center><tt>$YN</tt></td>
+</tr>
+<tr><td>RINEX navigation messages (GLONASS, original)</td>
+    <td align=center><tt>ORX</tt></td>
+    <td align=center></td>
+</tr>
+<tr><td>RINEX navigation messages (GLONASS)</td>
+    <td align=center><tt>RAW</tt></td>
+    <td align=center><tt>$YG</tt></td>
+</tr>
+<tr><td>RINEX navigation messages (GALILEO, original)</td>
+    <td align=center><tt>ORX</tt></td>
+    <td align=center></td>
+</tr>
+<tr><td>RINEX navigation messages (GALILEO)</td>
+    <td align=center><tt>RAW</tt></td>
+    <td align=center><tt>$YE</tt></td>
+</tr>
+<tr><td>RINEX meteo data</td>
+    <td align=center><tt>RAW</tt></td>
+    <td align=center><tt>$YM</tt></td>
+</tr>
+</table>
+
+<p><hr>
+
+<p><b>MENU_EXT 4: Campaign Data, Observation Files</b>
+
+<a name="DIR_CZH" default="OBS"></a>
+<a name="EXT_CZH" default="CZH"></a>
+<a name="DIR_CZO" default="OBS"></a>
+<a name="EXT_CZO" default="CZO"></a>
+<a name="DIR_PZH" default="OBS"></a>
+<a name="EXT_PZH" default="PZH"></a>
+<a name="DIR_PZO" default="OBS"></a>
+<a name="EXT_PZO" default="PZO"></a>
+<a name="DIR_RZH" default="OBS"></a>
+<a name="EXT_RZH" default="RZH"></a>
+<a name="DIR_RZO" default="OBS"></a>
+<a name="EXT_RZO" default="RZO"></a>
+<a name="DIR_CSH" default="OBS"></a>
+<a name="EXT_CSH" default="CSH"></a>
+<a name="DIR_CSO" default="OBS"></a>
+<a name="EXT_CSO" default="CSO"></a>
+<a name="DIR_PSH" default="OBS"></a>
+<a name="EXT_PSH" default="PSH"></a>
+<a name="DIR_PSO" default="OBS"></a>
+<a name="EXT_PSO" default="PSO"></a>
+<p><b>OBSERVATION FILES</b>
+<p>
+All entry fields of this panel specify paths and extensions of
+the observation files and observation header files.
+
+<p><i>Remark:</i>
+The default values should <b>NOT</b> be changed by the user.
+<br>
+Filenames are unfortunately limited to 32 characters
+in the Bernese GNSS Software. The campaign subdirectories should, therefore,
+not exceed 3 characters.
+
+<p><i>Remark:</i>
+The entries for the range (SLR) observations (header and
+data) have to be
+identical to those for code observations. Programs which do not
+have separate entry fields for range observations use paths and extensions
+specific for code files to access range data files.
+<br>
+<table width="88%">
+<tr><td><hr color=white>File Type</td>
+    <td align=center>Default<br>Directory</td>
+    <td align=center>Default<br>Extension</td>
+</tr>
+<tr><td>Zero difference code  observations, header</td>
+    <td align=center><tt>OBS</tt></td>
+    <td align=center><tt>CZH</tt></td>
+</tr>
+<tr><td>Zero difference code  observations, data</td>
+    <td align=center><tt>OBS</tt></td>
+    <td align=center><tt>CZO</tt></td>
+</tr>
+<tr><td>Zero difference phase observations, header</td>
+    <td align=center><tt>OBS</tt></td>
+    <td align=center><tt>PZH</tt></td>
+</tr>
+<tr><td>Zero difference phase observations, data</td>
+    <td align=center><tt>OBS</tt></td>
+    <td align=center><tt>PZO</tt></td>
+</tr>
+<tr><td>Single difference code  observations, header</td>
+    <td align=center><tt>OBS</tt></td>
+    <td align=center><tt>CSH</tt></td>
+</tr>
+<tr><td>Single difference code  observations, data</td>
+    <td align=center><tt>OBS</tt></td>
+    <td align=center><tt>CSO</tt></td>
+</tr>
+<tr><td>Single difference phase observations, header</td>
+    <td align=center><tt>OBS</tt></td>
+    <td align=center><tt>PSH</tt></td>
+</tr>
+<tr><td>Single difference phase observations, data</td>
+    <td align=center><tt>OBS</tt></td>
+    <td align=center><tt>PSO</tt></td>
+</tr>
+<tr><td></td></tr>
+<tr><td>Range observations (SLR), header</td>
+    <td align=center><tt>OBS</tt></td>
+    <td align=center><tt>RZH</tt></td>
+</tr>
+<tr><td>Range observations (SLR), data</td>
+    <td align=center><tt>OBS</tt></td>
+    <td align=center><tt>RZO</tt></td>
+</tr>
+</table>
+
+<p><hr>
+
+<p><b>MENU_EXT 5: Campaign Data, Station Files</b>
+
+<a name="DIR_CRD" default="STA"></a>
+<a name="EXT_CRD" default="CRD"></a>
+<a name="DIR_VEL" default="STA"></a>
+<a name="EXT_VEL" default="VEL"></a>
+<a name="DIR_KIN" default="STA"></a>
+<a name="EXT_KIN" default="KIN"></a>
+<a name="DIR_ECC" default="STA"></a>
+<a name="EXT_ECC" default="ECC"></a>
+<a name="DIR_STA" default="STA"></a>
+<a name="EXT_STA" default="STA"></a>
+<a name="DIR_BLQ" default="STA"></a>
+<a name="EXT_BLQ" default="BLQ"></a>
+<a name="DIR_ATL" default="STA"></a>
+<a name="EXT_ATL" default="ATL"></a>
+<a name="DIR_FIX" default="STA"></a>
+<a name="EXT_FIX" default="FIX"></a>
+<a name="DIR_SIG" default="STA"></a>
+<a name="EXT_SIG" default="SIG"></a>
+<a name="DIR_SOS" default="STA"></a>
+<a name="EXT_SOS" default="SOS"></a>
+<a name="DIR_ABB" default="STA"></a>
+<a name="EXT_ABB" default="ABB"></a>
+<a name="DIR_PLD" default="STA"></a>
+<a name="EXT_PLD" default="PLD"></a>
+<a name="DIR_BSL" default="STA"></a>
+<a name="EXT_BSL" default="BSL"></a>
+<a name="DIR_CLU" default="STA"></a>
+<a name="EXT_CLU" default="CLU"></a>
+<a name="DIR_CLB" default="STA"></a>
+<a name="EXT_CLB" default="CLB"></a>
+<a name="DIR_AZI" default="STA"></a>
+<a name="EXT_AZI" default="AZI"></a>
+<a name="DIR_SES" default="STA"></a>
+<a name="EXT_SES" default="SES"></a>
+<a name="DIR_STN" default="STA"></a>
+<a name="EXT_STN" default="STN"></a>
+<a name="DIR_HTR" default="STA"></a>
+<a name="EXT_HTR" default="HTR"></a>
+<a name="DIR_RGB" default="STA"></a>
+<a name="EXT_RGB" default="SLR"></a>
+<p><b>STATION FILES</b>
+<p>
+All entry fields of this panel specify paths and extensions of
+station related file types.
+
+<p><i>Remark:</i>
+The default values should <b>NOT</b> be changed by the user.
+<br>
+Filenames are unfortunately limited to 32 characters
+in the Bernese GNSS Software. The campaign subdirectories should, therefore,
+not exceed 3 characters.
+<br>
+<table width="88%">
+<tr><td><hr color=white>File Type</td>
+    <td align=center>Default<br>Directory</td>
+    <td align=center>Default<br>Extension</td>
+</tr>
+<tr><td>Station coordinates</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>CRD</tt></td>
+</tr>
+<tr><td>Station velocities</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>VEL</tt></td>
+</tr>
+<tr><td>Kinematic coordinates</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>KIN</tt></td>
+</tr>
+<tr><td>Station eccentricities</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>ECC</tt></td>
+</tr>
+<tr><td>Station information</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>STA</tt></td>
+</tr>
+<tr><td>Ocean loading table</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>BLQ</tt></td>
+</tr>
+<tr><td>Atmospheric tidal loading table</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>ATL</tt></td>
+</tr>
+<tr><td>Station selection list</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>FIX</tt></td>
+</tr>
+<tr><td>Station sigma file</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>SIG</tt></td>
+</tr>
+<tr><td>Station observation sigma factors</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>SOS</tt></td>
+</tr>
+<tr><td>Abbreviation table</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>ABB</tt></td>
+</tr>
+<tr><td>Tectonic plate assignment (for NUVEL1/1A)</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>PLT</tt></td>
+</tr>
+<tr><td>Baseline definition</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>BSL</tt></td>
+</tr>
+<tr><td>Cluster definition</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>CLU</tt></td>
+</tr>
+<tr><td>Cluster/baseline assignment</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>CLB</tt></td>
+</tr>
+<tr><td>Receiver antenna orientation</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>AZI</tt></td>
+</tr>
+<tr><td>Session table</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>SES</tt></td>
+</tr>
+<tr><td>Station name translation (old)</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>STN</tt></td>
+</tr>
+<tr><td>Antenna height translation (old)</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>HTR</tt></td>
+</tr>
+<tr><td>SLR data handling (range bias, CoM)</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>SLR</tt></td>
+</tr>
+</table>
+
+<p><hr>
+
+<p><b>MENU_EXT 6: Campaign Data, Atmosphere Modeling Files</b>
+
+<a name="DIR_TRP" default="ATM"></a>
+<a name="EXT_TRP" default="TRP"></a>
+<a name="DIR_TRO" default="ATM"></a>
+<a name="EXT_TRO" default="TRO"></a>
+<a name="DIR_ION" default="ATM"></a>
+<a name="EXT_ION" default="ION"></a>
+<a name="DIR_INX" default="ATM"></a>
+<a name="EXT_INX" default="INX"></a>
+<a name="DIR_MET" default="ATM"></a>
+<a name="EXT_MET" default="MET"></a>
+<a name="DIR_GRD" default="GRD"></a>
+<a name="EXT_GRD" default="GRD"></a>
+<p><b>ATMOSPHERE MODELING FILES</b>
+<p>
+All entry fields of this panel specify paths and extensions of the atmospheric
+modeling files.
+
+<p><i>Remark:</i>
+The default values should <b>NOT</b> be changed by the user.
+<br>
+Filenames are unfortunately limited to 32 characters
+in the Bernese GNSS Software. The campaign subdirectories should, therefore,
+not exceed 3 characters.
+<br>
+<table width="88%">
+<tr><td><hr color=white>File Type</td>
+    <td align=center>Default<br>Directory</td>
+    <td align=center>Default<br>Extension</td>
+</tr>
+<tr><td>Troposphere parameters</td>
+    <td align=center><tt>ATM</tt></td>
+    <td align=center><tt>TRP</tt></td>
+</tr>
+<tr><td>Troposphere parameters (SINEX format)</td>
+    <td align=center><tt>ATM</tt></td>
+    <td align=center><tt>TRO</tt></td>
+</tr>
+<tr><td>Ionosphere models</td>
+    <td align=center><tt>ATM</tt></td>
+    <td align=center><tt>ION</tt></td>
+</tr>
+<tr><td>Ionosphere maps (IONEX)</td>
+    <td align=center><tt>ATM</tt></td>
+    <td align=center><tt>INX</tt></td>
+</tr>
+<tr><td>Meteo data</td>
+    <td align=center><tt>ATM</tt></td>
+    <td align=center><tt>MET</tt></td>
+</tr>
+<tr><td>Vienna grid files (VMF and loading maps)</td>
+    <td align=center><tt>GRD</tt></td>
+    <td align=center><tt>GRD</tt></td>
+</tr>
+</table>
+
+<p><hr>
+
+<p><b>MENU_EXT 7: Campaign Data, Output Files</b>
+
+<a name="DIR_OUT" default="OUT"></a>
+<a name="EXT_OUT" default="OUT"></a>
+<a name="DIR_PLT" default="OUT"></a>
+<a name="EXT_PLT" default="PLT"></a>
+<a name="DIR_SUM" default="OUT"></a>
+<a name="EXT_SUM" default="SUM"></a>
+<a name="DIR_LST" default="OUT"></a>
+<a name="EXT_LST" default="LST"></a>
+<a name="DIR_SMC" default="OUT"></a>
+<a name="EXT_SMC" default="SMC"></a>
+<a name="DIR_SME" default="OUT"></a>
+<a name="EXT_SME" default="SME"></a>
+<a name="DIR_RES" default="OUT"></a>
+<a name="EXT_RES" default="RES"></a>
+<a name="DIR_RXC" default="OUT"></a>
+<a name="EXT_RXC" default="CLK"></a>
+<a name="DIR_COV" default="OUT"></a>
+<a name="EXT_COV" default="COV"></a>
+<a name="DIR_WGT" default="OUT"></a>
+<a name="EXT_WGT" default="WGT"></a>
+<a name="DIR_PHG" default="OUT"></a>
+<a name="EXT_PHG" default="PHG"></a>
+<a name="DIR_PHH" default="OUT"></a>
+<a name="EXT_PHH" default="PHH"></a>
+<a name="DIR_SPV" default="OUT"></a>
+<a name="EXT_SPV" default="SPV"></a>
+<a name="DIR_EDT" default="OUT"></a>
+<a name="EXT_EDT" default="EDT"></a>
+<a name="DIR_DEL" default="OUT"></a>
+<a name="EXT_DEL" default="DEL"></a>
+<a name="DIR_EVL" default="STA"></a>
+<a name="EXT_EVL" default="EVL"></a>
+<p><b>OUTPUT FILES</b>
+<p>
+All entry fields of this panel specify paths and extensions of miscellaneous
+output files.
+
+<p><i>Remark:</i>
+The default values should <b>NOT</b> be changed by the user.
+<br>
+Filenames are unfortunately limited to 32 characters
+in the Bernese GNSS Software. The campaign subdirectories should, therefore,
+not exceed 3 characters.
+<br>
+<table width="88%">
+<tr><td><hr color=white>File Type</td>
+    <td align=center>Default<br>Directory</td>
+    <td align=center>Default<br>Extension</td>
+</tr>
+<tr><td>Program output</td>
+    <td align=center><tt>OUT</tt></td>
+    <td align=center><tt>OUT</tt></td>
+</tr>
+<tr><td>Plot file</td>
+    <td align=center><tt>OUT</tt></td>
+    <td align=center><tt>PLT</tt></td>
+</tr>
+<tr><td>Summary output</td>
+    <td align=center><tt>OUT</tt></td>
+    <td align=center><tt>SUM</tt></td>
+</tr>
+<tr><td>Listing output</td>
+    <td align=center><tt>OUT</tt></td>
+    <td align=center><tt>LST</tt></td>
+</tr>
+<tr><td>CODSPP summary output (XYZ)</td>
+    <td align=center><tt>OUT</tt></td>
+    <td align=center><tt>SMC</tt></td>
+</tr>
+<tr><td>CODSPP summary output (BLH)</td>
+    <td align=center><tt>OUT</tt></td>
+    <td align=center><tt>SME</tt></td>
+</tr>
+</table>
+
+<br><br>
+
+<p><b>BERNESE IN-/OUTPUT FILES</b>
+<p>
+<table>
+<tr><td><hr color=white>File Type</td>
+    <td align=center>Default<br>Directory</td>
+    <td align=center>Default<br>Extension</td>
+</tr>
+<tr><td>Residuals</td>
+    <td align=center><tt>OUT</tt></td>
+    <td align=center><tt>RES</tt></td>
+</tr>
+<tr><td>Clock information (clock RINEX format)</td>
+    <td align=center><tt>OUT</tt></td>
+    <td align=center><tt>CLK</tt></td>
+</tr>
+<tr><td>Covariances</td>
+    <td align=center><tt>OUT</tt></td>
+    <td align=center><tt>COV</tt></td>
+</tr>
+<tr><td>Covariance components</td>
+    <td align=center><tt>OUT</tt></td>
+    <td align=center><tt>WGT</tt></td>
+</tr>
+<tr><td>Receiver antenna PCV estimates (grid)</td>
+    <td align=center><tt>OUT</tt></td>
+    <td align=center><tt>PHG</tt></td>
+</tr>
+<tr><td>Receiver antenna PCV estimates (harm)</td>
+    <td align=center><tt>OUT</tt></td>
+    <td align=center><tt>PHH</tt></td>
+</tr>
+<tr><td>Satellite antenna PCV estimates</td>
+    <td align=center><tt>OUT</tt></td>
+    <td align=center><tt>SPV</tt></td>
+</tr>
+<tr><td>Observation editing information</td>
+    <td align=center><tt>OUT</tt></td>
+    <td align=center><tt>EDT</tt></td>
+</tr>
+<tr><td>File deletion list</td>
+    <td align=center><tt>OUT</tt></td>
+    <td align=center><tt>DEL</tt></td>
+</tr>
+<tr><td>Time series list of events file</td>
+    <td align=center><tt>STA</tt></td>
+    <td align=center><tt>EVL</tt></td>
+</tr>
+</table>
+
+<p><hr>
+
+<p><b>MENU_EXT 8: Campaign Data, Solution Files</b>
+
+<a name="DIR_EST" default="SOL"></a>
+<a name="EXT_EST" default="EST"></a>
+<a name="DIR_NEQ" default="SOL"></a>
+<a name="EXT_NEQ" default="NQ0"></a>
+<a name="DIR_ONQ" default="SOL"></a>
+<a name="EXT_ONQ" default="NEQ"></a>
+<a name="DIR_SNX" default="SOL"></a>
+<a name="EXT_SNX" default="SNX"></a>
+<p><b>SOLUTION FILES</b>
+<p>
+All entry fields of this panel specify paths and extensions of the solution
+files.
+
+<p><i>Remark:</i>
+The default values should <b>NOT</b> be changed by the user.
+<br>
+Filenames are unfortunately limited to 32 characters
+in the Bernese GNSS Software. The campaign subdirectories should, therefore,
+not exceed 3 characters.
+<br>
+<table width="88%">
+<tr><td><hr color=white>File Type</td>
+    <td align=center>Default<br>Directory</td>
+    <td align=center>Default<br>Extension</td>
+</tr>
+<tr><td>Parameter estimates</td>
+    <td align=center><tt>SOL</tt></td>
+    <td align=center><tt>EST</tt></td>
+</tr>
+<tr><td>Normal equation</td>
+    <td align=center><tt>SOL</tt></td>
+    <td align=center><tt>NQ0</tt></td>
+</tr>
+<tr><td>Normal equation (old format)</td>
+    <td align=center><tt>SOL</tt></td>
+    <td align=center><tt>NEQ</tt></td>
+</tr>
+<tr><td>SINEX output</td>
+    <td align=center><tt>SOL</tt></td>
+    <td align=center><tt>SNX</tt></td>
+</tr>
+</table>
+
+<p><hr>
+
+<p><b>MENU_EXT 9: Campaign Data, Bernese Files (ASCII)</b>
+
+<a name="DIR_FSO" default="ORB"></a>
+<a name="EXT_FSO" default="FSO"></a>
+<a name="DIR_FRP" default="ORB"></a>
+<a name="EXT_FRP" default="FRP"></a>
+<a name="DIR_FCZ" default="OBS"></a>
+<a name="EXT_FCZ" default="FCZ"></a>
+<a name="DIR_FPZ" default="OBS"></a>
+<a name="EXT_FPZ" default="FPZ"></a>
+<a name="DIR_FCS" default="OBS"></a>
+<a name="EXT_FCS" default="FCS"></a>
+<a name="DIR_FPS" default="OBS"></a>
+<a name="EXT_FPS" default="FPS"></a>
+<a name="DIR_FRZ" default="OBS"></a>
+<a name="EXT_FRZ" default="FRZ"></a>
+<a name="DIR_FRS" default="OUT"></a>
+<a name="EXT_FRS" default="FRS"></a>
+<a name="DIR_FN0" default="SOL"></a>
+<a name="EXT_FN0" default="FN0"></a>
+<a name="DIR_FNQ" default="SOL"></a>
+<a name="EXT_FNQ" default="FNQ"></a>
+<p><b>BERNESE FILES (FORMATTED)</b>
+<p>
+All entry fields of this panel specify paths and extensions of the formatted
+Bernese files.
+
+<p><i>Remark:</i>
+The default values should <b>NOT</b> be changed by the user.
+<br>
+Filenames are unfortunately limited to 32 characters
+in the Bernese GNSS Software. The campaign subdirectories should, therefore,
+not exceed 3 characters.
+<br>
+<table width="88%">
+<tr><td><hr color=white>File Type</td>
+    <td align=center>Default<br>Directory</td>
+    <td align=center>Default<br>Extension</td>
+</tr>
+<tr><td>Standard orbits</td>
+    <td align=center><tt>ORB</tt></td>
+    <td align=center><tt>FSO</tt></td>
+</tr>
+<tr><td>Radiation pressure coefficients</td>
+    <td align=center><tt>ORB</tt></td>
+    <td align=center><tt>FRP</tt></td>
+</tr>
+<tr><td>Zero difference code observations</td>
+    <td align=center><tt>OBS</tt></td>
+    <td align=center><tt>FCZ</tt></td>
+</tr>
+<tr><td>Zero difference phase observations</td>
+    <td align=center><tt>OBS</tt></td>
+    <td align=center><tt>FPZ</tt></td>
+</tr>
+<tr><td>Single difference code observations</td>
+    <td align=center><tt>OBS</tt></td>
+    <td align=center><tt>FCS</tt></td>
+</tr>
+<tr><td>Single difference phase observations</td>
+    <td align=center><tt>OBS</tt></td>
+    <td align=center><tt>FPS</tt></td>
+</tr>
+<tr><td>Range observations</td>
+    <td align=center><tt>OBS</tt></td>
+    <td align=center><tt>FRZ</tt></td>
+</tr>
+<tr><td>Residuals</td>
+    <td align=center><tt>OUT</tt></td>
+    <td align=center><tt>FRS</tt></td>
+</tr>
+<tr><td>Normal equation</td>
+    <td align=center><tt>SOL</tt></td>
+    <td align=center><tt>FN0</tt></td>
+</tr>
+<tr><td>Normal equation (old format)</td>
+    <td align=center><tt>SOL</tt></td>
+    <td align=center><tt>FNQ</tt></td>
+</tr>
+</table>
+
+<p><hr>
+
+<p><b>MENU_EXT 10: Bernese Processing Engine (BPE)</b>
+
+<a name="DIR_BPEOUT" default="BPE"></a>
+<a name="EXT_BPEOUT" default="OUT"></a>
+<a name="DIR_BPERUN" default="BPE"></a>
+<a name="EXT_BPERUN" default="RUN"></a>
+<a name="DIR_BPEPRT" default="BPE"></a>
+<a name="EXT_BPEPRT" default="PRT"></a>
+<a name="DIR_BPELOG" default="BPE"></a>
+<a name="EXT_BPELOG" default="LOG"></a>
+<a name="PTH_PCF"    default="${U}/PCF"></a>
+<a name="EXT_PCF"    default="PCF"></a>
+<a name="PTH_CPU"    default="${U}/PAN"></a>
+<a name="EXT_CPU"    default="CPU"></a>
+<a name="PTH_CPUNUM" default="${U}/WORK"></a>
+<a name="PTH_SCRIPT" default="${U}/SCRIPT"></a>
+<a name="PTH_OPT"    default="${U}/OPT"></a>
+<p><b>BERNESE PROCESSING ENGINE</b>
+<p>
+All entry fields in this panel specify paths and extensions
+of files specific to the Bernese Processing Engine (BPE).
+
+<p><i>Remark:</i>
+The default values should <b>NOT</b> be changed by the user.
+<br>
+Filenames are unfortunately limited to 32 characters
+in the Bernese GNSS Software. The campaign subdirectories should, therefore,
+not exceed 3 characters. It is in addition
+recommended to use environment variables to specify the campaign drive,
+instead of the complete path name. The environment
+variables used have to be contained in the corresponding list in
+<b>Menu &gt; Configure &gt; Menu variables</b>. Curly brackets enclosing
+the environment variables are mandatory.
+<br>
+<table width="88%">
+<tr><td><hr color=white>File Type</td>
+    <td align=center>Default<br>Path</td>
+    <td align=center>Default<br>Extension</td>
+</tr>
+<tr><td>BPE output</td>
+    <td>camp/&nbsp;<tt>BPE</tt></td>
+    <td align=center><tt>OUT</tt></td>
+</tr>
+<tr><td>BPE status</td>
+    <td>camp/&nbsp;<tt>BPE</tt></td>
+    <td align=center><tt>RUN</tt></td>
+</tr>
+<tr><td>Protocol files</td>
+    <td>camp/&nbsp;<tt>BPE</tt></td>
+    <td align=center><tt>PRT</tt></td>
+</tr>
+<tr><td>Log files</td>
+    <td>camp/&nbsp;<tt>BPE</tt></td>
+    <td align=center><tt>LOG</tt></td>
+</tr>
+<tr><td>Processing control files</td>
+    <td><tt>${U}/PCF</tt></td>
+    <td align=center><tt>PCF</tt></td>
+</tr>
+<tr><td>CPU control file</td>
+    <td><tt>${U}/PAN</tt></td>
+    <td align=center><tt>CPU</tt></td>
+</tr>
+</tr>
+<tr><td>Scratch for CPU control file</td>
+    <td><tt>${U}/WORK</tt></td>
+    <td></td>
+</tr>
+<tr><td>BPE script directory</td>
+    <td><tt>${U}/SCRIPT</tt></td>
+    <td></td>
+</tr>
+<tr><td>Option directory</td>
+    <td><tt>${U}/OPT</tt></td>
+    <td></td>
+</tr>
+</table>
+
+<p><hr>
+
+<p><b>MENU_EXT 11: Other Files and Directories</b>
+
+<a name="PTH_HLP"    default="${X}/HLP"></a>
+<a name="EXT_HLP"    default="HLP"></a>
+<a name="PTH_SKL"    default="${X}/SKL"></a>
+<a name="EXT_SKL"    default="SKL"></a>
+<a name="PTH_UPDPAN" default="${X}/PAN"></a>
+<a name="PTH_UPD"    default="${X}/SKL"></a>
+<a name="EXT_UPD"    default="UPD"></a>
+<a name="PTH_OUT" default="${U}/OUT"></a>
+<a name="PTH_INP" default="${U}/PAN"></a>
+<a name="EXT_INP" default="INP"></a>
+<a name="PTH_SCR" default="${U}/WORK"></a>
+<a name="EXT_SCR" default="SCR"></a>
+<a name="EXT_SC1" default="SC1"></a>
+<a name="EXT_SC2" default="SC2"></a>
+<a name="PTH_ERR" default="${U}/WORK"></a>
+<a name="EXT_ERR" default="MSG"></a>
+<p><b>GENERAL</b>
+<p>
+All entry fields of this panel specify paths and extensions of other
+files.
+
+<p><i>Remark:</i>
+The default values should <b>NOT</b> be changed by the user.
+<br>
+Filenames are unfortunately limited to 32 characters
+in the Bernese GNSS Software. It is
+recommended to use environment variables to specify the campaign drive,
+instead of the complete path name. The environment
+variables used have to be contained in the corresponding list in
+<b>Menu &gt; Configure &gt; Menu variables</b>. Curly brackets enclosing
+the environment variables are mandatory.
+<br>
+<table width="88%">
+<tr><td><hr color=white>File Type</td>
+    <td align=center>Default<br>Path</td>
+    <td align=center>Default<br>Extension</td>
+</tr>
+<tr><td>Help files</td>
+    <td align=center><tt>${X}/HLP </tt></td>
+    <td align=center><tt>HLP</tt></td>
+</tr>
+<tr><td>Skeleton files (e.g. for plot files)</td>
+    <td align=center><tt>${X}/SKL </tt></td>
+    <td align=center><tt>SKL</tt></td>
+</tr>
+<tr><td>Directory list for panel update</td>
+    <td align=center><tt>${X}/SKL </tt></td>
+    <td align=center><tt>UPD</tt></td>
+</tr>
+<tr><td>Program input master files</td>
+    <td align=center><tt>${X}/PAN </tt></td>
+    <td align=center></td>
+</tr>
+</table>
+
+<br><br>
+
+<p><b>USER DEPENDENT</b>
+<p>
+<table>
+<tr><td><hr color=white>File Type</td>
+    <td align=center>Default<br>Path</td>
+    <td align=center>Default<br>Extension</td>
+</tr>
+<tr><td>Program output files (campaign indep.)</td>
+    <td align=center><tt>${U}/OUT </tt></td>
+    <td align=center></td>
+</tr>
+<tr><td>Program input files</td>
+    <td align=center><tt>${U}/PAN </tt></td>
+    <td align=center><tt>INP</tt></td>
+</tr>
+<tr><td>Scratch files</td>
+    <td align=center><tt>${U}/WORK</tt></td>
+    <td align=center><tt>SCR</tt> <br> <tt>SC1</tt> <tt>SC2</tt></td>
+</tr>
+<tr><td>Error message files</td>
+    <td align=center><tt>${U}/WORK</tt></td>
+    <td align=center><tt>MSG</tt></td>
+</tr>
+</table>
+
+<p><hr>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+      MODULE s_TSELEC
+      CONTAINS
+
+      SUBROUTINE TSELEC(SV)
+C        SET SWITCHES
+C        SW FOR MAIN TERMS, SWC FOR CROSS TERMS
+C
+      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT INTEGER*4 (I-N)
+C
+      DIMENSION SV(25),SAV(25),SVV(25)
+      COMMON/CSW/SW(25),ISW,SWC(25)
+      SAVE
+      DO 100 I = 1,25
+        SAV(I)=SV(I)
+        SW(I)=DMOD(SV(I),2.D0)
+        IF(DABS(SV(I)).EQ.1.D0.OR.DABS(SV(I)).EQ.2.D0) THEN
+          SWC(I)=1.D0
+        ELSE
+          SWC(I)=0.D0
+        ENDIF
+  100 CONTINUE
+      ISW=64999
+      RETURN
+      ENTRY TRETRV(SVV)
+      DO 200 I=1,25
+        SVV(I)=SAV(I)
+  200 CONTINUE
+      END SUBROUTINE
+
+      END MODULE

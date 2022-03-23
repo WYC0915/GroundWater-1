@@ -1,0 +1,28 @@
+
+STALSTRS     0
+  ## widget = comment
+
+MSG_STALSTRS 1 "Filename"
+
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1 "Title line"
+
+STALIST     1  ""
+  ## widget = uniline
+  ## check_strlen.1 = 16
+  ## numlines = 15
+
+MSG_STALIST 1 "Station name"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CREATE/UPDATE STATION SELECTION LIST - EDITFIX                               #
+#                                                                              #
+#  Filename> %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # STALSTRS
+#  Title   > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # TITLE
+#                                                                              #
+# > Station_name____       <                                                   # STALIST
+#                                                                              #
+# END_PANEL ####################################################################

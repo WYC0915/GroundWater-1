@@ -1,0 +1,55 @@
+package PPP_KIN;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  PPP_KIN
+#
+# Purpose :  Initialize or skip pseudo-kinematic solution
+#
+# PARAMs  :  PARAM2 - goto PID if V_H undefined
+#
+# Author  :  R. Dach
+# Created :  11-Sep-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtGoto);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($param2, $ssss, $clu, $h,
+      $dirOut, $dirKin, $dirSum,
+      $extOut, $extKin, $extSum) =
+  $bpe->getKeys
+     ('PARAM2', '$S+0', 'V_CLU', 'V_H',
+      'DIR_OUT', 'DIR_KIN', 'DIR_SUM',
+      'EXT_OUT', 'EXT_KIN', 'EXT_SUM');
+
+# Check whether V_H is defined
+# ----------------------------
+  unless (defined ($$bpe{V_H})) {
+    die "KIN-solution identifier V_H is expected as PCF variable\n";
+  }
+
+# Delete old files (OUT, KIN, SUM)
+# -------------------------------------
+  my $cluster = $clu ne "" ? "${ssss}???" : "${ssss}????";
+
+  if ("$h" ne "") {
+    unlink glob("${dirOut}${h}${cluster}.${extOut}");
+    unlink glob("${dirKin}${h}${cluster}.${extKin}");
+    unlink glob("${dirSum}${h}${cluster}.${extSum}");
+  }
+
+# Skip pseudo-kinematic solution if V_H undefined
+# -----------------------------------------------
+  prtGoto($bpe,$param2) if "$h" eq "";
+
+}

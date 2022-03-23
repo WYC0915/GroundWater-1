@@ -1,0 +1,71 @@
+package ORBMRG;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  ORBMRG
+#
+# Purpose :  Execute CCPREORB for daily or hourly processing
+#
+# PARAMs  :
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use File::Copy qw(move);
+
+use lib $ENV{BPE};
+use bpe_util qw(setUserVar);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($ssss,$yyssss,
+      $b,   $gnss,
+      $dirPre,
+      $extPre) =
+  $bpe->getKeys(
+      '$S+0','$YSS+0',
+      'V_B','V_SATSYS',
+      'DIR_PRE',
+      'EXT_PRE');
+
+# Run program
+# -----------
+  my $PGMNAM = "CCPREORB";
+  $bpe->RUN_PGMS($PGMNAM);
+
+# Copy results file to the standard name
+# --------------------------------------
+  my $temp = $bpe->getKey("$ENV{U}/INP/CCPREORB.INP","CHAR4");
+
+  move("${dirPre}${temp}${ssss}.${extPre}","${dirPre}${b}${yyssss}.${extPre}");
+
+# Add the IGL orbits if IGS and GNSS is selected
+# ----------------------------------------------
+  if ( $gnss =~ /GLO/ && $b eq "IGS" ) {
+
+    # Concatenate also the IGL orbit files
+    $bpe->putKey("$ENV{U}/PAN/CCPREORB.INP","CONCAT",'IGL$WD+0');
+    $bpe->RUN_PGMS($PGMNAM);
+    move("${dirPre}${temp}${ssss}.${extPre}","${dirPre}IGL${yyssss}.${extPre}");
+
+    # Merge the IGS and IGL files
+    setUserVar($bpe,"B","IGS");
+    $bpe->putKey("$ENV{U}/PAN/CCPREORB.INP","RADIO_C","0");
+    $bpe->putKey("$ENV{U}/PAN/CCPREORB.INP","RADIO_M","1");
+
+    $bpe->putKey("$ENV{U}/PAN/CCPREORB.INP","MERGE1","IGS${yyssss}");
+    $bpe->putKey("$ENV{U}/PAN/CCPREORB.INP","MERGE2","IGL${yyssss}");
+
+    $bpe->RUN_PGMS($PGMNAM);
+    move("${dirPre}${temp}${ssss}.${extPre}","${dirPre}IGS${yyssss}.${extPre}");
+  }
+
+}

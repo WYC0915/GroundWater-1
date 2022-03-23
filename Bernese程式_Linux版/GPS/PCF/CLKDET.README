@@ -1,0 +1,736 @@
+======================================================================
+Bernese GNSS Software, Version 5.2              Last mod.: 01-Nov-2012
+----------------------------------------------------------------------
+CLKDET.PCF README
+======================================================================
+
+
+------------------------------------------------------------
+Purpose:
+------------------------------------------------------------
+
+CLOCK DETERMINATION (CLKDET): standard zero difference
+processing for regional networks for dual-frequency
+stations starting from broadcast clocks.
+
+The purpose of this BPE is to compute station and satellite
+clock parameters for all included stations. The results are
+provided in clock RINEX format.
+
+Coordinates and troposphere corrections (e.g., from a double
+difference solution, see RNX2SNX.PCF) may be introduced and
+a consistent set of clock corrections will be obtained.
+
+
+------------------------------------------------------------
+Description:
+------------------------------------------------------------
+
+This BPE performs a full zero-difference solution for a
+regional network assuming dual-frequency data. It starts
+from RINEX observation files and precise orbit information
+(e.g., from CODE) and generates a clock RINEX solution file.
+
+The following results are obtained:
+- computation of high precision station and satellite clock
+  corrections with respect to a reference clock,
+- estimation of relevant inter-system and inter-frequency
+  biases (ISB, IFB) in case of a combined GPS/GLONASS
+  analysis.
+
+A project-specific coordinate file (V_CRDINF, e.g., EXAMPLE
+for EXAMPLE.CRD) is merged with a reference frame coordinate
+file (V_REFINF, e.g., IGB08 for IGB08_R.CRD) to use the
+latest coordinate reference frame for the analysis.
+
+The coordinates with a flag 'I' in the merged project-specific
+coordinate file are constrained when clock corrections are
+estimated. If you have well determined coordinates and
+troposphere corrections, you indicate the filenames to the
+variables V_FIXCRD and V_FIXTRP respectively (the location of
+these files needs to be specified in variable V_FIXPTH). The
+script TIMEST_P adapts the datum definition in GPSEST so that
+these coordinates and troposphere estimates are fixed and only
+parameters for the remaining stations are estimated. The script
+CLKNEQ (PID 521) does the same for ADDNEQ2 and makes sure that
+the resulting coordinate and troposphere files contain records
+for all stations.
+
+Depending on the availability of precise high-rate satellite
+clock corrections (BPE variable V_HRCLK = 'N' or 'Y') one of
+the following pre-processing schemes is selected:
+- RNXSMT: consistency check with the code measurements
+  based on Melburne-Wuebbena linear combination (requires
+  dual frequency data)
+- MAUPRP: a sophisticated interpretation of epoch-difference
+  residuals based on PPP (requires precise satellite clock
+  correction with the same sampling as the data are)
+
+The final solution consists of a combined processing of the
+phase and code measurements. The code observations of the
+individual stations are subject of a station-specific
+weighting of the observation files. In the final solution
+the back-substitution step of the clock parameters is
+performed considering only the phase data to prevent clock
+corrections based on more code than phase observations.
+
+All clock solutions are computed with a 'zero-mean condition'
+for all receiver clock correction estimates. The receiver
+clock with the best linear behaviour (according to the
+estimated results) is selected as the reference clock
+for the final clock RINEX file by the program CCRNXC (PID 523).
+
+
+------------------------------------------------------------
+Remarks:
+------------------------------------------------------------
+
+This BPE is only designed for a daily session scheme.
+
+If you want to process several sessions you may either
+analyze them sequentially or in separate campaigns for each
+session (see panel BPE 1.1: Multi Session Processing Options
+when launching the BPE with the menu > BPE > Start BPE
+process). PLEASE NOTE THAT THE BPE IS NOT DESIGNED TO PROCESS
+MORE THAN ONE SESSION IN THE SAME CAMPAIGN AREA AT THE SAME
+TIME.
+
+
+------------------------------------------------------------
+Quality control:
+------------------------------------------------------------
+
+The processing is summarized in a so-called protocol file.
+It is compiled in the BPE user script CLK_SUM and exists first
+in the OUT directory of the campaign. Depending of the settings
+for the BPE server variables at the end this file the protocol
+is copied by the CLK_SAV script (if V_SAV == 'Y') to
+   -->> ${S}/{V_RESULT}/yyyy/OUT/CLKyyssss.PRC
+and is removed from the campaign area by the script CLK_DEL
+(if V_DEL == 'Y').
+
+This protocol file is divided into sections related to the
+different tasks/features of this BPE:
+
+PART 1: RINEX PSEUDO-GRAPHICS
+   The content of the RINEX observation files is summarized
+   here (summary file output from program RNXGRA). Here you
+   may detect stations with problems in the data (e.g.,
+   reduced tracking performance of a station).
+
+PART 2: ORBIT GENERATION SUMMARY
+   Summary file from ORBGEN reports the RMS of the fit of the
+   satellite position given in the precise orbit file
+   ${D}/{V_B}/(V_B}wwwwd.PRE with the orbit model from
+   ORBGEN. It is expected that the RMS is on the few
+   millimeter level (for ORBGEN, pseudo-stochastic pulses are
+   setup every twelve hours to compensate for different orbit
+   models in ORBGEN and the external orbit program). If the
+   RMS is bigger, you should check the consistency of the
+   Earth rotation files ${D}/{V_B}/(V_B}wwww7.ERP.
+
+PART3: SINGLE-POINT-POSITIONING SUMMARY
+   The output from program CODXTR gives an overview on the
+   performance of CODSPP synchronizing the receiver clocks
+   to GPS system time using pseudorange measurements. It
+   is expected that the RMS is below 5.00 meters. No additional
+   exclusion periods should be reported in this part.
+   If this is the case they may be caused by serious data
+   problems for a specific station (please have a closer look
+   to its results later in the protocol) or there are some
+   problems/inconsistency with the introduced satellite clock
+   file (if all stations are listed for a specific interval).
+   If you have a rather high number of bad observations
+   indicated in the protocol file but the output does not
+   contain other indications for problems, it might have a
+   very simple explanation: you have imported GPS and GLONASS
+   observations from the RINEX files (V_SATSYS == 'GPS/GLO')
+   but your satellite clock file does not provide any
+   GLONASS clock information. If only the GLONASS satellite
+   clock corrections are missing, the GLONASS observations
+   can be processed if the GLONASS orbit information is
+   available.
+
+PART 4: WEIGHTING OF THE CODE OBSERVATIONS
+   A GPS-only network solution based only on the code
+   measurements is done first where satellite as well station
+   clocks are estimated. The real (not normalized) residuals
+   are stored and analyzed to divide the stations into
+   classes according to the noise level of the code
+   measurements. Typically (nearly) all stations are in
+   the upper half of the histogram below 'STATION OBSERVATION
+   SIGMA FACTOR SUMMARY'.
+   If this is not the case, please verify whether the algorithm
+   to detect misbehaving stations made a proper decision.
+
+PART 5: SCREENING OF THE CODE OBSERVATIONS
+   The screening of the code observations takes place in a
+   zero-difference network solution considering only the code
+   measurements. The residuals of this solution are checked.
+   According to the value of the BPE server variable V_CLUCOD,
+   the stations are processed in a single or several clusters.
+   At first the extraction from the parameter estimation is
+   given. The RMS is expected to be a few tenths of millimeters
+   because we are using smoothed code. A certain redundancy
+   is requested to compute reliable residuals. That's why the
+   total number of files in the individual outputs may exceed
+   the number of stations if you process more than one cluster.
+   The residuals are analyzed for misbehaving stations or
+   satellites (e.g., due to exceptional huge satellite clock
+   biases). Any detected event is reported in the RESCHK
+   program output. You can verify the decision in this step
+   by inspecting the table of residual RMS for the stations
+   and satellites.
+
+PART 6: INTER-SATELLITE/P1-C1 CODE BIASES
+   In the next step the code data are processed to obtain the
+   relevant biases: inter-system and inter-frequency biases. For
+   that purpose, the code measurements are processed in a
+   zero-difference network solution. If the BPE server variable
+   V_CLUCOD is greater than one the data files are divided into
+   clusters. The network solution is computed in two steps:
+   - setup normal equations in GPSEST without computing a
+     solution (number of clusters according to V_CLUCOD) and
+   - a subsequent ADDNEQ2 to collect the normal equations from
+     the clusters and to compute the solution.
+   The RMS is also expected here to be on a few tenths of
+   millimeter range. Note: for each GLONASS satellite an
+   individual bias is computed to be on the safe side if the
+   inter-frequency bias is different for the two GLONASS
+   satellites using the same frequency number (what can happen
+   from time to time).
+   The P1-C1 DCBs introduced into this step are copied together
+   with the inter-system/inter-frequency biases into an output
+   file.
+
+PART 7: DATA SCREENING SUMMARY
+   If the phase measurements have been pre-processed by MAUPRP
+   this section starts with the extraction summary from MPRXTR.
+   You should be attentive to the RMS of the epoch-difference
+   solution which should below 20..30 mm. If all stations
+   show big RMS values, a problem with the satellite clock
+   corrections is likely the source. The improvements for
+   the station position (DX, DY, DZ) may be bigger than usual
+   because the a priori coordinates come only from the RINEX
+   observation headers.
+   If you have no high-rate precise clocks and have to go
+   through RNXSMT to pre-process the phase data, a combined
+   code+phase residual screening is performed. It is the same
+   procedure as described in PART 8 but with higher thresholds
+   for the residual screening. It may happen that big residuals
+   appear for individual satellites/stations, stemming from
+   the limitations of the combined code and phase screening
+   in RNXSMT.
+
+PART 8: CODE+PHASE RESIDUAL SCREENING SUMMARY
+   Independent from the way of pre-processing the phase data,
+   this section contains the output and summary files from a
+   combined code and phase zero-difference network solution.
+   The RMS of the combined code+phase network solution should
+   be at the one millimeter level or slightly below. The number
+   of clusters depend on the value of the BPE server variable
+   V_CLUPRP. If more than one cluster are computed, the stations
+   may appear in several clusters to guarantee a certain
+   redundancy to generate reliable residuals for screening.
+   The summary on the GPSEST to compute the residuals
+   consists of statistics on the residual screening (RMS
+   before and after screening, number of removed measurements)
+   as it is provided by RESCHK. The tables are useful to detect
+   whether a specific problem is related to a station or a
+   satellite. The RMS after the screening should be in the
+   order of 1 mm or slightly below. It should also be verified
+   that no more than 3% of the data is removed. Otherwise
+   you have to find out whether there are some consistency
+   problems between your orbit and satellite clocks or whether
+   one or a few stations have introduced the problem (e.g., due
+   to tracking problems of the receiver).
+
+PART 9: STATISICS ON THE SOLUTION
+   The statistics on the solution is provided in three parts:
+
+PART 9.1: CODE+PHASE CLUSTER SOLUTION SUMMARY
+   The final solution is computed as a zero-difference network
+   solution where the stations may be processed in a certain
+   number of global clusters. The number of clusters is given
+   by the BPE server variable V_CLUSOL. The summary of the
+   GPSEST from each cluster is given together with the output
+   from an ADDNEQ2 run to combine the coordinates and
+   troposphere results from the different clusters. The RMS
+   is expected to be at the one millimeter level or slightly
+   below.
+
+PART 9.2: CODE+PHASE CLUSTER SOLUTION RESIDUALS
+   The back-substitution step to compute clocks and residuals
+   in the GPSEST is only done for the phase measurements (the
+   code data is only used to determine the parameters which
+   depend on several epochs, e.g., ambiguities). For that
+   reason only a residual statistics for the phase measurements
+   is provided here. This feature has the advantage that no
+   clock parameters are computed only from code observations.
+
+PART 9.3: CODE+PHASE CLUSTER SOLUTION CLOCK STATISTICS
+   This section contains an overview on the performance of the
+   receiver clocks as provided by the statistics part of the
+   CCRNXC program output.
+   The first clock in the list was selected as reference clock
+   (best performing clock in the series). If you have more
+   external high performance clocks driving the GNSS receivers
+   you should find small numbers for the RMS of poly. fit with
+   n=1 (linear clock model). For H-Maser and Caesium clocks
+   RMS below 0.05 and 0.10 ns are respectively expected.
+   Do not care about big or even huge RMS values for quartz
+   or other low quality (internal) clocks in the receivers.
+
+
+------------------------------------------------------------
+BPE server variables:
+------------------------------------------------------------
+There are several variables, assigned with a default value
+here in the PCF (last section of this file). When starting
+a BPE manually they may be modified in the fourth panel
+'BPE 4: Server Variables Sent to Client'.
+
+The following set of BPE server variables are used as
+solution identifiers, consequently used for file naming
+within the BPE processing:
+V_B (default: COD)
+   Name of the external product for GNSS orbit, ERP and
+   satellite clock information.
+   It is expected that the products are available in the
+   ${D} (datapool) area in a specific subdirectory V_B; the
+   filenames must also contain this label: {V_B}wwwwd
+   (see input file section for more details)
+V_A (default: APR)
+   Starting station coordinates set for the processing
+V_C (default: CW)
+   Program output and result files from the processing
+   steps related to the computation of the weights for the
+   code observations
+V_E (default: CR)
+   Files related to the residual screening of the code
+   observation files in a zero-difference network solution
+V_F (default: CB)
+   Program output and result files related to the computation
+   of inter-system/inter-frequency biases
+V_G (default: T0)
+   If the BPE server variable V_HRCLK indicates that no
+   precise high-rate satellite clocks are available, the
+   phase observation files are only screened by RNXSMT.
+   An additional step with a residual screening from a
+   zero-difference network solution based on code and phase
+   measurements in regional clusters (see BPE server variable
+   V_CLUPRP) is done.
+   The output and result files from this step are indicated
+   by the label in {V_G}.
+V_H (default: TR)
+   Output and result files from a zero-difference network
+   solution using code and phase observations together
+   processed in regional clusters (see BPE server variable
+   V_CLUPRP)
+V_I (default: TP)
+   Final results and the related program output files from
+   the clock solution based on code and phase measurements
+   in global clusters (see BPE server variable V_CLURES).
+
+Note: the variables V_C to V_I contain only two characters.
+A third character is hard-wired in the panels and user scripts.
+The main output and result files use '_' as the third character
+whereas for minor output and summary files other letters are in
+use.
+
+The next group of BPE server variables manages the directories
+of the input data and the location of the result files in the
+product database:
+V_RNXDIR (default: RINEX)
+   Directory in the ${D} (datapool) area where the RINEX files
+   are expected. The selection of stations for processing is
+   managed by the V_OBSSEL variable, see below.
+V_REFDIR (default: REF52)
+   Directory in the ${D} (datapool) area where the basic Bernese
+   files for the processing are located, the detailed list of
+   files is given in the section on Input files.
+V_CRDINF (default: EXAMPLE)
+   The basename of the files used as basic Bernese input files
+   for this CLKDET procedure. Copying these files is managed
+   in the BPE user script CLK_COP.
+V_HOIFIL (default: HOI102070)
+   Specify the filename used for the ionosphere model within
+   your campaign area that is used to compute the higher-
+   order ionosphere (HOI) corrections. The ionosphere model is
+   copied from ${D}/BSW52/CODwwwwd.ION into the ATM-directory
+   of the campaign using the given filename.
+   No value for this variable disables the HOI corrections.
+V_BLQINF (default: EXAMPLE)
+   The basename of the file containing the ocean tidal
+   loading corrections for the stations. The file has also
+   to contain the center-of-mass corrections (CMC) connected
+   to ocean tidal loading. These corrections are needed for
+   orbit generation.
+   If the variable is empty, no displacement corrections to
+   the stations or CMC for the orbit generation are applied.
+   The file ${D}/REF52/${V_BLQINF}.BLQ is copied by the
+   script CLK_COP into the campaign.
+V_ATLINF (default: EXAMPLE)
+   The basename of the file containing the atmosphere tidal
+   loading corrections for the stations. The file has also
+   to contain the center-of-mass corrections (CMC) connected
+   to atmosphere tidal loading. These corrections are needed
+   for orbit generation.
+   If the variable is empty, no displacement corrections to
+   the stations or CMC for the orbit generation are applied.
+   The file ${D}/REF52/${V_ATLINF}.ATL is copied by the
+   script CLK_COP into the campaign.
+V_CRXINF (default: empty)
+   Inconsistencies between the RINEX observation file headers
+   and the station information file can be recorded in a file
+   with 'Accepted station information' inconsistencies in
+   program RXOBV3. If you need such a file for your processing,
+   you can specify its name here. It will be copied from
+   ${D}/REF52/${V_CRXINF}.CRX
+V_RESULT (default: CLKDET)
+   Directory in the ${S} (savedisk) area where the result files
+   from the CLKDET processing are collected in yearly
+   directories (saving of the result files is managed by
+   the BPE user script CLK_SAV).
+V_REFINF (default: IGB08)
+   Reference frame files, used as master files when updating
+   coordinate and velocity files.
+   The corresponding files are expected as
+      ${D}/{V_REFDIR}/(V_REFINF}_R.CRD
+      ${D}/{V_REFDIR}/(V_REFINF}_R.VEL
+   The first sequence of the CLKDET processing replaces
+   coordinates for stations given in these reference frame
+   files in the project-related coordinate file. Keep this
+   variable empty to skip this update. You will need in this
+   case a station selection file for the reference frame
+   sites ${D}/{V_REFDIR}/(V_REFINF}.FIX .
+
+The following variables are responsible for the data selection:
+V_OBSSEL (default: blank)
+   This variable may contain a filename for a cluster file or
+   a file with the RINEX station abbreviations (see section
+   on Station selection below for more details).
+V_SATSYS (default: GPS/GLO)
+   Select the system(s) (usually GPS or GPS/GLO) to be used
+   for the CLKDET processing.
+   The value of this variable is directly introduced in the
+   option 'Satellite system to be considered' in panel
+   'RXOBV3 2: Input Options 1' (user script RXOBV3_P).
+   Note: whether all selected systems are really used for the
+   processing depends also on the availability of satellite
+   orbits as well as on the contents of the RINEX observation
+   files. This option acts only as a filter to remove
+   non-selected systems from the observation files.
+V_HRCLK (default: YES, if possible)
+   You may select how the phase measurements will be
+   pre-processed. You have two options depending on the
+   availability of satellite clock corrections:
+   'NO' checks only the consistency between the code
+   and phase observations which limits the level of screening
+   to the noise level of the code data.
+   'YES' uses a more involved algorithm but requires
+   high-rate (30sec) and precise satellite clock corrections.
+   Because of the lack of GLONASS satellite clock corrections
+   the CLKDET.PCF is provided with the value 'NO' to allow
+   the generation of a combined GPS+GLONASS solution.
+V_SAMPL (default: 300)
+   Sampling interval for the final solution.
+   The value of this variable is directly introduced as the
+   option 'Sampling interval' in panel 'RXOBV3 2:
+   Input Options 1' (user script RXOBV3_P).
+
+It is possible that the results from an external solution
+may be introduced to compute a clock solution consistent
+to those results:
+V_FIXCRD (default: F1_$YSS+0)
+   Name of the coordinate solution file to be introduced
+V_FIXTRP (default: F1_$YSS+0)
+   Name of the troposphere solution file to be introduced
+V_FIXPTH (default: ${S}/RNX2SNX_sun/$Y+0)
+   Path from where the external coordinate/troposphere
+   solution files are copied.
+   Note: the variable V_FIXPTH has to contain the full path
+   to allow an alternative access to the savedisk-area or to
+   processing campaigns.
+
+Clustering for parallel scripts
+V_CLU (default: 7)
+   For all parallel running scripts, it is a question on how
+   many files (stations) are processed together and how many
+   jobs are running in parallel. The answer to this question
+   depends on the system architecture (regarding speed disk
+   access, the number of available CPUs).
+   In general you can plan one job per available CPU with a
+   quick access to your data partition. If this number exceeds
+   15 to 20 stations/baselines per cluster it is worth to
+   divide the jobs in additional clusters.
+   In any case it is important to have approximately the same
+   computing time for each of the clusters because the BPE
+   only continues with the next script when the last of the
+   parallel running jobs is finished.
+   The default value (7) was set to process the example
+   (13 stations) on a dual-core machine. It gives two clusters
+   which can processed in parallel at the same time
+   (2 processing cores).
+V_CLUCOD (default: 1)
+   Number of clusters for pre-processing the code measurements
+   in regional clusters for residual screening. It is of course
+   preferable to process all stations in one cluster. If the
+   number of stations becomes bigger this might not be efficient
+   anymore. In that case a clustering becomes an option or even
+   a necessity. Please note that in case of clustering a
+   certain redundancy is requested to ensure a reliable
+   computation of the residuals.
+V_CLUPRP (default: 1)
+   The common processing of code and phase data is more CPU-time
+   consuming as the code-only network solution. Not only more
+   observations are processed, also more parameters
+   (ambiguities) need to be solved for. For that reason a
+   specific BPE server variable to define the number of
+   clusters for steps (MKCLUSAP/TIMEST_P with options
+   CLK_ED0 and CLK_EDT) is available.
+V_CLUSOL (default: 1)
+   The final solution (MKCLUSAP/TIMEST_P with options
+   CLK_RES) may also be computed in clusters if too many
+   stations are included.
+V_MAXSOL (default: 40)
+   For the final solution a maximum number of stations per
+   cluster may be specified. This option limits the number
+   of stations in the final solution in conjunction
+   with the number of clusters. So it can happen that not all
+   stations are included in the final solution. This may either
+   not harm the solution (satellite clocks may be computed from
+   any set of well distributed ground stations) or one of the
+   two parameters (V_CLUSOL and/or V_MAXSOL) needs to be
+   increased.
+
+Model selection related BPE variables:
+V_PCV (default: I08)
+   Selection of the antenna phase center model identifier
+V_SATINF (default: SATELLIT)
+   Basename of the satellite information file
+   The resulting filename is ${X}/GEN/{V_SATINF}.{V_PCV}
+V_PCVINF (default: PCV)
+   Basename of the antenna phase center correction file
+   The resulting filename is ${X}/GEN/{V_PCVINF}.{V_PCV}
+   If you create your own antenna phase center correction
+   file considering your own station information file using
+   the program ATX2PCV (menu > Conversion > ANTEX to Bernese
+   format) we recommend to change the filename to indicate
+   which station information file was used (e.g., PCV_EXAMPLE).
+V_SATCRX (default: SAT_$Y+0)
+   Name of the satellite problem file
+   Please note that the first script makes a copy of this file
+   containing the name of the session. The Bernese programs
+   within the BPE are working with this copy. At the end the
+   copy is removed again. The background is that possibly
+   individual satellites may be misbehaving regarding the clock
+   processing (e.g., due to clock resets) but must not be
+   excluded for other (e.g., double-difference) processes.
+V_MYATX (default: empty)
+   Filename (including extension) for an ANTEX file containing
+   receiver and possibly satellite antenna phase center
+   corrections. The file is used to update the Bernese phase
+   center file in ${X}/GEN/{V_PCVINF}.{V_PCV}, e.g., in case
+   of new antennas in the network.
+   It is expected that the file is available in ${X}/GEN/.
+   Note: if you plan to use a file containing individually
+   calibrated antennas you need to change the settings for
+   'Set number of generic receiver antennas to 999999' in
+   panel ATX2PCV 2: ANTEX Conversion (Script 002 ATX2PCV):
+     - checkbox unmarked: type specific calibrations
+     - checkbox marked:   antenna specific calibrations
+   Please remind that calibration values for all antennas
+   with number different from 999999 in the station information
+   file must be available with individually calibrations.
+
+The last group is related to the file handling in the
+campaign
+V_SAV (default: Y)
+   Save result file into the ${S}/{V_RESULT}-area
+   if V_SAV == 'Y'. This variable is managed by the BPE user
+   script CLK_SAV.
+V_DEL (default: Y)
+   Delete all files from the currently processed session from
+   the campaign if V_DEL == 'Y'; managed in CLK_DEL user script.
+   Usually the deletion should be enabled to keep the campaign
+   clean. For debugging purposes and to identify sources for
+   errors in the processing it may be useful to keep all files.
+ATTENTION: This logic implies that you will see no results in
+   case of Y_SAV == 'N' and V_DEL == 'Y' (clean up the campaign
+   but do not store the results).
+
+
+------------------------------------------------------------
+Input files:
+------------------------------------------------------------
+
+The input files are copied from the datapool area into
+campaign area in the BPE user script 'CLK_COP':
+
+- External products files (mandatory):
+  -->>  ${D}/{V_B}/(V_B}wwwwd.PRE
+  -->>  ${D}/{V_B}/(V_B}wwww7.ERP
+  The variable V_B is defined below in the BPE server
+  variable section and defines the product series to be
+  considered for the CLKDET (e.g., COD or IGS), where wwwwd
+  stands for the GPS week and the day of week to be
+  processed.
+  Note: orbit and ERP should be consistent for the
+  orbit integration.
+- External products files (optional):
+  -->>  ${D}/{V_B}/(V_B}wwwwd.CLK
+  High-rate precise clock files becomes mandatory if
+  the BPE server variable V_HRCLK = 'YES' indicates to use
+  it for pre-processing the phase measurements. Otherwise
+  such a file is not necessary.
+  Note: the clock corrections must be fully consistent with
+  the satellite orbit information.
+- Bernese formatted products files (mandatory):
+  -->>  ${D}/BSW52/P1C1yymm.DCB
+  -->>  ${D}/BSW52/CODwwwwd.ION
+  The DCB corrections are necessary to unify the reference
+  for the different receiver tracking techniques, what
+  becomes important when receivers with different tracking
+  technologies are processed in the same zero-difference
+  network (yymm is related to the months of the
+  processing session).
+  The ionosphere file is needed to correct for the higher
+  order ionosphere terms and for the ambiguity resolution.
+
+  Both files can be downloaded from
+       ftp://ftp.unibe.ch/aiub/CODE
+
+- Reference frame files (mandatory)
+  The reference frame in the project specific coordinate file
+  is introduced by adding/overwriting the station coordinates
+  with the values given in the reference frame files. The
+  reference frame coordinate and velocity files are named:
+  -->>  ${D}/{V_REFDIR}/(V_REFINF}_R.CRD
+  -->>  ${D}/{V_REFDIR}/(V_REFINF}_R.VEL
+
+- Project-specific station-related files are needed for the
+  processing (mandatory):
+  -->>  ${D}/{V_REFDIR}/(V_CRDINF}.CRD
+  -->>  ${D}/{V_REFDIR}/(V_CRDINF}.VEL
+  -->>  ${D}/{V_REFDIR}/(V_CRDINF}.ABB
+  -->>  ${D}/{V_REFDIR}/(V_CRDINF}.STA
+  We refer to the user manual for a description on the
+  content of each of these files.
+
+- RINEX header inconsistency acceptance file (optional)
+  The station information file ({V_CRDINF}.STA) is used
+  to verify the header information of the RINEX observation
+  files to be processed. If there are known inconsistencies
+  they can documented in this file. The program will accept
+  RINEX files with such entries without further notice. The
+  file with the accepted RINEX header inconsistencies is
+  copied from
+  -->>  ${D}/{V_REFDIR}/(V_CRXINF}.CRX
+  as soon as the variable (V_CRXINF) contains a non-blank
+  value.
+
+- Tidal loading corrections (optional)
+  Ocean and atmospheric tidal loading may be corrected
+  during the CLKDET procedure if the corresponding
+  corrections are provided in the files.
+  Note: these files have also to contain corresponding
+  CMC (center-of-mass correction) values for the translation
+  of the orbit positions from the Earth-fixed system in
+  the center-of-mass system for the orbit integration.
+  -->>  ${D}/{V_REFDIR}/(V_BLQINF}.BLQ
+  -->>  ${D}/{V_REFDIR}/(V_ATLINF}.ATL
+
+- External coordinate/troposphere solution files (optional)
+  -->>  {V_FIXPTH}/STA/{V_FIXCRD}.CRD
+  -->>  {V_FIXPTH}/ATM/{V_FIXTRP}.TRP
+  If an external coordinate and/or troposphere solution shall
+  be introduced the corresponding BPE server variables need
+  to be defined and the corresponding files are copied by the
+  script CLK_COP into the campaign area.
+  Note: the variable V_FIXPTH has to contain the full path
+  to allow an alternative access to the savedisk-area or to
+  processing campaigns.
+
+
+------------------------------------------------------------
+Observations:
+------------------------------------------------------------
+
+The observation files are expected in RINEX format (Hatanaka
+compressed is allowed if the decompression program is available
+in ${X}/EXE/CRX2RNX -- see variable $c2rPgm definition
+in ${BPE}/bpe_util.pm) in the directory
+  -->>  ${D}/{V_RNXDIR}/
+The station/observation file selection is realized in the
+BPE user script RNX_COP.
+
+Three opportunities to select stations for processing are
+implemented (considered in the following order):
+1) A file {CAMPAIGN}/STA/{V_OBSSEL}.CLU exist
+   In the current campaign a cluster file with the name
+   V_OBSSEL (see BPE server variables below) does exist.
+   The station names from this file are translated into the
+   four-character IDs using the abbreviation table
+   {CAMPAIGN}/STA/{V_CRDINF}.ABB. These four-character IDs
+   are used to copy the corresponding RINEX files from the
+   source directory in the data base.
+2) A file {CAMPAIGN}/{V_OBSSEL} contains the RINEX abbreviations
+   of the files to be processed. They have to be separated
+   by blank characters or may start with a new line.
+3) If V_OBSSEL is empty all RINEX files of the specified
+   session(s) are processed.
+
+Usually only the RINEX files of the current session are
+processed. Note: this BPE is not prepared for an hourly
+processing scheme.
+
+
+------------------------------------------------------------
+Result files:
+------------------------------------------------------------
+
+The most important result files are copied in the BPE
+user script CLK_SAV into the ${S}/{V_RESULT} area
+(V_RESULT is defined below in the BPE server variables area)
+if the BPE server variable V_SAV == 'Y'. The files are
+located in yearly subdirectories (yyyy). These files are:
+
+-->> ${S}/{V_RESULT}/yyyy/OUT/CLKyyssss.PRC
+Main protocol file containing the summary of the processing
+steps (more details are provided in the Quality control
+section, see above).
+
+-->> ${S}/{V_RESULT}/yyyy/ORB/{V_I}_yyssss.CLK
+-->> ${S}/{V_RESULT}/yyyy/OUT/{V_I}_yyssss.CLK.gz
+Files with clock corrections from the consistent phase/code
+data analysis for GPS or GPS/GLONASS (according to the value
+of the BPE server variable V_SATSYS).
+In the ORB directory: GNSS satellite clock in Bernese format.
+In the OUT directory: satellite and receiver clock corrections
+in clock RINEX format.
+
+-->> ${S}/{V_RESULT}/yyyy/STA/{V_I}_yyssss.CRD
+-->> ${S}/{V_RESULT}/yyyy/ATM/{V_I}_yyssss.TRP
+Station coordinates and troposphere estimates that are
+consistent to the clock corrections.
+If records from an external solution have been introduced,
+they are in these files completed with the solutions for
+coordinates and troposphere for all stations that were only
+available in the CLKDET processing.
+
+-->> ${S}/{V_RESULT}/yyyy/STA/{V_C}_yyssss.SOS
+Station-specific observation weighting for that was used
+for weighting the code measurements.
+
+-->> ${S}/{V_RESULT}/yyyy/ORB/{V_F}_yyssss.DCB
+Inter-system/inter-frequency biases for a GPS/GLONASS processing
+together with P1-C1 DCB copied from the input file. In case of
+a GPS-only solution this files only contains the DCBs.
+
+-->> ${S}/{V_RESULT}/yyyy/SOL/{V_F}_yyssss.NQ0.gz
+Normal equation from which the above mentioned DCB-file was
+extracted. It only contains all the bias parameters and can be
+used for long-term bias solutions.
+
+======================================================================

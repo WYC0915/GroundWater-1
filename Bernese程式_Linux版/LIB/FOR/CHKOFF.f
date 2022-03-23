@@ -1,0 +1,87 @@
+      MODULE s_CHKOFF
+      CONTAINS
+
+C*
+      SUBROUTINE CHKOFF(NOBS  ,LINTIM,LINOBS,LINFLG,ARCOFF,
+     1                  ARCRMS,NSLIP ,SLPTIM,SLPCYC,WAVELN,ICOR)
+CC
+CC NAME       :  CHKOFF
+CC
+CC PURPOSE    :  CHECKS AN OBSERVATION ARC TO DETERMINE THE OFFSET
+CC
+CC PARAMETERS :
+CC        IN  :  NOBS   : NUMBER OF OBSERVATIONS IN ARC       I*4
+CC            :  LINTIM : ARRAY WITH TIME VALUES (HOURS)      R*8(*)
+CC            :  LINOBS : ARRAY WITH OBSERVATIONS             R*8(*)
+CC            :  LINFLG : ARRAY WITH OBSERVATION FLAGS       CH*1(*)
+CC                        BIT=0: OUTLIER
+CC                        BIT=1: NEW AMBIGUITY
+CC        OUT :  ARCOFF : PHASE-CODE DIFFERENCE (m. or cycl)  R*8
+CC               ARCRMS : PHASE-CODE RMS        (m. or cycl)  R*8
+CC               NSLIP  : NUMBER OF CYCLE SLIPS               I*4
+CC               SLPTIM : INDEX TIME OF THE CYCLE SLIP        I*4(*)
+CC               SLPCYC : SIZE OF THE CYCLE SLIPS             R*8(*)
+CC               WAVELN : WAVE LENGTH OF THE CYCLES           R*8
+CC               ICOR   : CORRECT FOR CYCLE SLIPS OR NOT      I*4
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  T.A. SPRINGER
+CC
+CC VERSION    :  4.1
+CC
+CC CREATED    :  22-JUL-96
+CC
+CC CHANGES    :  22-JUL-96 : TS: CREATED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1996     UNIVERSITY OF BERN
+CC               SWITZERLAND
+C*
+      USE f_tstflg
+      USE s_offset
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , ICOR  , ISLP  , ISTART, NOBS  , NSLIP
+C
+      REAL*8    ARCOFF, ARCRMS, WAVELN
+C
+CCC       IMPLICIT  REAL*8(A-H,O-Z)
+C
+      REAL*8      LINTIM(*),LINOBS(*)
+      REAL*8      SLPCYC(*)
+C
+      INTEGER*4   SLPTIM(*)
+C
+      CHARACTER*1 LINFLG(*)
+C
+C APPLY ALL CYCLE SLIPS AND CHECK ALL FLAGS
+C -----------------------------------------
+      DO 10 ISLP=1,NSLIP
+        ISTART=SLPTIM(ISLP)
+        DO 20 I=ISTART,NOBS
+          IF (.NOT.TSTFLG(LINFLG(I),0).AND.ICOR.EQ.1) THEN
+            LINOBS(I)=LINOBS(I)-SLPCYC(ISLP)*WAVELN
+          ENDIF
+20      CONTINUE
+10    CONTINUE
+C
+C GET OFFSET
+C ----------
+      CALL OFFSET(LINTIM,LINOBS,LINFLG,NOBS,ARCOFF,ARCRMS)
+C
+C REMOVE OFFSET FOR LATER PLOTTING
+C --------------------------------
+      DO 30 I=1,NOBS
+        IF (.NOT.TSTFLG(LINFLG(I),0)) THEN
+          LINOBS(I)=LINOBS(I)-ARCOFF
+        ENDIF
+30    CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

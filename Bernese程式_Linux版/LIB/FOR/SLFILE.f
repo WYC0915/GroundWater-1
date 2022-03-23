@@ -1,0 +1,133 @@
+      MODULE s_SLFILE
+      CONTAINS
+
+C*
+      SUBROUTINE SLFILE(NFIL,STAFIL,SESFIL,NFRFIL,IDTFIL,
+     1                  NSAFIL,NEPFIL,TIMFIL,INDFIL)
+CC
+CC NAME       :  SLFILE
+CC
+CC PURPOSE    :  SELECT FILE OF FILE LIST FOR PROGRAMS "MAUPRP" AND
+CC               "OBSTST"
+CC
+CC PARAMETERS :
+CC         IN :  NFIL   : NUMBER OF FILES                     I*4
+CC               STAFIL(I,J),I=1,2, J=1,..,NFIL: STATION      CH*16
+CC                        NAMES OF FILE J
+CC               SESFIL(I,J),I=1,2, J=1,..,NFIL: SESSION AND  CH*4
+CC                        SESSION FILE IDENTIFIER OF FILE J
+CC               NFRFIL(J),J=1,..,NFIL: NUMBER OF FREQUENCIES I*4
+CC               IDTFIL(J),J=1,..,NFIL: OBSERVATION INTERVAL  I*4
+CC               NSAFIL(J),J=1,..,NFIL: NUMBER OF SATELLITES  I*4
+CC               NEPFIL(J),J=1,..,NFIL: NUMBER OF EPOCHS      I*4
+CC               TIMFIL(J),J=1,..,NFIL: REFERENCE EPOCH (MJD) R*8
+CC        OUT :  INDFIL : INDEX OF SELECTED FILE              I*4
+CC                        INDFIL=0: END
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  89/09/15 11:31
+CC
+CC CHANGES    :  13-JAN-94 : SF: INTERNAL READ WITH FORMAT "*" REPLACED
+CC                               BY INPCI4
+CC               14-AUG-94 : MR: FORMAT 4: SESSION AS CHARACTER*4
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               27-MAR-12 : RD: USE PROMP1 AS MODULE NOW
+CC               28-MAR-12 : RD: USE INPCI4 AS MODULE NOW
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1989     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern,  ONLY: LFNKBD, LFNPRT
+      USE s_promp1
+      USE f_djul
+      USE s_jmt
+      USE s_radgms
+      USE s_upperc
+      USE f_inpci4
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IDAY  , IFIL  , IHOUR , IMIN  , IMONTH,
+     1          INDFIL, IRCODE, IVAL  , IYEAR , NFIL
+C
+      REAL*8    DAY   ,  SEC
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+C
+      CHARACTER*80 STRG(1)
+      CHARACTER*72 INPUT
+      CHARACTER*16 STAFIL(2,*)
+      CHARACTER*4  SESFIL(2,*)
+      CHARACTER*1  VORZ,CDUMMY
+C
+      INTEGER*4    NFRFIL(*),IDTFIL(*),IDUMMY(1),IDUM1(1)
+      INTEGER*4    NSAFIL(*),NEPFIL(*)
+C
+      REAL*8       TIMFIL(*)
+C
+C
+C SELECTION OF FILE ONLY IF MORE TAN ONE FILE AVAILABLE
+C -----------------------------------------------------
+      IF(NFIL.GT.1) THEN
+C
+C WRITE TITLE
+100     WRITE(LFNPRT,1)
+1       FORMAT(//,1X,72('*'),/,' FILE SELECTION LIST',/,1X,72('*'),/
+     1          /,' NUM  STATION 1        STATION 2        SESS F #F',
+     2            ' #S  #EPO  DT DAY HH MM',
+     3          /,1X,72('-'),/)
+C
+C LOOP OVER FILES
+        DO 10 IFIL=1,NFIL
+          CALL JMT(TIMFIL(IFIL),IYEAR,IMONTH,DAY)
+          CALL RADGMS(3,DAY,VORZ,IHOUR,IMIN,SEC)
+          IDAY=TIMFIL(IFIL)-DJUL(IYEAR,1,1.D0)+1.D0
+          WRITE(LFNPRT,2) IFIL,(STAFIL(I,IFIL),I=1,2),
+     1                    SESFIL(1,IFIL),SESFIL(2,IFIL)(1:1),
+     2                    NFRFIL(IFIL),NSAFIL(IFIL),NEPFIL(IFIL),
+     3                    IDTFIL(IFIL),IDAY,IHOUR,IMIN
+2         FORMAT(I4,2X,A16,1X,A16,1X,A4,1X,A1,I3,I3,I6,I4,I4,2I3)
+10      CONTINUE
+C
+        WRITE(LFNPRT,11)
+11      FORMAT(/,1X,72('-'))
+C
+C SELECT FILE
+20      WRITE(LFNPRT,*)
+        STRG(1)='ENTER FILE NUMBER (EXIT=X) :'
+        CALL PROMP1(1,STRG)
+        READ(LFNKBD,22) INPUT
+22      FORMAT(A)
+        IF(INPUT.EQ.' ') GOTO 100
+        CALL UPPERC(INPUT)
+        IF(INPUT.EQ.'X') THEN
+          INDFIL=0
+          GOTO 999
+        ENDIF
+        IDUM1(1)=INDFIL
+        IVAL=INPCI4(-72,1,0,INPUT,IDUM1,CDUMMY,IDUMMY,IRCODE)
+        INDFIL=IDUM1(1)
+        IF (IRCODE.NE.0) GOTO 20
+        IF(INDFIL.LT.1.OR.INDFIL.GT.NFIL) THEN
+          WRITE(LFNPRT,23) INDFIL
+23        FORMAT(/,' INVALID FILE NUMBER:',I4)
+          GOTO 20
+        ENDIF
+      ELSE
+        INDFIL=1
+      ENDIF
+C
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

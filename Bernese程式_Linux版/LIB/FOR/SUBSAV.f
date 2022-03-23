@@ -1,0 +1,171 @@
+      MODULE s_SUBSAV
+      CONTAINS
+
+C*
+      SUBROUTINE SUBSAV(TITNEW,SUBNAM,REFEPO,NPAR,PARNAM,PARTIM,RMS,
+     1                  XXXAPR,XXX,ANOR)
+CC
+CC NAME       :  SUBSAV
+CC
+CC PURPOSE    :  SAVE SUBDAILY ERP MODEL IN A FILE
+CC
+CC PARAMETERS :
+CC        IN  :  TITNEW : GENERAL TITLE OF PROGRAM RUN          CH*80
+CC               SUBNAM : SUBDAILY ERP MODEL NAME               CH*16
+CC               REFEPO : REFERENCE EPOCH FOR DRIFT PARAMETERS   R*8
+CC               NPAR   : MAXIMUM NUMBER OF PARAMETERS ALLOWED   I*4
+CC               PARNAM(I),I=1,..,NPAR: PARAMETER NAMES         CH*20
+CC               PARTIM(2,I),I=1,..,NPAR: PARAMETER WINDOWS      R*8
+CC                          FROM,TO IN MJD
+CC               RMS    : SUM OF O-C**2                          R*8
+CC               XXXAPR(I),I=1,..,NPAR: A PRIORI VALUES OF PARA. R*8
+CC               XXX(I),I=1,..,NPAR: SOLUTION VECTOR             R*8
+CC               ANOR(I),I=1,..,NPAR*(NPAR+1)/2: NORMAL EQUATION R*8
+CC                        MATRIX
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  4.1
+CC
+CC CREATED    :  26-FEB-98
+CC
+CC CHANGES    :  21-JUN-05 : MM: COMLFNUM.inc REMOVED, M_BERN ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1998     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE M_BERN
+      USE s_subval
+      USE s_rdsubm
+      USE s_exitrc
+      USE s_gtflna
+      USE s_wtsubm
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IARG  , ICOE  , II    , IPAR  , IRC   , IRCSAV, ISUB  ,
+     1          MAXPER, NPAR  , NSUB  , NSUBR
+C
+      REAL*8    ARG   , ARGR  , REFEPO, RMS
+C
+CCC       IMPLICIT REAL*8(A-H,O-Z)
+C
+      PARAMETER (MAXPER=1000)
+C
+      CHARACTER*80 TITNEW,TITLE
+      CHARACTER*32 FILSUB,FILSAV
+      CHARACTER*20 PARNAM(*)
+      CHARACTER*16 SUBNAR,SUBNAM
+C
+      REAL*8       PARTIM(2,*),XXXAPR(*),XXX(*),ANOR(*)
+      REAL*8       SUBFAR(6,6),SUBPER(MAXPER),SUBCOR(4,MAXPER)
+      REAL*8       SUBCOE(4,MAXPER)
+C
+      INTEGER*4    SUBMLT(6,MAXPER),IFDARG(6)
+C
+C
+C INITIALIZE "IFDARG"
+C -------------------
+      DO IARG=1,6
+        IFDARG(IARG)=0
+      ENDDO
+C
+C GET REFERENCE SUBDAILY MODEL
+C ----------------------------
+      CALL GTFLNA(0,'SUBREF ',FILSUB,IRC)
+      IF (IRC.EQ.0) THEN
+        CALL RDSUBM(MAXPER,FILSUB,TITLE ,SUBNAR,SUBFAR,NSUBR ,
+     1              SUBPER,SUBMLT,SUBCOR)
+      ELSE
+        NSUBR=0
+      ENDIF
+C
+C COPY A PRIORI NUTATION COEFFICIENTS
+C -----------------------------------
+      NSUB=NSUBR
+      DO ISUB=1,NSUBR
+        DO IARG=1,6
+          SUBCOE(IARG,ISUB)=SUBCOR(IARG,ISUB)
+        ENDDO
+      ENDDO
+C
+C SET CORRECT FREQUENCIES
+C -----------------------
+      DO ISUB=1,NSUB
+        CALL SUBVAL(REFEPO,SUBFAR,SUBMLT(1,ISUB),
+     1              ARG,ARGR,SUBPER(ISUB))
+      ENDDO
+C
+C UPDATE SUBDAILY ERP COEFFICIENTS
+C --------------------------------
+      DO IPAR=1,NPAR
+        IF (PARNAM(IPAR)(1:2).EQ.'SC' .OR.
+     1      PARNAM(IPAR)(1:2).EQ.'SS' .OR.
+     2      PARNAM(IPAR)(1:2).EQ.'UC' .OR.
+     3      PARNAM(IPAR)(1:2).EQ.'US') THEN
+          READ(PARNAM(IPAR)(3:20),'(6I3)') (IFDARG(II),II=1,6)
+          DO ISUB=1,NSUB
+            DO IARG=1,6
+              IF (SUBMLT(IARG,ISUB).NE.IFDARG(IARG)) GOTO 10
+            ENDDO
+C TERM FOUND
+            GOTO 20
+10          CONTINUE
+          ENDDO
+C
+C TERM NOT FOUND: A PRIORI REMAINS ZERO
+          NSUB=NSUB+1
+C
+C CHECK DIMENSION
+          IF (NSUB.GT.MAXPER) THEN
+            WRITE(LFNERR,910) MAXPER,FILSAV
+910         FORMAT(/,' *** SR SUBSAV: TOO MANY SUBDAILY ERP PERIODS',
+     1               ' TO BE SAVED',
+     2             /,16X,'MAXIMUM NUMBER OF PERIODS ALLOWED:',I5,
+     3             /,16X,'SUBDAILY ERP FILE NAME           : ',A,/)
+            CALL EXITRC(2)
+          ENDIF
+C
+          CALL SUBVAL(REFEPO,SUBFAR,IFDARG,ARG,ARGR,SUBPER(NSUB))
+          DO IARG=1,6
+            SUBMLT(IARG,NSUB)=IFDARG(IARG)
+          ENDDO
+          DO ICOE=1,4
+            SUBCOE(IARG,NSUB)=0.D0
+          ENDDO
+          ISUB=NSUB
+C
+20        CONTINUE
+          IF (PARNAM(IPAR)(1:2).EQ.'SS')
+     1      SUBCOE(2,ISUB)=SUBCOE(2,ISUB)+XXX(IPAR)/1000.D0
+          IF (PARNAM(IPAR)(1:2).EQ.'SC')
+     1      SUBCOE(1,ISUB)=SUBCOE(1,ISUB)+XXX(IPAR)/1000.D0
+          IF (PARNAM(IPAR)(1:2).EQ.'US')
+     1      SUBCOE(4,ISUB)=SUBCOE(4,ISUB)+XXX(IPAR)/1000.D0
+          IF (PARNAM(IPAR)(1:2).EQ.'UC')
+     1      SUBCOE(3,ISUB)=SUBCOE(3,ISUB)+XXX(IPAR)/1000.D0
+        ENDIF
+C
+      ENDDO
+C
+C WRITE NEW NUTATION MODEL FILE
+C -----------------------------
+      CALL GTFLNA(0,'SUBSAV ',FILSAV,IRCSAV)
+C
+      IF (IRCSAV.EQ.0) THEN
+        CALL WTSUBM(FILSAV,TITNEW,SUBNAM,SUBFAR,NSUB  ,SUBPER,
+     1              SUBMLT,SUBCOE)
+      ENDIF
+C
+C END
+C ---
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

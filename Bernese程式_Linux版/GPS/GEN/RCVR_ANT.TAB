@@ -1,0 +1,85 @@
+
++----------------------+-----------------------------------------------------+
+| ROGUE Receivers      |  Description                                        |
++----------------------+-----------------------------------------------------+
+| ROGUE SNR-8          |  2 unit rack-mounted (big Rogue)                    |
+| ROGUE SNR-800        |  1 unit rack-mounted (big Rogue)                    |
+| ROGUE SNR-8A         |  MiniRogue -- not CONAN compatible                  |
+| ROGUE SNR-8C         |  MiniRogue -- CONAN compatible                      |
+| ROGUE SNR-8000       |  TurboRogue (field unit)                            |
+| ROGUE SNR-8100       |  TurboRogue (rack mount)                            |
++----------------------+-----------------------------------------------------+
+| ROGUE Antennae       |  Description                                        |
++----------------------+-----------------------------------------------------+
+| DORNE MARGOLIN R     |  Antenna with chokering for Rogues (JPL design)     |
+| DORNE MARGOLIN B     |  Antenna with chokering for Rogues (AOA design)     |
+| DORNE MARGOLIN T     |  Antenna with chokering for TurboRogues             |
++----------------------+-----------------------------------------------------+
+
++----------------------+-----------------------------------------------------+
+| TRIMBLE Receivers    |  Description                                        |
++----------------------+-----------------------------------------------------+
+| TRIMBLE 4000S        |                                                     |
+| TRIMBLE 4000SE       |                                                     |
+| TRIMBLE 4000SL       |                                                     |
+| TRIMBLE 4000ST       |                                                     |
+| TRIMBLE 4000SX       |                                                     |
+| TRIMBLE 4000SLD      |  Dual freq. L1 c/a; L2 squaring                     |
+| TRIMBLE 4000SST      |  Dual freq. L1 c/a; L2 squaring; L2 p-code optional |
+| TRIMBLE 4000SSE      |  Dual freq. p-code on  L1 and L2; xcr Y-code        |
++----------------------+-----------------------------------------------------+
+| TRIMBLE Antennae     |  Description                                        |
++----------------------+-----------------------------------------------------+
+| 4000SE INTERNAL      |                                                     |
+| 4000SL MICRO         |  (Round)                                            |
+| 4000SLD L1/L2        |  Dual freq. geodetic receiver (SLD series)          |
+| 4000ST INTERNAL      |                                                     |
+| 4000ST KINEMATIC     |  Single freq. without a ground plane                |
+| 4000ST L1 GEODETIC   |  To use with single freq. geodetic receiver         |
+| 4000ST L1/L2 GEOD    |  Dual freq. geodetic receiver (SST/SSE series)      |
+| 4000SX MICRO         |  (Square)                                           |
+| TR GEOD L1/L2 GP     |  Geodetic L1/L2 compact; ground plane included      |
+| TR GEOD L1/L2 W/O GP |  Geodetic L1/L2 compact; ground plane removed       |
+| M-PULSE L1/L2 SURVEY |  MicroPulse L1/L2 GPS Surveying Antenna 90LL12300   |
++----------------------+-----------------------------------------------------+
+
++----------------------+-----------------------------------------------------+
+| MINIMAC Receivers    |  Description                                        |
++----------------------+-----------------------------------------------------+
+| MINIMAC 2816AT       |  Rack-mounted (used in CIGNET and NIED)             |
+| MINIMAC 2816         |  Field unit                                         |
++----------------------+-----------------------------------------------------+
+| MINIMAC Antennae     |  Description                                        |
++----------------------+-----------------------------------------------------+
+| MACROMETER X-DIPOLE  |  Crossed-dipole antenna with large ground plane     |
+| MINIMAC PATCH        |  Patch antenna                                      |
++----------------------+-----------------------------------------------------+
+
++----------------------+-----------------------------------------------------+
+| ASHTECH Receivers    |  Description                                        |
++----------------------+-----------------------------------------------------+
+| ASHTECH xxxxxxxx     |  xxxxxxxx is the receiver type to be found in the   |
+|                      |  receiver-generated S-file, e.g. LM-XII3 or L-XII   |
++----------------------+-----------------------------------------------------+
+| ASHTECH Antennae     |  Description                                        |
++----------------------+-----------------------------------------------------+
+| GEODETIC L1/L2 L     |  Dual freq. with ground plane (LD-XII & MD-XII)     |
+| GEODETIC L1/L2 P     |  Dual freq. with ground plane (P-12)                |
+| DORNE MARGOLIN ASH   |  Antenna with chokering (Ashtech design)            |
+| MARINE/RANGE         |  Single freq. with a smaller ground plane           |
+| A-C L1               |  Single freq. w/o ground plane for aircraft use     |
+| A-C L1/L2            |  Dual freq. without ground plane for aircraft use   |
++----------------------+-----------------------------------------------------+
+
++----------------------+-----------------------------------------------------+
+| LEICA Receivers      |  Description                                        |
++----------------------+-----------------------------------------------------+
+| SR299                |  Geodetic receiver, internal antenna                |
+| SR299E               |  Geodetic receiver, external antenna                |
++----------------------+-----------------------------------------------------+
+| LEICA Antenna        |  Description                                        |
++----------------------+-----------------------------------------------------+
+| INTERNAL             |  Internal antenna of SR299 receiver                 |
+| EXTERNAL WITH GP     |  External antenna of SR299E  with groundplane       |
+| EXTERNAL WITHOUT GP  |  External antenna of SR299E, without groundplane    |
++----------------------+-----------------------------------------------------+

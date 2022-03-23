@@ -1,0 +1,80 @@
+      MODULE s_WTSATH
+      CONTAINS
+
+C*
+      SUBROUTINE WTSATH(FILCLK,LFN   ,TITLE )
+CC
+CC NAME       :  WTSATH
+CC
+CC PURPOSE    :  WRITE HEADER OF SATELLITE CLOCK FILE
+CC
+CC PARAMETERS :
+CC        IN  :  FILCLK : SATELLITE CLOCK FILE NAME             CH*(*)
+CC               LFN    : LOGICAL FILE NUMBER FOR SAT.CLK FILE   I*4
+CC                        = -1: USE LFNLOC AS LFN AND CLOSE FILE
+CC                              AFTER READING THE HEADER
+CC                        >= 0: LFN IS USED FOR OPENING THE FILE
+CC                              AND FILE STAYS OPEN AFTER READING
+CC                              THE HEADER
+CC               TITLE  : TITLE IN SATELLITE CLOCK FILE         CH*80
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  4.1
+CC
+CC CREATED    :  19-AUG-98
+CC
+CC CHANGES    :  20-MAY-03 : HU: OPEN FILENAME LENGTH
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1998     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE s_opnfil
+      USE s_opnerr
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IOSTAT, LFN
+C
+CCC       IMPLICIT REAL*8(A-H,O-Z)
+C
+      CHARACTER*80  TITLE
+      CHARACTER*(*)  FILCLK
+C
+C
+C OPEN SATELLITE CLOCK FILE
+C -------------------------
+      CALL OPNFIL(LFN,FILCLK,'UNKNOWN','FORMATTED',' ',' ',IOSTAT)
+      CALL OPNERR(LFNERR,LFN,IOSTAT,FILCLK,'WTSATH')
+C
+C READ TITLE LINES AND SUBDAILY ERP MODEL NAME
+C --------------------------------------------
+      WRITE(LFN,1,ERR=920) TITLE
+1     FORMAT(A80,/,80('-'),//,
+     1       'SAT WEEK   TOC   #PAR     A0 (SEC)       A1 (SEC/SEC)',
+     2       '    A2 (SEC/SEC**2)',/)
+C
+      GOTO 999
+C
+C ERROR READING FILE
+C ------------------
+920   WRITE(LFNERR,921) TRIM(FILCLK)
+921   FORMAT(/,' *** SR WTSATH: ERROR WRITING HEADER OF FILE',
+     1       /,16X,'FILE NAME: ',A,/)
+      CALL EXITRC(2)
+C
+C END
+C ---
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

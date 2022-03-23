@@ -1,0 +1,28 @@
+package KINPRE;
+@ISA = ("RUNBPE");
+# ----------------------------------------------------------------------------
+#
+# Name:      KINPRE
+#
+# Purpose:   Execute KINPRE
+#
+# PARAMs  :
+#
+# Authors:   H. Bock
+# Created:   28-May-2004
+#
+# Changes:
+#
+# ----------------------------------------------------------------------------
+use strict;
+
+sub run
+{
+  my $s = shift;
+
+# Run program KINPRE
+# --------------------
+  my $PGMNAM = "KINPRE";
+  $s->RUN_PGMS($PGMNAM);
+
+}

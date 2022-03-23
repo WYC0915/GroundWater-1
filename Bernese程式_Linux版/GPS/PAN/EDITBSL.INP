@@ -1,0 +1,23 @@
+
+BASLINRS     0
+  ## widget = comment
+
+MSG_BASLINRS 1 "Filename"
+
+STABSL     1  "" ""
+  ## widget = uniline
+  ## check_strlen.1 = 16
+  ## check_strlen.2 = 16
+  ## numlines = 15
+
+MSG_STABSL 1 "Station name 1 and Station name 2"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CREATE/UPDATE BASELINE DEFINITION FILE - EDITBSL                             #
+#                                                                              #
+#  Filename > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # BASLINRS
+#                                                                              #
+# > Station_name_1__ Station_name_2__      <                                   # STABSL
+#                                                                              #
+# END_PANEL ####################################################################

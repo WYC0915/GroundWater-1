@@ -1,0 +1,13 @@
+IGS05 VELOCITIES EXTRACTED FROM IGS05.SNX                            02-MAR-2010
+--------------------------------------------------------------------------------
+LOCAL GEODETIC DATUM: IGS05           
+
+NUM  STATION NAME           VX (M/Y)       VY (M/Y)       VZ (M/Y)  FLAG   PLATE
+
+ 26  AUCK 50209M001          -0.0239        -0.0023         0.0325    IT05 AUST
+110  FAIR 40408M001          -0.0420        -0.0197         0.0098    IT05 NOAM
+306  OHIG 66008M001           0.0193        -0.0026        -0.0004    IT05 ANTA
+412  THU1 43001M001          -0.0218        -0.0047         0.0061    IT05 NOAM
+485  WTZR 14201M010          -0.0151         0.0173         0.0114    IG05 EURA
+
+ 

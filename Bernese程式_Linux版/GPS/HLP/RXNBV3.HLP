@@ -1,0 +1,170 @@
+<html>
+<body>
+
+<center>
+<b>TRANSFER RINEX NAVIGATION FILES TO BERNESE FORMAT</b>
+<p>Program: RXNBV3
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program is used to transfer GPS RINEX navigation files into the Bernese
+broadcast file format.
+<br>
+The broadcast orbits may then be converted to tabular orbits using the
+program
+<a href="PGMLST.HLP#BRDTAB">BRDTAB</a>. It is recommended to check the
+entries using the program <a href="PGMLST.HLP#BRDTST">BRDTST</a> beforehand.
+<br>
+For GLONASS use the program <a href="PGMLST.HLP#RXNPRE">RXNPRE</a> to
+convert the GLONASS RINEX navigation messages to precise orbit format.
+The same program may also be used for GPS RINEX navigation messages.
+
+<p><hr>
+
+<p><b>RXNBV3 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="BRDFIL" default="????$S+0"></a>
+<p><b>INPUT FILES:</b>
+<p><b>RINEX navigation file(s):</b>
+In this field you have to select the GPS RINEX navigation files.
+Several files
+may be selected in the same program run. One Bernese broadcast file will be
+created for each RINEX navigation file.
+The input files have the
+default extension <tt>yyN</tt> where yy is the two digit year of the default
+session. Select the default session in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>.
+
+<p><i>Remark:</i>
+If you have RINEX navigation messages from different sites
+you may concatenate them using the program
+<a href="PGMLST.HLP#CCRINEXN">CCRINEXN</a> before running this transfer
+program.
+
+<p><i>Default value:</i> <tt>????$S+0</tt>
+
+<br><br>
+
+<a name="OUTFIL" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>Broadcast file:</b>
+You may enter the broadcast output filename here. In this case it is
+not permitted to select more than one input file.
+<br>
+If you leave this field blank the Bernese broadcast files obtain the
+same names as the RINEX navigation files (but a different extension,
+default BRD).
+
+<p><i>Default value:</i> blank
+
+<a name="DCBOUT" default=""></a>
+<p><b>Code bias output file:</b>
+GPS broadcast group delay (GD) values can be saved in a Bernese differential
+code bias (DCB) file.
+Note that GD values divided by -1.55 give, what we call, <nobr>P1-P2</nobr>
+DCB values.
+
+<p><i>Default value: </i> blank
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="RXNBV3"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="TITLE" default="">
+<p><b>TITLE:</b></a>
+<p>
+This title line will be printed as header comment into the program output
+and will be saved in all the result files to document the program run.
+
+<p><hr>
+
+<p><b>RXNBV3 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems concerning modeling.
+It is used for exclusion of misbehaving satellites
+(and for orbit arc splitting).
+It may also contain (mean) epochs of GPS repositioning events.
+
+<p><i>Note:</i>
+Corresponding year-specific files are maintained by AIUB/CODE.
+You can get the latest version of the current file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SAT_2011.CRX">$X/GEN/SAT_2011.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<p><hr>
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+#!/bin/sh
+# ==============================================================================
+#
+# PROGRAM   : UPPERC
+#
+# PURPOSE   : CONVERT ALL FILENAMES IN CURRENT DIRECTORY
+#             INTO UPPERCASE LETTER FILENAMES
+#
+# PARAM     : ---
+#
+# REMARKS   : ---
+#
+#
+# AUTHOR    : H. FRIEDHOFF
+#
+# VERSION   : 3.3
+#
+# CREATED   : 17-OCT-91
+#
+# CHANGES   : __-___-__ : __:
+#
+# COPYRIGHT : ASTRONOMICAL INSTITUTE
+#      1991   UNIVERSITY OF BERN
+#             SWITZERLAND
+#
+# ==============================================================================
+
+# LOOP OVER ALL FILES
+# -------------------
+  for name in `ls`; do
+
+# TRANSLATE PARAMETER INTO UPPERCASE LETTERS
+# ------------------------------------------
+    FNEU=`echo ${name} | tr [a-z] [A-Z]`
+
+# RENAME FILE
+# -----------
+    if [ $name != $FNEU ]; then
+      mv ${name} ${FNEU}
+    fi
+
+  done
+
+# ==============================================================================

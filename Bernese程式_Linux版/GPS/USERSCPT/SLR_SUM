@@ -1,0 +1,120 @@
+package SLR_SUM;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  SLR_SUM
+#
+# Purpose :  Create SLRVAL BPE processing summary file
+#
+# PARAMs  :
+#
+# Author  :  D. Thaller
+# Created :  08-Mar-2012
+#
+# Changes :  29-Oct-2012 DT: Consider CRD format
+#
+# ============================================================================
+use strict;
+
+use File::Basename;
+
+use lib $ENV{BPE};
+use bpe_util qw(timprt appFile);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyddd, $yyyy, $yy, $ddd,
+      $A, $orb, $G, $Q,
+      $orbExt, $leo,    $satSel,
+      $npDir,  $NPnam,  $satInf, $pcvInf, $pcv, $satcrx,
+      $refDir, $crdInf, $blqInf,
+      $sav,    $result,
+      $dirOut, $dirFix, $dirCrd, $dirSta, $dirBlq,
+      $extOut, $extFix, $extCrd, $extSta, $extBlq, $extCrx) =
+    $bpe->getKeys('$YD+0', '$Y+0', '$Y', '$+0',
+      'V_A', 'V_O1', 'V_G', 'V_Q',
+      'V_ORBEXT', 'V_LEO',    'V_SATSEL',
+      'V_NPDIR',  'V_NP',     'V_SATINF', 'V_PCVINF', 'V_PCV', 'V_SATCRX',
+      'V_REFDIR', 'V_CRDINF', 'V_BLQINF',
+      'V_SAV',    'V_RESULT',
+      'DIR_OUT',  'DIR_FIX', 'DIR_CRD',  'DIR_STA', 'DIR_BLQ',
+      'EXT_OUT',  'EXT_FIX', 'EXT_CRD',  'EXT_STA', 'EXT_BLQ', 'EXT_CRX');
+
+  $refDir = '${D}/' . $refDir . '/';
+
+# Initialize processing summary file
+# ----------------------------------
+  my $prcFil = "${dirOut}SLRVAL${yyddd}.PRC";
+  unlink $prcFil;
+  appFile("SLRVAL BPE PROCESSING SUMMARY FOR YEAR-SESSION $yy-$ddd",
+    1,"",$prcFil,0);
+
+# Report the BPE settings
+# -----------------------
+  open(PRC,">> $prcFil");
+  print PRC "Summary file generated at ",timprt()," by SLR_SUM\n\n";
+  print PRC "General files:\n";
+  print PRC "   Antenna phase center eccentricity file:   ${pcvInf}.${pcv}\n";
+  print PRC "   Satellite information file:               ${satInf}.${pcv}\n";
+  print PRC "   Satellite problem file:                   ${satcrx}.${extCrx}\n";
+#
+  print PRC "\nOrbits to be validated:\n";
+  print PRC "   Orbit and ERP products used from:         \${D}/$orb\n";
+  print PRC "   Type of orbit used:                       ${orbExt}\n";
+#
+  print PRC "\nObservation selection:\n";
+  print PRC "   Normal point file copied from:            \${D}/${npDir}/${NPnam}\n";
+  print PRC "   Normal point file:                        ${NPnam}.\$Y\$M\$D\n";
+  print PRC "   Satellite selection file:                 ",
+            $satSel ne "" ? basename($dirFix)."/${satSel}.${extFix}" : "", "\n";
+#
+  print PRC "\nReference frame and station related files:\n";
+  print PRC "   Station related files used from:          ${refDir}\n";
+  print PRC "   Station coordinates / velocities:         ${crdInf}\n";
+  print PRC "   Station information file:                 ",
+            $crdInf ne "" ? basename($dirSta)."/${crdInf}.${extSta}" : "", "\n";
+  print PRC "   Ocean tidal loading table:                ",
+            $blqInf ne "" ? basename($dirBlq)."/${blqInf}.${extBlq}" : "", "\n";
+#
+  print PRC "\nOther options from PCF:\n";
+  if ( $leo eq "Y" ) {
+    print PRC "   Processing LEO satellites activated:      YES\n";
+  } else {
+    print PRC "   Processing LEO satellites activated:      NO\n";
+  }
+#
+  print PRC "\nStoring the results:\n";
+  if ( uc $sav eq "Y" ) {
+    my $dirSav = '${S}/' . $result . "/$yyyy/";
+    print PRC "   Protocol file saved to:                   ${dirSav}\n";
+  } else {
+    print PRC "   The results have not been copied into the product database.\n";
+  }
+
+  print PRC"\n\n";
+  close PRC;
+
+
+# Append protocol files
+# ---------------------
+  my $sumFil  = "";
+  my $sumFil2 = "";
+
+# - Import of SLR observations: Quicklook or CRD
+  $sumFil  = "${dirOut}QRX${yyddd}.${extOut}";
+  $sumFil2 = "${dirOut}CRX${yyddd}.${extOut}";
+  if (-e $sumFil) {
+    appFile("PART 1: SLR OBSERVATION IMPORT (QL)",2,$sumFil,$prcFil,1);
+  }
+  elsif (-e $sumFil2) {
+    appFile("PART 1: SLR OBSERVATION IMPORT (CRD)",2,$sumFil2,$prcFil,1);
+  }
+
+# - SLR residual statistics summary
+  $sumFil = "${dirOut}${Q}_${yyddd}.OUT";
+  appFile("PART 2: SLR RESIDUAL STATISTICS SUMMARY",2,$sumFil,$prcFil,1);
+
+}

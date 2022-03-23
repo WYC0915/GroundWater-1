@@ -1,0 +1,30 @@
+package JUMP;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  JUMP
+#
+# Purpose :  Jump to specified PID
+#
+# PARAMs  :  PARAM2. - PID where to go
+#
+# Author  :  R. Dach
+# Created :  06-Dec-2007
+#
+# Changes :  11-Aug-2011 RD: Updated for version 5.2
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util;
+
+sub run {
+  my $bpe = shift;
+
+
+# Write the "next jobs" statement
+# -------------------------------
+  if (defined($$bpe{PARAM2})) { $bpe->PRT_GOTO($$bpe{PARAM2}) }
+
+}

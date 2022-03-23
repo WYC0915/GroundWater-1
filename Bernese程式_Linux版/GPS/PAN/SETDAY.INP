@@ -1,0 +1,71 @@
+
+! -------------------------------------------------------------------
+! Input File for SETDAY
+! -------------------------------------------------------------------
+! Environment Variables
+! ---------------------
+ENVIRONMENT 6
+  "U" "/home/ubelix/aiub/hpfaiub/GPSUSER"
+  "T" "/scratch/global/hpfaiub"
+  "X" "/home/ubelix/aiub/aiub_datapool/software/BERN/GPS"
+  "P" "/home/ubelix/aiub/hpfaiub/GPSDATA"
+  "K" "/home/ubelix/aiub/aiub_u_camp"
+  "Q" "/home/ubelix/aiub/aiub_routine"
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! Doy, empty or zero: current day, negative: relative to current day
+! -------------------------------------------------------------------
+DOY 0
+  ## widget = lineedit
+
+! Year, empty or -1: current year
+! -------------------------------
+YEAR 0
+  ## widget = lineedit
+
+! -------------------------------------------------------------------
+! Files
+! -------------------------------------------------------------------
+! Leap seconds
+! ------------
+GPSUTC 1 "${X}/GEN/GPSUTC."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  # GPSUTC.
+
+! Output MS-DOS (do not modify)
+! -------------
+MSDOS 1 "SETDAY.COM"
+  ## widget = lineedit
+
+! Output VAX (do not modify)
+! ----------
+VAX 1 "SETDAY.COM"
+  ## widget = lineedit
+
+! Output UNIX-SH (do not modify)
+! --------------
+UNIX_SH 1 "SETDAY.COM"
+  ## widget = lineedit
+
+! Output UNIX-CSH (do not modify)
+! ---------------
+UNIX_CSH 1 "SETDAY.CSH"
+  ## widget = lineedit
+
+! Output PERL (do not modify)
+! -----------
+PERL 1 "SETDAY.pl"
+  ## widget = lineedit
+
+
+! Program Output File
+! -------------------
+SYSOUT 1  "SETDAY.OUT"
+  ## widget = lineedit
+  #
+
+! Error Message File
+! ------------------
+SYSERR 0
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  # 

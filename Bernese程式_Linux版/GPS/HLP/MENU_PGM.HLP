@@ -1,0 +1,276 @@
+<html>
+<body>
+
+<center>
+<b>PROGRAM NAMES</b>
+<br>&nbsp;
+</center>
+<hr width="100%">
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+This configuration file defines the options for running the Fortran programs
+of the Bernese GNSS Software and the path to the executables.
+In addition the names of the programs are assigned to the menu items.
+<br>
+It is expected that for each program an input file and a help
+file exist in the proper directories which have the same name as the program
+with the appropriate extension.
+
+<p><hr>
+
+<p><b>Options</b>
+
+<a name="MAXJOBNUM" default="99"></a>
+<p><b>AUTOMATIC GENERATION OF PROGRAM OUTPUT FILE NAMES</b>
+<p><b>Maximum program output file number:</b>
+The names of the program output files of the Bernese programs may be generates
+automatically by adding the extension <tt>Lnn</tt> to the program name.
+'nn' is a counter which is automatically incremented for each program
+run. If the counter reaches the maximum value specified here, it
+is automatically reset, and existing files will be overwritten.
+<br>
+If the maximum program output file number is larger than 99 the
+extension is the three digit number <tt>nnn</tt>.
+
+<p><i>Default value:</i> <tt>99</tt>
+
+<br><br>
+
+<a name="CMD_PATH" default="${XG}"></a>
+<p><b>OPTIONS TO RUN THE FORTRAN PROGRAMS</b>
+<p><b>Default program path to the executables:</b>
+Specify the path where the menu system will find the Fortran
+program executables. System environment variables may be used (enclosed in
+curly brackets).
+
+<p><i>Caution:</i>
+The default value should <b>NOT</b> be changed by the user.
+
+<p><i>Default value:</i> <tt>${XG}</tt>
+
+<br><br>
+
+<a name="CMD_FOREGROUND" default="1"></a>
+<p><b>Run Fortran programs in foreground:</b>
+Default mode to run programs from the menu. The menu is blocked as long
+as the program runs.
+<br>
+It is the only mode that is available for WINDOWS-platforms. Alternatives
+for UNIX-platforms are described below.
+
+<p><i>Default value:</i> marked
+
+<a name="CMD_BACKGROUND" default="0"></a>
+<p><b>Run Fortran programs in background:</b>
+Check this box to run the programs in background. The menu will return to
+accept user input immediately after starting the program. When running the
+program in foreground the menu remains suspended until the program terminates.
+<br>
+This option is ignored on WINDOWS-platforms.
+
+<p><i>Remark:</i>
+If you are running more than one program at the same time
+or one program several times in parallel please take care that you are using
+individual output and temporary files for each run. Otherwise unpredictable
+output may result due to interference of the programs. Check in particular
+the names for the error messages file or the temporary files.
+You may use the job ID <tt>$J</tt> to generate different file names
+(define the job ID in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>).
+
+<p><i>Default value:</i> unmarked
+
+<a name="CMD_USE_CPUFILE" default="0"></a>
+<a name="CPU_FILE" default="UNIX"></a>
+<a name="CMD_CPUNAME" default=""></a>
+<a name="CMD_LOGFILE" default=""></a>
+<p><b>Use CPU File to Run programs:</b>
+If you are working on a system with a job queuing/distribution system you
+may also run a single program from the menu in this system. The command
+is specified in a CPU-file (as it is also used for the BPE). You can select
+a <b>CPU Name</b> (from the CPUs specified in the CPU-file) and the name of
+the <b>Log File</b> collecting all output.
+The only difference to the usage of the CPU-file for BPE-usage is that you
+have to run the script ${XQ}/start_pgm.sh instead of ${BPE}/RUNBPE.pm:
+<pre>
+LIST OF CPUS
+  CPU      Command to call                                                                                 Speed    Maxj Jobs Wait 
+  RSH_PGM  rsh host ${XQ}/start_pgm.sh &lt;COMMAND&gt; &lt;ARGV&gt; &gt;&gt; &lt;LOG&gt; 2&gt;&amp;1 &amp;          2    0    0
+</pre>
+The job commands are constructed like for the BPE.
+Remember, that the resulting command needs to run in the background.
+For more details on setup CPU-file entries we refer to the
+<a href="CPU.HLP#LIST_OF_CPUS">corresponding help</a>.
+<br>
+This option is ignored on WINDOWS-platforms.
+
+<p><i>Remark:</i>
+If you are running more than one program at the same time
+or one program several times in parallel please take care that you are using
+individual output and temporary files for each run. Otherwise unpredictable
+output may result due to interference of the programs. Check in particular
+the names for the error messages file or the temporary files.
+You may use the job ID <tt>$J</tt> to generate different file names
+(define the job ID in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>).
+
+<p><i>Default value:</i> unmarked
+
+<a name="SPECIAL_PATH" default="%% %%"></a>
+<p><b>Special path for individual programs:</b>
+If you want to run user programs (specified in "ADDITIONAL USER PROGRAMS")
+or an individual test version of a Bernese program which is not located
+in the "Default program path to the executables" (specified above) you may
+define an individual
+path for these programs here. Type the program name (assigned to the menu items
+in the following list) and the corresponding special path into one line.
+System environment
+variables may be used in curly brackets for the specification of the path.
+
+<p><i>Remark:</i>
+Be careful in using this feature!
+
+<p><i>Remark on BPE:</i>
+The special path may be used for the Fortran programs
+called in the user scripts of the BPE, too. In this case the path has to be
+specified in the corresponding options directory
+(default: <tt>${U}/OPT/***/MENU_PGM.INP</tt>).
+
+<p><i>Default value:</i> blank
+
+<p><hr>
+
+<!-- Input panel names in alphabetic order -->
+<a name="ABBREV_INP"   default="EDITABB"></a>
+<a name="ADDNEQ2_INP"  default="ADDNEQ2"></a>
+<a name="ATX2PCV_INP"  default="ATX2PCV"></a>
+<a name="BASLST_INP"   default="BASLST"></a>
+<a name="BRDTAB_INP"   default="BRDTAB"></a>
+<a name="BRDTST_INP"   default="BRDTST"></a>
+<a name="BV3RXN_INP"   default="BV3RXN"></a>
+<a name="BV3RXO_INP"   default="BV3RXO"></a>
+<a name="CCPREORB_INP" default="CCPREORB"></a>
+<a name="CCRINEXG_INP" default="CCRINEXG"></a>
+<a name="CCRINEXN_INP" default="CCRINEXN"></a>
+<a name="CCRINEXO_INP" default="CCRINEXO"></a>
+<a name="CCRNXC_INP"   default="CCRNXC"></a>
+<a name="CHGHED_INP"   default="CHGHED"></a>
+<a name="CHNGEN_INP"   default="CHNGEN"></a>
+<a name="CLKEST_INP"   default="CLKEST"></a>
+<a name="CODSPP_INP"   default="CODSPP"></a>
+<a name="CODXTR_INP"   default="CODXTR"></a>
+<a name="COMPAR_INP"   default="COMPAR"></a>
+<a name="COOSYS_INP"   default="COOSYS"></a>
+<a name="COOVEL_INP"   default="COOVEL"></a>
+<a name="CPFSP3_INP"   default="CPFSP3"></a>
+<a name="CRDMRG_INP"   default="CRDMERGE"></a>
+<a name="DEFXTR_INP"   default="DEFXTR"></a>
+<a name="EDITBSL_INP"  default="EDITBSL"></a>
+<a name="EDITCLU_INP"  default="EDITCLU"></a>
+<a name="EDITCRD_INP"  default="EDITCRD"></a>
+<a name="EDITECC_INP"  default="EDITECC"></a>
+<a name="EDITFIX_INP"  default="EDITFIX"></a>
+<a name="EDITPCF_INP"  default="EDITPCF"></a>
+<a name="EDITPLD_INP"  default="EDITPLD"></a>
+<a name="EDITSIG_INP"  default="EDITSIG"></a>
+<a name="EDITSOS_INP"  default="EDITSOS"></a>
+<a name="EDITVEL_INP"  default="EDITVEL"></a>
+<a name="EDSTACRX_INP" default="EDITSTA"></a>
+<a name="ETRS89_INP"   default="ETRS89"></a>
+<a name="FMTOBS_INP"   default="FMTOBS"></a>
+<a name="FMTRES_INP"   default="FMTRES"></a>
+<a name="FMTSTD_INP"   default="FMTSTD"></a>
+<a name="FODITS_INP"   default="FODITS"></a>
+<a name="GPSEST_INP"   default="GPSEST"></a>
+<a name="GPSSIM_INP"   default="GPSSIM"></a>
+<a name="GPSXTR_INP"   default="GPSXTR"></a>
+<a name="GRDS1S2_INP"  default="GRDS1S2"></a>
+<a name="HELMERT_INP"  default="HELMR1"></a>
+<a name="IONEST_INP"   default="IONEST"></a>
+<a name="IRV2STV_INP"  default="IRV2STV"></a>
+<a name="KINPRE_INP"   default="KINPRE"></a>
+<a name="LEOAUX_INP"   default="LEOAUX"></a>
+<a name="MAUPRP_INP"   default="MAUPRP"></a>
+<a name="MKCLUS_INP"   default="MKCLUS"></a>
+<a name="MPRXTR_INP"   default="MPRXTR"></a>
+<a name="NEQ2ASC_INP"  default="NEQ2ASC"></a>
+<a name="NEWCAMP_INP"  default="NEWCAMP"></a>
+<a name="NUVELO_INP"   default="NUVELO"></a>
+<a name="OBSFMT_INP"   default="OBSFMT"></a>
+<a name="OBSSPL_INP"   default="OBSSPL"></a>
+<a name="ORBCMP_INP"   default="ORBCMP"></a>
+<a name="ORBGEN_INP"   default="ORBGEN"></a>
+<a name="POLUPD_INP"   default="POLUPD"></a>
+<a name="POLXTR_INP"   default="POLXTR"></a>
+<a name="PRETAB_INP"   default="PRETAB"></a>
+<a name="PREWEI_INP"   default="PREWEI"></a>
+<a name="QLRINEXO_INP" default="QLRINEXO"></a>
+<a name="QLRSUM_INP"   default="QLRSUM"></a>
+<a name="REDISP_INP"   default="REDISP"></a>
+<a name="RESCHK_INP"   default="RESCHK"></a>
+<a name="RESFMT_INP"   default="RESFMT"></a>
+<a name="RESRMS_INP"   default="RESRMS"></a>
+<a name="RNX2STA_INP"  default="RNX2STA"></a>
+<a name="RNXCLK_INP"   default="RNXCLK"></a>
+<a name="RNXGRA_INP"   default="RNXGRA"></a>
+<a name="RNXSMT_INP"   default="RNXSMT"></a>
+<a name="RUNBPE_INP"   default="RUNBPE"></a>
+<a name="RXMBV3_INP"   default="RXMBV3"></a>
+<a name="RXNBV3_INP"   default="RXNBV3"></a>
+<a name="RXNPRE_INP"   default="RXNPRE"></a>
+<a name="RXOBV3_INP"   default="RXOBV3"></a>
+<a name="SATCLK_INP"   default="SATCLK"></a>
+<a name="SATGRA_INP"   default="SATGRA"></a>
+<a name="SATMRK_INP"   default="SATMRK"></a>
+<a name="SNGDIF_INP"   default="SNGDIF"></a>
+<a name="SNX2NQ0_INP"  default="SNX2NQ0"></a>
+<a name="SNX2SLR_INP"  default="SNX2SLR"></a>
+<a name="SNX2STA_INP"  default="SNX2STA"></a>
+<a name="SP3CPF_INP"   default="SP3CPF"></a>
+<a name="STA2STA_INP"  default="STA2STA"></a>
+<a name="STAMERGE_INP" default="STAMERGE"></a>
+<a name="STDDIF_INP"   default="STDDIF"></a>
+<a name="STDELE_INP"   default="STDELE"></a>
+<a name="STDFMT_INP"   default="STDFMT"></a>
+<a name="STDPRE_INP"   default="STDPRE"></a>
+<a name="TROTRO_INP"   default="TROTRO"></a>
+<a name="UPDPAN_INP"   default="UPDPAN"></a>
+<a name="VELDIF_INP"   default="VELDIF"></a>
+<p><b>Menu</b>
+<p>
+These input fields are used to assign the names of the standard Bernese
+programs to the corresponding menu items. It is expected that the executables
+of the Fortran programs and the corresponding input and help files
+have the same names with proper path and extensions.
+
+<p><i>Caution:</i>
+The default values should <b>NOT</b> be changed by the user.
+
+<p><hr>
+
+<a name="USER1_INP"  default=""></a>
+<a name="USER2_INP"  default=""></a>
+<a name="USER3_INP"  default=""></a>
+<a name="USER4_INP"  default=""></a>
+<a name="USER5_INP"  default=""></a>
+<a name="USER6_INP"  default=""></a>
+<a name="USER7_INP"  default=""></a>
+<a name="USER8_INP"  default=""></a>
+<a name="USER9_INP"  default=""></a>
+<a name="USER10_INP" default=""></a>
+<p><b>ADDITIONAL USER PROGRAMS</b>
+<p>
+You may include more programs into the menu of the Bernese GNSS Software
+Version 5. Enter the name of your program into one of these input fields
+to make them available in the <b>Menu &gt; User</b> submenu.
+<br>
+It is expected that the executable, the input file, and the help file
+have the same locations and extensions as the standard Bernese programs.
+To specify a special path to the executable you may use the option "Special
+path for individual programs" (see above).
+
+<p><hr>
+
+</body>
+</html>

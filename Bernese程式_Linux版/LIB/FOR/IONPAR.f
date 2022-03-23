@@ -1,0 +1,170 @@
+      MODULE s_IONPAR
+      CONTAINS
+
+C*
+      SUBROUTINE IONPAR(NFIL,TIMRES,NEPOS,IDELTS,XSTELS,IDEVLA,IDEVHA,
+     1                  IDEVMI,IONDEV,LOCQ,NIONP,MODNR)
+CC
+CC NAME       :  IONPAR
+CC
+CC PURPOSE    :  COMPUTE START AND END OF MODEL APPLICABILITY;
+CC               COMPUTE ORIGIN OF TAYLOR SERIES DEVELOPMENT
+CC               FOR THE ELECTRON CONTENT; DEFINE NUMBER AND
+CC               SEQUENCE OF IONOSPHERE PARAMETERS (ARRAY LOCQ)
+CC
+CC PARAMETERS :
+CC         IN :  NFIL   : NUMBER OF FILES FOR CURRENT SESSION I*4
+CC               TIMRES : REFERENCE EPOCHS
+CC                        TIMRES(I),I=1,NFIL                  I*4(*)
+CC               NEPOS  : NUMBER OF EPOCHS
+CC                        NEPOS(I),I=1,NFIL                   I*4(*)
+CC               IDELTS : SAMPLING INTERVAL
+CC                        IDELTS(I),I=1,NFIL                  I*4(*)
+CC               XSTELS : STATION COORDINATES (ELLIPSOIDAL)
+CC                        XSTELS(I,J,K),I=1,3,J=1,2,K=1,NNFIL R*8(*,*,*)
+CC               IDEVLA : DEGREE OF DEVELOPMENT IN LATITUDE   I*4
+CC               IDEVHA :   "           "          HOUR ANGLE I*4
+CC               IDEVMI :   "           "          MIXED      I*4
+CC        OUT :  IONDEV : IONOSPHERE MODEL INFORMATION
+CC                        IONDEV(I,J),I=1,8, J=1,MAXMOD       R*8(*,*)
+CC               LOCQ   : DEFINITION OF EACH PARAMETER
+CC                        LOCQ(I,J),I=1,MAXLCQ, J=1,MAXPAR    I*4(*,*)
+CC               NIONP  : NUMBER OF IONOSPHERE PARAMETERS     I*4
+CC               MODNR  : MODEL NUMBER                        I*4
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  U. WILD
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  89/08/11 11:37
+CC
+CC CHANGES    :  10-AUG-94 : MR: CALL EXITRC
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1989     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+C*
+      USE m_bern
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IDEVHA, IDEVLA, IDEVMI, IFIL  , IFIRST, IHOUR ,
+     1          ILAT  , ILCQ  , IPAR  , MODNR , MXCFIL, MXCLCQ, MXCMOD,
+     2          MXCPAR, MXCTRM, NFIL  , NIONP
+C
+      REAL*8    TEND  , TIMMAX, TIMMIN, TSTART
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+C COMMONS
+C -------
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+      COMMON/MCMPAR/MXCPAR,MXNPAR
+      COMMON/MCMFIL/MXCFIL,MXNFIL
+      COMMON/MCMMOD/MXCMOD,MXNMOD
+      COMMON/MCMTRM/MXCTRM,MXNTRM
+C
+C DECLARATIONS
+C ------------
+      REAL*8        TIMRES(MXCFIL),XSTELS(3,2,MXCFIL),IONDEV(8,MXCMOD)
+      REAL*8        ORI(2)
+C
+      INTEGER*4     NEPOS(MXCFIL),IDELTS(MXCFIL)
+      INTEGER*4     LOCQ(MXCLCQ,MXCPAR)
+C
+      CHARACTER*6   MXNLCQ,MXNPAR,MXNFIL,MXNMOD,MXNTRM
+C
+C LOGICAL FILE NUMBERS
+C --------------------
+C
+      DATA  IFIRST/1/
+C
+C INITIALIZATION
+C --------------
+      TIMMIN = 1.D20
+      TIMMAX = -1.D20
+      ORI(1) = 0.D0
+      ORI(2) = 0.D0
+      DO 10 ILCQ = 1,MXCLCQ
+        DO 10 IPAR = 1,MXCPAR
+          LOCQ(ILCQ,IPAR) = 0
+10    CONTINUE
+C
+      IF (IFIRST .EQ. 1) THEN
+        MODNR = 0
+        IFIRST = 0
+      ENDIF
+C
+C COMPUTE START/END OF MODEL APPLICABILITY / DEVELOPMENT ORIGIN
+C -------------------------------------------------------------
+      DO 20 IFIL = 1,NFIL
+C
+        DO 25 I = 1,2
+          ORI(I) = ORI(I) + XSTELS(I,1,IFIL)
+25      CONTINUE
+C
+        TEND=TIMRES(IFIL)+(NEPOS(IFIL)*IDELTS(IFIL))/86400.D0
+        TSTART=TIMRES(IFIL)
+        IF (TSTART .LT. TIMMIN) TIMMIN = TSTART
+        IF (TEND   .GT. TIMMAX) TIMMAX = TEND
+C
+20    CONTINUE
+C
+C SET IONOSPHERE MODEL PARAMETERS
+C -------------------------------
+      MODNR = MODNR + 1
+C
+      IF (MODNR .GT. MXCMOD) THEN
+        WRITE(LFNERR,21) MODNR,MXCMOD
+21      FORMAT(/,' *** SR IONPAR: TOO MANY MODELS',/,
+     1                           16X,'NUMBER OF MODELS:',I6,/,
+     2                           16X,'MAXIMUM NUMBER  :',I6,/)
+        CALL EXITRC(2)
+      END IF
+C
+      IONDEV(1,MODNR) = ORI(1)/NFIL
+      IONDEV(2,MODNR) = (TIMMIN+TIMMAX)/2
+      IONDEV(3,MODNR) = ORI(2)/NFIL
+      IONDEV(4,MODNR) = TIMMIN - 1.D0/24.D0
+      IONDEV(5,MODNR) = TIMMAX + 1.D0/24.D0
+      IONDEV(6,MODNR) = 1.D17
+      IONDEV(7,MODNR) = 6.D0
+      IONDEV(8,MODNR) = 2.D0
+C
+C DEFINE SEQUENCE OF IONOSPHERE PARAMETERS
+C ----------------------------------------
+      IPAR = 0
+      DO 30 ILAT=0,IDEVLA
+        DO 40 IHOUR=0,IDEVHA
+          IF(ILAT+IHOUR.GT.IDEVMI) GOTO 30
+          IPAR=IPAR+1
+C
+          IF (IPAR .GT. MXCTRM) THEN
+            WRITE(LFNERR,35) MODNR,IPAR,MXCTRM
+35          FORMAT(/,' *** SR IONPAR: TOO MANY IONOS. PARAMETERS',/,
+     1                           15X,'MODEL NUMBER   :',I3,/,
+     2                           15X,'NUMBER OF PARA.:',I3,/,
+     3                           15X,'MAXIMUM NUMBER :',I3,/)
+            CALL EXITRC(2)
+          ENDIF
+C
+          LOCQ(1,IPAR)=7
+          LOCQ(2,IPAR)=MODNR
+          LOCQ(3,IPAR)=ILAT
+          LOCQ(4,IPAR)=IHOUR
+40      CONTINUE
+30    CONTINUE
+      NIONP = IPAR
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

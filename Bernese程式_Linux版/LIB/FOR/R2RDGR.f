@@ -1,0 +1,165 @@
+      MODULE s_R2RDGR
+      CONTAINS
+
+C*
+      SUBROUTINE R2RDGR(LFNNAV,LFNERR,IRXVRS,PRGNAM,ISVN,EPHDAT,IRCODE)
+CC
+CC NAME       :  R2RDGR
+CC
+CC PURPOSE    :  READ  OBSERVATION RECORDS OF A
+CC               RINEX GLONASS NAVIGATION MESSAGE FILE
+CC
+CC PARAMETERS :
+CC         IN :  LFNNAV : LOGICAL FILE NUMBER                  I*4
+CC               LFNERR : LFN FOR ERROR MESSAGES               I*4
+CC               IRXVRS : RINEX VERSION NUMBER                 I*4
+CC               PRGNAM : RINEX CREATION PROGRAM NAME         CH*(*)
+CC        OUT :  ISVN   : PRN OF SATELLITE + 100               I*4
+CC               EPHDAT : VECTOR WITH MESSAGE DATA             R*8(*)
+CC                        EPHDAT( 1)=TB UTC
+CC                        EPHDAT( 2)=-TAU N    (A0)
+CC                        EPHDAT( 3)=GAMMA N   (A1)
+CC                        EPHDAT( 4)=TK (SECONDS INTO CURRENT UTC DAY)
+CC                        EPHDAT( 5)=X0
+CC                        EPHDAT( 6)=X1
+CC                        EPHDAT( 7)=X2
+CC                        EPHDAT( 8)=BN (C/A CODE ONLY)
+CC                        EPHDAT( 9)=Y0
+CC                        EPHDAT(10)=Y1
+CC                        EPHDAT(11)=Y2
+CC                        EPHDAT(12)=FREQUENCY NUMBER
+CC                        EPHDAT(13)=Z0
+CC                        EPHDAT(14)=Z1
+CC                        EPHDAT(15)=Z2
+CC                        EPHDAT(16)=E (AGE OF OPER. INFORMATION)
+CC               IRCODE : RETURN CODE                          I*4
+CC                        0: OK
+CC                        3: END OF FILE WITHIN OBS.RECORD
+CC                        4: ERROR DECODING DATA
+CC                        5: START OF NEW HEADER FOUND
+CC                        9: END OF FILE
+CC
+CC REMARKS    :
+CC
+CC AUTHOR     :  W. GURTNER, H. HABRICH
+CC
+CC VERSION    :  4.1  (FEB 97)
+CC
+CC CREATED    :  26-FEB-97
+CC
+CC CHANGES       21-JAN-98 : WG: ALLOW FOR "FLOATING" VERSION NUMBER
+CC                               VERSIONS <=2.00: CHANGE SIGN OF EPHDAT(3)
+CC               13-MAR-98 : DI: INCLUDE 'PRGNAM'
+CC               01-JUL-99 : PF: CALL IYEAR4 FOR CONVERSION YY->YYYY
+CC               04-JAN-02 : HU: REMOVE ^M
+CC               01-MAR-02 : DI: ADD ERR= TO ALL READ STATEMENTS
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               24-MAY-07 : AG: FUNCTION PRN2PRN ADDED
+CC               19-Sep-10 : RD: FORMAT STATEMENTS FOR MESSAGES
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1997     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE f_djul
+      USE f_iyear4
+      USE f_prn2prn
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IDAY  , IHOUR , IRCODE, IRVERS, IRXVRS, ISVN  ,
+     1          ITEST , IYEAR , K     , LFNERR, LFNNAV, MINUTE,
+     2          MONTH
+C
+      REAL*8    DAY   , SEC
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+C GLOBAL DECLARATIONS
+C -------------------
+      REAL*8       EPHDAT(*)
+C
+C  LOCAL DECLARATIONS
+C  ------------------
+      CHARACTER    STRING*80
+      CHARACTER    PRGNAM*(*)
+C
+      IF(IRXVRS.LT.100) THEN
+        IRVERS=IRXVRS*100
+      ELSE
+        IRVERS=IRXVRS
+      END IF
+C
+C RECORD 1
+200   READ(LFNNAV,222,END=990,ERR=940) STRING
+222   FORMAT(A80)
+      IF(STRING(1:1).EQ.CHAR(0)) GOTO 200
+      IF(STRING.EQ.' ') GOTO 200
+      IF(STRING(61:80).EQ.'RINEX VERSION / TYPE') GOTO 950
+      READ(STRING,1,ERR=940) ISVN,IYEAR,MONTH,IDAY,IHOUR,MINUTE,SEC,
+     1                       (EPHDAT(K),K=2,4)
+1     FORMAT(I2,5I3,F5.1,3D19.12)
+C
+      IF(IRVERS.LE.200) THEN
+        EPHDAT(3)=-EPHDAT(3)
+C
+C       RINEX FILE FROM TERRASAT (LANDAU) SOFTWARE
+C       ------------------------------------------
+        IF (PRGNAM(1:9).EQ.' TERRASAT') THEN
+          EPHDAT(2)=-EPHDAT(2)
+          EPHDAT(3)=-EPHDAT(3)
+        ENDIF
+      ENDIF
+C
+C ADD 100 TO SATELLITE NUMBER
+      ISVN=ISVN+100
+      DAY=IDAY+IHOUR/24.D0+MINUTE/1440.D0+SEC/86400.D0
+      IYEAR = IYEAR4(IYEAR)
+      EPHDAT(1)=DJUL(IYEAR,MONTH,DAY)
+C RENAME SAT IF NECESSARY
+      ISVN=PRN2PRN(ISVN,EPHDAT(1))
+C
+C RECORDS 2-4 (4)
+      DO 20 I=5,13,4
+        READ(LFNNAV,222,END=930,ERR=940) STRING
+C REMOVE ^M
+        ITEST=INDEX(STRING,CHAR(13))
+        IF(ITEST.GT.0)STRING(ITEST:ITEST)=' '
+        READ(STRING,2,ERR=940) (EPHDAT(K),K=I,I+3)
+2       FORMAT(3X,4D19.12)
+20    CONTINUE
+C
+      IRCODE=0
+      GOTO 999
+C
+C  END OF FILE WITHIN OBS.RECORD
+930   IRCODE=3
+      WRITE(LFNERR,931)
+931   FORMAT(/,' SR R2RDGR: END OF FILE WITHIN OBS.RECORD',/)
+      GOTO 999
+C
+C  ERROR DECODING DATA
+940   IRCODE=4
+      WRITE(LFNERR,941) STRING(1:79)
+941   FORMAT(/,' SR R2RDGR: ERROR DECODING DATA ON THE FOLLOWING LINE:',
+     1       /,1X,A,/)
+      GOTO 999
+C
+C  START OF NEW HEADER FOUND
+950   IRCODE=5
+      BACKSPACE LFNNAV
+      WRITE(LFNERR,951) STRING(1:79)
+951   FORMAT(/,' SR R2RDGR: START OF A NEW HEADER FOUND:',
+     1       /,1X,A,/)
+      GOTO 999
+C
+C  END OF FILE
+990   IRCODE=9
+      GOTO 999
+C
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

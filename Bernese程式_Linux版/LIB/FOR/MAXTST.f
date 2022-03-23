@@ -1,0 +1,75 @@
+      MODULE s_MAXTST
+      CONTAINS
+
+C*
+      SUBROUTINE MAXTST(IGT,SRNAME,MXNAME,MAXDIM,MXCDIM,IRC)
+CC
+CC NAME       :  MAXTST
+CC
+CC PURPOSE    :  CHECK LOCAL MAXIMUM DIMENSIONS
+CC
+CC PARAMETERS :
+CC         IN :  IGT    : INDEX, HOW MAXIMUM DIMENSIONS ARE   I*4
+CC                        CHECKED  =0: DIMENSIONS MUST BE EQUAL
+CC                                 =1: LOCAL DIMENSION MUST BE
+CC                                     GREATER/EQUAL THAN GLOBAL DIM.
+CC               SRNAME : SUBROUTINE NAME                     CH*6
+CC               MXNAME : NAME OF THE VARIABLE CONTAINING     CH*6
+CC                        THE MAXIMUM DIMENSION
+CC               MAXDIM : MAXIMUM DIMENSION IN SUBROUTINE     I*4
+CC               MXCDIM : MAXIMUM DIMENSION IN MAIN PROGRAM   I*4
+CC                        (COMMON)
+CC        OUT :  IRC    : RETURN CODE                         I*4
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/11 12:15
+CC
+CC CHANGES    :  21-JUN-05 : MM: COMLFNUM.INC REMOVED, M_BERN ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               11-MAR-10 : SL: ONLY ADDED TO USE M_BERN
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern,    ONLY: lfnErr
+
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IGT   , IRC   , MAXDIM, MXCDIM
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+      CHARACTER*6 SRNAME,MXNAME
+C
+C CHECK, IF MAXIMUM LOCAL DIMENSION GREAT ENOUGH
+C ----------------------------------------------
+      IF(IGT.EQ.0.AND.MAXDIM.NE.MXCDIM) THEN
+        IRC=1
+        WRITE(LFNERR,1) SRNAME,MXNAME,MAXDIM,MXCDIM
+1       FORMAT(/,' *** SR ',A6,': LOCAL MAXIMUM DIMENSION NOT EQUAL',/,
+     1                     16X,'TO MAXIMUM GLOBAL DIMENSION',/,
+     2                     16X,'MAXIMUM DIMENSION VARIABLE    : ',A6,/,
+     3                     16X,'MAX. DIMENSION IN SUBROUTINE  : ',I6,/,
+     4                     16X,'MAX. DIMENSION IN MAIN PROGRAM: ',I6,/)
+      ELSE IF(IGT.EQ.1.AND.MAXDIM.LT.MXCDIM) THEN
+        IRC=1
+        WRITE(LFNERR,2) SRNAME,MXNAME,MAXDIM,MXCDIM
+2       FORMAT(/,' *** SR ',A6,': LOCAL MAXIMUM DIMENSION TOO SMALL',/,
+     1                     16X,'MAXIMUM DIMENSION VARIABLE    : ',A6,/,
+     2                     16X,'MAX. DIMENSION IN SUBROUTINE  : ',I6,/,
+     3                     16X,'MAX. DIMENSION IN MAIN PROGRAM: ',I6,/)
+      ELSE
+        IRC=0
+      ENDIF
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

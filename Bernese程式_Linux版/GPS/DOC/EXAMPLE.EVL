@@ -1,0 +1,45 @@
+
+FODITS - TIME SERIES EVENT LIST FILE
+------------------------------------
+If created by FODITS this file contains all parameters of the functional model.
+If created by the user this file allows it to test, set, or remove parameters in the functional model.
+
+The first 50 lines may contain an header. The file begins with EVL at the beginning of the line.
+Empty lines are skipped. No alphabetical order of stations mandatory.
+Blanks in 'From Epoch', 'To Epoch' means open. Wrong blanks are reported as error and the program FODITS stops.
+Blanks in 'Periods' means all functional period defined in the PANEL.
+Blanks in 'Amplitude' means estimate it. Non-blanks in 'Amplitude' means set exactly the given values.
+
+Description:
+------------
+Flg :   - NEW, tested by FODITS, removed if non-significant.
+        - SET, tested by FODITS, but always significant.
+        - NOT, interval of no events (Evnt).
+
+Evnt:   - JUMP, discontinuity (use 'Form Epoch').
+        - VELO, velocity change (use 'From Epoch').
+        - OUTL, outlier (use 'From Epoch' for one outlier, use both 'From Epoch' and 'To Epoch' for a sequence).
+        - PERI, functional period ('From Epoch' and 'To Epoch' are optional, 'Period' must be defined).
+
+-----------------------------------------------------------------------------------------------------------------
+EVL                        From Epoch           To Epoch             Period      Amplitude [m]           Remark
+STATION NAME     Flg Evnt  YYYY-MM-DD HH:MM:SS  YYYY-MM-DD HH:MM:SS  DDDD.DDDD   North   East    Up      RRRRRRRR
+-----------------------------------------------------------------------------------------------------------------
+ACOR 13434M001   NEW JUMP  2006-11-01 06:00:00                                   0.0098 -0.0050  0.0211  EVL-JUMP
+ACOR 13434M001   NEW OUTL  2006-11-01 06:00:00                                                           EVL-OUTL
+ACOR 13434M001   NEW OUTL  2007-03-21 18:00:00                                                           SNOW ANT
+ACOR 13434M001   NEW OUTL  2007-03-28 12:00:00                                   0.0060  0.0026  0.0192  EVL-OUTL
+ACOR 13434M001   SET PERI                                             365.2500   0.0004  0.0011  0.0016  EVL-PERI
+ACOR 13434M001   NEW PERI                                             182.6250   0.0008  0.0004  0.0008  EVL-PERI
+
+AJAC 10077M005   NEW JUMP  2006-11-01 06:00:00                                                           EVL-JUMP
+AJAC 10077M005   NEW OUTL  2005-11-15 06:00:00                                  -0.0005 -0.0020  0.0122  EVL-OUTL
+AJAC 10077M005   NEW OUTL  2006-11-01                                                                    RAIN
+AJAC 10077M005   SET PERI                                             365.2500   0.0011  0.0004  0.0008  EVL-PERI
+AJAC 10077M005   NEW PERI                                             182.6250   0.0006  0.0003  0.0001  EVL-PERI
+AJAC 10077M005   NOT PERI  2006-11-15 06:00:00 2007-11-15 06:00:00    182.6250                           EVL-PERI
+
+ALAC 13433M001   NEW JUMP  2006-02-22 06:00:00                                                           EVL-JUMP
+ALAC 13433M001   NOT PERI                      2007-11-15 06:00:00                                       MULTIPAT
+...
+

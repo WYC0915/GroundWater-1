@@ -1,0 +1,715 @@
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! Campaign
+! --------
+CAMPAIGN     0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+CAMPGN     0
+  ## widget = lineedit
+
+MSG_CAMPGN 1 "Campaign"
+
+! Show general files
+! ------------------
+SHOWGEN     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+! General Constants
+! -----------------
+CONST     1  "CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_CONST 1  "General constants"
+
+! Local Geodetic Datum
+! --------------------
+DATUM     1  "DATUM."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_DATUM 1  "Geodetic datum"
+
+! Satellite Information
+! ---------------------
+SATELL     1  "SATELLIT.I08"
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_SATELL 1  "Satellite information"
+
+! Satellite Problems
+! ------------------
+SATCRUX     1  "SAT_$Y+0"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_CRX; maxfiles = 1
+
+DESCR_SATCRUX 1  "Satellite problems"
+
+! Pole File
+! ---------
+POLE     0
+  ## widget = selwin; path = DIR_ERP; ext = EXT_ERP; maxfiles = 1
+
+DESCR_POLE 1  "Pole file"
+
+! Subdaily Pole Model
+! -------------------
+SUBMOD     1  "IERS2010XY"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_SUB; maxfiles = 1
+
+DESCR_SUBMOD 1  "Subdaily pole model"
+
+! Nutation Model
+! -------------------
+NUTMOD     1  "IAU2000R06"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_NUT; maxfiles = 1
+
+DESCR_NUTMOD 1  "Nutation model"
+
+! Receiver table
+! --------------
+RECEIVR     1  "RECEIVER."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_RECEIVR 1  "Receiver information"
+
+! Phase Center Eccentricities
+! ---------------------------
+PHASECC     1  "PCV.I08"
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+MSG_PHASECC 1  "Phase center eccentricities"
+
+! Station Name Abbreviations
+! --------------------------
+ABBREV     1  "ABBREV"
+  ## widget = selwin; path = DIR_ABB; ext = EXT_ABB; maxfiles = 1
+
+DESCR_ABBREV 1  "Abbreviation table"
+
+! Frequency Information
+! ---------------------
+FRQINFO     0
+  ## widget = selwin; path = PTH_GEN; ext = EXT_FRQ; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_FRQINFO 1  "Frequency information"
+
+! Antenna Orientations
+! --------------------
+ANTAZI     0
+  ## widget = selwin; path = DIR_AZI; ext = EXT_AZI; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_ANTAZI 1  "Antenna orientations"
+
+! Kinem. Coordinates (input)
+! --------------------------
+KININP     0
+  ## widget = selwin; path = DIR_KIN; ext = EXT_KIN; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_KININP 1  "Kinematic input coordinates"
+
+! LEO Kinematic velocities
+! ------------------------
+KINVEL     0
+  ## widget = selwin; path = DIR_KVL; ext = EXT_KVL; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_KINVEL 1  "Kinematic velocities"
+
+! Standard Orbits
+! ---------------
+STDORB     0
+  ## widget = selwin; path = DIR_STD; ext = EXT_STD; maxfiles = 1
+
+DESCR_STDORB 1  "GNSS Standard orbit"
+
+! Satellite Clocks
+! ----------------
+SATCLK     0
+  ## widget = selwin; path = DIR_CLK; ext = EXT_CLK; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_SATCLK 1  "Satellite clocks"
+
+! A priori Orbit for LEO
+! ----------------------
+LEOSTD     0
+  ## widget = selwin; path = DIR_STD; ext = EXT_STD; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_LEOSTD 1  "LEO standard orbit"
+
+! LEO attitude file
+! -----------------
+ATTIT     0
+  ## widget = selwin; path = DIR_ATT; ext = EXT_ATT; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_ATTIT 1  "LEO attitude"
+
+! Coordinate file for station
+! ---------------------------
+COORD     0
+  ## widget = selwin; path = DIR_CRD; ext = EXT_CRD; maxfiles = 1
+
+DESCR_COORD 1  "Coordinate file"
+
+! Station info
+! ------------
+STAINFO     0
+  ## widget = selwin; path = DIR_STA; ext = EXT_STA; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_STAINFO 1  "Station information"
+
+! Title
+! -----
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+!LEO-files:
+!---------
+LEOPROC     1  "0"
+  ## widget = checkbox
+
+MSG_LEOPROC 1  "LEO-files"
+
+! OUTPUT files:
+! -------------
+SYSODEF     1  "1"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "GPSSIM"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG     1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR     1  "ERROR"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+
+MSG_SYSERR 1  "Error message"
+
+ALLSTA     0
+  ## widget = selwin; menuaux = MENUAUX; action = STALST
+  ## menuauxkeys = CONST DATUM COORD
+
+SIMSTA     0
+  ## widget = selwin; pointer = ALLSTA
+
+MSG_SIMSTA 1  "Station selection"
+
+! Receiver clock
+! --------------
+RECCLK     0
+  ## widget = selwin; path = DIR_CLK; ext = EXT_CLK; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_RECCLK 1  "Receiver clocks"
+
+! Code Biases
+! -----------
+DCBINP     0
+  ## widget = selwin; path = DIR_DCB; ext = EXT_DCB; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_DCBINP 1  "Code bias input file"
+
+! Troposphere Estimates
+! ---------------------
+TROPEST     0
+  ## widget = selwin; path = DIR_TRP; ext = EXT_TRP; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_TROPEST 1  "Estimated troposphere values"
+
+! Meteo Data
+! ----------
+METFIL     0
+  ## widget = selwin; path = DIR_MET; ext = EXT_MET; emptyallowed = true
+
+DESCR_METFIL 1  "Meteo data files"
+
+! VMF grid files
+! --------------
+VMF1_FILES     0
+  ## widget = selwin; path = DIR_GRD; ext = EXT_GRD; emptyallowed = true
+
+MSG_VMF1_FILES 1 "Grid files for VMF"
+
+! Atm. loading grid files
+! -----------------------
+ALOAD_FILES     0
+  ## widget = selwin; path = DIR_GRD; ext = EXT_GRD; emptyallowed = true
+
+MSG_ALOAD_FILES 1 "Grid files for atmospheric pressure loading"
+
+! Ocean non-tidal loading grid files
+! ----------------------------------
+ONTLD_FILES     0
+  ## widget = selwin; path = DIR_GRD; ext = EXT_GRD; emptyallowed = true
+
+MSG_ONTLD_FILES 1 "Grid files for ocean non-tidal loading"
+
+! Hydrostatic loading grid files
+! ------------------------------
+HLOAD_FILES     0
+  ## widget = selwin; path = DIR_GRD; ext = EXT_GRD; emptyallowed = true
+
+MSG_HLOAD_FILES 1 "Grid files for hydrostatic pressure loading"
+
+! Ocean Loading Tables
+! --------------------
+OCNLOAD     0
+  ## widget = selwin; path = DIR_BLQ; ext = EXT_BLQ; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_OCNLOAD 1  "Ocean loading corrections"
+
+! Atmospheric Tidal Loading Tables
+! --------------------------------
+ATMLOAD     0
+  ## widget = selwin; path = DIR_ATL; ext = EXT_ATL; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_ATMLOAD 1 "Atmospheric loading corrections"
+
+! Ionosphere Models
+! -----------------
+IONOS     0
+  ## widget = selwin; path = DIR_ION; ext = EXT_ION; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_IONOS 1  "Ionosphere models"
+
+! Observation files
+! -----------------
+CODSEL     1  "1"
+  ## widget = checkbox
+
+MSG_CODSEL 1  "Observation simulation for Code"
+
+PHASEL     1  "1"
+  ## widget = checkbox
+
+MSG_PHASEL 1  "Observation Simulation for Phase"
+
+CSESS     1  "$S+0"
+  ## widget = lineedit
+
+MSG_CSESS 1  "Session for observation files"
+
+STAINFHLP     1  "" "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = SIMLST
+  ## menuauxkeys = CONST SIMSTA; updateifsave = true
+
+STAINF     1  "" "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = SIMLST
+  ## menuauxkeys = CONST SIMSTA STAINF; updateifsave = true
+  ## updateifchanged = STAINFHLP; check_strlen.2 = 13; check_strlen.3 = 20
+  ## check_type.4 = integer; check_min.4 = 0; check_max.4 = 999999
+  ## check_type.5 = integer; check_min.5 = 0; check_max.5 = 999999
+  ## check_strlen.6 = 20; editable.1 = false; editable = false
+  ## numlines = 20
+
+MSG_STAINF 1  "Select Observation Simulation"
+
+OBSFIL     0
+
+OBSFIL_EXT_COL_1     0
+  ## widget = initmenu; pointer = EXT_CZH
+
+OBSFIL_PTH_COL_1     0
+  ## widget = initmenu; pointer = DIR_CZH
+
+OBSFIL_TXT_COL_1 1  "Observation header file"
+
+OBSFIL_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_CZO
+
+OBSFIL_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_CZO
+
+OBSFIL_TXT_COL_2 1  "Observation data file"
+
+OBSFIL_EXT_COL_3     0
+  ## widget = initmenu; pointer = EXT_PZH
+
+OBSFIL_PTH_COL_3     0
+  ## widget = initmenu; pointer = DIR_PZH
+
+OBSFIL_TXT_COL_3 1  "Observation header file"
+
+OBSFIL_EXT_COL_4     0
+  ## widget = initmenu; pointer = EXT_PZO
+
+OBSFIL_PTH_COL_4     0
+  ## widget = initmenu; pointer = DIR_PZO
+
+OBSFIL_TXT_COL_4 1  "Observation data file"
+
+! Observation Window
+! ------------------
+RADIO_1     1  "1"
+  ## widget = radiobutton; group = OBSWIN
+  ## radiokeys = SESSION_YEAR SESSION_STRG WINDOW
+
+MSG_RADIO_1 1  "Defined by year and session identifier"
+
+RADIO_2     1  "0"
+  ## widget = radiobutton; group = OBSWIN
+  ## radiokeys = STADAT STATIM ENDDAT ENDTIM CSESS
+
+MSG_RADIO_2 1  "Defined by start and end times"
+
+SESSION_YEAR     1  "$Y+0"
+  ## widget = lineedit; emptyallowed = false
+
+MSG_SESSION_YEAR 1  "Year for sessions def. the time window"
+
+SESSION_STRG     1  "$S+0"
+  ## widget = lineedit; emptyallowed = false
+
+MSG_SESSION_STRG 1  "Sessions defining the time window"
+
+! Use Obs. Window
+! ---------------
+STADAT     1  "$YMD_STR+0"
+  ## widget = lineedit; emptyallowed = false; check_type = date
+
+MSG_STADAT 1  "Start of time window (year month day)"
+
+STATIM     1  "00 00 00"
+  ## widget = lineedit; emptyallowed = false; check_type = time
+
+MSG_STATIM 1  "Start of time window (hour min. sec.)"
+
+ENDDAT     1  "$YMD_STR+0"
+  ## widget = lineedit; emptyallowed = false; check_type = date
+
+MSG_ENDDAT 1  "End of time window (year month day)"
+
+ENDTIM     1  "23 59 59"
+  ## widget = lineedit; emptyallowed = false; check_type = time
+
+MSG_ENDTIM 1  "End of time window (hour min. sec.)"
+
+! Input options
+! -------------
+INTER     1  "30"
+  ## widget = lineedit
+
+MSG_INTER 1  "Time between subsequent epochs"
+
+IELEV     1  "3"
+  ## widget = spinbox; range = -45 90 1
+
+MSG_IELEV 1  "Minimum elevation"
+
+SECIPL     1  "0"
+  ## widget = lineedit
+
+MSG_SECIPL 1  "Maximum clock interpolation interval"
+
+PRELJ2     1  "0"
+  ## widget = checkbox
+
+MSG_PRELJ2 1  "Per. Relativistic J2-Correction"
+
+MAXSVN     1  "12"
+  ## widget = spinbox; range = 0 50 1
+
+MSG_MAXSVN 1  "Maximum number of observed satellites"
+
+! Atmosphere: Tropospheric Model
+! ------------------------------
+TROPOS     1  "GMF"
+  ## widget = combobox; editable = false; activeif = TROPEST = _
+  ## cards = SAASTAMOINEN HOPFIELD NIELL GMF VMF DRY_SAAST DRY_HOPFIELD DRY_NIELL DRY_GMF DRY_VMF NONE
+
+MSG_TROPOS 1  "ZPD model and mapping function"
+
+! Ionospheric Model: currently commented in SR SMPRNG
+! -----------------
+IONO1     1  "0"
+  ## widget = lineedit; check_type = integer; activeif = IONOS = _
+
+MSG_IONO1 1  "Night time electron number"
+
+IONO2     1  "0"
+  ## widget = lineedit; check_type = integer; activeif = IONOS = _
+
+MSG_IONO2 1  "Day time electron number"
+
+IONO3     1  "0"
+  ## widget = lineedit; check_type = integer
+
+MSG_IONO3 1  "Variance of irreg. change of ionosphere content"
+
+IONREF     0
+  ## widget = selwin; maxfiles = 1; pointer = SIMSTA
+
+MSG_IONREF 1  "Reference station"
+
+! RMS
+! ---
+RMS1     1  "0.5"
+  ## widget = lineedit; check_type = real; check_min = 0
+
+MSG_RMS1 1  "A priori sigma code  L1"
+
+RMS2     1  "0.5"
+  ## widget = lineedit; check_type = real; check_min = 0
+
+MSG_RMS2 1  "A priori sigma code  L2"
+
+RMS3     1  "0.002"
+  ## widget = lineedit; check_type = real; check_min = 0
+
+MSG_RMS3 1  "A priori sigma phase L1"
+
+RMS4     1  "0.002"
+  ## widget = lineedit; check_type = real; check_min = 0
+
+MSG_RMS4 1  "A priori sigma phase L2"
+
+RMS1_LEO     1  "0.5"
+  ## widget = lineedit; activeif = LEOPROC = 1; check_type = real
+  ## check_min = 0
+
+MSG_RMS1_LEO 1  "A priori sigma code L1 for LEOs"
+
+RMS2_LEO     1  "0.5"
+  ## widget = lineedit; activeif = LEOPROC = 1; check_type = real
+  ## check_min = 0
+
+MSG_RMS2_LEO 1  "A priori sigma code L2 for LEOs"
+
+RMS3_LEO     1  "0.002"
+  ## widget = lineedit; activeif = LEOPROC = 1; check_type = real
+  ## check_min = 0
+
+MSG_RMS3_LEO 1  "A priori sigma phase L1 for LEOs"
+
+RMS4_LEO     1  "0.002"
+  ## widget = lineedit; activeif = LEOPROC = 1; check_type = real
+  ## check_min = 0
+
+MSG_RMS4_LEO 1  "A priori sigma phase L2 for LEOs"
+
+IXNUM     1  "111"
+  ## widget = lineedit
+
+MSG_IXNUM 1  "Initial integer random number"
+
+ICOELV     1  "1"
+  ## widget = checkbox
+
+MSG_ICOELV 1  "Elevation-dependent sigmas"
+
+LEOELV     1  "0"
+  ## widget = checkbox; activeif = LEOPROC = 1
+
+MSG_LEOELV 1  "Elevation-dependent sigmas for LEOs"
+
+! Cycle slips
+! -----------
+NSLIPS     1  "0"
+  ## widget = lineedit; check_type = integer; check_min = 0
+
+MSG_NSLIPS 1  "Introduce cycle slips per file"
+
+ISIZE     1  "100"
+  ## widget = lineedit; check_type = integer; check_min = 1
+  ## emptyallowed = false; activeif = NSLIPS / 0
+
+MSG_ISIZE 1  "Maximum size of slip"
+
+JL12EQ     1  "0"
+  ## widget = checkbox; activeif = NSLIPS / 0
+
+MSG_JL12EQ 1  "Same cycle slips in L1 and L2"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# GENERATE SIMULATED OBSERVATION DATA - GPSSIM 1: Filenames                    #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files  > % <                                              # SHOWGEN
+#                                                                              #
+# INPUT FILES                                                                  #
+#   GNSS Standard orbit > %%%%%%%% <       Satellite clocks      > %%%%%%%% <  # STDORB  SATCLK
+#   Pole file           > %%%%%%%% <       Receiver clocks       > %%%%%%%% <  # POLE    RECCLK
+#   Coordinate file     > %%%%%%%% <       Code bias input file  > %%%%%%%% <  # COORD   DCBINP
+#   Kin.inp. coordinates> %%%%%%%% <       Antenna orientations  > %%%%%%%% <  # KININP  ANTAZI
+#   Est.troposphere val.> %%%%%%%% <       Ionosphere models     > %%%%%%%% <  # TROPEST IONOS
+#   Meteo data files    > %%%%%%%% <       Ocean loading corr.   > %%%%%%%% <  # METFIL  OCNLOAD
+#   Maps of VMF1 coeff. > %%%%%%%% <       Atmospheric load. cor.> %%%%%%%% <  # VMF1_FILES ATMLOAD
+#                                                                              #
+#   Vienna grid files:                     Atmospheric press.load> %%%%%%%% <  # ALOAD_FILES
+#   Ocean non-tidal load> %%%%%%%% <       Hydrostatic press.load> %%%%%%%% <  # ONTLD_FILES HLOAD_FILES
+#                                                                              #
+#   LEO-files           > % <                                                  # LEOPROC
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output      > % < use GPSSIM.Lnn            or > %%%%%%%% <        # SYSODEF SYSOUT
+#   Error messages      > % < merged to program output  or > %%%%%%%% <        # ERRMRG SYSERR
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# GPSSIM 1.1: General Files                                                    #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants       > %%%%%%%%%%%% <                                   # CONST
+#   Geodetic datum          > %%%%%%%%%%%% <                                   # DATUM
+#   Subdaily pole model     > %%%%%%%%%%%% <                                   # SUBMOD
+#   Nutation model          > %%%%%%%%%%%% <                                   # NUTMOD
+#   Satellite information   > %%%%%%%%%%%% <                                   # SATELL
+#   Receiver information    > %%%%%%%%%%%% <                                   # RECEIVR
+#   Phase center offsets    > %%%%%%%%%%%% <                                   # PHASECC
+#   Satellite problems      > %%%%%%%%%%%% <                                   # SATCRUX
+#   Abbreviation table      > %%%%%%%%%%%% <                                   # ABBREV
+#   Station information     > %%%%%%%%%%%% <                                   # STAINFO
+#   Frequency information   > %%%%%%%%%%%% <                                   # FRQINFO
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL LEOPROC = 1 ######################################################
+# GPSSIM 1.2: LEO Options                                                      #
+#                                                                              #
+# LEO FILES                                                                          #
+#   LEO standard orbit   > %%%%%%%% <                                          # LEOSTD
+#   Kin. velocities      > %%%%%%%% <                                          # KINVEL
+#   LEO attitude         > %%%%%%%% <                                          # ATTIT
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# GPSSIM 2: Stations and Observation Window                                    #
+#                                                                              #
+# STATIONS                                                                     #
+#   Station selection       > %%%%%%%%%%%%%%%% <                               # SIMSTA
+#                                                                              #
+# OBSERVATION WINDOW                                                           #
+#                                                                              #
+#   > % < Defined by year and session identifier                               # RADIO_1
+#         Year  > %%%% <     Session > %%%% <                                  # SESSION_YEAR SESSION_STRG
+#                                                                              #
+#                                                                              #
+#   > % < Defined by start and end times                                       # RADIO_2
+#                 yyyy mm dd     hh mm ss           yyyy mm dd     hh mm ss    #
+#         Start > %%%%%%%%%% < > %%%%%%%% <   End > %%%%%%%%%% < > %%%%%%%% <  # STADAT STATIM ENDDAT ENDTIM
+#                                                                              #
+#                                                                              #
+#         > %%%% < Session for observation files                               # CSESS
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# GPSSIM 3.1: Simulation Options                                               #
+#                                                                              #
+# OBSERVATION FILE TYPES                                                       #
+#   Observation simulation for  Code > % <   Phase > % <   measurement type    # CODSEL PHASEL
+#                                                                              #
+# OBSERVATION HEADER FILE INFORMATION                                          #
+#   Campaign      > %%%%%%%% <                                                 # CAMPGN
+#                                                                              #
+#> Station_name____ Receiver_ Antenna_type____ #_Rec_ #_Ant_ Operator________     <# STAINF
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# GPSSIM 3.2: Simulation Options                                               #
+#                                                                              #
+# OBSERVATION SELECTION                                                        #
+#   Time between subsequent epochs         > %%%%%% <   seconds                # INTER
+#   Minimum elevation                      > %%%%% <    degrees                # IELEV
+#   Maximum clock interpolation interval   > %%%%%% <   seconds                # SECIPL
+#   Periodic relativistic J2-correction    > % <                               # PRELJ2
+#   Maximum number of observed satellites  > %%%%% <                           # MAXSVN
+#                                                                              #
+# TROPOSPHERE MODELING                                                         #
+#   ZPD model and mapping function         > %%%%%%%%%%%%% <                   # TROPOS
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# GPSSIM 3.3: Simulation Options                                               #
+#                                                                              #
+# IONOSPHERE MODELING                                                          #
+#   Night time electron number                       > %%%%% <  (10**16)       # IONO1
+#   Day time electron number                         > %%%%% <  (10**16)       # IONO2
+#                                                                              #
+# STOCHASTIC IONOSPHERE MODELING                                               #
+#   Variance of irreg. change of ionosphere content                            #
+#    in 1 min. at 200 km from the reference site     > %%%%% <  (10**16)       # IONO3
+#   Reference station                                > %%%%%%%%%%%%%%%%% <     # IONREF
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# GPSSIM 3.4: Simulation Options                                               #
+#                                                                              #
+# STATISTICAL INFORMATION               for stations       for LEOs            #
+#   A priori sigma code@ L1           > %%%%%%% <        > %%%%%%% <   meters  # RMS1   RMS1_LEO
+#   A priori sigma code@ L2           > %%%%%%% <        > %%%%%%% <   meters  # RMS2   RMS2_LEO
+#   A priori sigma phase L1           > %%%%%%% <        > %%%%%%% <   meters  # RMS3   RMS3_LEO
+#   A priori sigma phase L2           > %%%%%%% <        > %%%%%%% <   meters  # RMS4   RMS4_LEO
+#                                       (blank: no noise)                      #
+#                                                                              #
+#   Initial integer random number     > %%%%%%% <                              # IXNUM
+#   Elevation-dependent sigmas        > % <             > % <                  # ICOELV LEOELV
+#                                                                              #
+# SIMULATION OF CYCLE SLIPS                                                    #
+#   Introduce cycle slips per file    > %%%%%%% <                              # NSLIPS
+#   Maximum size of slip              > %%%%%%% <  cycles                      # ISIZE
+#   Same cycle slips in L1 and L2     > % <                                    # JL12EQ
+# END_PANEL ####################################################################

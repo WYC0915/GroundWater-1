@@ -1,0 +1,45 @@
+package RNXGRA;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  RNXGRA
+#
+# Purpose :  Execute RNXGRA
+#
+# Remark  :  delete incomplete RINEX observation files
+#            if the correspsonding option in RNXGRA is enabled
+#
+# PARAMs  :
+#
+# Author  :  M. Meindl
+# Created :  20-Oct-2003
+#
+# Changes :  11-Aug-2011 RD: Updated for version 5.2
+#            14-Jun-2013 RD: Call for "deleteFiles" corrected
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(deleteFiles);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyssss) = $bpe->getKeys('$YSS+0');
+
+# Run program
+# -----------
+  my $PGMNAM = "RNXGRA";
+  $bpe->RUN_PGMS($PGMNAM);
+
+# Delete incomplete RINEX observation files
+# -----------------------------------------
+  if ( $bpe->getKey("$ENV{U}/INP/RNXGRA.INP","GETLST") eq "1" ) {
+    my $delFil = $bpe->getKey("$ENV{U}/INP/RNXGRA.INP","DELFILE");
+    deleteFiles($bpe,$delFil,1);
+  }
+
+}

@@ -1,0 +1,127 @@
+<html>
+<body>
+
+<center>
+<b>CREATE/UPDATE STATION ECCENTRICITIES</b>
+<p>Editor: EDITECC
+</center>
+
+<hr width="100%">
+
+<a name="ENVIRONMENT" default="%% %%"></a>
+<a name="DATUM" default="DATUM."></a>
+<a name="COORD" default=""></a>
+<a name="ECCENRS" default=""></a>
+<a name="STAHLP_NEU" default="%% %% %% %% %% %%"></a>
+<a name="STAHLP_XYZ" default="%% %% %% %% %% %%"></a>
+<a name="NEWFILE" default=""></a>
+<a name="STALST" default=""></a>
+<a name="FILNAM1" default=""></a>
+<a name="FILNAM2" default=""></a>
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+The station eccentricity file contains local ties between the observed
+site (eccenter) and a site marker (center). The local ties can be specified
+either in a local system (north, east, up) or in the geocentric system
+(X, Y, Z). This
+input panel helps you to create or to edit this type of files.
+<br>
+To create a new station eccentricity file specify a new filename in the file
+selection dialogue. In this case you will be asked to select an existing
+coordinate file. Select a subset of the stations in
+this file to generate a template for the new station eccentricity file.
+
+<p><i>Remark:</i>
+The end of the station eccentricity file is indicated by a blank line.
+Lines below the blank line are ignored. If you use this input mask to edit a
+station eccentricity file these additional lines will be lost.
+If you want to keep them in the file you have to use an external text file
+editor.
+
+<p><hr>
+
+<p><b>CREATE A NEW STATION ECCENTRICITY FILE</b>
+
+<a name="STASEL" default=""></a>
+<p><b>Station list for eccentricity file:</b>
+Select the stations (taken from the coordinate file specified before)
+you want to add into the station eccentricity file.
+
+<a name="ECCTYP" default="LOCAL"></a>
+<p><b>Type of eccentricities:</b>
+Specify if you want to edit the eccentricities in the LOCAL system (N,E,H) or
+in the GEOCENTRIC system (X,Y,Z).
+
+<p><hr>
+
+<p><b>STATION ECCENTRICITIES (local)</b>
+
+<a name="TITLE1" default=""></a>
+<p><b>Title:</b>
+This title line will be saved in the file and should indicate where the
+eccentricities come from.
+
+<a name="DATUM1_STRG" default=""></a>
+<p><b>Geodetic datum:</b>
+Specify the geodetic datum. The datum has to be equal to the datum in
+the coordinate file used.
+<br>
+The specified geodetic datum must be contained in the "Geodetic datum" file
+(default: $X/GEN/DATUM.) you are using together with the station eccentricity
+file.
+
+<a name="STAECC_NEU" default="%% %% %% %% %% %%"></a>
+<p><b>Num:</b>
+Enter the eccenter station number.
+
+<p><b>Station name:</b>
+Enter the eccenter station name.
+
+<p><b>Center name:</b>
+Enter the name of the center station belonging to the eccenter station.
+
+<p><b>dN</b>, <b>dE</b>, <b>dH (meters):</b>
+Enter the eccentricities in the local system (North, East, Height)
+(directed from the center to the station). The eccentricities are
+added to the coordinates of the center station to obtain the eccenter
+station coordinates.
+
+<p><hr>
+
+<p><b>STATION ECCENTRICITIES (geocentric)</b>
+
+<a name="TITLE2" default=""></a>
+<p><b>Title:</b>
+This title line will be saved in the file and should indicate where the
+eccentricities come from.
+
+<a name="DATUM2_STRG" default=""></a>
+<p><b>Geodetic datum:</b>
+Specify the geodetic datum. The datum has to be equal to the datum in
+the coordinate file used.
+<br>
+The specified geodetic datum must be contained in the "Geodetic datum" file
+(default: $X/GEN/DATUM.) you are using together with the station eccentricity
+file.
+
+<a name="STAECC_XYZ" default="%% %% %% %% %% %%"></a>
+<p><b>Num:</b>
+Enter the eccenter station number.
+
+<p><b>Station name:</b>
+Enter the eccenter station name.
+
+<p><b>Center name:</b>
+Enter the name of the center station belonging to the eccenter station.
+
+<p><b>dX</b>, <b>dY</b>, <b>dZ (meters):</b>
+Enter the eccentricities in the geocentric system (X,Y,Z) (directed from the
+center to the station). The eccentricities are added to the coordinates
+of the center station to obtain the eccenter station coordinates.
+
+<p><hr>
+
+</body>
+</html>
+

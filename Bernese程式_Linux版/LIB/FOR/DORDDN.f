@@ -1,0 +1,69 @@
+      MODULE s_DORDDN
+      CONTAINS
+
+C*
+      SUBROUTINE DORDDN(X,N,INDEX)
+CC
+CC NAME       : DORDDN
+CC
+CC PURPOSE    : PUTS THE FIRST N ELEMENTS OF A VECTOR X IN
+CC              DESCENDING ORDER IN THE FOLLOWING MANNER:
+CC              THE INDEX OF THE LARGEST ELEMENT IS STORED IN
+CC              INDEX(1), THE INDEX OF THE SECOND-LARGEST ELEMENT
+CC              IS STORED IN INDEX(2) AND SO ON.
+CC              THE VECTOR X IS NOT CHANGED.
+CC
+CC PARAMETERS :
+CC         IN : X     : VECTOR                      R*8
+CC              N     : NUMBER OF ELEMENTS          I*4
+CC        OUT : INDEX : VECTOR (WITH INDICES)       I*4
+CC
+CC RESTRICTION: NONE
+CC
+CC AUTHOR     :
+CC
+CC CREATED    :  ??-???-??
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               19-JUL-10 : SL: TAB CHARACTERS REMOVED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1989     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+        IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+        INTEGER*4 I     , ILIMIT, IMAX  , INDEX , J     , N
+C
+        REAL*8    X     , XLIMIT, XMAX
+C
+CCC     IMPLICIT REAL*8 (A-H,O-Z)
+C
+        DIMENSION X(*),INDEX(*)
+C
+        ILIMIT=0
+        XLIMIT=1.7D37
+        DO 40 J=1,N
+          XMAX=-1.7D37
+          DO 20 I=1,N
+            IF(X(I).GT.XLIMIT) GOTO 20
+            IF(X(I).EQ.XLIMIT) GOTO 15
+            IF(X(I).LE.XMAX)   GOTO 20
+            XMAX=X(I)
+            IMAX=I
+            GOTO 20
+15          IF(I.GT.ILIMIT) GOTO 25
+20        CONTINUE
+          GOTO 30
+25        IMAX=I
+30        INDEX(J)=IMAX
+          XLIMIT=X(IMAX)
+          ILIMIT=IMAX
+40      CONTINUE
+        RETURN
+        END SUBROUTINE
+
+      END MODULE

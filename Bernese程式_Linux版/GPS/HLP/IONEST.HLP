@@ -1,0 +1,333 @@
+<html>
+<body>
+
+<center>
+<b>LOCAL IONOSPHERE MODEL ESTIMATION</b>
+<p>Program: IONEST
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<a name="IONTYP" default="1"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The purpose of the program IONEST is the estimation of local ionosphere
+models using the <nobr>geometry-free</nobr> (L4) linear combination of
+<nobr>zero-difference</nobr> phase (or code) measurements. The Vertical
+Total Electron Content (VTEC) is modeled by a <nobr>two-dimensional</nobr>
+Taylor series in a <nobr>Sun-fixed</nobr> reference frame.
+<br>
+Ionosphere model files are mainly used in the parameter estimation program
+<a href="PGMLST.HLP#GPSEST">GPSEST</a>,
+either to improve the ambiguity resolution or to
+reduce the scale factor caused by ionospheric refraction effects when
+not processing the <nobr>ionosphere-free</nobr> (L3) observable. The
+<nobr>pre-processing</nobr> program
+<a href="PGMLST.HLP#MAUPRP">MAUPRP</a>
+can handle ionosphere model files too.
+<br>
+To create more than one local ionosphere model per session, you have to
+split up the observation file(s) into <nobr>sub-sessions</nobr>, estimate
+a model per <nobr>sub-session</nobr>,
+and finally fit together the individual ionosphere model
+files to a common ionosphere file
+(see <a href="/$X/DOC/EXAMPLE1.ION">example file</a>).
+Note that the estimation of global (or regional) ionosphere models is
+supported by the program
+<a href="GPSEST.HLP">GPSEST</a>.
+An example file containing global models is given
+<a href="/$X/DOC/EXAMPLE2.ION">here</a>.
+
+<p><i>Note:</i>
+The program IONEST is not capable of processing GLONASS data.
+
+<p><hr>
+
+<p><b>IONEST 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="COORD" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Station coordinates:</b>
+Selection of a coordinate file which contains all the stations you are
+processing.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="ECCENT" default=""></a>
+<p><b>Station eccentricities:</b>
+Optionally a station coordinate eccentricity file may be specified
+containing local ties between markers.
+
+<p><a href="/$X/DOC/EXAMPLE.ECC">Example</a>
+
+<a name="STDORB" default=""></a>
+<p><b>Standard orbits:</b>
+Selection of one standard orbit file containing the information about
+the satellite positions.
+
+<a name="POLE" default=""></a>
+<p><b>Earth rotation parameters:</b>
+This file contains the Earth rotation parameters (ERP's). It is used for
+the transformations between the International Celestial Reference Frame
+(ICRF) and the International Terrestrial Reference Frame (ITRF). This
+file has to be identical to the one used for the computation of the standard
+orbit.
+
+<p><a href="/$X/DOC/EXAMPLE.ERP">Example</a>
+
+<a name="MEATYP" default="PHASE"></a>
+<p><b>Type of observations:</b>
+Either <nobr>zero-difference</nobr> phase or code measurements may be used.
+In case of processing code measurements, differential code biases (DCBs) are
+not taken into account.
+
+<p><i>Default value:</i> <tt>PHASE</tt>
+
+<a name="PHASFIL" default="????$S+0"></a>
+<a name="CODEFIL" default="????$S+0"></a>
+<p><b>Phase observations</b>/<b>Code observations:</b>
+Selection of the <nobr>zero-difference</nobr> phase (or code) file(s) to be
+processed. Several files of the same session may be processed in the
+same program run.
+
+<br><br>
+
+<a name="IONOSRS" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>Ionosphere model:</b>
+To save the estimated ionosphere model coefficients enter a file name
+here.
+
+<a name="RESIDRS" default=""></a>
+<p><b>Residuals:</b>
+The <nobr>zero-difference</nobr> L4 phase (or code) residuals are saved if
+you enter a file name here.
+Residuals may be written directly to the program output
+file by just activating the corresponding
+<a href="IONEST.HLP#PRINTRES">option</a>
+in the next panel.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT" default="IONEST"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>,
+option "Maximum program output file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>IONEST 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="SUBMOD" default="IERS2010XY"></a>
+<p><b>Subdaily pole model:</b>
+This file contains the parameters for the subdaily pole model. It
+has to be identical to the one used for the computation of the
+standard orbit.
+
+<p>Example: <a href="/$X/GEN/IERS2010XY.SUB">$X/GEN/IERS2010XY.SUB</a>
+
+<a name="NUTMOD" default="IAU2000R06"></a>
+<p><b>Nutation model:</b>
+This file contains the parameters for the nutation model. It
+has to be identical to the one used for the computation of the
+standard orbit.
+
+<p>Example: <a href="/$X/GEN/IAU2000R06.NUT">$X/GEN/IAU2000R06.NUT</a>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates. It is used
+to apply antenna heights and for the printing of coordinates in the
+local system (north, east, up). You only have to modify this file
+when you want to introduce a new reference ellipsoid.
+
+<p>Example: <a href="/$X/GEN/DATUM.">$X/GEN/DATUM.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems concerning modeling.
+It is used for exclusion of misbehaving satellites
+(and for orbit arc splitting).
+It may also contain (mean) epochs of GPS repositioning events.
+
+<p><i>Note:</i>
+Corresponding <nobr>year-specific</nobr> files are maintained by AIUB/CODE.
+You can get the latest version of the current file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SAT_2011.CRX">$X/GEN/SAT_2011.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<p><hr>
+
+<p><b>IONEST 2: Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<br><br>
+
+<a name="PRINTMES" default="0"></a>
+<p><b>PREPROCESSING</b>
+<p><b>Print messages:</b>
+<nobr>Satellite-specific</nobr> information concerning the preprocessing will
+be printed into the program output if desired.
+
+<p><i>Default value:</i> unmarked
+
+<a name="CARRIER" default="L4"></a>
+<p><b>Linear combination for break detection:</b>
+You may use either the <nobr>ionosphere-free</nobr> (L3) or the
+<nobr>geometry-free</nobr> (L4) linear combination for data cleaning.
+
+<p><i>Default value:</i> <tt>L4</tt>
+
+<a name="POLYNOM" default="1"></a>
+<p><b>Polynomial degree:</b>
+The same <nobr>pre-processing</nobr> algorithm is used as in the program
+<a href="PGMLST.HLP#MAUPRP">MAUPRP</a>
+(see <a href="MAUPRP.HLP#QQ1">option1</a> and
+<a href="MAUPRP.HLP#QQ2">option2</a>).
+A test is performed whether the <nobr>zero-difference</nobr> observations
+can be represented by a <nobr>low-degree</nobr> polynomial over a short
+time span. The degree of the polynomial is specified here.
+
+<p><i>Default value:</i> <tt>1</tt>
+
+<a name="TESTINT" default="4"></a>
+<p><b>Maximum interval for testing:</b>
+Maximum time interval for the break detection algorithm, should
+contain at least n+2 observation epochs, where n is the polynomial
+degree specified above (see also
+<a href="MAUPRP.HLP#MXINTR">MAUPRP</a>).
+
+<p><i>Default value:</i> <tt>4</tt>&nbsp;minutes
+
+<a name="RMSOBS" default="0.01"></a>
+<p><b>A priori sigma of a single observation:</b>
+This a priori standard deviation of the phase (or code) observations
+(see
+<a href="IONEST.HLP#MEATYP">type of observations</a>
+to be processed)
+is used for the statistical test
+in the <nobr>pre-processing</nobr> part.
+
+<p><i>Default value:</i> <tt>0.01</tt>&nbsp;meters (for phase observations)
+
+<br><br>
+
+<a name="PRINTRES" default="0"></a>
+<p><b>PROCESSING OPTIONS</b>
+<p><b>Print residuals:</b>
+If marked, the L4 phase (or code) residuals are printed
+into the program output. If you would like to save the residuals in a
+separate residual file, you should specify a
+<a href="IONEST.HLP#RESIDRS">residual output filename</a>
+(and mark this option).
+
+<p><i>Default value:</i> unmarked
+
+<a name="MINEL" default="15"></a>
+<p><b>Elevation cutoff angle:</b>
+Only phase (or code) measurements above the elevation cutoff angle
+specified here will be used for the estimation of the ionosphere
+model.
+
+<p><i>Default value:</i> <tt>15</tt>&nbsp;degrees
+
+<a name="HEIGHT" default="450"></a>
+<p><b>Height of the single layer:</b>
+A priori height of the single layer above the Earth's surface.
+
+<p><i>Default value:</i> <tt>450</tt>&nbsp;kilometers
+
+<a name="DEGLAT" default="1"></a>
+<p><b>Degree of development in latitude:</b>
+Maximum degree of pure latitude terms to be set up.
+
+<p><i>Default value:</i> <tt>1</tt>
+
+<a name="DEGHOUR" default="2"></a>
+<p><b>Degree of development in hour angle:</b>
+Maximum degree of pure longitude terms to be set up.
+
+<p><i>Default value:</i> <tt>2</tt>
+
+<a name="DEGMIXED" default="2"></a>
+<p><b>Maximum degree in mixed coefficients:</b>
+Coefficients of the <nobr>two-dimensional</nobr> Taylor series, where
+the sum of both indices exceeds this value, will not be estimated.
+
+<p><i>Default value:</i> <tt>2</tt>
+
+<p><hr>
+
+</body>
+</html>

@@ -1,0 +1,446 @@
+<html>
+<body>
+
+<center>
+<b>CREATE RESIDUAL STATISTICS</b>
+<p>Program: RESRMS
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program can be used to detect outliers in the residual files.
+The program output contains a summary of the residuals' statistics.
+As output files it can provide a summary of the residuals, a histogram
+of the residuals, and an edit information file. The edit information file
+contains the list of observations which were identified as outliers by
+the program. The program <a href="SATMRK.HLP">SATMRK</a> may be used
+to mark these outliers in the observation files.
+
+<p><hr>
+
+<p><b>RESRMS 1: Input/Output Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RESFIL" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Residual files:</b>
+Select the input residual files. Usually only
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> residual files are used. However
+<a href="PGMLST.HLP#MAUPRP">MAUPRP</a>, <a href="PGMLST.HLP#CODSPP">CODSPP</a>,
+and <a href="PGMLST.HLP#IONEST">IONEST</a> residual files can be analyzed, too.
+
+<br><br>
+
+<a name="OUTPUT" default=""></a>
+<p><b>OUTPUT FILES</b>
+<p><b>Summary file:</b>
+This output file gives a nice overview of the residuals' RMS error per baseline
+(or station) and satellite. This file may be used as input to detect
+misbehaving stations and satellites using the program
+<a href="PGMLST.HLP#RESCHK">RESCHK</a>.
+<br>
+In the summary file the stations are labeled by their <nobr>4-character</nobr>
+abbreviation obtained from the "Abbreviation table" specified in the
+section "GENERAL INPUT FILES". For each station one line of output is
+written where only the station and the session are indicated (there is
+no indication, e.g., of the measurement type). For each satellite the
+RMS is printed. The last column gives the overall RMS for all satellites
+observed by the station.
+<br>
+Below the station table three lines show the overall RMS for each
+satellite from all stations, the percentage of the observations to a
+particular satellite from all stations, and the total number of observations
+to a particular satellite from all stations.
+<br>
+The <tt>*</tt> character indicates a 'big' RMS of the observations of a
+station to a satellite (e.g., satellite <tt>3</tt> for station <tt>ALGO</tt>).
+If a satellite was not observed from a station or all observations to the
+satellite are already marked the field in the summary table remains blank
+(e.g., satellite <tt>22</tt> for stations <tt>AMC2</tt>, <tt>AREQ</tt>,
+and <tt>USNO</tt>).
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+ BASELINE  SESS    1    2    3    4    5 ...   21   22   23   24   25   26   27   28   29   30   31  TOT
+ --------------------------------------- ... ------------------------------------------------------------
+ ALBH      1210  0.7  1.1  0.9  1.0  0.8 ...   0.9  1.1  1.7  1.0  0.9  0.8  1.0  0.8  0.8  0.6  0.9  0.9
+ ALGO      1210  0.7  0.6*11.1  0.8  1.0 ...   1.0  0.8  1.4  0.8  0.8  0.8  0.8  0.8  0.8  0.7  1.3  0.9
+ ALRT      1210  0.9  0.8  0.9  1.0  0.8 ...   0.9  0.7  1.8  0.9  0.9  1.0  0.8  0.9  0.7  0.8  0.7  0.9
+ AMC2      1210  1.4  1.2  1.6  1.2  1.4 ...   1.2       1.8  1.6  1.4  1.1  1.0  1.3  1.2  1.4  1.6  1.4
+ AREQ      1210  0.8  1.4  1.6  1.1  0.8 ...   1.3       2.4  0.8  0.8  0.8  0.5  0.9  0.6  0.8  1.6  1.0
+      ....
+ TOW2      1210  2.0  1.5  1.6  1.5  1.7 ...   2.2  1.5  1.7  1.8  2.0  1.7  2.0  1.8  1.8  1.4  1.9  1.7
+ USNO      1210  1.7  2.3  2.0  2.1  1.7 ...   2.3       1.7  2.2  2.1  2.1  2.2  2.3  2.0  2.2  2.1  2.1
+ VILL      1210  0.6  0.6  0.5  0.6  0.5 ...   0.7  0.5  0.6  0.5  0.5  0.6  0.6  0.7  0.6  0.6  0.7  0.6
+ --------------------------------------- ... ------------------------------------------------------------
+ TOTAL RMS:      1.2  1.2  1.4  1.2  1.2 ...   1.3  1.1  1.6  1.2  1.2  1.2  1.2  1.3  1.2  1.2  1.4  1.3
+ --------------------------------------- ... ------------------------------------------------------------
+ TOTAL OBS:      3.6  3.6  3.4  3.7  3.8 ...   3.4  2.2  3.4  3.9  3.8  3.5  3.4  3.6  3.5  3.9  3.4
+ --------------------------------------- ... ------------------------------------------------------------
+ TOT OBS (1E0): 5900 5834 5631 6058 6298 ...  5528 3580 5644 6317 6273 5739 5518 5852 5774 6340 5538
+ --------------------------------------- ... ------------------------------------------------------------
+</pre>
+If the table summarizes the residuals from a double difference solution
+each line corresponds to one baseline labeled by the two stations.
+
+<a name="HISTOGRAM" default=""></a>
+<p><b>Residual histogram:</b>
+A histogram of all residuals for each baseline (or station) may be created.
+This histogram file may be used, e.g., as input for an external
+graphic tool.
+
+<p><i>Remark:</i>
+Depending on the parameter selected under "OPTIONS FOR
+RESIDUAL HISTOGRAM" the size of the histogram may exceed 1023 characters
+which may cause problems when writing the file.
+<br>
+In the histogram file the stations are labeled by their <nobr>4-character</nobr>
+abbreviation obtained from the "Abbreviation table" specified in the
+section "GENERAL INPUT FILES". For each station one line of output is
+written where the station and the session are indicated only (there is
+no indication, e.g., of the measurement type). The number of residuals
+for each bin of the histogram is printed. The third column gives the
+variance: the range of bins including 66% of all residuals of the station.
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+ BASELINE  SESS   SIG  ...    -5.0   -4.0   -3.0   -2.0   -1.0    0.0    1.0    2.0    3.0    4.0    5.0 ...
+ --------------------- ... ----------------------------------------------------------------------------- ...
+ ALBH      1210   1.0: ...       1      2     12    100    549   1010    548     96     13      3      1 ...
+ ALGO      1210   1.0: ...       0      0      5     88    518    993    519     74     13      1      1 ...
+ ALRT      1210   1.0: ...       1      3     14    109    605   1259    634     99     20      2      1 ...
+ AMC2      1210   1.0: ...       1      9     71    226    487    669    548    195     56     11      2 ...
+ AREQ      1210   1.0: ...       2      1     18     81    364    745    383     94     12      1      0 ...
+</pre>
+If the table summarizes the residuals from a double difference solution
+each line corresponds to one baseline labeled by the two stations.
+
+<a name="EDITRS" default=""></a>
+<p><b>Edit information file:</b>
+Specify the name of the observation edit information file. This file may be used in
+<a href="PGMLST.HLP#SATMRK">SATMRK</a> to mark the detected
+outliers in the observation files. The options to define residuals
+to be outliers will be provided in the sections "DETECT LARGE RESIDUALS" and
+"DETECT BAD DATA" in a separate input panel.
+
+<p><a href="/$X/DOC/EXAMPLE.EDT">Example</a>
+
+<a name="STAWGTRS" default=""></a>
+<p><b>Station observation sigma file:</b>
+Analyzing the residuals the program computes the noise level of the
+the observations for each baseline (or station). Using these results you
+can define sigma factors corresponding to certain ranges of measurement
+noise. These sigma factors may be stored into this file. This is particularly
+useful when processing original code observations (not smoothed in the program
+<a href="PGMLST.HLP#RNXSMT">RNXSMT</a>) from receivers providing data with
+very different quality. The corresponding input options are provided in the
+section "STATION OBSERVATION SIGMA FACTORS" later on.
+<br>
+The file may be introduced in programs <a href="PGMLST.HLP#CODSPP">CODSPP</a>
+and <a href="PGMLST.HLP#GPSEST">GPSEST</a> to rescale the weight of the
+observations of an individual station.
+
+<p><i>Remark:</i>
+Keep in mind that normalized residuals which were
+generated in GPSEST with a station observation sigma file already applied
+cannot be used to generate a new station sigma file.
+
+<p><a href="/$X/DOC/EXAMPLE.SOS">Example</a>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="RESRMS"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>RESRMS 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<a name="ABBREV" default="ABBREV"></a>
+<p><b>Abbreviation table:</b>
+This file should contain the four and two character abbreviations for all
+used stations.
+
+<p><a href="/$X/DOC/EXAMPLE.ABB">Example</a>
+
+<p><hr>
+
+<p><b>RESRMS 2: Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+and will be saved in all the result files to document the program run.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="FREQ" default="AS_IS"></a>
+<p><b>GENERAL OPTIONS</b>
+<p><b>Frequency to check:</b>
+Select the frequency to be checked. In general this is the same frequency as
+used for the analysis (<b>AS_IS</b>) unless residuals pertaining to different
+frequencies are stored in the same file (which is the case for, e.g.,
+<a href="PGMLST.HLP#MAUPRP">MAUPRP</a> residual files). Residual files from
+GPSEST usually refer to ionosphere-free linear combination <b>L3</b>.
+
+<p><i>Default value:</i> <tt>AS_IS</tt>
+
+<a name="SAMPL" default=""></a>
+<p><b>Sampling rate of residual file:</b>
+Specify the sampling rate which was used to create the residual files. The
+sampling rate is used to mark/remove also observations adjacent to a bad
+observation in a range corresponding to the specified sampling rate.
+
+<p><i>Remark:</i>
+Never specify a sampling rate larger than the original sampling rate.
+
+<p><i>Default value:</i> Same sampling as in the residual file
+
+<br><br>
+
+<a name="DOBIGRES" default="1"></a>
+<a name="DOBIGRES2" default="1"></a>
+<a name="DOBIGRES3" default="0"></a>
+<a name="BIGRES" default="0.004"></a>
+<a name="BIGRES2" default="0.004"></a>
+<a name="BIGRES3" default="0.3000"></a>
+<p><b>DETECT LARGE RESIDUALS</b>
+<p><b>Phase</b>/<b>Code</b>/<b>Range measurements:</b> Select the measurement types
+to check and the maximal allowed residual. Residuals larger than this value
+are considered as outliers and will be written to the "Edit information file"
+(specified in the section "OUTPUT FILES").
+
+<p><i>Remark:</i>
+Code residuals are converted to a corresponding size of phase residuals
+by division by a factor of 100 (obtained from the <tt>WEIGHT FOR CODE
+OBSERVATIONS</tt> specified in the <tt>$X/GEN/CONST.</tt> file). Therefore,
+the same threshold value may be specified for code as for phase observations.
+<br><br>
+<table cellspacing="0">
+<tr><td><i>Default&nbsp;values</i></td>
+<td><tt>0.030&nbsp;meters</tt> for phase and for code observations
+   (<tt>0.0025&nbsp;meters</tt> if elevation dependent weighting was
+   used),</td></tr>
+<tr><td></td><td> <tt>0.006&nbsp;meters</tt> for phase and for code
+   observations in a zero-difference processing with elevation dependent
+   weighting,</td></tr>
+<tr><td></td><td> <tt>0.300&nbsp;meters</tt> for range observations
+   (SLR).</td></tr>
+</table>
+
+<br>
+
+<a name="IPIECE" default="361"></a>
+<p><b>DETECT BAD DATA</b>
+<p><b>Minimum continuously observed time interval:</b>
+Marking outliers may result in small observation pieces with only a
+few epochs. Using this option it is possible to get rid of these small
+(and maybe erratic) data pieces.
+
+<p><i>Default value:</i> <tt>361&nbsp;seconds</tt> (for 180&nbsp;second
+sampling in processing)
+
+<a name="DOMINAMB" default="0"></a>
+<p><b>Detect ambiguities with few observations:</b>
+Using this option you may detect ambiguities valid for only a few observations.
+The observations will be marked and the ambiguity will be deleted. In this
+way the number of parameters to be estimated may be reduced.
+
+<p><i>Remark:</i>
+These input options are written into the "Edit information
+file" only. The program <a href="PGMLST.HLP#SATMRK">SATMRK</a> will perform
+these actions.
+
+<p><i>Default value:</i> unmarked
+
+<a name="IMINAMB" default="3"></a>
+<p><b>Minimum number of observations per ambiguity:</b>
+Here you specify the minimum number of observations per ambiguity. If
+there are less observations for an ambiguity the corresponding observations
+will be marked and the ambiguity is removed.
+
+<p><i>Default value:</i> <tt>3</tt>
+
+<a name="ISPLAMB" default=""></a>
+<p><b>Sampling rate for counting the observations:</b>
+Specify the sampling rate for counting the observations per ambiguity.
+It is recommended to use the same sampling rate you plan to use in further
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> runs. In most cases it is identical
+to the sampling rate used to create the residual files.
+
+<p><hr>
+
+<p><b>RESRMS 3: Residual Statistics and Sigma Factors</b>
+
+<a name="NHISTO" default="50"></a>
+<a name="HISTWD" default="1"></a>
+<p><b>OPTIONS FOR RESIDUAL HISTOGRAM</b>
+
+<p><i>General Remark:</i>
+<br>
+The program RESRMS makes an individual histogram of all residuals in the
+residual file for each baseline or station. This histograms may be written to
+the file specified in option "Residual histogram". The number of bins and the
+width of a bin (unit of the bin) may be specified by the user.
+<br>
+To identify the expectation value of the size of the residuals (usually
+zero or close to zero) the program searches the bin with the largest number of
+residuals. The number of residuals in this bin is compared with the total
+number of residuals. If it is below 66%, the number of residuals of the
+two neighboring bins are added. This sum is again compared with the total
+number of residuals. This procedure is repeated until 66% of the
+total number of residuals are included. The number of bins found in that way,
+divided by two and multiplied by the width of a bin,
+is adopted as the measurement noise which is given in the program output
+and may be used for the computation of the station observation sigma factors.
+
+<p><b>Size of histogram:</b>
+This parameter <tt>n</tt> defines half the size of the histogram. The histogram will
+have bins from <tt>-n</tt> to <tt>n(2n+1)</tt>. This input value defines only the number
+of bins, the width of a bin is specified below.
+
+<p><i>Default value:</i> <tt>50</tt>
+
+<p><b>Bin width for histogram:</b>
+The width of a bin in the histogram is defined here in millimeters
+
+<p><i>Default value:</i> <tt>1&nbsp;millimeter</tt>
+
+<br><br>
+
+<a name="WGTTYPE" default="MEDIAN"></a>
+<p><b>STATION OBSERVATION SIGMA FACTORS</b>
+<p>
+The measurement noise for each station may be computed from the
+residuals. For original code observations (not smoothed by program
+<a href="PGMLST.HLP#RNXSMT">RNXSMT</a>) this noise may significantly
+differ for different stations/receivers making it important to apply
+corresponding station observation sigma factors for weighting the
+code observations in the parameter estimation program
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> or for rescaling
+the screening limits in program <a href="PGMLST.HLP#CODSPP">CODSPP</a>.
+
+<p><b>Compute measurement noise from:</b>
+The measurement noise may be computed using two different methods:
+<ul>
+<li><b>MEDIAN:</b> The median of the absolute values of all residuals per epoch
+    is computed. The median of all these epoch-wise medians is assumed
+    to be the measurement noise.
+<li><b>HISTOGRAM:</b> The measurement noise may be computed by analyzing the
+    residual histogram (including 66% of all observations), see
+    section "OPTIONS FOR RESIDUAL HISTOGRAM".
+</ul>
+Both methods give comparable results if the size and the bin width of the
+histogram are set to reasonable values.
+The median-based computation has the advantage that it is independent from
+these settings.
+
+<p><i>Default value:</i> <tt>MEDIAN</tt>
+
+<a name="WGTCLASS0" default="1.00"></a>
+<p><b>Default sigma factor:</b>
+Specify the sigma factor to use for an observation noise lower than the first
+defined noise level (see below). This value is used for a 'normal'
+observation.
+
+<p><i>Default value:</i> <tt>1.00</tt>
+
+<a name="WGTCLASS" default="%1.41% %0.005%\n%1.73% %0.010%\n%2.00% %0.015%"></a>
+<p><b>New sigma factor</b>/<b>Noise larger than:</b>
+To convert the measurement noise into sigma factors, you have to
+specify a list of sigma factors and corresponding noise levels. A sigma
+factor&nbsp;<tt>n</tt> larger than 1.00 corresponds to a down-weighting of
+the observations by <tt>n<sup>2</sup></tt>.
+<br>
+Example for assignment of sigma factors to observation noise obtained
+from median:
+<table>
+<tr><td>Sigma&nbsp;factor</td>
+    <td>&nbsp;</td>
+    <td>Noise&nbsp;larger&nbsp;than</td></tr>
+<tr><td>1.41</td><td>&nbsp;</td><td>0.005&nbsp;meters</td></tr>
+<tr><td>1.73</td><td>&nbsp;</td><td>0.010&nbsp;meters</td></tr>
+<tr><td>2.00</td><td>&nbsp;</td><td>0.015&nbsp;meters</td></tr>
+</table>
+<br>
+Example for assignment of sigma factors to observation noise obtained
+from histogram:
+<table>
+<tr><td>Sigma&nbsp;factor</td>
+    <td>&nbsp;</td>
+    <td>Noise&nbsp;larger&nbsp;than</td></tr>
+<tr><td>1.41</td><td>&nbsp;</td><td>0.010&nbsp;meters</td></tr>
+<tr><td>1.73</td><td>&nbsp;</td><td>0.020&nbsp;meters</td></tr>
+<tr><td>2.00</td><td>&nbsp;</td><td>0.030&nbsp;meters</td></tr>
+</table>
+
+<p><hr>
+
+</body>
+</html>

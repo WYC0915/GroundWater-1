@@ -1,0 +1,332 @@
+<html>
+<body>
+
+<center>
+<b>COMPARE STANDARD ORBITS</b>
+<p>Program: STDDIF
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program compares two standard orbits. It lists the differences in the
+radial, along and cross-track directions. Helmert transformation parameters
+may be determined between the orbits given in the two files. If the two
+standard orbits do not refer to the same reference frame, i.e., if they were
+computed with different Earth orientation parameters, Helmert rotation
+parameters are expected.
+
+<p><hr>
+
+<p><b>STDDIF 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="STDORB" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>First standard orbit:</b>
+Select the first standard orbit file to be used in the comparison.
+
+<a name="STDOR1" default=""></a>
+<p><b>Second standard orbit:</b>
+Select the second standard orbit file to be used in the comparison.
+The differences File(2)-File(1) will be computed.
+
+<br><br>
+
+<a name="PLOTRS" default=""></a>
+<p><b>OUTPUT FILE</b>
+<p><b>Plot file of results:</b>
+The file will contain the list of residuals between orbits as a function
+of time or the RMS differences for the satellites. See option
+"Comparison output". The content may be plotted, e.g., using gnuplot.
+<br>
+This file will contain the complete comparison results, contrary to
+the program output.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="STDDIF"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<p>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>STDDIF 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems concerning modeling.
+It is used for exclusion of misbehaving satellites
+(and for orbit arc splitting).
+It may also contain (mean) epochs of GPS repositioning events.
+
+<p><i>Note:</i>
+Corresponding year-specific files are maintained by AIUB/CODE.
+You can get the latest version of the current file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SAT_2011.CRX">$X/GEN/SAT_2011.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<a name="SUBMOD" default="IERS2010XY"></a>
+<p><b>Subdaily pole model:</b>
+This file contains the parameters for the subdaily pole model. Use the
+same file used for the generation of the standard orbits.
+
+<p><i>Remark:</i>
+This file is necessary for a consistency check even if its
+values are not needed for the orbit comparison.
+
+<p>Example: <a href="/$X/GEN/IERS2010XY.SUB">$X/GEN/IERS2010XY.SUB</a>
+
+<a name="NUTMOD" default="IAU2000R06"></a>
+<p><b>Nutation model:</b>
+This file contains the parameters for the nutation model. Use the
+same file used for the generation of the standard orbits.
+
+<p><i>Remark:</i>
+This file is necessary for a consistency check even if its
+values are not needed for the orbit comparison.
+
+<p>Example: <a href="/$X/GEN/IAU2000R06.NUT">$X/GEN/IAU2000R06.NUT</a>
+
+<p><hr>
+
+<b>STDDIF 2: General Options</b>
+
+<p><a name="TITLE" default=""></a>
+<b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<br><br>
+
+<a name="TYPE" default="RMS"></a>
+<p><b>OUTPUT SELECTION</b>
+<p><b>Comparison output:</b>
+This option specifies the content and the format for the output file
+specified in "Plot file of results" in the section "OUTPUT FILE":
+<ul>
+<li><b>RESIDUALS:</b>
+    The output file will contain a list of differences in position and velocity
+    in radial, along track, and cross track directions as a function of time.
+    The list is repeated for each satellite (separated by a blank line).
+    The content of the file may easily be plotted using a tool like
+    <tt>gnuplot</tt>.
+<li><b>RES_TABLE:</b>
+    The output file will contain a compact table which gives the position
+    differences in radial, along track, and cross track directions as a
+    function of time. The results for individual satellites are given in
+    different columns.
+<li><b>RMS:</b>
+    The output file will contain a table of RMS values of the position and
+    velocity differences for each satellite in radial, along track, and cross
+    track directions.
+</ul>
+
+<br>
+
+<a name="WINDOW" default="0"></a>
+<p><b>COMPARISON TIME SELECTION</b>
+<p><b>Use time window for comparison:</b>
+For all orbits usually the entire time interval overlapping in the two files
+are compared. Check this box if you want to enter a time window for which
+the orbits shall be compared.
+
+<p><i>Remark:</i>
+The time window has to overlap with the time interval
+covered by the standard orbits. Otherwise no output will be written.
+
+<p><i>Default value:</i> unmarked
+
+<a name="SUBINT" default="1"></a>
+<p><b>Number of subintervals:</b>
+The entire time interval (either the interval covered by both standard orbits
+or the user specified "Use time window for comparison") may be split into
+<i>n</i>&nbsp;subintervals. Residual
+statistics will be computed for each individual subinterval. Helmert
+transformation parameters are, however, always computed once for the entire
+time window.
+
+<p><i>Default value:</i> <tt>1</tt>
+
+<a name="DELTAT" default="15.0"></a>
+<p><b>Tabular spacing for comparison:</b>
+Specify the step size of the output table in minutes. Orbit differences will
+be computed at these epochs.
+
+<p><i>Default value:</i> <tt>15 minutes</tt>
+
+<br><br>
+
+<a name="SATNUM" default="ALL"></a>
+<p><b>SATELLITE SELECTION</b>
+<p><b>Satellite number for comparison:</b>
+For the selection <b>RESIDUALS</b> for the option "Comparison output" a satellite
+number may be specified. The comparison will in this case only be carried
+out for this satellite.
+<br>
+For all other selections for the option "Comparison output" or when
+selecting <b>ALL</b> all satellites are included in the comparison.
+
+<p><i>Default value:</i> <tt>ALL</tt>
+
+<a name="ARCNUMB" default="ALL"></a>
+<p><b>Arc number for comparison:</b>
+Specify the arc number to be compared. The comparison runs over all arcs
+if <b>ALL</b> is selected.
+
+<p><i>Default value:</i> <tt>ALL</tt>
+
+<p><hr>
+
+<p><b>STDDIF 2.1: Comparison Time Window</b>
+
+<a name="RADIO_1" default="1"></a>
+<p><b>COMPARISON TIME WINDOW</b>
+<p>
+This panel allows to specify a time window. Only satellite positions
+within this time window will be compared.
+<br>
+You may define the time window either by using session definitions, or by
+explicitly specifying start and end times.
+
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the comparison time window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the comparison time window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: <tt>00&nbsp;00&nbsp;00</tt>, end date: <tt>$YMD_STR+0</tt>,
+end time: <tt>23&nbsp;59&nbsp;59</tt>
+
+<p><hr>
+
+<p><b>STDDIF 3: Helmert Transformation</b>
+
+<a name="HELMTRSX" default="0"></a>
+<a name="HELMTRSY" default="0"></a>
+<a name="HELMTRSZ" default="0"></a>
+<a name="HELMROTX" default="0"></a>
+<a name="HELMROTY" default="0"></a>
+<a name="HELMROTZ" default="0"></a>
+<a name="HELMSCAL" default="0"></a>
+<p><b>HELMERT TRANSFORMATION PARAMETERS</b>
+<p>
+Specify the Helmert transformation parameters (3&nbsp;translations in x,y,z
+and 3&nbsp;rotations about x,y,z and a scale) to be determined for the
+transformation between the two standard orbits selected
+in the section "INPUT FILES". The computed
+differences refer to the orbits after the transformation is applied.
+The transformation refers to inertial space.
+
+<br><br>
+
+<a name="SCREEN" default="0"</a>
+<p><b>OUTLIER REJECTION</b>
+<p><b>Remove bad satellites:</b>
+Check this box if you want to exclude satellites with large orbit
+differences from the computation of the Helmert transformation parameters.
+Specify the corresponding screening criterion in the next option.
+
+<p><i>Default value:</i> unmarked
+
+<a name="EDIT" default="4.0"></a>
+<p><b>Screening criteria:</b>
+Satellites with a RMS value exceeding the specified value multiplied by
+the mean RMS value for all satellites are removed.
+
+<p><i>Default value:</i> 4.0
+
+<p><hr>
+
+</body>
+</html>

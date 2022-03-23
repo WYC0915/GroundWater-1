@@ -1,0 +1,15 @@
+POSSIBLE RINEX INCONSISTENCIES                                       11-Apr-2010
+--------------------------------------------------------------------------------
+
+STATION NAME                   FROM                   TO         RECEIVER TYPE         ANTENNA TYPE          REC #   ANT #    NORTH      EAST      UP        REMARK
+****************       YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ********************  ********************  ******  ******  ***.****  ***.****  ***.****    ************************
+ALIC 50137M001         1990 01 01 00 00 00  2099 12 31 00 00 00   *** UNDEFINED ***     *** UNDEFINED ***    999999  999999    0.0000    0.0000    0.0000    wrong antenna height
+AMUN 66040M001         1990 01 01 00 00 00  2099 12 31 00 00 00   *** UNDEFINED ***    ASH700936D_M SCIS     999999  999999  999.9999  999.9999  999.9999    wrong antenna name
+ANKR 20805M002         1990 01 01 00 00 00  2099 12 31 00 00 00   *** UNDEFINED ***     *** UNDEFINED ***    999999  999999    0.0111   -0.0133    0.0574    wrong antenna height
+AUCK 50209M001B        2002 12 02 00 00 00  2003 01 08 23 59 59  ASHTECH MICROZ         *** UNDEFINED ***    999999  999999  999.9999  999.9999  999.9999    wrong receiver name
+BAKO 23101M002         1990 01 01 00 00 00  2099 12 31 00 00 00  TRIMBLE 4000SSE       TRM14532*             999999  999999  999.9999  999.9999  999.9999    wrong receiver, antenna
+BJFS 21601M001         1990 01 01 00 00 00  2099 12 31 00 00 00  *Z-XII*               ASH7*B_M              999999  999999    0.0000    0.0000    0.0000    wrong rec, ant, height
+
+Undefined values:      1990 01 01 00 00 00  2099 12 31 00 00 00   *** UNDEFINED ***     *** UNDEFINED ***    999999  999999  999.9999  999.9999  999.9999
+
+

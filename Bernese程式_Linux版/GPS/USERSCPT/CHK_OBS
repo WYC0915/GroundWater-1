@@ -1,0 +1,52 @@
+package CHK_OBS;
+@ISA = ("RUNBPE");
+# ----------------------------------------------------------------------------
+#
+# Name:      CHK_OBS
+#
+# Purpose:   Check whether observation files are available
+#
+# PARAMs  :  PARAM1 - NEXTJOB
+#            PARAM2 - Jump forward to PID xxx if no Observations available
+#
+# Author  :  D. Thaller
+# Created :  05-Aug-2010
+#
+# Changes :
+#
+# ----------------------------------------------------------------------------
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtGoto);
+
+
+sub run{
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyyy, $ssss,
+      $dirObs, $extObs) =
+  $bpe->getKeys
+     ('$Y+0', '$S+0',
+      'DIR_RZH', 'EXT_RZH');
+
+
+# GoTo if no Observation files are available
+# ------------------------------------------
+  my $goto = $$bpe{PARAM2};
+
+# Observation files
+# -----------------
+  my @filLst = glob("${dirObs}????${ssss}.${extObs}");
+
+  my $nfil = @filLst;
+
+  if ($nfil==0) {
+    print "\n No observation files available for ${yyyy}/${ssss} \n";
+
+    prtGoto($bpe,$goto);
+  }
+
+}

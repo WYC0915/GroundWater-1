@@ -1,0 +1,55 @@
+Example for a station information file for LEO                   12-JUL-11 16:38
+--------------------------------------------------------------------------------
+
+FORMAT VERSION: 1.01
+TECHNIQUE:      GNSS
+
+TYPE 001: RENAMING OF STATIONS
+------------------------------
+
+STATION NAME          FLG          FROM                   TO         OLD STATION NAME      REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ********************  ************************
+CHAM L06              001                                            CHAM*                 LEO
+JASO L08              001                                            JASO*                 LEO
+GRCA L09              001                                            GRCA*                 LEO
+GRCB L10              001                                            GRCB*                 LEO
+
+
+TYPE 002: STATION INFORMATION
+-----------------------------
+
+STATION NAME          FLG          FROM                   TO         RECEIVER TYPE         RECEIVER SERIAL NBR   REC #   ANTENNA TYPE          ANTENNA SERIAL NBR    ANT #    NORTH      EAST      UP      DESCRIPTION             REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ********************  ********************  ******  ********************  ********************  ******  ***.****  ***.****  ***.****  **********************  ************************
+CHAM L06              001                                            BLACKJACK                                   999999  CHAM            NONE                        999999    0.0000    0.0000    0.0000  CHAMP                   LEO
+JASO L08              001                                            TRSR                                        999999  SPENCER/CR      NONE                        999999    0.0000    0.0000    0.0000  JASON                   LEO
+GRCA L09              001                                            BLACKJACK                                   999999  GRCA            NONE                        999999    0.0000    0.0000    0.0000  GRACE A                 LEO
+GRCB L10              001                                            BLACKJACK                                   999999  GRCA            NONE                        999999    0.0000    0.0000    0.0000  GRACE B                 LEO
+
+
+TYPE 003: HANDLING OF STATION PROBLEMS
+--------------------------------------
+
+STATION NAME          FLG          FROM                   TO         REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ************************************************************
+
+
+TYPE 004: STATION COORDINATES AND VELOCITIES (ADDNEQ)
+-----------------------------------------------------
+                                            RELATIVE CONSTR. POSITION     RELATIVE CONSTR. VELOCITY
+STATION NAME 1        STATION NAME 2        NORTH     EAST      UP        NORTH     EAST      UP
+****************      ****************      **.*****  **.*****  **.*****  **.*****  **.*****  **.*****
+
+
+TYPE 005: HANDLING STATION TYPES
+--------------------------------
+
+STATION NAME          FLG  FROM                 TO                   MARKER TYPE           REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ********************  ************************
+CHAM L06              001                                            SPACEBORNE            
+JASO L08              001                                            SPACEBORNE            
+GRCA L09              001                                            SPACEBORNE            
+GRCB L10              001                                            SPACEBORNE            
+
+
+
+

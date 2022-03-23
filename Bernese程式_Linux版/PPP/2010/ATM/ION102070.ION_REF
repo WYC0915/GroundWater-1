@@ -1,0 +1,832 @@
+PPP_102070_GANP: Station-specific ionosphere models - ION        18-JUL-13 08:55
+--------------------------------------------------------------------------------
+MODEL NUMBER / STATION NAME                    : GANP 11515M001  
+MODEL TYPE (1=LOCAL,2=GLOBAL,3=STATION)        :    3
+MAXIMUM DEGREE OF SPHERICAL HARMONICS          :    5
+MAXIMUM ORDER                                  :    5
+DEVELOPMENT WITH RESPECT TO                     
+  GEOGRAPHICAL (=1) OR GEOMAGNETIC (=2) FRAME  :    2
+  MEAN (=1) OR TRUE (=2) POSITION OF THE SUN   :    1
+MAPPING FUNCTION (0=NONE,1=COSZ,2=MSLM,3=ESM)  :    2
+HEIGHT OF SINGLE LAYER AND ITS RMS ERROR (KM)  :  450.00     0.00
+COORDINATES OF EARTH-CENTERED DIPOLE AXIS       
+  LATITUDE OF NORTH GEOMAGNETIC POLE (DEGREES) :   79.00
+  EAST LONGITUDE (DEGREES)                     :  -71.00
+PERIOD OF VALIDITY                              
+  FROM EPOCH / REFERENCE EPOCH (Y,M,D,H,M,S)   : 2010 07 26 00 00 00
+  TO EPOCH                                     : 2010 07 27 00 00 00
+LATITUDE BAND COVERED                           
+  MINIMUM LATITUDE (DEGREES)                   :   34.39
+  MAXIMUM LATITUDE (DEGREES)                   :   59.62
+ADDITIONAL INFORMATION                          
+  NUMBER OF CONTRIBUTING SATELLITES            :   30
+  ELEVATION CUT-OFF ANGLE (DEGREES)            :   10
+  MAXIMUM TEC AND ITS RMS ERROR (TECU)         :    8.27     0.33
+COMMENT / WARNING                              :
+COEFFICIENTS                                    
+DEGREE  ORDER    VALUE (TECU)   RMS (TECU)      
+   0       0     2463.23876406   950.5980
+   1       0    -2350.05448771  1242.4366
+   1       1    -4141.78724661   451.1181
+   1      -1     2024.68499994   488.0792
+   2       0      377.22905683   901.2000
+   2       1     5210.62088029   566.1109
+   2      -1    -2580.55314711   613.7079
+   2       2      460.85037822    38.9721
+   2      -2      179.87986710    37.7599
+   3       0      876.05698155   431.7405
+   3       1    -3484.26412577   377.4091
+   3      -1     1763.82752572   410.4657
+   3       2     -492.56299217    41.3461
+   3      -2     -194.36329661    40.1116
+   3       3      -26.12468787     3.7862
+   3      -3       12.59513071     3.5492
+   4       0     -726.65548613   132.0586
+   4       1     1311.15843718   141.6558
+   4      -1     -686.60945985   154.8007
+   4       2      252.89621177    21.0203
+   4      -2      101.35009148    20.4287
+   4       3       20.50632873     2.9615
+   4      -3       -8.91444213     2.7768
+   4       4        0.03133793     0.3445
+   4      -4       -1.74877855     0.3611
+   5       0      217.25612069    20.9785
+   5       1     -225.86745185    24.4400
+   5      -1      125.44317387    26.9175
+   5       2      -56.02611899     4.5939
+   5      -2      -23.02383451     4.4760
+   5       3       -5.88345255     0.8573
+   5      -3        2.15894724     0.8038
+   5       4       -0.10547985     0.1465
+   5      -4        0.64296308     0.1531
+   5       5        0.15657728     0.0252
+   5      -5        0.03027868     0.0265
+
+PPP_102070_HERT: Station-specific ionosphere models - ION        18-JUL-13 08:55
+--------------------------------------------------------------------------------
+MODEL NUMBER / STATION NAME                    : HERT 13212M010  
+MODEL TYPE (1=LOCAL,2=GLOBAL,3=STATION)        :    3
+MAXIMUM DEGREE OF SPHERICAL HARMONICS          :    5
+MAXIMUM ORDER                                  :    5
+DEVELOPMENT WITH RESPECT TO                     
+  GEOGRAPHICAL (=1) OR GEOMAGNETIC (=2) FRAME  :    2
+  MEAN (=1) OR TRUE (=2) POSITION OF THE SUN   :    1
+MAPPING FUNCTION (0=NONE,1=COSZ,2=MSLM,3=ESM)  :    2
+HEIGHT OF SINGLE LAYER AND ITS RMS ERROR (KM)  :  450.00     0.00
+COORDINATES OF EARTH-CENTERED DIPOLE AXIS       
+  LATITUDE OF NORTH GEOMAGNETIC POLE (DEGREES) :   79.00
+  EAST LONGITUDE (DEGREES)                     :  -71.00
+PERIOD OF VALIDITY                              
+  FROM EPOCH / REFERENCE EPOCH (Y,M,D,H,M,S)   : 2010 07 26 00 00 00
+  TO EPOCH                                     : 2010 07 27 00 00 00
+LATITUDE BAND COVERED                           
+  MINIMUM LATITUDE (DEGREES)                   :   40.13
+  MAXIMUM LATITUDE (DEGREES)                   :   66.11
+ADDITIONAL INFORMATION                          
+  NUMBER OF CONTRIBUTING SATELLITES            :   31
+  ELEVATION CUT-OFF ANGLE (DEGREES)            :   10
+  MAXIMUM TEC AND ITS RMS ERROR (TECU)         :    5.79     0.31
+COMMENT / WARNING                              :
+COEFFICIENTS                                    
+DEGREE  ORDER    VALUE (TECU)   RMS (TECU)      
+   0       0     2040.77943227   951.4700
+   1       0    -1638.24423649  1223.7199
+   1       1    -6641.87127328   736.1063
+   1      -1    -1312.88723758   756.7986
+   2       0     -344.63845917   869.8229
+   2       1     8101.80678455   902.3964
+   2      -1     1575.04151970   927.7452
+   2       2      535.98222994    81.0352
+   2      -2        8.98738576    81.3640
+   3       0     1296.72870033   416.2255
+   3       1    -5154.36916463   579.7765
+   3      -1     -972.95887075   596.1051
+   3       2     -540.74961512    82.8564
+   3      -2       -8.12432444    83.2287
+   3       3       -7.91292327     7.3900
+   3      -3       30.86965017     7.0180
+   4       0     -844.17729454   131.9392
+   4       1     1801.08984144   206.3651
+   4      -1      323.60969963   212.2445
+   4       2      255.20820904    39.9414
+   4      -2        2.55989326    40.1417
+   4       3        5.89367202     5.4773
+   4      -3      -22.33978645     5.2027
+   4       4        7.08567042     0.6362
+   4      -4       -4.09996482     0.5470
+   5       0      211.21495840    21.8698
+   5       1     -276.55922820    32.9222
+   5      -1      -45.38802784    33.8963
+   5       2      -49.65458149     8.0598
+   5      -2        0.22866894     8.1038
+   5       3       -1.55084611     1.4604
+   5      -3        5.70110849     1.3874
+   5       4       -2.98891651     0.2489
+   5      -4        1.56755108     0.2147
+   5       5       -0.14306060     0.0429
+   5      -5       -0.07203651     0.0412
+
+PPP_102070_JOZ2: Station-specific ionosphere models - ION        18-JUL-13 08:55
+--------------------------------------------------------------------------------
+MODEL NUMBER / STATION NAME                    : JOZ2 12204M002  
+MODEL TYPE (1=LOCAL,2=GLOBAL,3=STATION)        :    3
+MAXIMUM DEGREE OF SPHERICAL HARMONICS          :    5
+MAXIMUM ORDER                                  :    5
+DEVELOPMENT WITH RESPECT TO                     
+  GEOGRAPHICAL (=1) OR GEOMAGNETIC (=2) FRAME  :    2
+  MEAN (=1) OR TRUE (=2) POSITION OF THE SUN   :    1
+MAPPING FUNCTION (0=NONE,1=COSZ,2=MSLM,3=ESM)  :    2
+HEIGHT OF SINGLE LAYER AND ITS RMS ERROR (KM)  :  450.00     0.00
+COORDINATES OF EARTH-CENTERED DIPOLE AXIS       
+  LATITUDE OF NORTH GEOMAGNETIC POLE (DEGREES) :   79.00
+  EAST LONGITUDE (DEGREES)                     :  -71.00
+PERIOD OF VALIDITY                              
+  FROM EPOCH / REFERENCE EPOCH (Y,M,D,H,M,S)   : 2010 07 26 00 00 00
+  TO EPOCH                                     : 2010 07 27 00 00 00
+LATITUDE BAND COVERED                           
+  MINIMUM LATITUDE (DEGREES)                   :   37.45
+  MAXIMUM LATITUDE (DEGREES)                   :   63.19
+ADDITIONAL INFORMATION                          
+  NUMBER OF CONTRIBUTING SATELLITES            :   30
+  ELEVATION CUT-OFF ANGLE (DEGREES)            :   10
+  MAXIMUM TEC AND ITS RMS ERROR (TECU)         :    7.91     0.33
+COMMENT / WARNING                              :
+COEFFICIENTS                                    
+DEGREE  ORDER    VALUE (TECU)   RMS (TECU)      
+   0       0     2200.28364028   887.0202
+   1       0    -2028.20940339  1149.9070
+   1       1    -3047.21274111   548.2281
+   1      -1     1062.49036372   600.0434
+   2       0      190.78845851   824.2421
+   2       1     3791.58391935   678.7955
+   2      -1    -1382.85712263   744.8140
+   2       2      537.54538190    53.6588
+   2      -2      302.91157078    50.3374
+   3       0      890.82384227   392.3124
+   3       1    -2490.82190355   442.9890
+   3      -1      974.49596146   488.0437
+   3       2     -566.20512613    55.7386
+   3      -2     -317.21524797    52.4057
+   3       3      -46.33235724     5.0111
+   3      -3       38.23466496     4.6165
+   4       0     -681.11035870   121.0629
+   4       1      913.07507224   161.2402
+   4      -1     -394.61216586   178.7042
+   4       2      284.48674666    27.4867
+   4      -2      157.98808821    25.9241
+   4       3       35.43103249     3.8057
+   4      -3      -28.53184485     3.5081
+   4       4        0.61428319     0.4348
+   4      -4       -3.61678137     0.4374
+   5       0      188.82273173    19.5558
+   5       1     -151.15610533    26.5665
+   5      -1       75.62690378    29.7207
+   5       2      -60.84893932     5.7347
+   5      -2      -33.36738147     5.4329
+   5       3       -9.83110654     1.0527
+   5      -3        7.65155830     0.9708
+   5       4       -0.37950370     0.1770
+   5      -4        1.43254234     0.1781
+   5       5        0.37956455     0.0302
+   5      -5        0.22101804     0.0316
+
+PPP_102070_LAMA: Station-specific ionosphere models - ION        18-JUL-13 08:55
+--------------------------------------------------------------------------------
+MODEL NUMBER / STATION NAME                    : LAMA 12209M001  
+MODEL TYPE (1=LOCAL,2=GLOBAL,3=STATION)        :    3
+MAXIMUM DEGREE OF SPHERICAL HARMONICS          :    5
+MAXIMUM ORDER                                  :    5
+DEVELOPMENT WITH RESPECT TO                     
+  GEOGRAPHICAL (=1) OR GEOMAGNETIC (=2) FRAME  :    2
+  MEAN (=1) OR TRUE (=2) POSITION OF THE SUN   :    1
+MAPPING FUNCTION (0=NONE,1=COSZ,2=MSLM,3=ESM)  :    2
+HEIGHT OF SINGLE LAYER AND ITS RMS ERROR (KM)  :  450.00     0.00
+COORDINATES OF EARTH-CENTERED DIPOLE AXIS       
+  LATITUDE OF NORTH GEOMAGNETIC POLE (DEGREES) :   79.00
+  EAST LONGITUDE (DEGREES)                     :  -71.00
+PERIOD OF VALIDITY                              
+  FROM EPOCH / REFERENCE EPOCH (Y,M,D,H,M,S)   : 2010 07 26 00 00 00
+  TO EPOCH                                     : 2010 07 27 00 00 00
+LATITUDE BAND COVERED                           
+  MINIMUM LATITUDE (DEGREES)                   :   39.06
+  MAXIMUM LATITUDE (DEGREES)                   :   65.27
+ADDITIONAL INFORMATION                          
+  NUMBER OF CONTRIBUTING SATELLITES            :   30
+  ELEVATION CUT-OFF ANGLE (DEGREES)            :   10
+  MAXIMUM TEC AND ITS RMS ERROR (TECU)         :    6.32     0.31
+COMMENT / WARNING                              :
+COEFFICIENTS                                    
+DEGREE  ORDER    VALUE (TECU)   RMS (TECU)      
+   0       0     1840.50341945   975.0046
+   1       0    -1641.21432512  1257.5622
+   1       1    -1750.36628170   687.6385
+   1      -1     -409.17778265   745.9286
+   2       0       42.04988923   895.7676
+   2       1     2176.57313011   845.1418
+   2      -1      432.89248038   918.7552
+   2       2      504.26774978    71.0218
+   2      -2      340.78024417    69.8983
+   3       0      846.07995594   426.3930
+   3       1    -1426.74986099   545.1599
+   3      -1     -205.25363526   594.7107
+   3       2     -526.15585083    72.9336
+   3      -2     -350.87582804    71.8644
+   3       3      -70.34056854     6.7331
+   3      -3       52.30988554     6.2390
+   4       0     -611.21696824   133.1157
+   4       1      520.14580338   195.1371
+   4      -1       33.06288139   213.9798
+   4       2      260.60696900    35.3765
+   4      -2      170.40833468    34.9141
+   4       3       53.16308418     5.0250
+   4      -3      -39.14831650     4.6587
+   4       4        0.70829504     0.5916
+   4      -4       -4.24561678     0.5667
+   5       0      162.23274623    21.7515
+   5       1      -84.98421978    31.3767
+   5      -1        5.01811331    34.6852
+   5       2      -54.47883696     7.2019
+   5      -2      -34.59467651     7.1235
+   5       3      -14.52491049     1.3543
+   5      -3       10.56526116     1.2560
+   5       4       -0.42282037     0.2345
+   5      -4        1.67469346     0.2254
+   5       5        0.48445644     0.0393
+   5      -5        0.37238164     0.0411
+
+PPP_102070_MATE: Station-specific ionosphere models - ION        18-JUL-13 08:55
+--------------------------------------------------------------------------------
+MODEL NUMBER / STATION NAME                    : MATE 12734M008  
+MODEL TYPE (1=LOCAL,2=GLOBAL,3=STATION)        :    3
+MAXIMUM DEGREE OF SPHERICAL HARMONICS          :    5
+MAXIMUM ORDER                                  :    5
+DEVELOPMENT WITH RESPECT TO                     
+  GEOGRAPHICAL (=1) OR GEOMAGNETIC (=2) FRAME  :    2
+  MEAN (=1) OR TRUE (=2) POSITION OF THE SUN   :    1
+MAPPING FUNCTION (0=NONE,1=COSZ,2=MSLM,3=ESM)  :    2
+HEIGHT OF SINGLE LAYER AND ITS RMS ERROR (KM)  :  450.00     0.00
+COORDINATES OF EARTH-CENTERED DIPOLE AXIS       
+  LATITUDE OF NORTH GEOMAGNETIC POLE (DEGREES) :   79.00
+  EAST LONGITUDE (DEGREES)                     :  -71.00
+PERIOD OF VALIDITY                              
+  FROM EPOCH / REFERENCE EPOCH (Y,M,D,H,M,S)   : 2010 07 26 00 00 00
+  TO EPOCH                                     : 2010 07 27 00 00 00
+LATITUDE BAND COVERED                           
+  MINIMUM LATITUDE (DEGREES)                   :   27.25
+  MAXIMUM LATITUDE (DEGREES)                   :   50.11
+ADDITIONAL INFORMATION                          
+  NUMBER OF CONTRIBUTING SATELLITES            :   31
+  ELEVATION CUT-OFF ANGLE (DEGREES)            :   10
+  MAXIMUM TEC AND ITS RMS ERROR (TECU)         :    6.99     0.38
+COMMENT / WARNING                              :
+COEFFICIENTS                                    
+DEGREE  ORDER    VALUE (TECU)   RMS (TECU)      
+   0       0     1193.17882235  1132.9381
+   1       0     -279.01165638  1512.9045
+   1       1     -480.47485489   360.1079
+   1      -1     2523.03949034   328.5733
+   2       0    -1721.55288581  1142.1218
+   2       1      618.28860041   470.7228
+   2      -1    -3286.51352044   429.3979
+   2       2       65.61841640    23.5662
+   2      -2      194.71244085    21.5910
+   3       0     2543.22902048   579.2946
+   3       1     -423.94064902   335.5550
+   3      -1     2329.16866758   305.9335
+   3       2      -75.38591330    26.6338
+   3      -2     -221.97657969    24.3737
+   3       3       -9.05082765     2.1303
+   3      -3       -6.71379452     2.0939
+   4       0    -1571.13317638   189.1851
+   4       1      163.71433129   138.6553
+   4      -1     -954.79149233   126.3155
+   4       2       43.18287297    14.8222
+   4      -2      124.89995183    13.5424
+   4       3        7.69523324     1.8163
+   4      -3        6.24064256     1.7823
+   4       4       -0.20610636     0.2361
+   4      -4       -0.72515439     0.2217
+   5       0      494.46707163    33.3917
+   5       1      -26.75229940    28.1141
+   5      -1      191.05496883    25.5557
+   5       2      -11.70659583     3.7726
+   5      -2      -32.11162775     3.4346
+   5       3       -2.41051476     0.6080
+   5      -3       -2.30904051     0.5945
+   5       4       -0.04539173     0.1139
+   5      -4        0.40750638     0.1070
+   5       5       -0.06890955     0.0181
+   5      -5       -0.00767470     0.0185
+
+PPP_102070_ONSA: Station-specific ionosphere models - ION        18-JUL-13 08:55
+--------------------------------------------------------------------------------
+MODEL NUMBER / STATION NAME                    : ONSA 10402M004  
+MODEL TYPE (1=LOCAL,2=GLOBAL,3=STATION)        :    3
+MAXIMUM DEGREE OF SPHERICAL HARMONICS          :    5
+MAXIMUM ORDER                                  :    5
+DEVELOPMENT WITH RESPECT TO                     
+  GEOGRAPHICAL (=1) OR GEOMAGNETIC (=2) FRAME  :    2
+  MEAN (=1) OR TRUE (=2) POSITION OF THE SUN   :    1
+MAPPING FUNCTION (0=NONE,1=COSZ,2=MSLM,3=ESM)  :    2
+HEIGHT OF SINGLE LAYER AND ITS RMS ERROR (KM)  :  450.00     0.00
+COORDINATES OF EARTH-CENTERED DIPOLE AXIS       
+  LATITUDE OF NORTH GEOMAGNETIC POLE (DEGREES) :   79.00
+  EAST LONGITUDE (DEGREES)                     :  -71.00
+PERIOD OF VALIDITY                              
+  FROM EPOCH / REFERENCE EPOCH (Y,M,D,H,M,S)   : 2010 07 26 00 00 00
+  TO EPOCH                                     : 2010 07 27 00 00 00
+LATITUDE BAND COVERED                           
+  MINIMUM LATITUDE (DEGREES)                   :   44.10
+  MAXIMUM LATITUDE (DEGREES)                   :   70.23
+ADDITIONAL INFORMATION                          
+  NUMBER OF CONTRIBUTING SATELLITES            :   30
+  ELEVATION CUT-OFF ANGLE (DEGREES)            :   10
+  MAXIMUM TEC AND ITS RMS ERROR (TECU)         :    4.07     0.22
+COMMENT / WARNING                              :
+COEFFICIENTS                                    
+DEGREE  ORDER    VALUE (TECU)   RMS (TECU)      
+   0       0     1312.92250971   917.8639
+   1       0     -918.13855760  1161.8154
+   1       1    -1159.65496603   865.1215
+   1      -1    -1865.22390191   875.8379
+   2       0     -528.05234038   821.2477
+   2       1     1449.34402020  1042.9821
+   2      -1     2234.17534301  1057.3819
+   2       2      569.80958973   149.1599
+   2      -2      558.73490175   133.5908
+   3       0     1133.31710517   411.5839
+   3       1     -951.35290845   652.9028
+   3      -1    -1381.28009711   663.4749
+   3       2     -582.48333189   148.7561
+   3      -2     -551.85133909   133.1458
+   3       3     -105.15541620    12.8208
+   3      -3      141.81068477    11.4684
+   4       0     -691.03958983   142.0297
+   4       1      343.10464302   224.0242
+   4      -1      463.04109288   228.4912
+   4       2      280.34038649    69.1941
+   4      -2      252.72455612    61.8745
+   4       3       76.82570563     9.1491
+   4      -3     -103.73222709     8.2025
+   4       4        4.33502281     1.0909
+   4      -4       -5.19469626     0.9254
+   5       0      164.66362484    24.7182
+   5       1      -53.69700731    33.9586
+   5      -1      -66.91564370    34.8417
+   5       2      -56.25984899    13.2656
+   5      -2      -47.17915506    11.8449
+   5       3      -20.01263529     2.3114
+   5      -3       27.14165343     2.0777
+   5       4       -1.80085469     0.4057
+   5      -4        2.05347749     0.3460
+   5       5        0.18978036     0.0655
+   5      -5       -0.15098462     0.0683
+
+PPP_102070_PTBB: Station-specific ionosphere models - ION        18-JUL-13 08:55
+--------------------------------------------------------------------------------
+MODEL NUMBER / STATION NAME                    : PTBB 14234M001  
+MODEL TYPE (1=LOCAL,2=GLOBAL,3=STATION)        :    3
+MAXIMUM DEGREE OF SPHERICAL HARMONICS          :    5
+MAXIMUM ORDER                                  :    5
+DEVELOPMENT WITH RESPECT TO                     
+  GEOGRAPHICAL (=1) OR GEOMAGNETIC (=2) FRAME  :    2
+  MEAN (=1) OR TRUE (=2) POSITION OF THE SUN   :    1
+MAPPING FUNCTION (0=NONE,1=COSZ,2=MSLM,3=ESM)  :    2
+HEIGHT OF SINGLE LAYER AND ITS RMS ERROR (KM)  :  450.00     0.00
+COORDINATES OF EARTH-CENTERED DIPOLE AXIS       
+  LATITUDE OF NORTH GEOMAGNETIC POLE (DEGREES) :   79.00
+  EAST LONGITUDE (DEGREES)                     :  -71.00
+PERIOD OF VALIDITY                              
+  FROM EPOCH / REFERENCE EPOCH (Y,M,D,H,M,S)   : 2010 07 26 00 00 00
+  TO EPOCH                                     : 2010 07 27 00 00 00
+LATITUDE BAND COVERED                           
+  MINIMUM LATITUDE (DEGREES)                   :   39.37
+  MAXIMUM LATITUDE (DEGREES)                   :   63.53
+ADDITIONAL INFORMATION                          
+  NUMBER OF CONTRIBUTING SATELLITES            :   32
+  ELEVATION CUT-OFF ANGLE (DEGREES)            :   10
+  MAXIMUM TEC AND ITS RMS ERROR (TECU)         :    8.50     0.38
+COMMENT / WARNING                              :
+COEFFICIENTS                                    
+DEGREE  ORDER    VALUE (TECU)   RMS (TECU)      
+   0       0     3103.99304182   900.1359
+   1       0    -1488.17449822  1156.5551
+   1       1    -1671.15637707   765.6007
+   1      -1      673.20698657   801.3966
+   2       0    -2690.65267420   831.5437
+   2       1     2002.39253157   943.5960
+   2      -1     -828.19661496   988.4371
+   2       2      977.83827401    84.1743
+   2      -2      480.03965177    85.2400
+   3       0     4009.45446488   417.5625
+   3       1    -1231.49744796   611.5004
+   3      -1      537.73715052   641.3478
+   3       2    -1006.99318950    86.5546
+   3      -2     -495.31665963    87.7167
+   3       3      -42.30255401     7.3822
+   3      -3       45.55251529     6.4412
+   4       0    -2267.58788497   144.5770
+   4       1      404.06861211   220.4528
+   4      -1     -196.21368041   231.6560
+   4       2      489.98388430    42.0683
+   4      -2      241.66963770    42.6770
+   4       3       32.47914429     5.4943
+   4      -3      -32.97609877     4.8086
+   4       4        6.25918530     0.6225
+   4      -4       -2.48694810     0.5021
+   5       0      533.44815958    26.5398
+   5       1      -53.88001799    35.8654
+   5      -1       33.34377235    37.8078
+   5       2      -99.98581774     8.5933
+   5      -2      -49.44706893     8.7299
+   5       3       -9.01216035     1.4746
+   5      -3        8.44871860     1.2957
+   5       4       -2.62527840     0.2453
+   5      -4        0.93602454     0.1990
+   5       5       -0.01897355     0.0379
+   5      -5       -0.40016904     0.0376
+
+PPP_102070_TLSE: Station-specific ionosphere models - ION        18-JUL-13 08:55
+--------------------------------------------------------------------------------
+MODEL NUMBER / STATION NAME                    : TLSE 10003M009  
+MODEL TYPE (1=LOCAL,2=GLOBAL,3=STATION)        :    3
+MAXIMUM DEGREE OF SPHERICAL HARMONICS          :    5
+MAXIMUM ORDER                                  :    5
+DEVELOPMENT WITH RESPECT TO                     
+  GEOGRAPHICAL (=1) OR GEOMAGNETIC (=2) FRAME  :    2
+  MEAN (=1) OR TRUE (=2) POSITION OF THE SUN   :    1
+MAPPING FUNCTION (0=NONE,1=COSZ,2=MSLM,3=ESM)  :    2
+HEIGHT OF SINGLE LAYER AND ITS RMS ERROR (KM)  :  450.00     0.00
+COORDINATES OF EARTH-CENTERED DIPOLE AXIS       
+  LATITUDE OF NORTH GEOMAGNETIC POLE (DEGREES) :   79.00
+  EAST LONGITUDE (DEGREES)                     :  -71.00
+PERIOD OF VALIDITY                              
+  FROM EPOCH / REFERENCE EPOCH (Y,M,D,H,M,S)   : 2010 07 26 00 00 00
+  TO EPOCH                                     : 2010 07 27 00 00 00
+LATITUDE BAND COVERED                           
+  MINIMUM LATITUDE (DEGREES)                   :   32.76
+  MAXIMUM LATITUDE (DEGREES)                   :   57.61
+ADDITIONAL INFORMATION                          
+  NUMBER OF CONTRIBUTING SATELLITES            :   32
+  ELEVATION CUT-OFF ANGLE (DEGREES)            :   10
+  MAXIMUM TEC AND ITS RMS ERROR (TECU)         :    4.59     0.37
+COMMENT / WARNING                              :
+COEFFICIENTS                                    
+DEGREE  ORDER    VALUE (TECU)   RMS (TECU)      
+   0       0     2597.31988020  1086.3456
+   1       0    -2385.10844661  1426.9547
+   1       1    -1369.78858736   422.7015
+   1      -1     -527.56173657   483.1138
+   2       0      191.18242200  1043.9893
+   2       1     1741.02733196   535.2563
+   2      -1      678.47275005   612.6026
+   2       2      135.73162384    36.5797
+   2      -2       43.86174041    35.8280
+   3       0     1135.00439993   504.9971
+   3       1    -1180.19980833   362.0235
+   3      -1     -470.27631705   415.3315
+   3       2     -143.01243003    39.4089
+   3      -2      -45.36675985    38.5940
+   3       3       -4.92001090     3.4682
+   3      -3       27.78426306     3.4199
+   4       0     -879.29804741   155.4961
+   4       1      450.95140312   138.7388
+   4      -1      186.51412383   159.7594
+   4       2       72.19129236    20.4854
+   4      -2       21.64868917    20.0563
+   4       3        5.10963407     2.7701
+   4      -3      -21.37542483     2.7288
+   4       4        1.61174453     0.3753
+   4      -4        2.01917328     0.2712
+   5       0      259.70945862    24.8429
+   5       1      -78.36403438    24.7208
+   5      -1      -35.20724387    28.6676
+   5       2      -15.66336394     4.6386
+   5      -2       -3.84592261     4.5372
+   5       3       -2.05854297     0.8282
+   5      -3        5.90559830     0.8147
+   5       4       -0.67208267     0.1626
+   5      -4       -0.92647216     0.1191
+   5       5        0.17138465     0.0254
+   5      -5        0.29896916     0.0244
+
+PPP_102070_WSRT: Station-specific ionosphere models - ION        18-JUL-13 08:55
+--------------------------------------------------------------------------------
+MODEL NUMBER / STATION NAME                    : WSRT 13506M005  
+MODEL TYPE (1=LOCAL,2=GLOBAL,3=STATION)        :    3
+MAXIMUM DEGREE OF SPHERICAL HARMONICS          :    5
+MAXIMUM ORDER                                  :    5
+DEVELOPMENT WITH RESPECT TO                     
+  GEOGRAPHICAL (=1) OR GEOMAGNETIC (=2) FRAME  :    2
+  MEAN (=1) OR TRUE (=2) POSITION OF THE SUN   :    1
+MAPPING FUNCTION (0=NONE,1=COSZ,2=MSLM,3=ESM)  :    2
+HEIGHT OF SINGLE LAYER AND ITS RMS ERROR (KM)  :  450.00     0.00
+COORDINATES OF EARTH-CENTERED DIPOLE AXIS       
+  LATITUDE OF NORTH GEOMAGNETIC POLE (DEGREES) :   79.00
+  EAST LONGITUDE (DEGREES)                     :  -71.00
+PERIOD OF VALIDITY                              
+  FROM EPOCH / REFERENCE EPOCH (Y,M,D,H,M,S)   : 2010 07 26 00 00 00
+  TO EPOCH                                     : 2010 07 27 00 00 00
+LATITUDE BAND COVERED                           
+  MINIMUM LATITUDE (DEGREES)                   :   40.96
+  MAXIMUM LATITUDE (DEGREES)                   :   66.77
+ADDITIONAL INFORMATION                          
+  NUMBER OF CONTRIBUTING SATELLITES            :   31
+  ELEVATION CUT-OFF ANGLE (DEGREES)            :   10
+  MAXIMUM TEC AND ITS RMS ERROR (TECU)         :    5.69     0.27
+COMMENT / WARNING                              :
+COEFFICIENTS                                    
+DEGREE  ORDER    VALUE (TECU)   RMS (TECU)      
+   0       0     1716.05781198   919.9804
+   1       0    -1347.25868804  1180.4502
+   1       1    -5242.71135264   737.2741
+   1      -1       -3.59380733   760.3721
+   2       0     -358.64517847   837.2924
+   2       1     6380.13693189   900.2679
+   2      -1       13.15215847   930.0115
+   2       2      879.29521175    85.8875
+   2      -2      249.50134823    83.6059
+   3       0     1159.47858134   401.7529
+   3       1    -4043.81338592   574.8221
+   3      -1      -13.82505252   595.4450
+   3       2     -894.34170720    87.3961
+   3      -2     -252.38624445    85.0332
+   3       3      -42.00725088     7.8036
+   3      -3       67.91708529     7.3683
+   4       0     -745.51750117   128.4423
+   4       1     1405.05997080   202.7811
+   4      -1        5.20134005   210.9451
+   4       2      427.42309148    41.8406
+   4      -2      119.47879594    40.6755
+   4       3       31.91872906     5.7400
+   4      -3      -49.85287178     5.4181
+   4       4        6.52655035     0.6820
+   4      -4       -5.87944885     0.5867
+   5       0      185.18434173    21.4120
+   5       1     -213.80535713    31.9345
+   5      -1        0.18330210    33.4491
+   5       2      -84.93351418     8.3591
+   5      -2      -23.23987373     8.1136
+   5       3       -8.72253573     1.5139
+   5      -3       13.05053774     1.4281
+   5       4       -2.74153465     0.2644
+   5      -4        2.27097595     0.2279
+   5       5       -0.11327513     0.0442
+   5      -5       -0.26128140     0.0428
+
+PPP_102070_WTZR: Station-specific ionosphere models - ION        18-JUL-13 08:55
+--------------------------------------------------------------------------------
+MODEL NUMBER / STATION NAME                    : WTZR 14201M010  
+MODEL TYPE (1=LOCAL,2=GLOBAL,3=STATION)        :    3
+MAXIMUM DEGREE OF SPHERICAL HARMONICS          :    5
+MAXIMUM ORDER                                  :    5
+DEVELOPMENT WITH RESPECT TO                     
+  GEOGRAPHICAL (=1) OR GEOMAGNETIC (=2) FRAME  :    2
+  MEAN (=1) OR TRUE (=2) POSITION OF THE SUN   :    1
+MAPPING FUNCTION (0=NONE,1=COSZ,2=MSLM,3=ESM)  :    2
+HEIGHT OF SINGLE LAYER AND ITS RMS ERROR (KM)  :  450.00     0.00
+COORDINATES OF EARTH-CENTERED DIPOLE AXIS       
+  LATITUDE OF NORTH GEOMAGNETIC POLE (DEGREES) :   79.00
+  EAST LONGITUDE (DEGREES)                     :  -71.00
+PERIOD OF VALIDITY                              
+  FROM EPOCH / REFERENCE EPOCH (Y,M,D,H,M,S)   : 2010 07 26 00 00 00
+  TO EPOCH                                     : 2010 07 27 00 00 00
+LATITUDE BAND COVERED                           
+  MINIMUM LATITUDE (DEGREES)                   :   36.10
+  MAXIMUM LATITUDE (DEGREES)                   :   61.68
+ADDITIONAL INFORMATION                          
+  NUMBER OF CONTRIBUTING SATELLITES            :   31
+  ELEVATION CUT-OFF ANGLE (DEGREES)            :   10
+  MAXIMUM TEC AND ITS RMS ERROR (TECU)         :    8.67     0.40
+COMMENT / WARNING                              :
+COEFFICIENTS                                    
+DEGREE  ORDER    VALUE (TECU)   RMS (TECU)      
+   0       0     2397.72721290   997.8803
+   1       0    -2133.39399808  1299.1488
+   1       1    -2597.11427390   532.3261
+   1      -1     2472.45365164   598.1267
+   2       0       35.86985270   936.6233
+   2       1     3239.98792234   663.2356
+   2      -1    -3104.65954397   747.4961
+   2       2      605.42318106    50.5012
+   2      -2      106.87542758    47.0928
+   3       0     1147.70907466   446.5826
+   3       1    -2135.05575623   437.1101
+   3      -1     2072.88217184   495.1195
+   3       2     -640.85728846    53.0757
+   3      -2     -117.06358580    49.5035
+   3       3      -15.09101053     4.6481
+   3      -3       13.48451464     4.4909
+   4       0     -838.24542794   136.7255
+   4       1      784.48142885   161.3508
+   4      -1     -780.37543165   184.1444
+   4       2      324.59181590    26.6191
+   4      -2       61.99626808    24.8318
+   4       3       11.64405814     3.5850
+   4      -3       -9.02943533     3.4600
+   4       4        1.90966233     0.4458
+   4      -4        0.27821770     0.3961
+   5       0      231.52743353    21.8122
+   5       1     -129.24249891    27.1354
+   5      -1      135.62731188    31.3549
+   5       2      -70.41196078     5.6976
+   5      -2      -14.19579814     5.3144
+   5       3       -3.22994786     1.0150
+   5      -3        1.97304803     0.9776
+   5       4       -0.87388045     0.1845
+   5      -4       -0.16328871     0.1644
+   5       5        0.07248018     0.0303
+   5      -5       -0.31804820     0.0309
+
+PPP_102070_WTZZ: Station-specific ionosphere models - ION        18-JUL-13 08:55
+--------------------------------------------------------------------------------
+MODEL NUMBER / STATION NAME                    : WTZZ 14201M014  
+MODEL TYPE (1=LOCAL,2=GLOBAL,3=STATION)        :    3
+MAXIMUM DEGREE OF SPHERICAL HARMONICS          :    5
+MAXIMUM ORDER                                  :    5
+DEVELOPMENT WITH RESPECT TO                     
+  GEOGRAPHICAL (=1) OR GEOMAGNETIC (=2) FRAME  :    2
+  MEAN (=1) OR TRUE (=2) POSITION OF THE SUN   :    1
+MAPPING FUNCTION (0=NONE,1=COSZ,2=MSLM,3=ESM)  :    2
+HEIGHT OF SINGLE LAYER AND ITS RMS ERROR (KM)  :  450.00     0.00
+COORDINATES OF EARTH-CENTERED DIPOLE AXIS       
+  LATITUDE OF NORTH GEOMAGNETIC POLE (DEGREES) :   79.00
+  EAST LONGITUDE (DEGREES)                     :  -71.00
+PERIOD OF VALIDITY                              
+  FROM EPOCH / REFERENCE EPOCH (Y,M,D,H,M,S)   : 2010 07 26 00 00 00
+  TO EPOCH                                     : 2010 07 27 00 00 00
+LATITUDE BAND COVERED                           
+  MINIMUM LATITUDE (DEGREES)                   :   36.10
+  MAXIMUM LATITUDE (DEGREES)                   :   61.26
+ADDITIONAL INFORMATION                          
+  NUMBER OF CONTRIBUTING SATELLITES            :   32
+  ELEVATION CUT-OFF ANGLE (DEGREES)            :   10
+  MAXIMUM TEC AND ITS RMS ERROR (TECU)         :    7.88     0.37
+COMMENT / WARNING                              :
+COEFFICIENTS                                    
+DEGREE  ORDER    VALUE (TECU)   RMS (TECU)      
+   0       0     2368.18643173   995.9286
+   1       0    -2048.67366347  1296.6741
+   1       1    -3037.07143769   537.4627
+   1      -1     2695.51500389   595.9830
+   2       0      -93.74326092   935.1021
+   2       1     3795.79114661   669.7133
+   2      -1    -3385.54624161   744.8389
+   2       2      599.51296575    50.8633
+   2      -2      124.05701238    46.5721
+   3       0     1259.64618398   446.2563
+   3       1    -2509.38819935   441.4720
+   3      -1     2261.17165261   493.3844
+   3       2     -634.29793881    53.4447
+   3      -2     -135.22122650    48.9678
+   3       3      -13.54238666     4.7059
+   3      -3       15.39850713     4.3650
+   4       0     -891.84205837   136.8892
+   4       1      926.93433849   163.0179
+   4      -1     -851.60119095   183.5137
+   4       2      321.04647653    26.7961
+   4      -2       71.17700794    24.5720
+   4       3       10.49399251     3.6269
+   4      -3      -10.58236228     3.3663
+   4       4        2.25634283     0.4488
+   4      -4        0.50146384     0.3806
+   5       0      243.58058759    21.9098
+   5       1     -154.30148696    27.4340
+   5      -1      148.07022217    31.2522
+   5       2      -69.56980829     5.7331
+   5      -2      -16.18701621     5.2620
+   5       3       -2.92320137     1.0258
+   5      -3        2.44223111     0.9524
+   5       4       -1.01925328     0.1855
+   5      -4       -0.25324996     0.1583
+   5       5        0.07089898     0.0298
+   5      -5       -0.33828805     0.0302
+
+PPP_102070_ZIM2: Station-specific ionosphere models - ION        18-JUL-13 08:56
+--------------------------------------------------------------------------------
+MODEL NUMBER / STATION NAME                    : ZIM2 14001M008  
+MODEL TYPE (1=LOCAL,2=GLOBAL,3=STATION)        :    3
+MAXIMUM DEGREE OF SPHERICAL HARMONICS          :    5
+MAXIMUM ORDER                                  :    5
+DEVELOPMENT WITH RESPECT TO                     
+  GEOGRAPHICAL (=1) OR GEOMAGNETIC (=2) FRAME  :    2
+  MEAN (=1) OR TRUE (=2) POSITION OF THE SUN   :    1
+MAPPING FUNCTION (0=NONE,1=COSZ,2=MSLM,3=ESM)  :    2
+HEIGHT OF SINGLE LAYER AND ITS RMS ERROR (KM)  :  450.00     0.00
+COORDINATES OF EARTH-CENTERED DIPOLE AXIS       
+  LATITUDE OF NORTH GEOMAGNETIC POLE (DEGREES) :   79.00
+  EAST LONGITUDE (DEGREES)                     :  -71.00
+PERIOD OF VALIDITY                              
+  FROM EPOCH / REFERENCE EPOCH (Y,M,D,H,M,S)   : 2010 07 26 00 00 00
+  TO EPOCH                                     : 2010 07 27 00 00 00
+LATITUDE BAND COVERED                           
+  MINIMUM LATITUDE (DEGREES)                   :   35.06
+  MAXIMUM LATITUDE (DEGREES)                   :   59.80
+ADDITIONAL INFORMATION                          
+  NUMBER OF CONTRIBUTING SATELLITES            :   32
+  ELEVATION CUT-OFF ANGLE (DEGREES)            :   10
+  MAXIMUM TEC AND ITS RMS ERROR (TECU)         :    6.02     0.38
+COMMENT / WARNING                              :
+COEFFICIENTS                                    
+DEGREE  ORDER    VALUE (TECU)   RMS (TECU)      
+   0       0     2489.75343612  1084.4821
+   1       0    -2220.48682377  1416.2643
+   1       1    -2602.17136398   532.9717
+   1      -1      389.02785812   602.4591
+   2       0       45.22475143  1026.3977
+   2       1     3265.54697634   667.7630
+   2      -1     -516.75962684   756.8059
+   2       2      302.95587942    48.3907
+   2      -2      162.22288198    46.3191
+   3       0     1194.91361833   492.0806
+   3       1    -2171.96092031   444.0306
+   3      -1      375.98128027   505.4424
+   3       2     -319.18934913    51.2984
+   3      -2     -173.80971335    49.1162
+   3       3      -16.33908106     4.5365
+   3      -3       18.63779454     4.2960
+   4       0     -879.22655947   151.1935
+   4       1      808.81148182   166.0298
+   4      -1     -158.86551517   190.2482
+   4       2      160.77042183    26.0509
+   4      -2       89.12170868    24.9511
+   4       3       12.91862015     3.5408
+   4      -3      -13.36112218     3.3529
+   4       4        3.83831481     0.4552
+   4      -4        2.05802585     0.3508
+   5       0      246.65346371    24.2415
+   5       1     -135.98374691    28.4732
+   5      -1       32.31243056    32.9985
+   5       2      -34.70288756     5.6850
+   5      -2      -19.31349122     5.4456
+   5       3       -3.72086212     1.0210
+   5      -3        3.29220338     0.9665
+   5       4       -1.62990064     0.1915
+   5      -4       -0.90506575     0.1489
+   5       5       -0.03950431     0.0310
+   5      -5       -0.22527936     0.0300
+
+PPP_102070_ZIMM: Station-specific ionosphere models - ION        18-JUL-13 08:56
+--------------------------------------------------------------------------------
+MODEL NUMBER / STATION NAME                    : ZIMM 14001M004  
+MODEL TYPE (1=LOCAL,2=GLOBAL,3=STATION)        :    3
+MAXIMUM DEGREE OF SPHERICAL HARMONICS          :    5
+MAXIMUM ORDER                                  :    5
+DEVELOPMENT WITH RESPECT TO                     
+  GEOGRAPHICAL (=1) OR GEOMAGNETIC (=2) FRAME  :    2
+  MEAN (=1) OR TRUE (=2) POSITION OF THE SUN   :    1
+MAPPING FUNCTION (0=NONE,1=COSZ,2=MSLM,3=ESM)  :    2
+HEIGHT OF SINGLE LAYER AND ITS RMS ERROR (KM)  :  450.00     0.00
+COORDINATES OF EARTH-CENTERED DIPOLE AXIS       
+  LATITUDE OF NORTH GEOMAGNETIC POLE (DEGREES) :   79.00
+  EAST LONGITUDE (DEGREES)                     :  -71.00
+PERIOD OF VALIDITY                              
+  FROM EPOCH / REFERENCE EPOCH (Y,M,D,H,M,S)   : 2010 07 26 00 00 00
+  TO EPOCH                                     : 2010 07 27 00 00 00
+LATITUDE BAND COVERED                           
+  MINIMUM LATITUDE (DEGREES)                   :   35.06
+  MAXIMUM LATITUDE (DEGREES)                   :   59.80
+ADDITIONAL INFORMATION                          
+  NUMBER OF CONTRIBUTING SATELLITES            :   31
+  ELEVATION CUT-OFF ANGLE (DEGREES)            :   10
+  MAXIMUM TEC AND ITS RMS ERROR (TECU)         :    5.92     0.39
+COMMENT / WARNING                              :
+COEFFICIENTS                                    
+DEGREE  ORDER    VALUE (TECU)   RMS (TECU)      
+   0       0     2546.34437391  1092.2718
+   1       0    -2279.82677225  1426.3145
+   1       1    -2486.67755158   542.5820
+   1      -1      892.57162330   602.0129
+   2       0       66.69869378  1033.6617
+   2       1     3120.62100148   679.6799
+   2      -1    -1150.10118839   756.3110
+   2       2      314.71771961    48.2327
+   2      -2      174.49694865    47.2464
+   3       0     1200.49597795   495.7558
+   3       1    -2075.56951567   451.8279
+   3      -1      799.80228013   505.1766
+   3       2     -331.36638873    51.1378
+   3      -2     -187.83993537    50.0713
+   3       3      -11.85632828     4.5057
+   3      -3       18.82866711     4.3676
+   4       0     -887.20713401   152.5128
+   4       1      772.90386614   168.8807
+   4      -1     -318.84623517   190.1796
+   4       2      166.71907740    25.9747
+   4      -2       97.01719074    25.4148
+   4       3        9.32049323     3.5171
+   4      -3      -13.48671969     3.4050
+   4       4        3.58181453     0.4563
+   4      -4        1.69943606     0.3611
+   5       0      249.11821716    24.5127
+   5       1     -129.95885905    28.9468
+   5      -1       60.15444783    32.9938
+   5       2      -35.90638525     5.6702
+   5      -2      -21.31257534     5.5394
+   5       3       -2.64386590     1.0144
+   5      -3        3.31510477     0.9800
+   5       4       -1.51726412     0.1918
+   5      -4       -0.75768820     0.1529
+   5       5       -0.03595459     0.0307
+   5      -5       -0.20753487     0.0291
+

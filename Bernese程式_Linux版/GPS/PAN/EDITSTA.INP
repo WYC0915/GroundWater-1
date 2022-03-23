@@ -1,0 +1,301 @@
+
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! File Names
+! ----------
+STACRXRS     0
+  ## widget = comment
+
+MSG_STACRXRS 1 "Filename"
+
+COORD     0
+  ## widget = comment
+
+MSG_COORD 1 "Filename"
+
+DATUM     1  "DATUM."
+  ## widget = selwin; path = PTH_GEN; maxfiles = 1
+
+MSG_DATUM 1  "Geodetic datum file"
+
+NEWFILE     0
+  ## widget = lineedit; menuaux = MENUAUX; action = ADD_ONE
+  ## menuauxkeys = NEWFILE
+
+! Title for Station info file
+! ---------------------------
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1 "Title line"
+
+! TYPE 001: Renaming of stations
+! ------------------------------
+TYPE001HLP     1  "" "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = STAX001
+  ## menuauxkeys = COORD NEW001 NEW001STA NEW001FLG NEW001BEG NEW001END
+  ## updateifsave = true
+
+TYPE001     1  "" "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = STAX001
+  ## menuauxkeys = TYPE001 COORD NEW001 NEW001STA NEW001FLG NEW001BEG NEW001END
+  ## updateifsave = true; updateifchanged = TYPE001HLP
+  ## check_strlen.1 = 16;
+  ## check_strlen.2 = 3;
+  ## check_strlen.5 = 16;
+  ## check_strlen.6 = 30;
+  ## numlines = 15
+
+MSG_TYPE001 1 "Station name"
+
+! TYPE 002: Station Information
+! -----------------------------
+TYPE002HLP     1  "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = STAX002
+  ## menuauxkeys = COORD NEW002 NEW002STA NEW002FLG NEW002BEG NEW002END
+  ## updateifsave = true
+
+TYPE002     1  "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = STAX002
+  ## menuauxkeys = TYPE002 COORD NEW002 NEW002STA NEW002FLG NEW002BEG NEW002END
+  ## updateifsave = true; updateifchanged = TYPE002HLP
+  ## check_strlen.1 = 16;
+  ## check_strlen.2 = 3;
+  ## check_strlen.5 = 20; check_strlen.6 = 20
+  ## check_type.7 = integer; check_min.7 = 0; check_max.7 = 999999
+  ## check_strlen.8 = 20; check_strlen.9 = 20
+  ## check_type.10 = integer; check_min.10 = 0; check_max.10 = 999999
+  ## check_type.11 = real; check_type.12 = real; check_type.13 = real
+  ## check_type.14 = 22; check_type.15 = 24
+  ## numlines = 15
+
+MSG_TYPE002 1 "Station name"
+
+! TYPE 003: Handling of station problems
+! --------------------------------------
+TYPE003HLP     1  "" "" "" "" ""
+  ## widget = uniline
+
+TYPE003     1  "" "" "" "" ""
+  ## widget = uniline
+  ## check_strlen.1 = 16;
+  ## check_strlen.2 = 3;
+  ## check_strlen.5 = 30;
+  ## numlines = 15
+
+MSG_TYPE003 1 "Station name"
+
+! TYPE 004: Station Coord/Veloc. Constraints
+! ------------------------------------------
+TYPE004HLP     1  "" "" "" "" "" "" "" ""
+  ## widget = uniline
+
+TYPE004     1  "" "" "" "" "" "" "" ""
+  ## widget = uniline
+  ## check_strlen.1 = 16;check_strlen.2 = 16
+  ## check_type.3 = real; check_min.3 = 0.0
+  ## check_type.4 = real; check_min.4 = 0.0
+  ## check_type.5 = real; check_min.5 = 0.0
+  ## check_type.6 = real; check_min.6 = 0.0
+  ## check_type.7 = real; check_min.7 = 0.0
+  ## check_type.8 = real; check_min.8 = 0.0
+  ## numlines = 15
+
+MSG_TYPE004 1 "Station name 1/2"
+
+! TYPE 005: Marker Type
+! ---------------------
+TYPE005HLP     1  "" "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = STAX005
+  ## menuauxkeys = COORD NEW005 NEW005STA NEW005FLG NEW005BEG NEW005END
+  ## updateifsave = true
+
+TYPE005     1  "" "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = STAX005
+  ## menuauxkeys = TYPE005 COORD NEW005 NEW005STA NEW005FLG NEW005BEG NEW005END
+  ## updateifsave = true; updateifchanged = TYPE005HLP
+  ## check_strlen.1 = 16;
+  ## check_strlen.2 = 3;
+  ## check_strlen.5 = 20;
+  ## check_strlen.6 = 30;
+  ## numlines = 15
+
+MSG_TYPE005 1 "Station name"
+
+! Phase center file to check rec/ant names
+! ----------------------------------------
+PHASECC     1  "PCV.I08"
+  ## widget = selwin; path = PTH_GEN; emptyallowed = true; maxfiles = 1
+
+MSG_PHASECC 1 "Phase center eccentricities"
+
+!
+! New files using coordinate file
+!
+! Defaults for station renaming
+! -----------------------------
+NEW001     1  "0"
+  ## widget = checkbox
+
+MSG_NEW001 1 "Renaming of stations"
+
+NEW001STA     0
+  ## widget = selwin; pointer = STALST; activeif = NEW001 = 1
+
+MSG_NEW001STA 1 "List of stations for TYPE001"
+
+NEW001FLG     0
+  ## widget = lineedit; activeif = NEW001 = 1
+  ## check_type = integer; check_min = 0; check_max = 998
+
+MSG_NEW001FLG 1 "Use for these stations as default: flag"
+
+NEW001BEG     0
+  ## widget = lineedit; activeif = NEW001 = 1
+
+MSG_NEW001BEG 1 "Use for these stations as default: from (date and time)"
+
+NEW001END     0
+  ## widget = lineedit; activeif = NEW001 = 1
+
+MSG_NEW001END 1 "Use for these stations as default: to (date and time)"
+
+! Defaults for station information
+! --------------------------------
+NEW002     1  "0"
+  ## widget = checkbox
+
+MSG_NEW002 1 "Station information "
+
+NEW002STA     0
+  ## widget = selwin; pointer = STALST; activeif = NEW002 = 1
+
+MSG_NEW002STA 1 "List of stations for TYPE002"
+
+NEW002FLG     0
+  ## widget = lineedit; activeif = NEW002 = 1
+  ## check_type = integer; check_min = 0; check_max = 998
+
+MSG_NEW002FLG 1 "Use for these stations as default: flag"
+
+NEW002BEG     0
+  ## widget = lineedit; activeif = NEW002 = 1
+
+MSG_NEW002BEG 1 "Use for these stations as default: from (date and time)"
+
+NEW002END     0
+  ## widget = lineedit; activeif = NEW002 = 1
+
+MSG_NEW002END 1 "Use for these stations as default: to (date and time)"
+
+! Default for Marker types
+! ------------------------
+NEW005     1  "0"
+  ## widget = checkbox
+
+MSG_NEW005 1 "Marker type"
+
+NEW005STA     0
+  ## widget = selwin; pointer = STALST; activeif = NEW005 = 1
+
+MSG_NEW005STA 1 "List of stations for TYPE005"
+
+NEW005FLG     0
+  ## widget = lineedit; activeif = NEW005 = 1
+  ## check_type = integer; check_min = 0; check_max = 998
+
+MSG_NEW005FLG 1 "Use for these stations as default: flag"
+
+NEW005BEG     0
+  ## widget = lineedit; activeif = NEW005 = 1
+
+MSG_NEW005BEG 1 "Use for these stations as default: from (date and time)"
+
+NEW005END     0
+  ## widget = lineedit; activeif = NEW005 = 1
+
+MSG_NEW005END 1 "Use for these stations as default: to (date and time)"
+
+! Station list from coordinate file
+! ---------------------------------
+STALST     0
+  ## widget = selwin; menuaux = MENUAUX; action = STALST
+  ## menuauxkeys = CONST DATUM COORD
+
+
+# BEGIN_PANEL COORD / _ AND NEWFILE = one #######################################
+# CREATE/UPDATE STATION INFORMATION FILE - EDITSTA                              #
+# CREATE A NEW STATION INFORMATION FILE                                         #
+#                                                                               #
+#  Filename > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <  # COORD
+#                                                                               #
+# > % <TYPE 001: Renaming of stations                                           # NEW001
+#                List of stations for TYPE 001    > %%%%%%%%%%%%%%%%%%%% <      # NEW001STA
+#                Use for these stations as default:                             #
+#                Flag          YYYY MM DD HH MM SS        YYYY MM DD HH MM SS   #
+#              > %%% <  from > %%%%%%%%%%%%%%%%%%% < to > %%%%%%%%%%%%%%%%%%% < # NEW001FLG NEW001BEG NEW001END
+#                                                                               #
+# > % <TYPE 002: Station information                                            # NEW002
+#                List of stations for TYPE 002    > %%%%%%%%%%%%%%%%%%%% <      # NEW002STA
+#                Use for these stations as default:                             #
+#                Flag          YYYY MM DD HH MM SS        YYYY MM DD HH MM SS   #
+#              > %%% <  from > %%%%%%%%%%%%%%%%%%% < to > %%%%%%%%%%%%%%%%%%% < # NEW002FLG NEW002BEG NEW002END
+#                                                                               #
+# > % <TYPE 005: Marker type                                                    # NEW005
+#                List of stations for TYPE 005    > %%%%%%%%%%%%%%%%%%%% <      # NEW005STA
+#                Use for these stations as default:                             #
+#                Flag          YYYY MM DD HH MM SS        YYYY MM DD HH MM SS   #
+#              > %%% <  from > %%%%%%%%%%%%%%%%%%% < to > %%%%%%%%%%%%%%%%%%% < # NEW005FLG NEW005BEG NEW005END
+#                                                                               #
+# END_PANEL #####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION ###########################################################################################
+# EDIT STATION INFORMATION FILE - EDITSTA 1: Renaming of Stations (TYPE 001)                                         #
+#                                                                                                                    #
+#  Filename > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <                                       # STACRXRS
+#  Title    > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <                                     # TITLE
+#                                                                                                                    #
+#                              from               to                                                                 #
+#> Station_name____ Flag yyyy_mm_dd_hh_mm_ss yyyy_mm_dd_hh_mm_ss Old_station_name Remark_______________________ <    # TYPE001
+#                                                                                                                    #
+# END_PANEL ##########################################################################################################
+
+
+# BEGIN_PANEL NO_CONDITION ################################################################################################################################################################################################################
+# EDITSTA 2: Station Information (TYPE 002)                                                                                                                                                                                               #
+#                                                                                                                                                                                                                                         #
+#  Antenna phase center file to check the entries    > %%%%%%%%%%%% <                                                                                                                                                                     # PHASECC
+#                                                                                                                                                                                                                                         #
+#                              from               to                                                                                                     Antenna eccentricity                                                             #
+#> Station_name____ Flag yyyy_mm_dd_hh_mm_ss yyyy_mm_dd_hh_mm_ss Receiver_type_______ Receiver_serial_nbr_ Rec_#_ Antenna_type________ Antenna_serial_nbr__ Ant_#_ North(m) _East(m) __Up(m)_ Description_________ Remark______________ < # TYPE002
+#                                                                                                                                                                                                                                         #
+# END_PANEL ###############################################################################################################################################################################################################################
+
+
+# BEGIN_PANEL NO_CONDITION ###########################################################################
+# EDITSTA 3: Handling of Station Problems (TYPE 003)                                                 #
+#                                                                                                    #
+#                              from               to                                                 #
+#> Station_name____ Flag yyyy_mm_dd_hh_mm_ss yyyy_mm_dd_hh_mm_ss Remark________________________ <    # TYPE003
+#                                                                                                    #
+# END_PANEL ##########################################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #######################################################################
+# EDITSTA 4: Station Coordinate and Velocity Constraints (TYPE 004)                              #
+#                                                                                                #
+#                                  Relative constr position  Relative constr velocity            #
+#> Station_name_1__ Station_name_2__ North(m) East(m)_ Up(m)___ North(m) East(m)_ Up(m)___ <     # TYPE004
+#                                                                                                #
+# END_PANEL ######################################################################################
+
+
+# BEGIN_PANEL NO_CONDITION ################################################################################################
+# EDITSTA 5: Marker Type (TYPE 005)                                                                                       #
+#                                                                                                                         #
+#                              from               to                                                                      #
+#> Station_name____ Flag yyyy_mm_dd_hh_mm_ss yyyy_mm_dd_hh_mm_ss Marker_type_________ Remark________________________ <    # TYPE005
+#                                                                                                                         #
+# END_PANEL ###############################################################################################################

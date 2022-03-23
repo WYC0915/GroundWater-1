@@ -1,0 +1,115 @@
+      MODULE s_DEFLCQ
+      CONTAINS
+
+C*
+      SUBROUTINE DEFLCQ(MOD,NPAR,LOCQ,ADDVAR,NVAR,LOCINT,INDLOC)
+CC
+CC NAME       :  DEFLCQ
+CC
+CC PURPOSE    :  DEFINE LOCINT FOR DIFFERENT OPTIONS (SEE BELOW)
+CC               FROM THE INPUT FILE
+CC
+CC PARAMETERS :
+CC        IN  :  MOD    : TERMS SET UP FOR NUMERICAL INTEGRA-   I*4
+CC                        TION AND SAVED IN OUTPUT-FILE
+CC                        MOD=1 : ONLY TIME-INDEPENDENT TERMS SET
+CC                                UP FOR INTEGRATION (7-9)
+CC                        MOD=2 : ALL DYNAMICAL TERMS SET UP (7-15)
+CC                        MOD=3 : LIKE 2 PLUS PARTIALS W.R.T.(1-15)
+CC                                OSCULATING ELEMENTS
+CC               NPAR   : NUMBER OF UNKNOWN PARAMETERS          I*4
+CC               LOCQ   : DESCRIPTION OF UNKNOWN PARAMETERS     I*4
+CC               ADDVAR : NUMBER OF ADDITIONAL VAR. EQNS.       I*4
+CC        OUT :  NVAR   : NUMBER OF VARIATIONAL EQNS. FOR       I*4
+CC                        NUMERICAL INTEGRATION (AND FOR STORING
+CC                        IN FILES)
+CC        OUT :  LOCINT : DESCRIPION OF PARAMETERS FOR NUMERI-  I*4
+CC                        CAL INTEGRATION
+CC               INDLOC : INDLOC(IPAR) = KINT :                 I*4
+CC                        POSITION OF UNKNOWN NR. IPAR IN SEQUENCE
+CC                        OF VARIATIONAL EQUATIONS
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER
+CC
+CC VERSION    :  4.0  (DEC 95)
+CC
+CC CREATED    :  95/12/28
+CC
+CC CHANGES    :  12-DEC-03 : AJ: ADD ADDITIONAL PARTIALS
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1995     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IEND, IPAR, KVAR, L   , MOD , NPAR, NVAR
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+      INTEGER*4 LOCINT(6,*),LOCQ(6,*),INDLOC(*),ADDVAR
+C
+C DEFINE PARTIALS W.R.T. INITIAL CONDITIONS FOR MOD=3
+C ---------------------------------------------------
+      NVAR=0
+      IF(MOD.EQ.3)THEN
+        DO 10 IPAR=1,6
+          LOCINT(1,IPAR)=3
+          LOCINT(2,IPAR)=0
+          LOCINT(3,IPAR)=0
+          LOCINT(4,IPAR)=IPAR
+          LOCINT(5,IPAR)=6
+10      CONTINUE
+        NVAR=NVAR+6
+      END IF
+C
+C SET UP THREE OR NINE DYNAMICAL PARAMETERS
+      IF(MOD.EQ.1)THEN
+        IEND=3
+      ELSE
+        IEND=9+3*ADDVAR
+      END IF
+C
+C DEFINE LOCINT
+      DO 20 IPAR=1,IEND
+        NVAR=NVAR+1
+        LOCINT(1,NVAR)=3
+        LOCINT(2,NVAR)=0
+        LOCINT(3,NVAR)=0
+        LOCINT(4,NVAR)=6+IPAR
+        LOCINT(5,NVAR)=6+IEND
+        LOCINT(6,NVAR)=0
+20    CONTINUE
+C
+C DEFINE INDLOC
+C -------------
+      DO 50 IPAR=1,NPAR
+        IF(MOD.NE.3.AND.LOCQ(4,IPAR).LT.7)THEN
+          INDLOC(IPAR)=0
+          GO TO 50
+        END IF
+        DO 40 KVAR=1,NVAR
+          DO 30 L=1,4
+            IF(LOCQ(L,IPAR).NE.LOCINT(L,KVAR))GO TO 40
+30        CONTINUE
+          INDLOC(IPAR)=KVAR
+          GO TO 50
+40      CONTINUE
+        WRITE(LFNERR,45)IPAR,(LOCQ(L,IPAR),L=1,6)
+45      FORMAT(//,' ** SR DEFLCQ : PARAMETER NR.',I3,' WITH LOCQ',
+     1         6I2,' NOT FOUND',//)
+        CALL EXITRC(2)
+50    CONTINUE
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

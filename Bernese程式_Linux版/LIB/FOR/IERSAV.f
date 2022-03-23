@@ -1,0 +1,215 @@
+      MODULE s_IERSAV
+      CONTAINS
+
+C*
+      SUBROUTINE IERSAV(TITLE ,NPOL  ,TPOL  ,NPAR  ,HPVAL ,DTSIM ,
+     1                  LOCQ  ,RMS   ,XXX   ,ANOR  ,NSTA  ,NFIX  ,
+     2                  NSTWGT,STWGT ,NFTOT ,SATNUM,NSATEL)
+CC
+CC NAME       :  IERSAV
+CC
+CC PURPOSE    :  SAVE THE VALUES OF THE ESTIMATED POLE PARAMETERS
+CC               CONCERNING THE FORMAT CREATED BY IERS CENTRAL
+CC               BUREAU FOR THE IGS CAMPAIGN.
+CC
+CC PARAMETERS :
+CC         IN :  TITLE  : TITLE FOR FILE                       CH*80
+CC               NPOL   : NUMBER OF POLE PARAMETER SETS         I*4
+CC               TPOL   : START AND END TIME OF INTERVAL FOR    R*8(2,*)
+CC                        ONE SET OF PARAMETERS
+CC                        1,2 :=BEGIN,END TIME, *:= 1..MAXPOL
+CC               NPAR   : TOTAL NUMBER OF PARAMETERS            I*4
+CC               HPVAL  : TIME RESOLUTION TO STORE VALUES-HOURS R*8
+CC               DTSIM  : TIME INTERVAL TO IDENTIFY OBSERV.     R*8
+CC                        OF THE SAME EPOCH
+CC               LOCQ(K,I),K=1,..,MAXLCQ,I=1,2,...              I*4
+CC                        CHARACTERIZATION OF PARAMETERS
+CC               RMS    : MEAN ERROR OF OBSERVATION             R*8
+CC               XXX(I),I=1,2,....                              R*8
+CC                        SOLUTION VECTOR
+CC               ANOR    : UPPER TRIANGULAR PART OF COVARI-     R*8(*)
+CC                        ANCE MATRIX
+CC               NSTA    : NUMBER OF CONTRIBUTING STATIONS      I*4
+CC               NFIX    : NUMBER OF FIXED STATIONS             I*4
+CC               NSTWGT  : # STATIONS WITH A PRIORI WEIGHTS     I*4
+CC                         FOR COORDINATES
+CC               STWGT   : STWGT(K,I) A PRIORI WEIGHT FOR       R*8(3,*)
+CC                         STATION I AND COORDINATE K
+CC               NFTOT   : NUMBER OF FILES                      I*4
+CC               SATNUM(K,I),K=1,..,MAXSAT,I=...: SATELLITE     I*4
+CC                        NUMBERS
+CC               NSATEL(I),I=1,2,..,NFTOT: NUMBER OF SATEL-     I*4(*)
+CC                        LITES PER FILE
+CC
+CC REMARKS    :  PARAMETER SETS MUST BE SORTED CHRONOLOGICALLY
+CC
+CC AUTHOR     :  S.FANKHAUSER
+CC
+CC VERSION    :  3.2
+CC
+CC CREATED    :  92/01/20
+CC
+CC CHANGES    :  29-APR-92 : ??: DECLARATION OF MXNLCQ
+CC               23-JUN-92 : ??: INIT OF POLHLP AND POLINF CORRECTED
+CC               25-JUN-92 : ??: OPTION APPEND OR OVERWRITE (NEW CALL)
+CC               02-AUG-92 : ??: NEW VERSION OF SUBROUTINE DUE TO
+CC                               POLYNOM FOR ERPS
+CC               20-MAR-93 : ??: MODIFICATIONS DUE TO NEW ERP MODELS
+CC               22-JUN-94 : SF: CHANGES DUE TO NEW IGS POLE FORMAT
+CC               01-JUL-94 : SF: COMPUTE "IERFIX" IN HERE
+CC               04-JAN-96 : EB: ROUND SAVING REQUEST TO 5 SEC.
+CC               06-JUN-96 : TS: ADDED SUBDAILY POLE MODEL
+CC               07-SEP-97 : LM: ADD NPOL TO SR WTLIEP CALL
+CC               14-FEB-03 : PS: USE NUTNAM AND SUBNAM
+CC               08-MAR-03 : HU: INTERFACE FOR RDNUTSUB ADDED
+CC               08-APR-03 : RD: NPVAL->HPVAL (NOT NUMBER BUT HOURS)
+CC               23-APR-03 : AJ: NULLIFY LOCAL POINTERS
+CC               05-NOV-03 : HU: ADDITIONAL ARGUMENTS FOR GETPOL
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1992     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE M_TIME,   ONLY: T_TIMINT
+C
+      USE s_opnfil
+      USE s_parint
+      USE s_mjdgps
+      USE s_opnerr
+      USE s_wtliep
+      USE s_wtpolh
+      USE s_rdnutsub
+      USE f_gpsmjd
+      USE s_gtflna
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I1    , IERFIX, IOSTAT, IPL   , IPVAL , IRC   , MXCLCQ,
+     1          MXCSAT, NFIX  , NFTOT , NPAR  , NPOL  , NPOLSV, NSTA  ,
+     2          NSTWGT, NWEEK
+C
+      REAL*8    DTSAVE, DTSIM , GPSSEC, HPVAL , RMS   , TSAV
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+C GLOBAL DECLARATION
+C ------------------
+      CHARACTER*80 TITLE
+      CHARACTER*16 NUTNAM,SUBNAM
+      CHARACTER*6  MXNLCQ,MXNSAT
+C
+      REAL*8       TPOL(2,*),XXX(*),ANOR(*),STWGT(3,*)
+C
+      INTEGER*4    LOCQ(MXCLCQ,*),SATNUM(MXCSAT,*),NSATEL(*)
+C
+C INTERNAL DECLARATION
+C --------------------
+      TYPE(T_TIMINT) POLINT
+      TYPE(T_TIMINT), DIMENSION(:),POINTER :: SAVWIN
+C
+      CHARACTER*32 FILPOL
+C
+      REAL*8       D1(2),D2(2),D3(2),D4(2),D5(2),D6(2),D7(2)
+C
+      INTEGER*4    POLTYP(2)
+C
+C
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+      COMMON/MCMSAT/MXCSAT,MXNSAT
+C
+      NULLIFY(SAVWIN)
+
+C
+      DTSAVE=5.D0
+C
+C IF OUTPUT FILENAME IS BLANK, THEN NO INFORMATION IS SAVED
+C ---------------------------------------------------------
+      CALL GTFLNA(0,'IERSPOL',FILPOL,IRC)
+      IF(IRC.NE.0) RETURN
+C
+C OPEN THE OUTPUT POLE FILE AND WRITE THE HEADER
+C ----------------------------------------------
+      CALL GTFLNA(1,'IERSPOL',FILPOL,IRC)
+      CALL OPNFIL(LFNRES,FILPOL,'UNKNOWN',' ',' ',' ',IOSTAT)
+      CALL OPNERR(LFNERR,LFNRES,IOSTAT,FILPOL,'IERSAV')
+C
+C CALL GETPOL TO GET THE POLE MODEL TYPES
+C ---------------------------------------
+C      IF (NPOL.GT.0) CALL GETPOL(TPOL(1,1),1,D1,D2,D3,D4,D5,D6,D7,POLTYP)
+C
+C FOR GPSEST-ESTIMATES SET NUTATION MODEL (POLTYP(1) ALWAYS=OBSERVED=2)
+C ---------------------------------------------------------------------
+C      POLTYP(1)=2
+C
+C WRITE HEADER OF IERS/IGS POLE FILE FORMAT (FILTYP=2)
+C ----------------------------------------------------
+      CALL RDNUTSUB(NUTNAM,SUBNAM)
+      CALL WTPOLH(LFNRES,2,TITLE,POLTYP,NUTNAM,SUBNAM)
+C
+C GET THE EPOCHS FOR STORING POLE VALUES
+C --------------------------------------
+      NULLIFY(SAVWIN)
+      IF (HPVAL.NE.0D0) THEN
+        POLINT%T(1)=TPOL(1,1)   +1D0/86400D0
+        POLINT%T(2)=TPOL(2,NPOL)-1D0/86400D0
+        CALL PARINT(POLINT,DTSIM,1D20,0D0,HPVAL,
+     1       'TIME RESOLUTION FOR BERNESE POLE FILES',NPOLSV,SAVWIN)
+      ENDIF
+C
+C PREPARE NUMBER OF FIXED STATIONS FOR IERSAV
+C -------------------------------------------
+      IERFIX=NFIX
+      DO 50 I1=1,NSTWGT
+        IF(STWGT(1,I1).GT.0.D0.AND.STWGT(1,I1).LT.0.001.AND.
+     1     STWGT(2,I1).GT.0.D0.AND.STWGT(2,I1).LT.0.001.AND.
+     2     STWGT(3,I1).GT.0.D0.AND.STWGT(3,I1).LT.0.001)
+     3     IERFIX=IERFIX+1
+50    CONTINUE
+C
+C PREPARE THE SAVE TIMES AND SAVE THE INFORMATION
+C -----------------------------------------------
+      DO 60 IPL=1,NPOL
+        IF (HPVAL.EQ.0D0.OR.NPOLSV.EQ.0) THEN
+          TSAV=(TPOL(2,IPL)+TPOL(1,IPL))/2.D0
+C
+C ROUND SAVE TIME TO NEAREST DTSAVE (E.G. TO NEAREST 5 SEC)
+          CALL MJDGPS(TSAV,GPSSEC,NWEEK)
+          GPSSEC=DNINT(GPSSEC/DTSAVE)*DTSAVE
+          TSAV=GPSMJD(GPSSEC,NWEEK)
+C
+          CALL WTLIEP(LFNRES,IPL,TSAV,TPOL(1,IPL),XXX,ANOR,NPAR,LOCQ,
+     1                RMS,TPOL,NSTA,IERFIX,NFTOT,SATNUM,NSATEL,npol)
+        ELSE
+          DO 70 IPVAL=1,NPOLSV+1
+            IF (IPVAL.LE.NPOLSV) THEN
+              TSAV=SAVWIN(IPVAL)%T(1)
+            ELSE IF (IPVAL.GT.1) THEN
+              TSAV=SAVWIN(IPVAL-1)%T(2)
+            ENDIF
+            IF (TSAV+DTSIM.LT.TPOL(1,IPL)) GOTO 70
+            IF (TSAV-DTSIM.GT.TPOL(2,IPL)) GOTO 60
+C
+C ROUND SAVE TIME TO NEAREST DTSAVE (E.G. TO NEAREST 5 SEC)
+            CALL MJDGPS(TSAV,GPSSEC,NWEEK)
+            GPSSEC=DNINT(GPSSEC/DTSAVE)*DTSAVE
+            TSAV=GPSMJD(GPSSEC,NWEEK)
+C
+            CALL WTLIEP(LFNRES,IPL,TSAV,TPOL(1,IPL),XXX,ANOR,NPAR,LOCQ,
+     1                  RMS,TPOL,NSTA,IERFIX,NFTOT,SATNUM,NSATEL,npol)
+70        CONTINUE
+        END IF
+60    CONTINUE
+      CLOSE(LFNRES)
+C
+C RETURN CODES
+C ------------
+      DEALLOCATE(SAVWIN,STAT=IRC)
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

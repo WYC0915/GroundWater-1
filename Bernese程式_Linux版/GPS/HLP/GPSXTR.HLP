@@ -1,0 +1,557 @@
+<html>
+<body>
+
+<center>
+<b>EXTRACT GPSEST/ADDNEQ2 PROGRAM OUTPUT</b>
+<p>Program: GPSXTR
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program extracts the most important information from the
+parameter estimation programs <a href="PGMLST.HLP#GPSEST">GPSEST</a> and
+the normal equation stacking program <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a>
+and writes several possible summary files.
+
+<p><hr>
+
+<p><b>GPSXTR 1: Extractions</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RADIO_1" default="0"></a>
+<a name="JOBGPS" default="GPSEST.L??">
+<a name="RADIO_3" default="1"></a>
+<a name="OUTPUT" default=""></a>
+<p><b>INPUT FILENAMES</b>
+<p>Selection of <a href="PGMLST.HLP#GPSEST">GPSEST</a> or
+<a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a> output file(s) as input
+for the extraction program. Both output files can be specified simultaneously.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="GPSXTR"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+
+<p><hr>
+
+<p><b>GPSXTR 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<p><hr>
+
+<p><b>GPSXTR 2: Output Files</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>This title line will be printed as header comment in the program output.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="GPSOUT" default="">
+<p><b>OUTPUT FILES</b>
+<p>
+When specifying more than one summary output file, you have to use
+different filenames because all summary files will be stored in the same
+location and have the same extension (default: campaign directory OUT and
+extension SUM).
+
+<p><b>Output summary:</b>
+This is the standard summary extracted from a
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> and/or
+<a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a> program output. It contains
+the name of the output file, the a posteriori RMS in millimeters, the number
+of observation files that contributed to the solution, the number of
+observations used for the parameter estimation, and the number of parameters
+including all pre-eliminated parameters.
+<br>
+For GPSEST program output files the day of year is extracted from the
+sessions of the observation files. For ADDNEQ2 program output files the
+current session of the program runs as extracted from the title section
+is used.
+<br>
+If satellite orbits were estimated with GPSEST or ADDNEQ2 the
+maximum change of the semi-major axes 'a' is
+reported, too. Otherwise the corresponding values are set to <tt>0.00</tt>.
+<br>
+The output summary contains one standard summary section for each
+GPSEST/ADDNEQ2 program output file selected.
+
+<p>Output example:<!-- $S/RAP/OUT/IGSRAPID.11_323 -->
+<pre>
+  RQ_11323.OUT    Rms:  1.4 , # fil.: 149 , # obs.:  781452 , # par.: 10888
+  (DOY: 323)                  Max. correction in a:   0.27 +- 0.02 for sat.: 27
+</pre>
+
+<a name="CRDOUT" default=""></a>
+<p><b>Coordinate summary:</b>
+The coordinate summary file may provide a processing quality check for
+baselines processed independently with program
+<a href="PGMLST.HLP#GPSEST">GPSEST</a>. Select all corresponding GPSEST program
+output files to get a summary containing for each baseline the name of the
+single difference file, the number of observations, the number of ambiguities,
+the a posteriori RMS, the length of the baseline, the height difference between
+the two points, the change of the baseline coordinates in height, north,
+east, and length with respect to the a priori coordinates together with their
+associated formal uncertainties, and the absolute value of baseline coordinate
+change.
+<br>
+The lines at the bottom of the table give the mean values for the number of
+observations, the number of ambiguities, the a posteriori RMS, the baseline
+length, and the height difference for all baselines as well as the standard
+deviation (first line), mean value, and RMS (second line) of all baseline
+coordinate corrections in height, north, and east directions.
+<br>
+In case of zero-difference processing DHT, DH, DN, and DE give the station
+height and standard deviations of the estimates in height, north and east
+components respectively.
+<br>
+The strings in the first column are extracted from the title lines.
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+ BASELINE  #OBS.  #AMB  RMS(MM)  L(KM)  DHT(M)    DH(MM) +-    DN(MM) +-    DE(MM) +-    DL(MM) +-    DS(MM)
+ -----------------------------------------------------------------------------------------------------------
+ AMGT2940 14806    61     1.3  2987.     -391.5     7.5  0.5    -2.3  0.2     3.5  0.2     4.5  0.2     8.6
+ AR032940 15914    49     1.6  8046.    -2379.8     2.6  0.6    -0.6  0.3     5.0  0.3    -4.0  0.3     5.7
+ ...
+ SASL2940 14940    42     1.2  7691.     1076.7    -2.7  0.5     0.7  0.3     2.1  0.2    -2.4  0.2     3.5
+ YBZZ2940 19708    76     1.4  5009.     1229.8    -4.5  0.5     2.2  0.3    -3.9  0.2    -4.3  0.2     6.3
+ -----------------------------------------------------------------------------------------------------------
+ TOT:  35 15352    51     1.5  1250.       -9.4          5.5          2.6          5.5          4.2     8.2
+                                                   -0.2  5.6     0.4  2.6     1.8  5.3    -0.6  4.2
+</pre>
+
+<a name="KINOUT" default=""></a>
+<p><b>Kinematic summary:</b>
+This file summarizes results of a kinematic coordinate estimation extracted
+from a <a href="PGMLST.HLP#GPSEST">GPSEST</a> program output file.
+It is limited to one kinematic station only.
+<br>
+The main part of the summary reports the epoch number and the
+difference of the estimated kinematic position with respect to the a priori
+coordinates in north, east, and up components for all epochs
+for which the formal uncertainties for all components does not exceed
+0.1&nbsp;meter (or 10&nbsp;meter for a code only solution).
+<br>
+The header and footer of the summary file give statistical information (the
+units are meters):
+<table>
+<tr><td><tt>*XEPO</tt>:</td>
+    <td>Number of accepted epochs from the kinematic coordinate estimation,
+        number of station clock corrections estimated, and
+        total number of epochs used for the kinematic coordinate estimation.</td></tr>
+<tr><td><tt>*INI</tt>:</td>
+    <td>Not used.</td></tr>
+<tr><td><tt>*EST</tt>:</td>
+    <td>Not used.</td></tr>
+<tr><td><tt>*DIFXYZ</tt>:</td>
+    <td>Not used.</td></tr>
+<tr><td><tt>*DIFNEU</tt>:</td>
+    <td>Mean difference between the estimated kinematic coordinates and the
+        a priori coordinates of all valid epochs for the north, east, and
+        up components.</td></tr>
+<tr><td><tt>*AVG</tt>:</td>
+    <td>Mean difference between the estimated kinematic coordinates and the
+        a priori coordinates of all valid epochs for the north, east, and
+        up components.</td></tr>
+<tr><td><tt>*SIG</tt>:</td>
+    <td>Standard deviation of the differences between the estimated kinematic
+        coordinates and the a priori coordinates of all valid epochs for the
+        north, east, and up components.</td></tr>
+<tr><td><tt>*RMS</tt>:</td>
+    <td>RMS of the differences between the
+        estimated kinematic coordinates and the a priori coordinates of
+        all valid epochs for the north, east, and up components.</td></tr>
+<tr><td><tt>*RMSTC</tt>:</td>
+    <td>A posteriori RMS of the GPSEST parameter estimation.</td></tr>
+<tr><td><tt>STATION</tt>:</td>
+    <td>The first four characters of the kinematic station.</td></tr>
+<tr><td><tt>PARAMS</tt>:</td>
+    <td>Total number of ambiguity parameters,
+        total number of epochs involved in the kinematic coordinate estimation,
+        number of station clock parameters, and
+        number of all parameters.</td></tr>
+<tr><td><tt>OBSERV</tt>:</td>
+    <td>Number of code observations in the ionosphere-free linear combination,
+        number of phase observations in the ionosphere-free linear combination, and
+        total number of observations.</td></tr>
+</table>
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+ Program : GPSEST                                                                
+*XEPO               203            203            203
+*INI             0.0000         0.0000         0.0000
+*EST             0.0000         0.0000         0.0000
+*DIFXYZ          0.0000         0.0000         0.0000
+*DIFNEU         -0.0003         0.0013        -0.0001
+-------------------------------------------------------------------------------
+  EPOCH             DN             DE             DU
+      1         -0.0033         0.0036         0.0004
+      2         -0.0017        -0.0004         0.0018
+      3         -0.0029         0.0042        -0.0044
+...
+    202          0.0069         0.0007        -0.0177
+    203          0.0086        -0.0005        -0.0292
+-------------------------------------------------------------------------------
+*AVG            -0.0003         0.0013        -0.0001
+*SIG             0.0059         0.0054         0.0150
+*RMS             0.0059         0.0052         0.0150
+*RMSTC           0.0010
+-------------------------------------------------------------------------------
+ STATION: WAB2
+ PARAMS :   36  203  203  859 (AMB, CRD, CLK, TOT)
+ OBSERV :    0 1621 1621
+</pre>
+
+<a name="GIMOUT" default=""></a>
+<p><b>GIM summary:</b>
+Summary concerning Global Ionosphere Models. The file contains useful
+statistical information related to the estimated ionosphere models, namely
+the latitude range covered by the models, mean, minimum, and maximum TEC
+values with corresponding formal accuracies, as well as the geographical
+locations of the minimum and maximum intensity.
+
+<p>Output example:<!-- $S/RAP/OUT/IGSRAPID.11_323 -->
+<pre>
+ MODEL / STATION     MIN LAT  MAX LAT   MEAN TEC  RMS ERR   MAX TEC  RMS ERR  LAT     LON       MIN TEC  RMS ERR  LAT     LON
+                     (DEG)    (DEG)     (TECU)    (TECU)    (TECU)   (TECU)   (DEG)   (DEG)     (TECU)   (TECU)   (DEG)   (DEG)
+ -----------------------------------------------------------------------------------------------------------------------------------
+ 3230-01             -88.30    89.82      35.73      0.09    103.22     1.09   -7.40    43.42      0.20     0.74   55.08  -101.77   
+ 3230-02             -89.66    89.86      35.85      0.08    101.84     0.61   -9.77    42.62      1.11     0.49   59.17   -87.45   
+ 3230-03             -89.66    89.86      36.10      0.08     96.56     0.82  -12.40    47.07      2.49     0.33   60.25  -102.95   
+ 3230-04             -89.73    89.45      36.21      0.07     88.49     0.79  -13.77    55.85      2.70     0.36   60.60   -76.45   
+ 3230-05             -89.73    89.07      36.32      0.07     85.94     0.65  -14.68    59.12      0.52     1.00   54.70   119.55   
+...
+</pre>
+
+<a name="CLKOUT" default=""></a>
+<p><b>Clock summary:</b>
+From a <a href="PGMLST.HLP#GPSEST">GPSEST</a> program output containing
+clock correction estimates, clock differences may be extracted for pairs
+of receiver and/or satellite clocks. The pairs of clocks are given as
+"Baseline". Satellite locks may be included. The naming convention in this
+case is <tt>Gxx</tt> for GPS, <tt>Rxx</tt> for GLONASS and so on.
+<br>
+The columns of the table in the summary file provide the epoch number,
+the MJD of the epoch and the clock difference in nanoseconds. In the
+fourth column a linear clock model is subtracted. The offset belonging to
+this linear clock model is given in the fifth column. At the end of the line
+the first four characters of both clock names are given.
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+  Num      Epoch          Clock diff   Diff w/o drift       Offset    Baseline  
+           (MJD)                (ns)           (ns)           (ns)              
+--------------------------------------------------------------------------------
+    1     55861.00000       -178.895          0.469       -179.364   WTZA - WAB2
+    2     55861.00347       -178.933          0.422       -179.364   WTZA - WAB2
+    3     55861.00694       -178.984          0.362       -179.364   WTZA - WAB2
+  ...
+  287     55861.99306       -177.457         -0.610       -179.364   WTZA - WAB2
+  288     55861.99653       -177.514         -0.676       -179.364   WTZA - WAB2
+--------------------------------------------------------------------------------
+</pre>
+<br>
+More than one pair of clocks can be extracted at the same time if more
+than one pair of stations is specified in the baseline file. In this
+case the summary contains several of the above given tables.
+
+<p><i>Note:</i> If more than one<a href="PGMLST.HLP#GPSEST"> GPSEST</a>
+program output is given only clock differences within each of the
+program outputs are extracted because each of the GPSEST clock solutions
+may have its individual reference clock.
+
+<a name="CLKBSL" default=""></a>
+<p><b>Baseline:</b>
+A baseline file is selected here to define the pairs of clocks to
+be reported in the summaries of "Clock summary" and "Clock Allan deviation".
+<br>
+More than one pair can be specified but both clocks must be provided in
+the same <a href="PGMLST.HLP#GPSEST">GPSEST</a> program output because
+in the general case each individual GPSEST run may be based on an individual
+reference clock.
+<br>
+Satellite clocks may be named <tt>Gxx</tt> for GPS, <tt>Rxx</tt> for GLONASS and so on.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.BSL">BSL</a>
+
+<a name="CLKDEV" default=""></a>
+<p><b>Clock Allan deviation:</b>
+From a <a href="PGMLST.HLP#GPSEST">GPSEST</a> program output containing
+clock correction estimates, clock differences may be extracted for pairs
+of receiver and/or satellite clocks. From these series of clock corrections
+Allan Deviations are computed and provided in the summary file. The pairs
+of clocks are given as "Baseline" (see "Clock summary"). Satellite clocks may
+be included. The naming convention in this case is <tt>Gxx</tt> for GPS,
+<tt>Rxx</tt> for GLONASS and so on.
+<br>
+The columns of the table in the summary file provide the interval length
+'tau' in seconds and the corresponding Allan deviation in seconds per second.
+At the end of the line the first four characters of both clock names are given.
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+   Interval (s)           ADEV (s/s)         Baseline  
+-------------------------------------------------------
+       300.0000    0.636438984425597E-13    USN3 - AMC2
+       600.0000    0.372276889102218E-13    USN3 - AMC2
+       900.0000    0.288697423791824E-13    USN3 - AMC2
+      1200.0000    0.241048620716344E-13    USN3 - AMC2
+      1500.0000    0.204158429397827E-13    USN3 - AMC2
+      ...
+</pre>
+<br>
+More than one pair of clocks can be extracted at the same time if more
+than one pair of stations is specified in the baseline file. In that
+case the summary contains several of the tables given above.
+
+<p><i>Note:</i> If more than one <a href="PGMLST.HLP#GPSEST">GPSEST</a>
+program output is given only clock differences within each of the program
+outputs are extracted because each of the GPSEST clock solutions may have
+its individual reference clock.
+
+<a name="QIFOUT" default=""></a>
+<p><b>Ambiguity resolution:</b>
+To get an ambiguity resolution summary select output files of program
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> ambiguity resolution runs executed
+independently for each baseline.
+<br>
+If you used the Quasi-Ionosphere-Free (QIF) algorithm you get a summary
+containing for each baseline the name of the single difference file, both
+station names, the baseline length, the number of ambiguities (L1 and L2)
+before and after resolving any ambiguity, the corresponding RMS-values of
+the parameter estimation, the percentage of resolved ambiguities and the
+satellite system (<tt>G</tt> for GPS, <tt>R</tt> for GLONASS, <tt>E</tt>
+for Galileo); furthermore the maximum fractional part and the RMS of the
+fractional parts for all resolved ambiguities for both, the L5 and the L3
+linear combination and both receiver types.
+<br>
+In the line below the table you find the number of baselines used, the mean
+length of the baselines, the total number of ambiguities before and after
+resolving, the corresponding RMS-values, the percentage of fixed ambiguities
+and the satellite system; furthermore the maximal fractional part and RMS of
+all ambiguities for both, the L5 and the L3 linear combinations.
+
+<p>Output example for the QIF strategy (<b>EACH&ALL</b>):<!-- $S/RAP/OUT/IGSRAPID.11_323 -->
+<pre>
+ File     Sta1 Sta2    Length     Before     After    Res  Sys  Max/RMS L5    Max/RMS L3    Receiver 1           Receiver 2
+                        (km)    #Amb (mm)  #Amb (mm)  (%)       (L5 Cycles)   (L3 Cycles)
+ ------------------------------------------------------------------------------------------------------------------------------------
+ 07S23230 HERT ZIM2    685.151    16  1.1     8  1.1  50.0 G    0.102  0.047  0.004  0.002  LEICA GRX1200GGPRO   TRIMBLE NETR5         #AR_QIF
+ 07S23230 HERT ZIM2    685.151   104  1.1    44  1.1  57.7  R   0.477  0.144  0.084  0.030  LEICA GRX1200GGPRO   TRIMBLE NETR5         #AR_QIF
+ 07S23230 HERT ZIM2    685.151   120  1.1    52  1.1  56.7 GR   0.477  0.136  0.084  0.028  LEICA GRX1200GGPRO   TRIMBLE NETR5         #AR_QIF
+ 09UR3230 LHAZ URUM   1597.152     8  1.9     8  1.9   0.0 G    0.000  0.000  0.000  0.000  TPS E_GGD            TPS NETG3             #AR_QIF
+ 09UR3230 LHAZ URUM   1597.152    92  1.9    90  1.9   2.2  R   0.380  0.269  0.039  0.028  TPS E_GGD            TPS NETG3             #AR_QIF
+ 09UR3230 LHAZ URUM   1597.152   100  1.9    98  1.9   2.0 GR   0.380  0.269  0.039  0.028  TPS E_GGD            TPS NETG3             #AR_QIF
+...
+ POS23230 POTS ZIM2    732.822    14  1.1     4  1.2  71.4 G    0.262  0.119  0.057  0.031  JAVAD TRE_G3TH DELTA TRIMBLE NETR5         #AR_QIF
+ POS23230 POTS ZIM2    732.822   130  1.1    88  1.2  32.3  R   0.393  0.158  0.092  0.039  JAVAD TRE_G3TH DELTA TRIMBLE NETR5         #AR_QIF
+ POS23230 POTS ZIM2    732.822   144  1.1    92  1.2  36.1 GR   0.393  0.152  0.092  0.038  JAVAD TRE_G3TH DELTA TRIMBLE NETR5         #AR_QIF
+ S2ZI3230 ZIM2 ZIMM      0.019     8  0.9     2  0.9  75.0 G    0.090  0.037  0.081  0.037  TRIMBLE NETR5        TRIMBLE NETRS         #AR_QIF
+ UGPM3230 GUUG PIMO   2547.827    20  3.2    16  3.2  20.0 G    0.342  0.175  0.079  0.046  TRIMBLE NETR5        ASHTECH UZ-12         #AR_QIF
+ ZU0D3230 MIZU MTKA    407.898    36  1.7    24  1.7  33.3 G    0.465  0.196  0.034  0.019  SEPT POLARX2         ASHTECH Z18           #AR_QIF
+ ZUUS3230 MIZU USUD    413.253    16  1.4    10  1.4  37.5 G    0.442  0.245  0.080  0.041  SEPT POLARX2         ASHTECH UZ-12         #AR_QIF
+ -----------------------------------------------------------------------------------------------------------------------------------
+ Tot: 113             1211.903  2266  1.8  1634  1.8  27.9 G    0.496  0.149  0.100  0.030                                             #AR_QIF
+ Tot:  82             1208.527  9682  1.8  6032  1.8  37.7  R   0.500  0.163  0.100  0.037                                             #AR_QIF
+ Tot: 113             1211.903 11948  1.8  7666  1.8  35.8 GR   0.500  0.161  0.100  0.036                                             #AR_QIF
+</pre>
+Based on the dependence of the RMS values of the fractional parts for the
+resolved ambiguities on the baseline length an estimation on the orbit
+accuracy is provided.
+<br>
+If you used the sigma algorithm for the ambiguity resolution
+you get a similar output summary file with the difference that the table
+contains the maximum fractional part and the RMS of the fractional parts for
+all resolved ambiguities for one frequency only.
+
+<p>Output example for the sigma strategy (e.g., Melbourne-Wuebbena)(<b>GPS</b>):<!-- $S/RAP/OUT/IGSRAPID.11_323 -->
+<pre>
+ File     Sta1 Sta2    Length     Before     After    Res  Sys  Max/RMS L5    Receiver 1           Receiver 2
+                        (km)    #Amb (mm)  #Amb (mm)  (%)       (L5 Cycles)
+ ----------------------------------------------------------------------------------------------------------------------
+ 07S23230 HERT ZIM2    685.151    46  0.0     7  0.3  84.8 G    0.140  0.076  LEICA GRX1200GGPRO   TRIMBLE NETR5         #AR_WL 
+ 09NT3230 LHAZ NTUS   3365.015    45  0.0    13  0.3  71.1 G    0.146  0.072  TPS E_GGD            LEICA GRX1200GGPRO    #AR_WL 
+ 09UR3230 LHAZ URUM   1597.152    53  0.0     1  0.3  98.1 G    0.145  0.063  TPS E_GGD            TPS NETG3             #AR_WL 
+ 0BON3230 METZ ONSA    784.250    58  0.2     9  0.4  84.5 G    0.182  0.091  JPS EUROCARD         JPS E_GGD             #AR_WL 
+ 0E0X3230 OHI3 REUN   8288.774    39  0.0     3  0.2  92.3 G    0.147  0.075  LEICA GRX1200GGPRO   TRIMBLE NETR9         #AR_WL 
+ 0ETI3230 OHI3 THTI   7773.922    36  0.0     5  0.2  86.1 G    0.134  0.077  LEICA GRX1200GGPRO   TRIMBLE NETR8         #AR_WL 
+...
+ PO0M3230 POTS WTZZ    360.100    63  0.0     6  0.3  90.5 G    0.150  0.083  JAVAD TRE_G3TH DELTA JAVAD TRE_G3TH DELTA  #AR_WL 
+ POS23230 POTS ZIM2    732.822    59  0.0     2  0.3  96.6 G    0.146  0.077  JAVAD TRE_G3TH DELTA TRIMBLE NETR5         #AR_WL 
+ S2ZI3230 ZIM2 ZIMM      0.019    47  0.1     3  0.2  93.6 G    0.148  0.061  TRIMBLE NETR5        TRIMBLE NETRS         #AR_WL 
+ UGKK3230 GUUG KOKB   5724.623    33  0.0     1  0.3  97.0 G    0.149  0.071  TRIMBLE NETR5        ASHTECH UZ-12         #AR_WL 
+ UGPM3230 GUUG PIMO   2547.827    38  0.0     3  0.3  92.1 G    0.137  0.059  TRIMBLE NETR5        ASHTECH UZ-12         #AR_WL 
+ UGTN3230 GUUG TOW2   3576.354    45  0.0     2  0.3  95.6 G    0.147  0.081  TRIMBLE NETR5        LEICA GRX1200GGPRO    #AR_WL 
+ ZU0D3230 MIZU MTKA    407.898    54  0.2     7  0.4  87.0 G    0.147  0.073  SEPT POLARX2         ASHTECH Z18           #AR_WL 
+ ZUJN3230 MIZU NRIL   4459.067    49  0.0     1  0.2  98.0 G    0.142  0.063  SEPT POLARX2         ASHTECH UZ-12         #AR_WL 
+ ZUUS3230 MIZU USUD    413.253    58  0.0     4  0.3  93.1 G    0.149  0.069  SEPT POLARX2         ASHTECH UZ-12         #AR_WL 
+ ---------------------------------------------------------------------------------------------------------------------
+ Tot: 148             2113.123  7788  0.1   629  0.3  91.9 G    0.182  0.067                                             #AR_WL 
+</pre>
+
+<a name="AMBLOD" default="ALL"></a>
+<p><b>GNSS:</b>
+The level of detail for the ambiguity summary can be selected with this option:
+<ul>
+<li><b>ALL</b>: All GNSS are summarized in one line.
+<li><b>EACH&ALL</b>: One line for each GNSS and an overall summary line are
+    printed.
+<li><b>GPS</b>, <b>GLONASS</b>, <b>GALILEO</b>: A summary line is
+    printed for the selected GNSS, only.
+</ul>
+
+<p><i>Default value:</i> <tt>ALL</tt>
+
+<a name="AMBID" default=""></a>
+<p><b>ID:</b>
+A <nobr>3-character</nobr> identifier can be specified.
+The string '#AR_ID' (where #AR_ is fixed and ID is the selected identifier) is
+appended to each summary line in the ambiguity summary.
+This facilitates the extraction of lines from the summaries using tools like,
+e.g., UNIX grep. A predefined list of identifiers
+covers the most common ambiguity resolution scenarios.
+
+<p><i>Remark</i>:
+'#AR' will be appended if no identifier is given.
+
+<a name="AMBOUT" default=""></a>
+<p><b>Ambiguity fractionals:</b>
+In a separate summary file the fractional parts of the resolved ambiguities are
+listed if you used the QIF or the SIGMA strategy for ambiguity resolution in
+program <a href="PGMLST.HLP#GPSEST">GPSEST</a> executed independently for each
+baseline.
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+ Ambiguity Resolution Strategy 4
+ -------------------------------
+
+ File        Length   Freq.  Amb.Frac.  Amb.RMS  Iter.
+               (km)          (Cycles)   (Cycles)
+ -----------------------------------------------------
+ 070R2410    685.151    5     -0.140      0.000     1
+ 070R2410    685.151    3      0.031      0.004     1
+ 070R2410    685.151    5      0.005      0.000     2
+ 070R2410    685.151    3     -0.049      0.012     2
+ 0A0R2410   1013.821    5     -0.121      0.000     1
+ 0A0R2410   1013.821    3      0.011      0.016     1
+ 0M0R2410   1137.637    5     -0.115      0.000     1
+ 0M0R2410   1137.637    3     -0.030      0.006     1
+ 0M0R2410   1137.637    5      0.068      0.000     2
+ 0M0R2410   1137.637    3     -0.022      0.007     2
+ 0M0R2410   1137.637    5      0.136      0.000     3
+ 0M0R2410   1137.637    3      0.025      0.007     3
+ ...
+
+</pre>
+
+<a name="CAMPFM" default=""></a>
+<p><b>Campaign summary:</b>
+One-line summary in special format. The columns contain: doy of session, RMS
+in millimeters, number of observations, number of parameters, number of files,
+maximum correction in semi-major axis, corresponding PRN number, x- and y-pole
+in milliarcseconds with mean errors, UT1-UTC in microseconds with mean errors,
+number of stations.
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+ 268  1.3  16227  1560  20   0.11   9   0.00+-0.000  0.00+-0.000    0.00+- 0.00     31 
+ 268  1.2  35186  1694  23   0.19  25   0.00+-0.000  0.00+-0.000    0.00+- 0.00     28 
+ 268  1.4  31370  1462  22   0.13  24   0.00+-0.000  0.00+-0.000    0.00+- 0.00     26 
+ 268  1.3  31562  1407  22   0.22  18   0.00+-0.000  0.00+-0.000    0.00+- 0.00     24 
+</pre>
+
+<a name="WEEKFM" default=""></a>
+<p><b>Weekly summary:</b>
+One-line summary in special format. The columns contain: doy of session,
+number of files, number of observations, number of parameters, RMS in
+millimeters.
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+ 268          20     16227            1560        1.3 
+ 268          23     35186            1694        1.2 
+ 268          22     31370            1462        1.4 
+ 268          22     31562            1407        1.3 
+</pre>
+
+<a name="POLOUT" default=""></a>
+<p><b>Pole output:</b>
+A special summary containing only estimated corrections for the Earth
+orientation parameters may be written or appended to the standard "Output
+summary" (see "Pole parameter sets"). The pole extraction works on
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> program output files.
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+   X    1    0.0000000  0.0000013     0.0007903  0.0007728 ${P}/IGSRAPID/OUT/03295001.OUT
+   Y    1    0.0000000  0.0000013     0.0009913  0.0007885 IGSR_Q: SOLUTION 03295001, LAST SOLUTION
+   DT   1    0.0000000  0.0000013    -0.0000551  0.0000334
+
+</pre>
+
+<a name="IMEAN" default="ALL"></a>
+<p><b>Pole parameter sets:</b>
+Selection of which Earth Orientation Parameter estimates should be
+extracted. Only active if a pole output name is specified. In case <b>ALL</b>
+is selected the pole output will actually be written into the
+pole output file. In all other cases the pole output will be written
+in the normal extraction summary.
+
+<p><i>Default value:</i> <tt>ALL</tt>
+
+<p><hr>
+
+</body>
+</html>

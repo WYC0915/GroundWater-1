@@ -1,0 +1,53 @@
+
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+DATUM     1  "DATUM."
+
+MSG_DATUM 1  "Geodetic datum file"
+
+PLATERS     0
+  ## widget = comment
+
+MSG_PLATERS 1 "Filename"
+
+AUXFIL     1  "EDITPLD$J"
+
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1 "Title line"
+
+STAPLD     1  "" "" ""
+  ## widget = uniline
+  ## check_type.1 = integer; check_min.1 = 1; check_max.1 = 999
+  ## check_strlen.2 = 16;
+  ## check_strlen.3 = 4;
+  ## numlines = 15
+
+MSG_STAPLD 1 "Station name/Plate"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CREATE/UPDATE TECTONIC PLATE ASSIGNMENT - EDITPLD                            #
+#                                                                              #
+#  Filename > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # PLATERS
+#  Title    > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # TITLE
+#                                                                              #
+#> Num Station_name__ Plate       <         Available plates                   # STAPLD
+#                                           AFRC = Africa                      #
+#                                           ANTA = Antarctica                  #
+#                                           ARAB = Arabia                      #
+#                                           AUST = Australia                   #
+#                                           CARB = Caribbean                   #
+#                                           COCO = Cocos                       #
+#                                           EURA = Eurasia                     #
+#                                           INDI = India                       #
+#                                           JUFU = Juan de Fuca                #
+#                                           NAZC = Nazca                       #
+#                                           NOAM = North America               #
+#                                           SOAM = South America               #
+#                                           PCFC = Pacific                     #
+#                                           PHIL = Philippine                  #
+#                                                                              #
+# END_PANEL ####################################################################

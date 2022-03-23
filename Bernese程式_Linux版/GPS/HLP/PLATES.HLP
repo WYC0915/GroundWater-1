@@ -1,0 +1,37 @@
+<html>
+<body>
+
+<center>
+<b>PLATE DEFINITIONS FOR NUVEL1 AND NUVELA</b>
+<p>Table: PLATES
+</center>
+<hr width="100%">
+
+<p><b>LIST OF PLATES</b>
+<p>
+<table>
+<tr><th align=left>Plate ID</th>
+    <th align=left>Plate name</th></tr>
+<tr><td>AFRC</td><td>Africa</td></tr>
+<tr><td>ANTA</td><td>Antarctica</td></tr>
+<tr><td>ARAB</td><td>Arabia</td></tr>
+<tr><td>AUST</td><td>Australia</td></tr>
+<tr><td>CARB</td><td>Caribbean</td></tr>
+<tr><td>COCO</td><td>Cocos
+                     (north of NAZC, south of NOAM, east of CARB)</td></tr>
+<tr><td>EURA</td><td>Eurasia</td></tr>
+<tr><td>INDI</td><td>India</td></tr>
+<tr><td>JUFU</td><td>Juan de Fuca
+                     (in between northern NOAM and PCFC)</td></tr>
+<tr><td>NAZC</td><td>Nazca
+                     (west of SOAM, east of PCFC)</td></tr>
+<tr><td>NOAM</td><td>North America</td></tr>
+<tr><td>SOAM</td><td>South America</td></tr>
+<tr><td>PCFC</td><td>Pacific</td></tr>
+<tr><td>PHIL</td><td>Philippine</td></tr>
+</table>
+
+<p><hr>
+
+</body>
+</html>

@@ -1,0 +1,212 @@
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! -------------------------------------------------------------------------
+! Some keywords for automatic output
+! ----------------------------------
+CAMPAIGN     0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+! -------------------------------------------------------------------------
+! Show general files
+! ------------------
+SHOWGEN     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+! General Constants
+! -----------------
+CONST     1  "CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_CONST 1  "General constants"
+
+! Local Geodetic Datum
+! --------------------
+DATUM     1  "DATUM."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_DATUM 1  "Geodetic datum"
+
+! Title
+! -----
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+! A priori Coordinates
+! --------------------
+COORD     0
+  ## widget = selwin; path = DIR_CRD; ext = EXT_CRD; emptyallowed = false
+
+DESCR_COORD 1  "Input coordinates"
+
+! Coordinate Results
+! --------------------
+COORDRS     0
+  ## widget = lineedit; path = DIR_CRD; ext = EXT_CRD; emptyallowed = false
+
+DESCR_COORDRS 1  "Output coordinates"
+
+! Program Output File
+! -------------------
+SYSODEF     1  "1"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "ETRS89"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG     1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR     1  "ERROR"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+
+DESCR_SYSERR 1  "Error message"
+
+! Options
+! -------
+! Local Geodetic Datum
+! --------------------
+DATSEL     1  "TRF2000"
+  ## widget = combobox; editable = false
+  ## cards = TRF89 TRF90 TRF91 TRF92 TRF93 TRF94 TRF96 TRF97 TRF2000 TRF2005 TRF2008 MANUAL
+
+MSG_DATSEL 1  "Target frame selection"
+
+LGTDAT     1  "ETRFyy"
+  ## widget = lineedit
+
+MSG_LGTDAT 1  "Local geodetic datum"
+
+! Translation Parameters
+! ----------------------
+TRAX     0
+  ## widget = lineedit
+
+MSG_TRAX 1  "Translation in x-Coord"
+
+TRAY     0
+  ## widget = lineedit
+
+MSG_TRAY 1  "Translation in y-Coord"
+
+TRAZ     0
+  ## widget = lineedit
+
+MSG_TRAZ 1  "Translation in z-Coord"
+
+! Rotation Parameters
+! -------------------
+ROTX     0
+  ## widget = lineedit
+
+MSG_ROTX 1  "Rotation around x-Axis"
+
+ROTY     0
+  ## widget = lineedit
+
+MSG_ROTY 1  "Rotation around y-Axis"
+
+ROTZ     0
+  ## widget = lineedit
+
+MSG_ROTZ 1  "Rotation around z-Axis"
+
+! Inverse transformation
+! ----------------------
+INVTRAFO     1  "0"
+  ## widget = checkbox
+
+MSG_INVTRAFO 1  "Inverse transformation"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# TRANSFORM COORDINATES TO ETRS89 FRAME - ETRS89 1: Input/Output Files         #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files  > % <                                              # SHOWGEN
+#                                                                              #
+# INPUT FILE                                                                   #
+#   Input coordinates       > %%%%%%%% <                                       # COORD
+#                                                                              #
+# RESULT FILE                                                                  #
+#   Output coordinates      > %%%%%%%% <                                       # COORDRS
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output          > % < use ETRS89.Lnn            or    > %%%%%%%% < # SYSODEF SYSOUT
+#   Error messages          > % < merged to program output  or    > %%%%%%%% < # ERRMRG SYSERR
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# ETRS89 1.1: General Files                                                    #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants       > %%%%%%%%%%%% <                                   # CONST
+#   Geodetic datum          > %%%%%%%%%%%% <                                   # DATUM
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# ETRS89 2: Options                                                            #
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE
+#                                                                              #
+# TARGET FRAME              > %%%%%%%%%%%%%%%% <                               # DATSEL
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL DATSEL = MANUAL ##################################################
+# ETRS89 3: Transformation parameters                                          #
+#                                                                              #
+# LOCAL GEODETIC DATUM          > %%%%%%%%%%%%%%%% <                           # LGTDAT
+#                                                                              #
+# TRANSLATION AND ROTATION PARAMETERS                                          #
+#   Translation in x-Coord      > %%%%%%%% < meters                            # TRAX
+#   Translation in y-Coord      > %%%%%%%% < meters                            # TRAY
+#   Translation in z-Coord      > %%%%%%%% < meters                            # TRAZ
+#   Rotation around x-Axis      > %%%%%%%% < arcseconds/year                   # ROTX
+#   Rotation around y-Axis      > %%%%%%%% < arcseconds/year                   # ROTY
+#   Rotation around z-Axis      > %%%%%%%% < arcseconds/year                   # ROTZ
+#                                                                              #
+#   Inverse transformation      > % <                                          # INVTRAFO
+#                                                                              #
+# END_PANEL ####################################################################

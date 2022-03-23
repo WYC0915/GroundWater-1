@@ -1,0 +1,204 @@
+      MODULE s_GETARC
+      CONTAINS
+
+C*
+      SUBROUTINE GETARC(FILORB,NARC,NSAARC,SATARC,TARC,SOURCE,IORSYS)
+CC
+CC NAME       :  GETARC
+CC
+CC PURPOSE    :  READ RELEVANT INFORMATION CONCERNING SATELLITE ARCS
+CC               FROM ORBIT FILE "FILORB"
+CC
+CC PARAMETERS :
+CC         IN :  FILORB : STANDARD ORBIT FILE NAME            CH*32
+CC        OUT :  NARC   : NUMBER OF ARCS ON FILE              I*4
+CC               NSAARC(I),I=1,2,...,NARC: NUMBER OF SATELLI- I*4
+CC                        TES IN ARC I
+CC               SATARC(L,I),L=1,..,NSAARC(I),I=1,..,NARC:    I*4
+CC                        SATELLITE NUMBERS FOR ARC I
+CC               TARC(K,I),K=1,2, I=1,2,..,NARC: INTERVAL     R*8
+CC                        BOUNDARIES FOR ARC I (MJD)
+CC               SOURCE(K,I),K=1,..,10,I=1,2,..,NARC          CH*1
+CC               IORSYS : ORBIT SYSTEM                        I*4
+CC                        =1: B1950.0
+CC                        =2: J2000.0
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  91/03/10 16:00
+CC
+CC CHANGES    :  04-JUN-92 : ??: OPTION J2000.0. RETURN "IORSYS"
+CC                               OPNFIL USED
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               22-JAN-00 : HU: BACKSPACE REMOVED, NO LONGER SUPPORTED
+CC               07-MAR-03 : HU: MAXINT MOVED TO M_MAXDIM
+CC               06-AUG-03 : HU: NEW STD FORMAT, CHECK NUTATION MODEL
+CC               20-AUG-03 : RD: CLOSE STD FILE BEFORE OPENING
+CC               01-SEP-03 : HU: USE INTERFACE FOR RDNUTSUB
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               28-MAR-07 : HB: CHANGE CALL OF CHKSYS (IERS2003 CONV)
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1991     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE M_MAXDIM, ONLY: MAXINT
+      USE s_exitrc
+      USE s_opnfil
+      USE s_inquire
+      USE s_chksys
+      USE s_rdnutsub
+      USE s_opnerr
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IARC  , IFMT  , INT   , IORSYS, IOSTAT, IQ    ,
+     1          IRC   , IS    , ISAT  , K     , LFNTST, METHOD, MXCARC,
+     2          MXCSAT, NARC  , NINT  , NINT1 , NLIN
+C
+      REAL*8    AXIS  , POLYCO, TLOCAL, TOSC0
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      REAL*8       TARC(2,*),TB12(MAXINT+1)
+      INTEGER*4    NSAARC(*),SATARC(MXCSAT,*)
+      CHARACTER*1  SOURCE(10,*)
+      CHARACTER*6  MXNARC,MXNSAT
+      CHARACTER*32 FILORB
+      CHARACTER*80 LINE
+      CHARACTER*16 NUTNAM,SUBNAM
+      LOGICAL      OPENED
+C
+      COMMON/CGTARC/ TB12
+      COMMON/MCMARC/MXCARC,MXNARC
+      COMMON/MCMSAT/MXCSAT,MXNSAT
+C
+C INITIALIZE BUFFER
+C -----------------
+      CALL RDNUTSUB(NUTNAM,SUBNAM)
+C
+C OPEN FILE WITH STANDARD ORBITS
+C ------------------------------
+      CALL INQUIRE(FILE=FILORB,OPENED=OPENED,NUMBER=LFNTST)
+      IF (OPENED) CLOSE(LFNTST)
+      CALL OPNFIL(LFNLOC,FILORB,'OLD','UNFORMATTED',
+     1            'READONLY',' ',IOSTAT)
+      CALL OPNERR(LFNERR,LFNLOC,IOSTAT,FILORB,'GETARC')
+C
+C READ NUMBER OF ARCS ON FILE, CHECK MAXIMUM NUMBER OF ARCS
+C ---------------------------------------------------------
+      NUTNAM=' '
+      SUBNAM=' '
+      READ(LFNLOC) NARC
+C
+C READ FORMAT NUMBER AND ORBIT DESCRIPTION
+      IF (NARC.LT.0) THEN
+        READ(LFNLOC) IFMT,NARC
+        READ(LFNLOC) NLIN
+        DO I=1,NLIN
+          READ(LFNLOC) LINE
+          IF (LINE(1:7).EQ.'NUTSUB:') THEN
+!            READ(LINE,"(8X,A16,1X,A16)") NUTNAM,SUBNAM
+            CALL CHKSYS(1,LINE,IRC)
+          ENDIF
+        ENDDO
+      ELSE
+C DEFAULT FOR OLD FORMAT
+        LINE='NUTSUB: IAU80            RAY'
+        CALL CHKSYS(1,LINE,IRC)
+      ENDIF
+      IF(NARC.GT.MXCARC) THEN
+        WRITE(LFNERR,901) NARC,MXCARC
+901     FORMAT(/,' *** SR GETARC: TOO MANY SATELLITE ARCS',/,
+     1                       16X,'NUMBER OF ARCS: ',I4,/,
+     2                       16X,'MAXIMUM NUMBER: ',I4,/)
+        CALL EXITRC(2)
+      ENDIF
+C
+C COLLECT INFORMATION FOR EACH ARC
+C --------------------------------
+      DO 40 IARC=1,NARC
+        READ(LFNLOC) NSAARC(IARC),NINT,IQ,
+     1               (SATARC(ISAT,IARC),ISAT=1,NSAARC(IARC)),
+     1               (SOURCE(K,IARC),K=1,10)
+C
+C CHECK MAXIMUM NUMBER OF SATELLITES IN ARC
+        IF(NSAARC(IARC).GT.MXCSAT) THEN
+          WRITE(LFNERR,902) IARC,NSAARC(IARC),MXCSAT
+902       FORMAT(/,' *** SR GETARC: TOO MANY SATELLITES IN ARC',/,
+     1                         16X,'ARC NUMBER          : ',I4,/,
+     2                         16X,'NUMBER OF SATELLITES: ',I4,/,
+     3                         16X,'MAX. NUMBER OF SAT. : ',I4,/)
+          CALL EXITRC(2)
+        ENDIF
+C
+C CHECK MAXIMUM NUMBER OF PARTIAL INTERVALS
+        IF(NINT.GT.MAXINT) THEN
+          WRITE(LFNERR,903) NINT,MAXINT
+903       FORMAT(/,' *** SR GETARC: TOO MANY INTEGRATION INTERVALS',
+     1                       /,16X,'NUMBER OF INTERVALS: ',I4,/,
+     2                         16X,'MAXIMUM NUMBER     : ',I4,/)
+          CALL EXITRC(2)
+        ENDIF
+C
+        NINT1=NINT+1
+C
+C READ INTERVAL BOUNDARIES
+        READ(LFNLOC) TOSC0,TB12(1)
+        IF(TB12(1).EQ.0.D0) THEN
+          IORSYS=1
+          METHOD=2
+        ELSE IF(TB12(1).EQ.2.D0) THEN
+          IORSYS=2
+          METHOD=2
+        ELSE
+          IORSYS=1
+          METHOD=1
+        ENDIF
+        IF (METHOD.EQ.2) THEN
+          DO 10 I=1,NINT1
+            READ(LFNLOC) TB12(I)
+10        CONTINUE
+        ELSE
+C         BACKSPACE LFNLOC
+C         READ(LFNLOC) TOSC0,(TB12(I),I=1,NINT1)
+          WRITE(LFNERR,904)
+904       FORMAT(/,' *** SR GETARC: OLD BINARY FORMAT NO ',
+     1                             'LONGER SUPPORTED',/,
+     1                       16X,'REQUIRES "BACKSPACE"',/)
+          CALL EXITRC(2)
+        ENDIF
+C
+C SAVE ARC BOUNDARIES
+        TARC(1,IARC)=TB12(1)
+        TARC(2,IARC)=TB12(NINT1)
+C
+C SKIP REMAINING ARC INFORMATION
+        DO 20 IS=1,NSAARC(IARC)
+          READ(LFNLOC) AXIS
+20      CONTINUE
+        DO 30 INT=1,NINT
+          READ(LFNLOC) TLOCAL
+          DO 31 K=1,IQ+1
+            READ(LFNLOC) POLYCO
+31        CONTINUE
+30      CONTINUE
+40    CONTINUE
+C
+C CLOSE STANDARD ORBIT FILE
+C -------------------------
+      CLOSE(UNIT=LFNLOC)
+C
+      RETURN
+      END SUBROUTINE
+
+
+      END MODULE

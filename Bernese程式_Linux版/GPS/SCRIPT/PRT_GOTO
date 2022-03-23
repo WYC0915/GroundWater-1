@@ -1,0 +1,28 @@
+#!/usr/bin/perl -w
+
+# -------------------------------------------------------------------------
+# Bernese GPS Software Version 5.0
+# -------------------------------------------------------------------------
+#
+# Script:     PRT_GOTO
+#
+# Purpose:    Print the GOTO Statement
+#
+# Author:     L. Mervart
+#
+# Created:    15-JUN-2002
+#
+# Changes:
+#
+# Copyright:  Astronomical Institute
+#              University of Berne
+#                  Switzerland
+# -------------------------------------------------------------------------
+
+use strict;
+use lib "$ENV{BPE}";
+use RUNBPE;
+
+my $pid = shift;
+
+RUNBPE::PRT_MESS ($ENV{'PRT_FILE'}, 'MSG', $ENV{'SCRIPT'}, "GOTO_PID_$pid");

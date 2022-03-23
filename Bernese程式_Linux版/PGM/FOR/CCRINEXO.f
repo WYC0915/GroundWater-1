@@ -1,0 +1,875 @@
+C*
+      PROGRAM CCRINEXO
+CC
+CC NAME         : CCRINEXO
+CC
+CC PURPOSE      : CONCATENATION OF RINEX OBSERVATION FILES INTO
+CC                1 OBSERVATION FILE
+CC
+CC REMARKS      : THE PROGRAM CONCATENATES ALL FILES FROM A LIST
+CC                THE NAMES OF WHICH ARE IDENTICAL IN THE FIRST
+CC                4 CHARACTERS.
+CC                A SPECIAL INPUT FILE MAY CONTAIN A DATE (DAY)
+CC                OR EVEN A COMPLETE TIME WINDOW.
+CC
+CC AUTHOR       : W. GURTNER
+CC
+CC CREATED      : 30-OCT-90
+CC
+CC CHANGES      : 18-JAN-91: SEVERAL GROUPS OF INPUT FILES POSSIBLE
+CC                           SEPARATED BY BLANK LINE
+CC                21-JAN-91: TIME WINDOW WITH START AND STOP DATE/TIME
+CC                13-MAY-91: SAMPLING RATE                           1.3
+CC                27-MAR-92: MAXSAT
+CC                31-AUG-92: GLOBAL OBSERVATION TYPE LIST            1.4.1
+CC                22-SEP-92: RINEX VERSION 2 FILES ACCEPTED          2.0.0
+CC                24-SEP-92: ERROR IN R2WTOH                         2.0.1
+CC                 1-SEP-93: LFNINP=5                                2.0.2
+CC                 9-SEP-93: MAXCOM-NCOM0 IN CALL TO R2RDOH          2.0.3
+CC                14-OCT-93: (SF) MAXSAT=32                          2.1.0
+CC                22-FEB-94: FORMAT FOR ERROR INTERACTION            2.1.1
+CC                           (READ OF CH1) WAS WRONG
+CC                           OPEN NEW FILES WITH 'UNKNOWN'
+CC                18-AUG-94: RECTYP,ANTTYP: CH*40 (TO ALLOW ALPHA    2.1.2
+CC                           NUMERIC SERIAL NUMBERS (SEE SR R2RDOH)
+CC                24-AUG-94: ALLOW PROCESSING OF MORE THAN ONE SITE  2.2.0
+CC                23-SEP-94: SKIP EVENT FLAG 4 RECORDS               2.2.1
+CC                19-OCT-94: EXPLICIT CLOSE OF PROT FILE             2.2.2
+CC                17-SEP-95: JJ: INCREASE MAXFIL TO 200
+CC                14-JUN-96: REPLACED LAST OPEN WITH OPNFIL          2.2.3
+CC                11-JUL-97: SR R2WTOR: REMOVE ALL TRAILING BLANKS   2.2.4
+CC                 6-OCT-97: MAXSAT,MAXCHN INCREASED                 2.2.5
+CC                23-FEB-98: READ FILE LISTS GENERATED UNDER WIN NT DOS  2.2.6
+CC                19-MAR-98: SKIP RECORDS WITH EPOCH .LE. PREVIOUS ONE   2.2.7
+CC                13-AUG-98  SATELLITE SYSTEM (EXCLUDE EITHER GPS OR GLN 2.2.8
+CC                29-AUG-99: USE PROMP1 ROUTINE                          2.2.9
+CC                 9-APR-01: INTERVAL FOR R2RDOH CORRECTED               2.3.1
+CC                15-NOV-01: INCLUDE CALLS FOR BERNESE VERSION 5.0       2.4.0
+CC                15-JAN-01: MAXTYP SET FROM 7 TO 10
+CC                 6-AUG-02: EXTRACT 4-CHARACTER CODE INDEPENDENTLY FROM 2.4.1
+CC                           LENGTH OF FILENAME
+CC                18-FEB-03: HU: USE PREPROCESSOR COMMANDS,
+CC                               DEFINE BACKSLASH AS CHAR(92)
+CC                19-MAY-03: RD: INIT TIME WINDOW TO (/0D0,1D20/)
+CC                30-JUN-03: HB: ADOPTED FOR CHANGES IN SR R2RDOH (SPACEBORNE)
+CC                01-JUL-03: RD: INCLUDE EPOCH OF TCOLL2 INTO THE TIME WINDOW
+CC                20-JUL-03: SS: MAXFIL FROM 200 TO 3000
+CC                18-AUG-03: RD: CORRECT FILE HANDLING
+CC                26-NOV-03: HB: WRITE EPOCH NUMBER WITH I5
+CC                21-DEC-04: HB: ADD REFERENCE EPOCH FOR OUTPUT FILE NAMING
+CC                               (blank means AUTO)
+CC                26-JUL-05: HU: DECLARATION OF VARIABLE EPOCH
+CC                16-AUG-06: HU: MAXTYP 10 -> 12
+CC                04-DEC-06: MM: TEST ONLY FIRST 4 CHARACTERS OF STATION NAME
+CC                27-FEB-07: AG: CALL DEFCON
+CC                27-MAY-07: AG: MAXCHN 24 -> 40
+CC                10-OCT-08: SS: MAXSAT FROM 48 TO 60
+CC                23-SEP-10: RD: ENABLE CPU COUNTER
+CC                18-JAN-11: SL: MAXTYP FROM D_RINEX3
+CC                20-MAY-11: LP: ENABLE HANDLING OF GALILEO
+CC                28-JUL-11: SL: DUMMY WRITE STATEMENT ADDED
+CC                29-FEB-12: RD: USE R2WTOR AS MODULE
+CC                29-FEB-12: RD: USE R2WTOH AS MODULE
+CC                28-MAR-12: RD: USE PROMP1 AS MODULE
+CC                28-MAR-12: RD: USE INPCI4 AS MODULE
+CC                04-MAY-12: RD: USE DMOD FROM MODULE, REMOVE UNUSED VARIABLES
+CC                15-AUG-12: LP: MAXCOM 10 => 150
+CC                29-OCT-12: RD: REMOVE #ifdef OS_VMS
+CC                07-MAR-13: SS: MAXCOM FROM 150 TO 300 (DUE TO BISK/POUS)
+CC
+CC COPYRIGHT    : ASTRONOMICAL INSTITUTE
+CC  (1990)        UNIVERSITY OF BERN
+CC                SWITZERLAND
+C*
+C
+      USE m_cpu,     ONLY: cpu_start
+      USE d_rinex3,  ONLY: maxtyp
+      USE l_basfun,  ONLY: dmod
+      USE s_ccrxoinp
+      USE s_opnfil
+      USE s_defcon
+      USE s_r2rdoh
+      USE s_dordup
+      USE s_radgms
+      USE s_mjdgps
+      USE s_r2rdor
+      USE s_r2wtoh
+      USE s_r2wtor
+      USE s_clocks
+      USE s_exitrc
+      USE s_opnfil
+      USE s_promp1
+      USE f_lengt0
+      USE f_djul
+      USE f_inpci4
+
+      IMPLICIT INTEGER*4 (I-N)
+      IMPLICIT REAL*8 (A-H,O-Z)
+C
+C
+C  MAXIMUM NUMBER OF CHANNELS
+      PARAMETER(MAXCHN=40)
+C
+C  MAXIMUM NUMBER OF SATELLITES
+      PARAMETER(MAXSAT=60)
+C
+C  MAXIMUM NUMBER OF COMMENT LINES
+      PARAMETER(MAXCOM=300)
+C
+C  MAXIMUM NUMBER OF OBS.FILES IN LIST
+      PARAMETER(MAXFIL=3000)
+C
+      CHARACTER    OPNAME*20,AGENCY*40,ANTTYP*40,RECTYP*40
+      CHARACTER    COMENT(MAXCOM)*60,FILPRT*32,FILOPT*32,DEVOUT*32
+      CHARACTER    CH1*1,CRDATE*9,CRTIME*5,MONTH(12)*3
+      CHARACTER    CRDATI*9,CRTIMI*5,VRS*2,FILSEQ*1,CHAR4(MAXFIL)*4
+      CHARACTER    FILHLP*64,FILINP*32,FILOUT*64,STALST(MAXFIL)*4
+      CHARACTER    DEVINP*32,PRGNAM*20,RCVERS*20,OBSTYP(MAXTYP)*2
+      CHARACTER    RUNBY*20,SITNAM*60,FILRAW(MAXFIL)*64
+      CHARACTER    OBSTYX(MAXTYP)*2,SITNAX*60,STANUM*40,STANUX*20
+      CHARACTER*80 STRG(1)
+C
+      INTEGER*4    ISNMAX(MAXTYP),ISNTHR(MAXTYP),ISNMIN(MAXTYP)
+      INTEGER*4    IWLFAC(2),M(8),INDEX(MAXFIL),INPT(4)
+      INTEGER*4    SATEPO(MAXCHN),NUMSAT(MAXSAT),NUMOBS(MAXSAT,MAXTYP)
+      INTEGER*4    LLI(MAXCHN,MAXTYP),ISIGN(MAXCHN,MAXTYP)
+      INTEGER*4    LLIX(MAXCHN,MAXTYP),IWLFAX(2),IWLSAT(3,MAXSAT)
+      INTEGER*4    IWLSAX(3,MAXSAT),SATEPX(MAXCHN)
+C
+      REAL*8       POSECC(3,3),SIGNAL(MAXCHN,MAXTYP),TFIRST(MAXFIL)
+      REAL*8       POSXYZ(3),OBSEPO(MAXCHN,MAXTYP)
+      REAL*8       OBSEPX(MAXCHN,MAXTYP),TPREV,REFEPO
+      REAL*8       EPOCH(2)
+C
+      LOGICAL      YES
+      CHARACTER    RUNBI*20,PRGNAI*20,FILDAY*32
+C
+      COMMON/CCRINX/ FILRAW,SIGNAL,ISIGN,OBSEPO,LLI,OBSEPX,LLIX
+C
+      DATA MONTH/'JAN','FEB','MAR','APR','MAY','JUN',
+     1           'JUL','AUG','SEP','OCT','NOV','DEC'/
+      DATA FILDAY/' '/,FILSEQ/' '/,FILINP/' '/,FILPRT/' '/
+      DATA TCOLL1/0.D0/,TCOLL2/1.D20/,IBERN5/0/
+C
+#ifdef OS_WIN32
+      DATA VRS/'LH'/
+#endif
+#ifdef OS_UNIX
+      DATA VRS/'UX'/
+#endif
+C
+      PRGNAI='CCRINEXO V2.4.1 '//VRS
+C
+C  LOGICAL FILE NUMBERS
+      LFNINP=10
+      LFNPRT=40
+      LFNDAY=50
+      LFNRAW=30
+      LFNOUT=20
+      LFNERR=6
+      DO 1 I=1,MAXTYP
+        ISNMAX(I)=9
+        ISNTHR(I)=5
+        ISNMIN(I)=1
+1     CONTINUE
+C
+C  GET OPTIONS, DEFAULT VALUES ETC.
+C  --------------------------------
+C
+C  --> "HARDWIRED" FILENAME FOR OPTIONS, DEFAULT VALUES ETC:
+C
+      FILOPT='CCRINEXO.OPT'
+C
+      REFEPO = -1.D0
+C
+C_BEG_BERNESE
+C
+C DEFINE CONSTANTS
+C ----------------
+      CALL DEFCON(0)
+C
+C START CPU COUNTER
+C -----------------
+      CALL cpu_start(.TRUE.)
+C
+      IBERN5=1
+      CALL CCRXOINP(LFNERR,LFNPRT,MAXFIL,MAXCOM,NCOM0,COMENT,RUNBI,
+     1              IFLFLG,INTERS,IOFFST,ISSYST,NFLINP,FILRAW,CHAR4,
+     2              DEVOUT,TCOLL1,TCOLL2,FILSEQ,REFEPO)
+C_END_BERNESE
+C
+      IF(IBERN5.EQ.0) THEN
+        CALL CCRXIN(FILOPT,MAXCOM,NCOM0,COMENT,RUNBI,
+     1              IFLFLG,INTERS,IOFFST,ISSYST,DEVINP,FILINP,
+     2              FILPRT,DEVOUT,FILDAY)
+        LDVI=LENGT0(DEVINP)
+      END IF
+C
+C  PRINT-FILE
+C  ----------
+C
+      IF(FILPRT.NE.' ') THEN
+        CALL OPNFIL(LFNPRT,FILPRT,'UNKNOWN',' ',' ',' ',IOSTAT)
+      END IF
+      IF(FILPRT.NE.' '.OR.IBERN5.EQ.1) THEN
+        WRITE(LFNPRT,21)
+21      FORMAT(//,' CONCATENATION OF RINEX OBSERVATION FILES',
+     1          /,' ----------------------------------------'/)
+        IF(NCOM0.NE.0) THEN
+          DO 20 ICOM=1,NCOM0
+            WRITE(LFNPRT,22) COMENT(ICOM)
+22          FORMAT(1X,A)
+20        CONTINUE
+          WRITE(LFNPRT,*)
+        END IF
+C  RESERVE SPACE FOR AN ADDITIONAL COMMENT (OLD PRGNAM, RUNBY, DATE)
+        NCOM0=NCOM0+1
+      ELSE
+        LFNPRT=0
+      END IF
+C
+      IF(IBERN5.EQ.1) GOTO 600
+C
+C  FILE WITH INPUT FILENAMES
+C  -------------------------
+C
+      IF(FILINP.NE.' ') THEN
+        INQUIRE(FILE=FILINP,EXIST=YES)
+        IF(.NOT.YES) THEN
+          WRITE(*,11) FILINP(1:LENGT0(FILINP))
+11        FORMAT(/,' FILE WITH INPUT FILE LIST ',A,' NOT FOUND.',/)
+          GOTO 999
+        END IF
+        CALL OPNFIL(LFNINP,FILINP,'OLD',' ',' ',' ',IOSTAT)
+      ELSE
+        LFNINP=5
+      END IF
+C
+C  FILE WITH DAY TO COLLECT DATA
+C  ------------------------------
+C
+      IF(FILDAY.NE.' ') THEN
+        INQUIRE(FILE=FILDAY,EXIST=YES)
+        IF(.NOT.YES) THEN
+          WRITE(*,12) FILDAY(1:LENGT0(FILDAY))
+12        FORMAT(/,' FILE WITH COLLECT DAY ',A,' NOT FOUND.',/)
+          GOTO 999
+        END IF
+        JAN=1
+        FIRST=1.D0
+        NA=4
+        NM=0
+        CALL OPNFIL(LFNDAY,FILDAY,'OLD',' ',' ',' ',IOSTAT)
+        INPT(3)=0
+        INPT(4)=0
+        ISTA=INPCI4(LFNDAY,NA,NM,CH1,INPT,CH1,M,IRC)
+        IYEAR =INPT(1)
+        IDAY  =INPT(2)
+        IHOUR =INPT(3)
+        MINUTE=INPT(4)
+        IF(IYEAR.LT. 80) IYEAR=IYEAR+2000
+        IF(IYEAR.LT.100) IYEAR=IYEAR+1900
+        TCOLL1=DJUL(IYEAR,JAN,FIRST)+IDAY-1+IHOUR/24.D0+MINUTE/1440.D0
+        INPT(3)=0
+        INPT(4)=0
+        ISTA=INPCI4(LFNDAY,NA,NM,CH1,INPT,CH1,M,IRC)
+        IF(IRC.NE.1) THEN
+          IYEAR =INPT(1)
+          IDAY  =INPT(2)
+          IHOUR =INPT(3)
+          MINUTE=INPT(4)
+          IF(IYEAR.LT. 80) IYEAR=IYEAR+2000
+          IF(IYEAR.LT.100) IYEAR=IYEAR+1900
+          TCOLL2=DJUL(IYEAR,JAN,FIRST)+IDAY-1+IHOUR/24.D0+MINUTE/1440.D0
+          READ(LFNDAY,'(A)',END=15) FILSEQ
+15        CONTINUE
+        ELSE
+          TCOLL2=TCOLL1+1.D0
+        END IF
+        CLOSE(UNIT=LFNDAY)
+      END IF
+C
+C  COLLECT RINEX INPUT FILE NAMES
+C  ------------------------------
+C
+      IEND=0
+500   DO 50 IFL=1,MAXFIL
+55      IF(LFNINP.EQ.5) THEN
+          STRG(1)='RINEX INPUT FILE (EXCL. DEVICE) :'
+          CALL PROMP1(1,STRG)
+          READ(*,23) FILRAW(IFL)
+23        FORMAT(A)
+        ELSE
+          READ(LFNINP,23,END=85) FILRAW(IFL)
+        END IF
+        IF(FILRAW(IFL)(1:1).EQ.' '.AND.IFL.EQ.1.AND.LFNINP.NE.5) GOTO 55
+        IF(FILRAW(IFL)(1:1).EQ.' '.AND.IFL.NE.1.AND.LFNINP.NE.5) GOTO 60
+        IF(FILRAW(IFL).EQ.' '.AND.LFNINP.EQ.5) GOTO 85
+        IF(FILRAW(IFL)(1:8).EQ.'Director') GOTO 55
+        IF(FILRAW(IFL)(1:8).EQ.'Total of') GOTO 55
+C  WINDOWS NT DOS
+        IF((FILRAW(IFL)(3:3).EQ.'/'.AND.FILRAW(IFL)(6:6).EQ.'/').OR.
+     1     (FILRAW(IFL)(3:3).EQ.'.'.AND.FILRAW(IFL)(6:6).EQ.'.')) THEN
+          DO 41 I=1,12
+            FILRAW(IFL)(I:I)=FILRAW(IFL)(I+39:I+39)
+41        CONTINUE
+        END IF
+        DO 40 I=2,9
+          IF(FILRAW(IFL)(I:I).EQ.'.') GOTO 45
+40      CONTINUE
+        DO 44 I=2,9
+          IF(FILRAW(IFL)(I:I).EQ.' ') THEN
+            FILRAW(IFL)(I:I)='.'
+            DO 42 K=I+1,12
+              IF(FILRAW(IFL)(K:K).NE.' ') THEN
+                FILRAW(IFL)(I+1:)=FILRAW(IFL)(K:)
+                GOTO 45
+              END IF
+42          CONTINUE
+            GOTO 45
+          END IF
+44      CONTINUE
+        WRITE(*,43) FILRAW(IFL)(1:12)
+43      FORMAT(/,' ILLEGAL FILENAME : ',A,/)
+        GOTO 999
+C
+45      LRAW=LENGT0(FILRAW(IFL))
+        CHAR4(IFL)=FILRAW(IFL)(1:4)
+        IF(LDVI.NE.0) THEN
+          WRITE(FILHLP,52) DEVINP(1:LDVI),FILRAW(IFL)(1:LRAW)
+52        FORMAT(2A)
+          FILRAW(IFL)=FILHLP
+          LRAW=LENGT0(FILRAW(IFL))
+        ELSE
+          FILRAW(IFL)(13:)=' '
+        END IF
+        INQUIRE(FILE=FILRAW(IFL),EXIST=YES)
+        IF(.NOT.YES) THEN
+70        WRITE(*,71) FILRAW(IFL)(1:LRAW)
+71        FORMAT(/,' RINEX INPUT FILE (',A,') NOT FOUND.')
+          IF(IFLFLG.NE.2) THEN
+            WRITE(*,72)
+72          FORMAT(  ' ENTER <RETURN> TO SKIP FILE, OR')
+            STRG(1)='          <E>   TO END PROGRAM'
+            CALL PROMP1(1,STRG)
+            READ(*,'(A)') CH1
+C_KEEP_LOWER_ON
+            IF(CH1.EQ.'E'.OR.CH1.EQ.'e') GOTO 999
+C_KEEP_LOWER_OFF
+            IF(CH1.NE.' ') GOTO 70
+          END IF
+          GOTO 55
+        END IF
+50    CONTINUE
+      GOTO 60
+C COMPLETELY FINISHED
+85    IEND=1
+      IF(LFNINP.NE.5) CLOSE(UNIT=LFNINP)
+60    NFLINP=IFL-1
+C
+C  LOOP OVER ALL INPUT FILES TO CREATE A STATION LIST
+C
+600   NSTAT=0
+      DO 710 I=1,NFLINP
+        DO 720 KSTAT=1,NSTAT
+          IF(CHAR4(I).EQ.STALST(KSTAT)) GOTO 710
+720     CONTINUE
+        NSTAT=NSTAT+1
+        STALST(KSTAT)=CHAR4(I)
+710   CONTINUE
+C
+C  GRAND LOOP OVER ALL SITES
+C
+      DO 811 KSTAT=1,NSTAT
+C
+C  LOOP OVER INPUT FILES TO GET ALL START TIMES
+C  --------------------------------------------
+C
+        IWLFAX(1)=0
+        IWLFAX(2)=0
+        NOBSTX=0
+        NWLSAX=0
+        IRXVRX=1
+        STANUX=' '
+        DO 820 I=1,MAXSAT
+          IWLSAX(1,I)=0
+          IWLSAX(2,I)=0
+820     CONTINUE
+        IFSTAT=1
+        DO 80 IFL=1,NFLINP
+C
+          IF(CHAR4(IFL).NE.STALST(KSTAT)) THEN
+            TFIRST(IFL)=0.D0
+            GOTO 80
+          END IF
+C
+          CALL OPNFIL(LFNRAW,FILRAW(IFL),'OLD',' ',' ',' ',IOSTAT)
+          NUMLIN=0
+          CALL R2RDOH(LFNRAW,LFNERR,MAXSAT,MAXCOM-NCOM0,NUMLIN,
+     1                  PRGNAM,RUNBY,CRDATE,CRTIME,
+     1                  NCOMI,COMENT(NCOM0+1),
+     2                  SITNAM,STANUM,OPNAME,AGENCY,
+     3                  NRUNIT,RECTYP,RCVERS,
+     4                  NRANT ,ANTTYP,POSXYZ,POSECC,
+     5                  IWLFAC,IWLSAT,NWLSAT,
+     6                  NOBSTP,OBSTYP,INTER ,TFIRST(IFL),TLAST,
+     7                  NSATEL,NUMSAT,NUMOBS,IRXVRS,IRC)
+          IF(IRC.NE.0) TFIRST(IFL)=0.D0
+          CLOSE(UNIT=LFNRAW)
+          IF(IFSTAT.EQ.1) THEN
+            SITNAX=SITNAM
+            IFSTAT=0
+          END IF
+          IF(STANUM.NE.' ') STANUX=STANUM
+          IF(SITNAM(1:4).NE.SITNAX(1:4)) THEN
+CCC          IF(SITNAM.NE.SITNAX) THEN
+            LRAW=LENGT0(FILRAW(IFL))
+            LS  =MAX(LENGT0(SITNAM),1)
+            LX  =MAX(LENGT0(SITNAX),1)
+130         WRITE(*,78) FILRAW(IFL)(1:LRAW),SITNAM(1:LS),SITNAX(1:LX)
+78          FORMAT(/,' RINEX INPUT FILE (',A,'): STATION ',A,
+     1             /,' DOES NOT AGREE WITH FIRST STATION ',A)
+            IF(IFLFLG.NE.2) THEN
+              WRITE(*,72)
+              READ(*,'(A)') CH1
+C_KEEP_LOWER_ON
+              IF(CH1.EQ.'E'.OR.CH1.EQ.'e') GOTO 999
+C_KEEP_LOWER_OFF
+              IF(CH1.NE.' ') GOTO 130
+            END IF
+            TFIRST(IFL)=0.D0
+            GOTO 80
+          END IF
+C
+          IF(IRXVRS.GT.IRXVRX) IRXVRX=IRXVRS
+          IF(IRXVRX.GE.500.AND.ISSYST.EQ.1) IRXVRX=MOD(IRXVRX,100)
+          IF(IRXVRX.GE.500.AND.ISSYST.EQ.2) IRXVRX=MOD(IRXVRX,100)+100
+          IF(IRXVRX.GE.500.AND.ISSYST.EQ.3) IRXVRX=MOD(IRXVRX,100)+200
+c
+c         ADD_GNSS_HERE
+c
+C
+C  TAKE HIGHEST WAVELENGTH FACTORS FOR CONCATENATED FILE
+          IF(IWLFAC(1).GT.IWLFAX(1)) THEN
+            IWLFAX(1)=IWLFAC(1)
+          END IF
+          IF(IWLFAC(2).GT.IWLFAX(2)) THEN
+            IWLFAX(2)=IWLFAC(2)
+          END IF
+C
+C  CREATE GLOBAL LIST OF WAVELENGTH FACTORS
+          DO 610 I=1,NWLSAT
+            DO 620 K=1,NWLSAX
+              IF(IWLSAT(3,I).EQ.IWLSAX(3,K)) THEN
+                IF(IWLSAT(1,I).GT.IWLSAX(1,K)) IWLSAX(1,K)=IWLSAT(1,I)
+                IF(IWLSAT(2,I).GT.IWLSAX(2,K)) IWLSAX(2,K)=IWLSAT(2,I)
+                GOTO 610
+              END IF
+620         CONTINUE
+            NWLSAX=NWLSAX+1
+            IWLSAX(1,NWLSAX)=IWLSAT(1,I)
+            IWLSAX(2,NWLSAX)=IWLSAT(2,I)
+            IWLSAX(3,NWLSAX)=IWLSAT(3,I)
+610       CONTINUE
+C
+C  CREATE GENERAL LIST OF OBSERVATION TYPES
+          DO 110 I=1,NOBSTP
+            DO 120 K=1,NOBSTX
+            IF(OBSTYP(I).EQ.OBSTYX(K)) GOTO 110
+120         CONTINUE
+            NOBSTX=NOBSTX+1
+            OBSTYX(NOBSTX)=OBSTYP(I)
+110       CONTINUE
+80      CONTINUE
+C
+C  SORT FILES ACCORDING TO START TIMES
+        CALL DORDUP(TFIRST,NFLINP,INDEX)
+C
+C  CONCATENATE RINEX FILES
+C  -----------------------
+C
+        NFILE=0
+        NUMEPO=0
+        TPREV=0.D0
+        DO 90 I=1,NFLINP
+C
+          IFL=INDEX(I)
+          IF(TFIRST(IFL).EQ.0.D0) GOTO 90
+          LRAW=LENGT0(FILRAW(IFL))
+          WRITE(*,91) FILRAW(IFL)(1:LRAW)
+91        FORMAT(' PROCESSING FILE ',A,/)
+          IF(TCOLL1.NE.0) THEN
+            IF(TFIRST(IFL).GT.TCOLL2) GOTO 810
+            IF(I.NE.NFLINP) THEN
+              IFL1=INDEX(I+1)
+              IF(TFIRST(IFL1).LT.TCOLL1) GOTO 90
+            END IF
+          END IF
+C
+          CALL OPNFIL(LFNRAW,FILRAW(IFL),'OLD',' ',' ',' ',IOSTAT)
+C
+          CALL R2RDOH(LFNRAW,LFNERR,MAXSAT,MAXCOM-NCOM0,NUMLIN,
+     1                  PRGNAM,RUNBY,CRDATE,CRTIME,
+     1                  NCOMI,COMENT(NCOM0+1),
+     2                  SITNAM,STANUM,OPNAME,AGENCY,
+     3                  NRUNIT,RECTYP,RCVERS,
+     4                  NRANT ,ANTTYP,POSXYZ,POSECC,
+     5                  IWLFAC,IWLSAT,NWLSAT,
+     6                  NOBSTP,OBSTYP,INTER ,TFIRST(IFL),TLAST,
+     7                  NSATEL,NUMSAT,NUMOBS,IRXVRS,IRC)
+          NCOM=NCOM0+NCOMI
+C
+          IFIRST=1
+100       CALL R2RDOR(LFNRAW,LFNERR,MAXCHN,IRXVRS,
+     1                NOBSTP,OBSTYP,EPOCH,IFLAG,NSAT,SATEPO,
+     2                OBSEPO,ISIGN,LLI,IRC)
+          IF(IRC.NE.0) THEN
+            CLOSE(UNIT=LFNRAW)
+            GOTO 90
+          END IF
+          IF(IFLAG.EQ.4) THEN
+            DO 140 KSAT=1,NSAT
+              READ(LFNRAW,*)
+140         CONTINUE
+            GOTO 100
+          END IF
+C
+C  RECORD OF CORRECT DAY?
+          IF(TCOLL1.NE.0.D0 .AND.EPOCH(1).LT.TCOLL1) GOTO 100
+          IF(TCOLL2.NE.1.D20.AND.EPOCH(1).GT.TCOLL2) THEN
+            CLOSE(LFNRAW)
+            GOTO 810
+          ENDIF
+C
+C  OBSERVATION NOT TO BE SAMPLED?
+          WRITE(*,'(A)',advance='no') ''
+          IF(INTERS.NE.0) THEN
+            CALL MJDGPS(EPOCH(1),SECOND,NWEEK)
+            TEST=DABS(DMOD(SECOND-IOFFST,DBLE(INTERS)))
+            IF(TEST.GT.0.5D0.AND.DBLE(INTERS)-TEST.GT.0.5D0) GOTO 100
+          END IF
+C
+          IF(EPOCH(1).LE.TPREV) GOTO 100
+          TPREV=EPOCH(1)
+C
+C  PREPARE HEADER TO BE WRITTEN BEFORE FIRST OBSERVATION RECORD
+C  ------------------------------------------------------------
+C
+          IF(NFILE.EQ.0) THEN
+C
+C  GET RINEX FILENAME, OPEN FILE
+            IF (REFEPO < 0.D0) THEN
+              REFEPO = EPOCH(1)
+            ENDIF
+            CALL CCRXCH(REFEPO,IFLFLG,FILRAW(IFL),FILSEQ,DEVOUT,FILOUT)
+            CALL OPNFIL(LFNOUT,FILOUT,'UNKNOWN',' ',' ',' ',IOSTAT)
+C
+C
+C  GET SYSTEM DATE/TIME TO BE STORED IN THE FIRST OUTPUT RECORD
+            CALL CLOCKS(M)
+            WRITE(CRDATI,76) M(3),MONTH(M(2)),MOD(M(1),100)
+76          FORMAT(I2.2,'-',A3,'-',I2.2)
+            WRITE(CRTIMI,74) M(5),M(6)
+74          FORMAT(I2.2,':',I2.2)
+C  KEEP OLD PGMNAM,RUNBY,CRDATE AS COMMENT
+            WRITE(COMENT(NCOM0),77) PRGNAM,RUNBY,CRDATE,CRTIME
+77          FORMAT(2A20,A,1X,A)
+C
+C  WRITE RINEX HEADER
+C
+            TLAST=0.D0
+            NSATEL=0
+            IF(INTERS.NE.0) INTER=INTERS
+            CALL R2WTOH(LFNOUT,LFNERR,MAXCHN,
+     1                  PRGNAI,RUNBI,CRDATI,CRTIMI,NCOM,COMENT,
+     2                  SITNAM,STANUX,OPNAME,AGENCY,
+     3                  NRUNIT,RECTYP,RCVERS,
+     4                  NRANT ,ANTTYP,POSXYZ,POSECC,
+     5                  IWLFAX,IWLSAX,NWLSAX,
+     6                  NOBSTX,OBSTYX,INTER ,EPOCH(1) ,TLAST,
+     7                  NSATEL,NUMSAT,NUMOBS,IRXVRX,IRCODE)
+            NFILE=1
+C
+C  WRITE PROTOCOL
+C
+            IF(LFNPRT.NE.0) THEN
+              LF=LENGT0(FILOUT)
+              WRITE(LFNPRT,73) FILOUT(1:LF)
+73            FORMAT(' CONCATENATED RINEX OBSERVATION FILE : ',A)
+            END IF
+C
+          END IF
+C
+          IF(LFNPRT.NE.0) THEN
+            IF(IFIRST.EQ.1) THEN
+              LRAW=LENGT0(FILRAW(IFL))
+              WRITE(LFNPRT,81) FILRAW(IFL)(1:LRAW)
+81            FORMAT(/,' RINEX OBSERVATION INPUT FILE : ',A)
+            END IF
+          END IF
+C
+C  WRITE RINEX RECORD
+C  ------------------
+C
+          IF(IFIRST.EQ.1) THEN
+            IFLAG=1
+            IFIRST=0
+          END IF
+          JSAT=0
+          DO 170 J=1,NSAT
+            IF((SATEPO(J).GT.32.AND.ISSYST.NE.1).OR.
+     1         (SATEPO(J).LE.32.AND.ISSYST.NE.2)) THEN
+              JSAT=JSAT+1
+              SATEPX(JSAT)=SATEPO(J)
+              DO 190 L=1,NOBSTX
+                DO 180 K=1,NOBSTP
+                  IF(OBSTYP(K).EQ.OBSTYX(L)) THEN
+                    SIGNAL(JSAT,L)=ISIGN (J,K)
+                    LLIX  (JSAT,L)=LLI   (J,K)
+                    OBSEPX(JSAT,L)=OBSEPO(J,K)
+                    GOTO 190
+                  END IF
+180             CONTINUE
+                SIGNAL(JSAT,L)=0
+                LLIX  (JSAT,L)=0
+                OBSEPX(JSAT,L)=0.D0
+190           CONTINUE
+            END IF
+170       CONTINUE
+          NSAT=JSAT
+          CALL R2WTOR(LFNOUT,LFNERR,MAXCHN,IRXVRX,
+     1                  NOBSTX,ISNMIN,ISNTHR,ISNMAX,
+     1                  EPOCH(1),IFLAG,NSAT,SATEPX,
+     2                  OBSEPX,SIGNAL,LLIX,IRC)
+          CALL MJDGPS(EPOCH(1),SECOND,NWEEK)
+          CALL RADGMS(3,SECOND/86400.D0,CH1,IHOUR,MINUTE,SEC)
+          NUMEPO=NUMEPO+1
+          IF(NUMEPO/100.EQ.NUMEPO/100.) THEN
+            WRITE(*,501) NUMEPO,IHOUR,MINUTE,SEC,NSAT
+501         FORMAT('+',I5,I3,':',I2,':',F6.3,I3)
+          END IF
+C
+C  NEXT RECORD
+          GOTO 100
+C
+90      CONTINUE
+C
+810     CONTINUE
+        IF (NFILE.EQ.1) CLOSE(LFNOUT)
+811   CONTINUE
+C
+      IF(IEND.EQ.0.AND.IBERN5.EQ.0) GOTO 500
+C
+999   IF(LFNPRT.NE.0) CLOSE(UNIT=LFNPRT)
+      CALL EXITRC(0)
+      END
+C*
+      SUBROUTINE CCRXIN(FILOPT,MAXCOM,NCOM,COMENT,RUNBY,
+     1                  IFLFLG,INTER,IOFFST,ISSYST,
+     2                  DEVINP,FILINP,FILPRT,DEVOUT,FILDAY)
+CC
+CC NAME       :  CCRXIN
+CC
+CC PURPOSE    :  READ OPTION INPUT FILE FOR PROGRAM CCRINEXO
+CC
+CC PARAMETERS :
+CC         IN :  FILOPT : FILENAME OF OPTION FILE             CH*32
+CC               MAXCOM : MAXIMUM COMMENT LINES                I*4
+CC        OUT :  NCOM   : NUMBER OF COMMENT LINES              I*4
+CC               COMENT : COMMENT LINES                       CH*60(*)
+CC               RUNBY  : AGENCY RUNNING PROGRAM              CH*20
+CC               IFLFLG : FLAG FOR RINEX FILENAME CREATION     I*4
+CC               INTER  : SAMPLING INTERVAL (S)                I*4
+CC               IOFFST : SAMPLING OFFSET TO FULL MINUTE (S)   I*4
+CC               ISSYST : SATELLITE SYSTEM                     I*4
+CC               DEVINP : DEVICE/PATH FOR INPUT RINEX FILES   CH*32
+CC               FILINP : NAME OF FILE WITH LIST OF RNX.FILES CH*32
+CC               FILPRT : PROTOCOL FILENAME                   CH*32
+CC               DEVOUT : DEVICE/PATH FOR RINEX OUTPUT FILES  CH*32
+CC               FILDAY : NAME OF FILE WITH DAY TO COLLECT    CH*32
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  W. GURTNER
+CC
+CC VERSION    :  3.1
+CC
+CC CREATED    :  31-OCT-90
+CC
+CC CHANGES    :  13-AUG-98 : ??: SATELLITE SYSTEM
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1990     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE s_opnfil
+      USE s_exitrc
+
+      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT INTEGER*4 (I-N)
+      CHARACTER    COMENT(MAXCOM)*60,RUNBY*20,DEVINP*32,FILDAY*32
+      CHARACTER    FILPRT*32,FILINP*32,FILOPT*32,DEVOUT*32
+C
+C  LOCAL DECLARATIONS
+      CHARACTER STRING*80
+      LOGICAL      YES
+C
+C OPEN INPUT FILE
+C
+      INQUIRE(FILE=FILOPT,EXIST=YES)
+      IF(.NOT.YES) THEN
+        WRITE(*,901) FILOPT
+901     FORMAT(/,' *** SR CCRXIN: OPTIONS FILE NOT FOUND',
+     1         /,'     FILENAME : ',A,/)
+        CALL EXITRC(2)
+      END IF
+      LFNLOC=99
+      CALL OPNFIL(LFNLOC,FILOPT,'OLD',' ',' ',' ',IOSTAT)
+C
+C READ COMENT LINES
+C
+      READ(LFNLOC,1)
+1     FORMAT(///////)
+      DO 10 I=1,MAXCOM+1
+        READ(LFNLOC,11) STRING
+11      FORMAT(A)
+        IF(STRING.EQ.' ') GOTO 20
+        IF(I.GT.MAXCOM) THEN
+          WRITE(*,902) I
+902       FORMAT(/,' *** SR CCRXIN: TOO MANY COMENT LINES:',I5,/)
+          CALL EXITRC(2)
+        END IF
+        COMENT(I)=STRING(7:66)
+10    CONTINUE
+20    NCOM=I-1
+C
+C READ ADDITIONAL INFORMATION
+C
+      READ(LFNLOC,21)
+21    FORMAT(////)
+      READ(LFNLOC,22) RUNBY
+22    FORMAT(36X,A)
+C
+      READ(LFNLOC,24)
+24    FORMAT(//)
+      READ(LFNLOC,23) IFLFLG
+23    FORMAT(36X,I5)
+      READ(LFNLOC,23) INTER
+      READ(LFNLOC,23) IOFFST
+      ISSYST=0
+      READ(LFNLOC,23,ERR=30) ISSYST
+C
+30    READ(LFNLOC,'(/)')
+      READ(LFNLOC,22) DEVINP
+      READ(LFNLOC,22) FILINP
+      READ(LFNLOC,22) FILPRT
+      READ(LFNLOC,22) DEVOUT
+      READ(LFNLOC,22) FILDAY
+C
+      CLOSE(UNIT=LFNLOC)
+      RETURN
+      END
+C*
+      SUBROUTINE CCRXCH(TJUL,IFLFLG,FILINP,FILSEQ,DEVOUT,FILOUT)
+CC
+CC NAME       :  CCRXCH
+CC
+CC PURPOSE    :  DETERMINE OUTPUT FILENAME (PROGRAM CCRINEXO)
+CC
+CC PARAMETERS :
+CC         IN :  TJUL   : CURRENT JULIAN DATE                  R*8
+CC               IFLFLG : OUTPUT FILENAME FLAG                 I*4
+CC               FILINP : RINEX INPUT FILENAME                CH*64
+CC               FILSEQ : FILE SEQUENCE # FOR OUTPUT FILE     CH*1
+CC               DEVOUT : DEVICE/PATH FOR OUTPUT FILES        CH*32
+CC        OUT :  FILOUT : RINEX OUTPUT FILENAME               CH*64
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  W. GURTNER
+CC
+CC VERSION    :  3.1
+CC
+CC CREATED    :  31-OCT-90
+CC
+CC CHANGES    :  06-AUG-02: ??: EXTRACT 4-CHARACTER CODE INDEPENDENTLY FROM
+CC                              LENGTH OF FILENAME
+CC               18-MAR-12: RD: USE PROMP1 AS MODULE NOW
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1990     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+C
+C
+      USE s_jmt
+      USE s_promp1
+      USE f_lengt0
+      USE f_djul
+
+      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT INTEGER*4 (I-N)
+      CHARACTER FILOUT*64,DEVOUT*32,FILINP*64
+      CHARACTER FILHLP*64,FILSEQ*1,ISESS*1
+      CHARACTER*80 STRING(1)
+      CHARACTER BACKSL*1
+      BACKSL=CHAR(92)
+C
+C  RINEX OUTPUT FILENAME
+C
+      LINP=LENGT0(FILINP)
+      KTEST=INDEX(FILINP,';')
+      IF(KTEST.NE.0) LINP=KTEST-1
+      IF(IFLFLG.NE.0) THEN
+C
+C  CREATE FILENAME USING DATE
+        IF(FILSEQ.NE.' ') THEN
+          ISESS=FILSEQ
+        ELSE
+          ISESS='0'
+        END IF
+        JAN=1
+        FIRST=1.D0
+        CALL JMT(TJUL,IYEAR,IMON,DAY)
+        IDYEAR=IDINT(TJUL-DJUL(IYEAR,JAN,FIRST)+1)
+C
+C EXTRACT 4-CHARACTER CODE
+        ISTART=0
+        DO 10 I=LINP,1,-1
+          IF(FILINP(I:I).EQ.':'.OR.
+     2       FILINP(I:I).EQ.'/'.OR.
+     3       FILINP(I:I).EQ.']'.OR.
+     4       FILINP(I:I).EQ.BACKSL) THEN
+            ISTART=I
+            GOTO 20
+          END IF
+10      CONTINUE
+C
+20      WRITE(FILOUT,61) FILINP(ISTART+1:ISTART+4),IDYEAR,ISESS,
+     1                   MOD(IYEAR,100),'O'
+61      FORMAT(A,I3.3,A1,'.',I2.2,A1)
+      ELSE
+        FILOUT=' '
+      END IF
+      IF(IFLFLG.NE.2) THEN
+60      WRITE(STRING(1),62) FILOUT
+62      FORMAT('RINEX FILENAME : ',A32,' :')
+        CALL PROMP1(1,STRING)
+        READ(*,63) FILHLP
+63      FORMAT(A)
+        IF(FILHLP.NE.' ') FILOUT=FILHLP
+        IF(FILOUT.EQ.' ') GOTO 60
+      ELSE
+        WRITE(*,66) FILOUT
+66      FORMAT(' RINEX FILENAME : ',A32,/)
+      END IF
+      LD=LENGT0(DEVOUT)
+      LF=LENGT0(FILOUT)
+      WRITE(FILHLP,64) DEVOUT(1:LD),FILOUT(1:LF)
+64    FORMAT(2A)
+      FILOUT=FILHLP
+C
+      RETURN
+      END

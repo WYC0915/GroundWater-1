@@ -1,0 +1,101 @@
+package SLR_COP;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  SLR_COP
+#
+# Purpose :  Copy required files for SLRVAL.PCF
+#
+# PARAMs  :
+#
+# Author  :  D. Thaller
+# Created :  10-Feb-2012
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use File::Copy;
+
+use lib $ENV{BPE};
+use bpe_util;
+use lib "$ENV{X}/EXE";
+use Gps_Date;
+
+sub run{
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyddd, $yy, $mm, $dd, $wwwwd, $wwww,
+      $refDir, $crdInf, $blqInf,
+      $NPDir , $NP,     $v_O1,   $orbExt, $satSel,
+      $leo   , $lstd,   $lnam,
+      $dirCrd, $dirVel, $dirAbb, $dirSta, $dirBlq,
+      $extCrd, $extVel, $extAbb, $extSta, $extBlq,
+      $dirOrb, $dirErp, $dirIep, $dirOrx,
+               $extErp, $extIep                     ) =
+  $bpe->getKeys
+     ('$YD+0', '$Y', '$M', '$D', '$WD+0', '$W+0',
+      'V_REFDIR','V_CRDINF','V_BLQINF',
+      'V_NPDIR', 'V_NP',    'V_O1', 'V_ORBEXT',   'V_SATSEL',
+      'V_LEO',   'V_LSTD',  'V_LNAM',
+      'DIR_CRD', 'DIR_VEL', 'DIR_ABB', 'DIR_STA', 'DIR_BLQ',
+      'EXT_CRD', 'EXT_VEL', 'EXT_ABB', 'EXT_STA', 'EXT_BLQ',
+      'DIR_STD', 'DIR_ERP', 'DIR_IEP', 'DIR_OXO',
+                 'EXT_ERP', 'EXT_IEP'                       );
+
+  my @filLst = ();
+  my $ext = '';
+
+# Copy reference files
+# --------------------
+  push @filLst,"${dirCrd}${crdInf}.${extCrd} 1";
+  push @filLst,"${dirVel}${crdInf}.${extVel} 1";
+  push @filLst,"${dirAbb}${crdInf}.${extAbb} 1";
+  push @filLst,"${dirBlq}${blqInf}.${extBlq} 1" if (${blqInf} ne "");
+  push @filLst,"${dirSta}${crdInf}.${extSta} 1";
+
+  $refDir = "$ENV{D}/" . $refDir;
+  copyRef($refDir,@filLst);
+
+
+# Copy orbit file to be validated
+# -------------------------------
+  @filLst = ();
+
+  push @filLst,"${dirOrb}${v_O1}${wwwwd}.${orbExt}";
+  push @filLst,"${dirIep}${v_O1}${wwww}7.${extIep}";
+
+  $refDir = "$ENV{D}/" . ${v_O1};
+  copyRef($refDir,@filLst);
+
+
+# Copy quicklook normal point files
+# ---------------------------------
+  my $filSLR = "${NP}.${yy}${mm}${dd}";
+
+  $refDir = "$ENV{D}/" . ${NPDir};
+
+  copy("${refDir}/${filSLR}",$dirOrx) or
+   die "${refDir}/${filSLR} not found";
+
+  print "\nFile ${refDir}/${filSLR} copied to ${dirOrx}\n";
+
+
+# Check satellite selection file
+# ------------------------------
+  my $selFil = "${dirSta}${satSel}.FIX";
+
+  if (-e $selFil) {
+    print "\nSatellite selection file available in campaign.\n";
+  }
+  else {
+    $refDir = "$ENV{D}/MSC";
+    copy("${refDir}/SATSEL.FIX",$dirSta) or
+     die "${refDir}/SATSEL.FIX not found";
+    print "\nSatellite selection file ${refDir}/SATSEL.FIX copied to ${dirSta}\n";
+  }
+
+}

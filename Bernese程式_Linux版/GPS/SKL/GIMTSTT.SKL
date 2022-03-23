@@ -1,0 +1,873 @@
+ TABLE OF CONTENTS
+ -----------------
+
+  1. CAMPAIGNS
+  2. OBSERVATION FILES
+  3. GENERAL OPTIONS
+  4. STATIONS
+  5. SATELLITE ORBITS
+  6. ATMOSPHERE
+  7. RECEIVER CLOCK AND RECEIVER ANTENNA HEIGHT PARAMETERS
+  8. POLE COORDINATES AND TIME INFORMATION
+  9. PARAMETER CHARACTERIZATION LIST
+ 10. PHASE CENTERS; CONSTANTS
+ 11. TEST OUTPUT
+ 12. RESULTS (PART 1)
+ 13. RESULTS (PART 2)
+
+ 1. CAMPAIGNS
+ ------------
+
+ CAMPAIGN NAME      NUM STATION NAME       NUM STATION NAME       NUM STATION NAME       NUM STATION NAME       NUM STATION NAME
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ 2. OBSERVATION FILES
+ --------------------
+
+ MAIN CHARACTERISTICS:
+ --------------------
+                                                                                                       AMB.I.+S.      #CLUSTERS
+ FILE TYP FREQ.  STATION 1        STATION 2        SESS  FIRST OBSERV.TIME  #EPO  DT #EF #CLK ARC #SAT  W 12    #AMB  L1  L2  L5  RM
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ SATELLITES:
+ ----------
+
+ FILE  #SAT  SATELLITES
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ OBSERVATION SELECTION:
+ ---------------------
+
+
+ FILE         WINDOW START              WINDOW END
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ OBSERVATIONS AVAILABLE:
+ ----------------------
+
+ FILE  SATELLITES / #L1-OBS. OK / #L1-OBS. BAD (/ #L2-OBS. OK / #L2-OBS. BAD )
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ RECEIVER INFORMATION AND POSITIONING ECCENTRICITIES:
+ ---------------------------------------------------
+                                                                                                     POSITIONING ECCENT.(M)
+ FILE  STATION NAMES     RECEIVER TYPES   REC.NR    ANTENNA TYPES    ANT.NR    OPERATOR NAMES         NORTH   EAST     UP
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ AMBIGUITIES:
+ -----------
+
+ FILE  AMB  SAT  EPO  WLF     L1-AMBIG. CLU     L2-AMBIG. CLU     L5-AMBIG. CLU
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ 3. GENERAL OPTIONS
+ ------------------
+
+ A PRIORI SIGMA:
+ --------------
+
+
+
+ CORRELATIONS AND SESSIONS:
+ -------------------------
+
+ STRATEGY       : CORRELATIONS WITHIN BASELINE
+ STRATEGY       : CORRELATIONS WITHIN OBSERVATIONS OF THE SAME FREQUENCY
+ STRATEGY       : CORRELATIONS CORRECTLY MODELLED
+
+ SESS  #FILE  FILE NUMBERS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ AMBIGUITY RESOLUTION STRATEGY:
+ -----------------------------
+
+ AMBIGUITIES PRE-ELIMINATED
+ AMBIGUITIES NOT RESOLVED
+ AMBIGUITY RESOLUTION TO NEAREST INTEGER
+ AMBIGUITY RESOLUTION WITH A GENERAL SEARCH (FARA)
+ SIGMA-DEPENDENT AMBIGUITY RESOLUTION
+ QUASI-IONOSPHERE-FREE AMBIGUITY RESOLUTION (QIF)
+
+
+ SYNCHRONIZATION ERRORS:
+ ----------------------
+
+ STRATEGY       : SYNCHRONIZATION ERRORS NOT APPLIED
+ STRATEGY       : SYNCHRONIZATION ERRORS APPLIED
+ 4. STATIONS
+ -----------
+
+ LOCAL GEODETIC DATUM:
+ --------------------
+
+ DATUM NAME         ELL. PARAM./ SCALE      SHIFTS TO WGS-84       ROTATIONS TO WGS-84
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ A PRIORI STATION COORDINATES:
+ ----------------------------
+                                            WGS-84 COORDINATES IN METERS                  ELLIPSOIDAL COORDINATES IN LOCAL DATUM
+ NUM  STATION NAME     OBS E/F/C         X               Y               Z              LATITUDE          LONGITUDE       HEIGHT (M)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ STATION ECCENTRICITIES:
+ ----------------------
+                                                LOCAL GEODETIC DATUM
+ NUM  STATION NAME      CENTER NAME         NORTH (M)   EAST (M)    UP (M)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ A PRIORI SIGMAS FOR STATION COORDINATES:
+ ---------------------------------------
+                            SIGMAS IN LOCAL GEODECTIC DATUM
+ NUM  STATION NAME          NORTH (M)    EAST (M)      UP (M)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ 5. SATELLITE ORBITS
+ -------------------
+
+ ARC CHARACTERISTICS:
+ -------------------
+
+ ARC  START OF ARC       END OF ARC         SOURCE      #SAT SATELLITES
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ OSCULATING ELEMENTS:
+ -------------------
+
+
+ SAT   S.MAJ.AXIS   ECCENTRIC.    INCLINAT.      NODE       PERIGEE     M. ANOMALY   PER.PASS.TIME
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ ORBITAL PARAMETERS AND A PRIORI SIGMAS:
+ --------------------------------------       A PRIORI SIGMA
+
+ SEMI-MAJOR AXIS                    A                      M
+ ECCENTRICITY                       E
+ INCLINATION                        I                      "
+ ASCENDING NODE                     NODE                   "
+ PERIGEE                            PER                    "
+ ARGUMENT OF LATITUDE               U0                     "
+ DIRECT RAD. PRESSURE COEFFICIENT   P0                     M/S**2
+ "Y-BIAS" RAD. PRESSURE COEFF.      P2                     M/S**2
+
+ GRAVITY CONSTANT                   GM                     M**3/S**2
+
+
+ STOCHASTIC ORBIT PARAMETERS:
+ ---------------------------
+                                                                    A PRIORI SIGMAS (M/S)
+ ARC  SAT.  SET     PERT. EPOCH      TYPE 1  TYPE 2  TYPE 3     SIGMA 1    SIGMA 2    SIGMA 3
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ SATELLITE ANTENNA OFFSET PARAMETERS:
+ -----------------------------------
+
+          COMP.
+ GROUP   X  Y  Z   #SAT SATELLITE NUMBERS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+                                                           A PRIORI SIGMAS (M)
+ REQUEST  GROUP  FROM               TO                   SIGMAX  SIGMAY  SIGMAZ  ABS/REL
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ SATELLITE SPECIFIC SIGMAS:
+ -------------------------
+
+ SAT  FROM               TO                SIGMA (M)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ SATELLITE PROBLEMS:
+ ------------------
+
+ SAT  PROBLEM TYPE     ACTION         FROM               TO
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ 6. ATMOSPHERE
+ -------------
+
+ TROPOSPHERE MODEL:
+ -----------------
+
+ NO TROPOSPHERE CORRECTIONS APPLIED
+ TROPOSPHERE MODEL: SAASTAMOINEN
+ TROPOSPHERE MODEL: HOPFIELD (REMONDI)
+ TROPOSPHERE MODEL: ESSEN + FROOME
+ METEO VALUES     : OBSERVED (FROM METEO FILES)
+ METEO VALUES     : EXTRAPOLATED
+
+
+ LOCAL TROPOSPHERE MODEL PARAMETERS:
+ ----------------------------------
+
+ MODEL  #PAR   VALIDITY START    VALIDITY END
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ SIGMA0 (M), SIGMA1 (M/(100M)), ...
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ TROPOSPHERE PARAMETERS FOR INDIVIDUAL STATIONS:
+ ----------------------------------------------
+
+ MAPPING FUNCTION USED FOR DELAY ESTIMATION:  1/COS(ZENITH-DISTANCE)
+ MAPPING FUNCTION USED FOR DELAY ESTIMATION:  HOPFIELD
+ MAPPING FUNCTION USED FOR DELAY ESTIMATION:
+ MAPPING FUNCTION USED FOR DELAY ESTIMATION:
+
+ PAR  STATION NAME       VALIDITY START    VALIDITY END        SIGMA (M)  ABS/REL
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ LOCAL IONOSPHERE MODELS:
+ -----------------------
+
+ NO IONOSPHERE CORRECTIONS APPLIED
+        DEG. OF DEVELOP.                                          ORIGIN OF DEVELOPMENT          HEIGHT      NORMAIZATION FACTORS
+ MODEL  TIME LAT. MIXED   VALIDITY START   VALIDITY END      LOCAL TIME        LAT.(D) LONG.(D)   (KM)     TIME(H) LAT.(D) ELE.CONT.
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+                POL. DEGREE IN
+ MODEL  TERM    TIME    LATIT.     COEFFICIENT      SIGMA
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ LOCAL IONOSPHERE MODEL PARAMETERS:
+ ---------------------------------
+
+        DEGREE OF DEVELOPMENT IN
+ MODEL    TIME   LATIT.  MIXED
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ STOCHASTIC IONOSPHERE PARAMETERS:
+ --------------------------------
+
+ ONE PARAMETER PER EPOCH AND SATELLITE ESTIMATED
+ ONE PARAMETER PER EPOCH AND SATELLITE ESTIMATED (EPOCH-WISE PRE-ELIMINATED)
+ NO ELIMINATION OF REFERENCE IONOSPHERE PARAMETERS
+ ELIMINATION OF REFERENCE IONOSPHERE PARAMETERS
+ 7. RECEIVER CLOCK AND RECEIVER ANTENNA HEIGHT PARAMETERS
+ --------------------------------------------------------
+
+ RECEIVER CLOCK PARAMETERS:
+ -------------------------
+
+ PAR  STATION NAME       VALIDITY START    VALIDITY END       SIGMA (MSEC)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ RECEIVER ANTENNA HEIGHT PARAMETERS:
+ ----------------------------------
+
+ RECEIVER UNIT NUMBERS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ 8. POLE COORDINATES AND TIME INFORMATION
+ ----------------------------------------
+
+ A PRIORI POLE AND TIME INFORMATION FORM THE POLE FILE:
+ -----------------------------------------------------
+
+ DATUM       TIME       X-POLE (")  Y-POLE (")  UT1-UTC (S) GPS-UTC (S)  RMS XP (")  RMS YP (")  RMS DT (S)
+                        EP-CPO (")  PS-CPO (")                           RMS EP (")  RMS PS (")
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ A PRIORI EARTH ROTATION PARAMETER INFORMATION:
+ ---------------------------------------------
+ PARAM SET                                                                              A PRIORI SIGMAS              CONTINUITY
+    NR     FROM               TO                 # PAR X  # PAR Y  # PAR DT    XP (MAS)   YP (MAS)     DT (MSEC)     BETWEEN SETS
+                                                 # PAR EP # PAR PS             EP (MAS)   PS (MAS)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ 9. PARAMETER CHARACTERIZATION LIST
+ ----------------------------------
+
+ STATION COORDINATES:
+ -------------------
+
+ PARAM  TYPE  STATION NAME     COORDINATE
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ RECEIVER CLOCKS:
+ ---------------
+
+ PARAM  TYPE  REQUEST  STATION NAME
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ ORBITAL ELEMENTS:
+ ----------------
+
+ PARAM  TYPE  ARC  SAT.  ELEMENT
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ AMBIGUITIES:
+ -----------
+
+ PARAM  TYPE  FILE  CLUSTER  AMB.FRQ.  FREQ.  L5-CLUSTER
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ RECEIVER ANTENNA HEIGHT PARAMETERS:
+ ----------------------------------
+
+ PARAM  TYPE  REC. UNIT
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ TROPOSPHERE PARAMETERS FOR INDIVIDUAL STATIONS:
+ ----------------------------------------------
+
+ PARAM  TYPE  REQUEST  STATION NAME
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ LOCAL IONOSPHERE MODELS:
+ -----------------------
+                     POL.DEG. IN
+ PARAM  TYPE  MODEL  TIME  LATIT.
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ GM-VALUE:
+ --------
+
+ PARAM  TYPE
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ LOCAL TROPOSPHERE MODELS:
+ ------------------------
+                    POL.DEG.
+ PARAM  TYPE  MODEL  HEIGHT
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ EARTH ROTATION PARAMETERS:
+ -------------------------
+                    PARAM.
+ PARAM  TYPE  MODEL SET NR   PAR.TYP   COEFF NR.
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ STOCHASTIC ORBIT PARAMETERS:
+ ---------------------------
+
+ PARAM  TYPE   ARC   SAT.  SET   DIRECTION
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ SATELLITE ANTENNA OFFSET PARAMETERS:
+ -----------------------------------
+
+ PARAM  TYPE  REQUEST  GROUP  COORDINATE
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ EARTH POTENTIAL PARAMETERS:
+ --------------------------
+
+ PARAM  TYPE  DEGREE N  ORDER M  SIN/COS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ RESONANCE TERMS (HILL THEORY):
+ -----------------------------
+
+ PARAM  TYPE  ARC  SAT  R/S/W  CONST/SIN/COS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ ALBEDO PARAMETERS:
+ -----------------
+
+ PARAM  TYPE  GROUP  MODEL
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ CENTER OF MASS:
+ --------------
+
+ PARAM  TYPE  COORDINATE
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ STOCHASTIC IONOSPHERE PARAMETERS:
+ --------------------------------
+
+ PARAM  TYPE  FILE  SAT  EPOCH
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ ANTENNA PHASE CENTER PARAMETERS:
+ -------------------------------
+                              POINT NUMBER       # POINTS
+ PARAM  TYPE  REQUEST  FREQ  ZENITH AZIMUTH   ZENITH AZIMUTH
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ GLOBAL IONOSPHERE MODEL PARAMETERS:
+ ----------------------------------
+
+ PARAM  TYPE  MODEL  SET  DEGREE N  ORDER M
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ STATION VELOCITIES:
+ ------------------
+
+ PARAM  TYPE
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ KINEMATIC COORDINATES:
+ ---------------------
+
+ PARAM  TYPE
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ 10. PHASE CENTERS; CONSTANTS
+ ----------------------------
+
+ PHASE CENTER ECCENTRICITIES:
+ ---------------------------
+
+ RECEIVER TYPE          ANTENNA S/N  FREQ  PHASE CENTER OFFSETS (M)             ELEVATION DEPENDENCY OF PHASE CENTER (MM)
+ ANTENNA  TYPE          FROM    TO          NORTH    EAST     UP    FMT   90 85 80 75 70 65 60 55 50 45 40 35 30 25 20 15 10 05 00
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ ANTENNA PHASE CENTER PARAMETER ESTIMATION:
+ -----------------------------------------
+                                          ANT. NUMBERS       #POINTS
+ REQ.  RECEIVER NAME    ANTENNA NAME       FROM    TO   FRQ. EL. AZ.  SIGMA (M)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ CONSTANTS:
+ ---------
+
+ 11. TEST OUTPUT
+ ---------------
+
+ MAXIMUM SYNCHRONIZATION ERRORS:
+ ------------------------------
+
+ SESS  FILE  STATION NAME 1    STATION NAME 2      SYNCH. ERROR (NS)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ 12. RESULTS (PART 1)
+ --------------------
+
+ NUMBER OF PARAMETERS (PART 1):
+ -----------------------------
+
+ PARAMETER TYPE                                     #PARAMETERS   #PRE-ELIMINATED        #SET-UP  #NO-OBS  #REF     #SINGULAR
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ STATION COORDINATES
+ RECEIVER CLOCK PARAMETERS
+ ORBITAL ELEMENTS
+ AMBIGUITIES
+ RECEIVER ANTENNA HEIGHT PARAMETERS
+ TROPOSPHERE PARAMETERS FOR INDIVIDUAL STATIONS
+ LOCAL IONOSPHERE MODEL PARAMETERS
+ GM-VALUE
+ LOCAL TROPOSPHERE MODEL PARAMETERS
+ EARTH ROTATION PARAMETERS
+ STOCHASTIC ORBIT PARAMETERS
+ SATELLITE ANTENNA OFFSETS
+ EARTH POTENTIAL PARAMETERS
+ RESONANCE TERMS
+ ALBEDO PARAMETERS
+ CENTER OF MASS
+ STOCHASTIC IONOSPHERE PARAMETERS
+ ANTENNA PHASE CENTER VARIATIONS
+ GLOBAL IONOSPHERE MODEL PARAMETERS
+ STATION VELOCITIES
+ KINEMATIC COORDINATES
+
+ -----------------------------------------------------------------------------------------------------------------------------------
+ TOTAL NUMBER OF PARAMETERS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ NUMBER OF DOUBLE DIFFERENCE OBSERVATIONS (PART 1):
+ -------------------------------------------------
+
+ TYPE         FREQUENCY         FILE              #OBSERVATIONS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ -----------------------------------------------------------------------------------------------------------------------------------
+ TOTAL NUMBER OF DOUBLE DIFF. OBSERVATIONS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ SIGMA OF SINGLE DIFFERENCE OBSERVATION (PART 1):
+ -----------------------------------------------
+
+ SIGMA OF SINGLE DIFFERENCE OBSERVATION:           M   (CONVERTED TO L1 PHASE)
+
+ DEGREE OF FREEDOM                     :
+ STATION COORDINATES:
+ -------------------
+
+ NUM  STATION NAME     PARAMETER    A PRIORI VALUE       NEW VALUE     NEW- A PRIORI  RMS ERROR   3-D ELLIPSOID       2-D ELLIPSE
+ -----------------------------------------------------------------------------------------------------------------------------------
+ RECEIVER CLOCKS:
+ ---------------
+
+ REQUEST  STATION NAME        OFFSET (MSEC)  RMS (MSEC)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ ORBITAL ELEMENTS:
+ ----------------
+
+ ARC  SAT.  ELEMENT   IMPROVEMENT      RMS
+ -----------------------------------------------------------------------------------------------------------------------------------
+ AMBIGUITIES:
+ -----------
+ RECEIVER ANTENNA HEIGHT PARAMETERS:
+ ----------------------------------
+
+ REC. UNIT   HEIGHT CORR.(M)  RMS (M)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ TROPOSPHERE PARAMETERS FOR INDIVIDUAL STATIONS:
+ ----------------------------------------------
+
+ REQUEST  STATION NAME       ZENITH CORR.(M)  RMS (M)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ LOCAL IONOSPHERE MODELS:
+ -----------------------
+        POL.DEG. IN
+ MODEL  TIME  LATIT.   COEFFICIENT       RMS
+ -----------------------------------------------------------------------------------------------------------------------------------
+ GM-VALUE:
+ --------
+
+ GM CORRECTION      RMS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ LOCAL TROPOSPHERE MODELS:
+ ------------------------
+       POL.DEG.
+ MODEL  HEIGHT   COEFFICIENT (M)  RMS (M)
+ -----------------------------------------------------------------------------------------------------------------------------------
+ EARTH ROTATION PARAMETERS:
+ -------------------------
+
+ CRD. REQ.     (")        RMS        (")/DAY      RMS      (")/DAY**2     RMS     (")/DAY**3     RMS      (")/DAY**4     RMS
+               (S) (DT)   RMS        (S)/DAY      RMS      (S)/DAY**2     RMS     (S)/DAY**3     RMS      (S)/DAY**4     RMS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ STOCHASTIC ORBIT PARAMETERS:
+ ---------------------------
+                                                  VELOC. CHANGE       RMS
+ ARC  SAT.   SET    TYPE         PERT. EPOCH       (*1.E5 M/S)    (*1.E5 M/S)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ SATELLITE ANTENNA OFFSET PARAMETERS:
+ -----------------------------------
+
+ GROUP  REQ  FROM               TO                   X-OFF(M)  RMS(M)    Y-OFF(M)  RMS(M)    Z-OFF(M)  RMS(M)
+ -----------------------------------------------------------------------------------------------------------------------------------
+ EARTH POTENTIAL PARAMETERS:
+ --------------------------
+
+ DEGREE N ORDER M  SIN COS     VALUE        RMS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ RESONANCE TERMS (HILL THEORY):
+ -----------------------------
+
+ SAT  ARC R/S/W  CONST/SIN/COS       VALUE        RMS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ ALBEDO PARAMETERS:
+ -----------------
+
+ GROUP  TYPE     VALUE        RMS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ CENTER OF MASS:
+ --------------
+
+ COOR.       VALUE        RMS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ STOCHASTIC IONOSPHERE PARAMETERS:
+ --------------------------------
+
+ FILE  SAT.  MZD (DEG)  REF.  MZD (DEG)  EPOCH   VALUE (M)  RMS (M)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ ANTENNA PHASE CENTER VARIATIONS:
+ -------------------------------
+
+ GLOBAL IONOSPHERE MODEL PARAMETERS:
+ ----------------------------------
+
+ MODEL  SET    DEG N  ORD M    VALUE (TECU)   RMS (TECU)       LATITUDE (DEG)    EPOCH
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ STATION VELOCITIES:
+ ------------------
+
+
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ KINEMATIC COORDINATES:
+ ---------------------
+
+  EPO  STATION               LATITUDE          LONGITUDE            HEIGHT
+ -----------------------------------------------------------------------------------------------------------------------------------
+ RMS ERRORS OF ELLIPS. COORDINATES AND COORDINATE DIFFER. IN MM   (PART 1):  CONTINUATION
+ -------------------------------------------------------------------------
+
+ SLOPE DISTANCES AND RMS ERRORS IN M  (PART 1):  CONTINUATION
+ ---------------------------------------------
+
+ HELMERT TRANSFORMATION (PART 1):
+ -------------------------------
+ (GPS-SOLUTION INTO A PRIORI COORDINATES)
+
+ LOCAL COORDINATE SYSTEM (NORTH,EAST,UP)
+ GLOBAL COORDINATE SYSTEM (X,Y,Z)
+ AMBIGUITY RESOLUTION:
+ --------------------
+
+ STRATEGY :  AMBIGUITY RESOLUTION TO NEAREST INTEGER
+ STRATEGY :  AMBIGUITY RESOLUTION WITH A LIMITED SEARCH ALGORITHM
+ STRATEGY :  SIGMA-DEPENDENT AMBIGUITY RESOLUTION
+ STRATEGY :  QUASI-IONOSPHERE-FREE AMBIGUITY RESOLUTION (QIF)
+
+ 13. RESULTS (PART 2)
+ --------------------
+
+ NUMBER OF PARAMETERS (PART 2):
+ -----------------------------
+
+ PARAMETER TYPE                                     #PARAMETERS   #PRE-ELIMINATED        #SET-UP  #NO-OBS  #REF     #SINGULAR
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ STATION COORDINATES
+ RECEIVER CLOCK PARAMETERS
+ ORBITAL ELEMENTS
+ AMBIGUITIES
+ RECEIVER ANTENNA HEIGHT PARAMETERS
+ TROPOSPHERE PARAMETERS FOR INDIVIDUAL STATIONS
+ LOCAL IONOSPHERE MODEL PARAMETERS
+ GM-VALUE
+ LOCAL TROPOSPHERE MODEL PARAMETERS
+ EARTH ROTATION PARAMETERS
+ STOCHASTIC ORBIT PARAMETERS
+ SATELLITE ANTENNA OFFSETS
+ EARTH POTENTIAL PARAMETERS
+ RESONANCE TERMS
+ ALBEDO PARAMETERS
+ CENTER OF MASS
+ STOCHASTIC IONOSPHERE PARAMETERS
+ ANTENNA PHASE CENTER VARIATIONS
+ GLOBAL IONOSPHERE MODEL PARAMETERS
+ STATION VELOCITIES
+ KINEMATIC COORDINATES
+
+ -----------------------------------------------------------------------------------------------------------------------------------
+ TOTAL NUMBER OF PARAMETERS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ NUMBER OF DOUBLE DIFFERENCE OBSERVATIONS (PART 2):
+ -------------------------------------------------
+
+ TYPE         FREQUENCY         FILE              #OBSERVATIONS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ -----------------------------------------------------------------------------------------------------------------------------------
+ TOTAL NUMBER OF DOUBLE DIFF. OBSERVATIONS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ SIGMA OF SINGLE DIFFERENCE OBSERVATION (PART 2):
+ -----------------------------------------------
+
+ SIGMA OF SINGLE DIFFERENCE OBSERVATION:           M   (CONVERTED TO L1 PHASE)
+
+ DEGREE OF FREEDOM                     :
+ STATION COORDINATES:
+ -------------------
+
+ NUM  STATION NAME     PARAMETER    A PRIORI VALUE       NEW VALUE     NEW- A PRIORI  RMS ERROR
+ -----------------------------------------------------------------------------------------------------------------------------------
+ RECEIVER CLOCKS:
+ ---------------
+
+ REQUEST  STATION NAME        OFFSET (MSEC)  RMS (MSEC)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ ORBITAL ELEMENTS:
+ ----------------
+
+ ARC  SAT.  ELEMENT   IMPROVEMENT      RMS
+ -----------------------------------------------------------------------------------------------------------------------------------
+ AMBIGUITIES:
+ -----------
+  RECEIVER ANTENNA HEIGHT PARAMETERS:
+ ----------------------------------
+
+ REC. UNIT   HEIGHT CORR.(M)  RMS (M)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ TROPOSPHERE PARAMETERS FOR INDIVIDUAL STATIONS:
+ ----------------------------------------------
+
+ REQUEST  STATION NAME       ZENITH CORR.(M)  RMS (M)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ LOCAL IONOSPHERE MODELS:
+ -----------------------
+        POL.DEG. IN
+ MODEL  TIME  LATIT.   COEFFICIENT       RMS
+ -----------------------------------------------------------------------------------------------------------------------------------
+ GM-VALUE:
+ --------
+
+ GM CORRECTION      RMS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ LOCAL TROPOSPHERE MODELS:
+ ------------------------
+       POL.DEG.
+ MODEL  HEIGHT   COEFFICIENT (M)  RMS (M)
+ -----------------------------------------------------------------------------------------------------------------------------------
+ EARTH ROTATION PARAMETERS:
+ -------------------------
+
+ CRD. REQ.     (")        RMS        (")/DAY      RMS      (")/DAY**2     RMS     (")/DAY**3     RMS      (")/DAY**4     RMS
+               (S) (DT)   RMS        (S)/DAY      RMS      (S)/DAY**2     RMS     (S)/DAY**3     RMS      (S)/DAY**4     RMS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ STOCHASTIC ORBIT PARAMETERS:
+ ---------------------------
+                                                  VELOC. CHANGE       RMS
+ ARC  SAT.   SET    TYPE         PERT. EPOCH       (*1.E5 M/S)    (*1.E5 M/S)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ SATELLITE ANTENNA OFFSET PARAMETERS:
+ -----------------------------------
+
+ GROUP  REQ  FROM               TO                   X-OFF(M)  RMS(M)    Y-OFF(M)  RMS(M)    Z-OFF(M)  RMS(M)
+ -----------------------------------------------------------------------------------------------------------------------------------
+ EARTH POTENTIAL PARAMETERS:
+ --------------------------
+
+ DEGREE N ORDER M  SIN COS     VALUE        RMS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ RESONANCE TERMS (HILL THEORY):
+ -----------------------------
+
+ SAT  ARC R/S/W  CONST/SIN/COS       VALUE        RMS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ ALBEDO PARAMETERS:
+ -----------------
+
+ GROUP  TYPE     VALUE        RMS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ CENTER OF MASS:
+ --------------
+
+ COOR.       VALUE        RMS
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ STOCHASTIC IONOSPHERE PARAMETERS:
+ --------------------------------
+
+ FILE  SAT.  MZD (DEG)  REF.  MZD (DEG)  EPOCH   VALUE (M)  RMS (M)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ ANTENNA PHASE CENTER VARIATIONS:
+ -------------------------------
+
+ GLOBAL IONOSPHERE MODEL PARAMETERS:
+ ----------------------------------
+
+ MODEL  SET    DEG N  ORD M    VALUE (TECU)   RMS (TECU)       LATITUDE (DEG)
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ STATION VELOCITIES:
+ ------------------
+
+
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+ KINEMATIC COORDINATES:
+ ---------------------
+
+  EPO  STATION               LATITUDE          LONGITUDE            HEIGHT
+ -----------------------------------------------------------------------------------------------------------------------------------
+ RMS ERRORS OF ELLIPS. COORDINATES AND COORDINATE DIFFER. IN MM   (PART 2):  CONTINUATION
+ -------------------------------------------------------------------------
+
+ SLOPE DISTANCES AND RMS ERRORS IN M  (PART 2):  CONTINUATION
+ ---------------------------------------------
+
+ HELMERT TRANSFORMATION (PART 2):
+ -------------------------------
+ (GPS-SOLUTION INTO A PRIORI COORDINATES)
+
+ LOCAL COORDINATE SYSTEM (NORTH,EAST,UP)
+ GLOBAL COORDINATE SYSTEM (X,Y,Z)
+ AMBIGUITY RESOLUTION:
+ --------------------
+
+ STRATEGY :  AMBIGUITY RESOLUTION TO NEAREST INTEGER
+ STRATEGY :  AMBIGUITY RESOLUTION WITH A LIMITED SEARCH ALGORITHM
+ STRATEGY :  SIGMA-DEPENDENT AMBIGUITY RESOLUTION
+
+ AMB.NR. FILE  SAT.  EPOCH  REF.  REF.EP.  FREQ.  WLF     AMBIGUITY    RMS   TOTAL AMBIGU.
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+

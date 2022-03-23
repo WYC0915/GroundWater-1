@@ -1,0 +1,314 @@
+      MODULE s_GETSTAF
+      CONTAINS
+C*
+      SUBROUTINE GETSTAF(CRDNAM,ECCNAM,NSTAT,STNAME,STANUM,
+     1                   NCENTR,ICENTR,XSTAT,XSTELL,XSTECC,
+     2                   DATUM,AELL,BELL,DXELL,DRELL,SCELL)
+CC
+CC NAME       :  GETSTAF
+CC
+CC PURPOSE    :  GET COORDINATES AND ECCENTRICITIES FOR ALL
+CC               STATIONS TO BE PROCESSED
+CC
+CC PARAMETERS :
+CC         IN :  CRDNAM : COORDINATE FILE NAME                CH
+CC               ECCNAM : ECCENTRICITY FILE NAME              CH
+CC               NSTAT  : NUMBER OF STATIONS                  I*4
+CC     IN/OUT :  STNAME(I),I=1,..,NSTAT: STATION NAMES        CH*16
+CC        OUT :  STANUM(I),I=1,..,NSTAT: STATION NUMBERS      I*4
+CC               NCENTR : NUMBER OF CENTER STATIONS WHICH ARE I*4
+CC                        NOT DIRECTLY OBSERVED
+CC               ICENTR(I),I=1,..,NSTAT: NUMBER OF THE CENTER I*4
+CC                        STATION FOR STATION I
+CC               XSTAT(K,I),K=1,2,3;I=1,..,NSTAT: RECTANGULAR R*8
+CC                        STATION COORDINATES (WGS-84)
+CC               XSTELL(K,I),K=1,2,3;I=1,..,NSTAT: ELLIPSO-   R*8
+CC                        IDAL STATION COORDINATES IN SPECI-
+CC                        FIED DATUM
+CC               XSTECC(K,I),K=1,2,3;I=1,..,NSTAT: GEOCENTRIC R*8
+CC                        STATION ECCENTRICITIES (DX,DY,DZ)
+CC               DATUM  : LOCAL GEODETIC DATUM                CH*16
+CC               AELL   : SEMI-MAJOR AXIS OF ELLIPSOID        R*8
+CC               BELL   : SEMI-MINOR AXIS OF ELLIPSOID        R*8
+CC               DXELL(I),I=1,2,3: SHIFTS TO WGS-84 (M)       R*8
+CC               DRELL(I),I=1,2,3: ROTATIONAL TO WGS-84       R*8
+CC               SCELL  : SCALE FACTOR BETWEEN LOCAL GEODETIC R*8
+CC                        DATUM AND WGS-84
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC CREATED    :  06-MAY-2003
+CC
+CC CHANGES    :  07-OCT-91 : ??: ECCENTRICITIES IN XYZ ALSO POSSIBLE
+CC               11-MAY-92 : ??: CHECK OF ECCTYP WAS ON WRONG PLACE
+CC               07-DEC-92 : ??: ADD CHECK FOR "MAXSTA"
+CC               28-DEC-92 : USE OF SR "OPNFIL" TO OPEN FILES
+CC               04-NOV-93 : MR: READING OF LAT.,LONG.,HEIGHT CORRECTED
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               02-MAY-02 : RD: USE SR FOR READING ECC FILE
+CC               06-MAY-03 : MM: COPY OF SR GETSTA.F, BUT NOW AN
+CC                               ARBITRARY COORDINATE FILE CAN BE USED
+CC               15-MAY-03 : HB: INITIALIZE STRUCTURE
+CC               21-JUN-05 : MM: COMLFNUM.INC REMOVED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               21-OCT-10 : PS: ERROR MESSAGE CORRECTED
+CC               19-JAN-11 : RD: MINOR REVISION
+CC               23-FEB-11 : RD: STOP IF MORE THAN ONE ENTRY PER STATION FOUND
+CC               20-JUL-11 : RD: MORE DIGITS
+CC               19-DEC-2011 SL: USE M_BERN WITH ONLY, USE SRNAME, CHECK TYPE
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE M_BERN,   ONLY: lfnLoc, lfnErr
+      USE D_ECCENT, ONLY: T_ECCENT, INIT_ECCENT
+      USE s_opnfil
+      USE s_ellxyz
+      USE s_opnerr
+      USE s_gmsrad
+      USE s_getdat
+      USE s_exitrc
+      USE s_ellecc
+CC      USE s_gtflna
+      USE s_upperc
+      USE s_xyzell
+      USE s_readecc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IAC   , IC    , IECC  , ILINE , IOK   , IOSTAT,
+     1          IP1   , IP2   , IRC   , ISTA  , ISTA1 , ISTAT , ITYP  ,
+     2          K     , L1    , L2    , NCENTR, NR    , NSTAT , JSTA
+C
+      REAL*8    AELL  , BELL  , H     , P3    , SCELL , XL3
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+      TYPE(T_ECCENT) ECCENT
+      REAL*8 XSTAT(:,:),XSTELL(:,:),XSTECC(:,:),LOCECC(3)
+      REAL*8 DXELL(3),DRELL(3),XST(3)
+      CHARACTER*1  VP,VL,CDUMMY
+      CHARACTER*16 DATUM,FRAMETYPE,STNAME(:),STANAM
+      CHARACTER*32 CRDNAM,ECCNAM
+      CHARACTER*80 LINE1
+      INTEGER*4    ICENTR(:),STANUM(:)
+C
+      CHARACTER(LEN=7), PARAMETER         :: srName = 'GETSTAF'
+C
+C NULLIFY POINTER
+C ---------------
+      CALL INIT_ECCENT(ECCENT)
+
+C READ LOCAL GEODETIC DATUM FROM COORDINATE FILE
+C ----------------------------------------------
+      CALL OPNFIL(LFNLOC,CRDNAM,'OLD','FORMATTED',
+     1            'READONLY',' ',IOSTAT)
+      CALL OPNERR(LFNERR,LFNLOC,IOSTAT,CRDNAM,srName)
+C
+      READ(LFNLOC,1) DATUM,CDUMMY
+1     FORMAT(//,22X,A16,12X,A1///)
+      CLOSE(UNIT=LFNLOC)
+C
+C GET LOCAL GEODETIC DATUM PARAMETERS
+C -----------------------------------
+      CALL GETDAT(DATUM,AELL,BELL,DXELL,DRELL,SCELL,FRAMETYPE)
+C
+      CALL UPPERC(FRAMETYPE)
+      IF(FRAMETYPE.NE.'GLOBAL') THEN
+        WRITE(lfnErr,'(/,1X,A,A,A,/,17X,A,3(/,17X,A,A),/)')
+     1    '*** SR ',srName,': FOR PROCESSING THE COORDINATES ARE ',
+     1                       'EXPECTED TO BE IN A GLOBAL FRAME',
+     1                       'FILE       : ',CRDNAM,
+     1                       'DATUM      : ',TRIM(DATUM),
+     1                       'FRAME TYPE : ',TRIM(FRAMETYPE)
+        CALL EXITRC(2)
+      ENDIF
+C
+C INITIALIZE CENTER STATIONS
+C --------------------------
+      NCENTR=0
+      DO 150 ISTA=1,NSTAT
+        ICENTR(ISTA)=ISTA
+        DO 140 I=1,3
+          XSTECC(I,ISTA)=0.D0
+140     CONTINUE
+150   CONTINUE
+C
+C OPEN FILE WITH ECCENTRICITIES (IF AVAILABLE)
+C --------------------------------------------
+      IF(LEN_TRIM(ECCNAM).GT.0) THEN
+        CALL READECC(ECCNAM,ECCENT)
+C
+C ECCENTRICITIES AVAILABLE
+C ------------------------
+C CHECK GEODETIC DATUM
+        IF(ECCENT%DATUM%NAME.NE.DATUM) THEN
+          WRITE(LFNERR,36) DATUM,ECCENT%DATUM%NAME
+36        FORMAT(/,' *** SR GETSTAF: ',
+     1             'INCOMPATIBLE LOCAL GEODETIC DATA',/,
+     2             17X,'DATUM IN COORD. FILE: ',A16,/,
+     3             17X,'DATUM IN ECCEN. FILE: ',A16,/)
+          CALL EXITRC(2)
+        ENDIF
+C
+C LOOP OVER ALL ECCENTRICITIES AVAILABLE
+        DO 100 IECC=1,ECCENT%NECC
+          DO 90 ISTA=1,NSTAT
+            IF(STNAME(ISTA).EQ.ECCENT%ECC(IECC)%STANAM) THEN
+              STANUM(ISTA)=ECCENT%ECC(IECC)%STANUM
+              DO 50 I=1,3
+                XSTECC(I,ISTA)=ECCENT%ECC(IECC)%XECCEN(I)
+50            CONTINUE
+              DO 60 ISTA1=1,NSTAT
+                IF(STNAME(ISTA1).EQ.ECCENT%ECC(IECC)%CENNAM) THEN
+                  ICENTR(ISTA)=ISTA1
+                  GOTO 100
+                ENDIF
+60            CONTINUE
+              DO 70 IC=1,NCENTR
+                IF(STNAME(IC+NSTAT).EQ.ECCENT%ECC(IECC)%CENNAM) GOTO 80
+70            CONTINUE
+              NCENTR=NCENTR+1
+              IF(NSTAT+NCENTR.GT.SIZE(STNAME)) THEN
+                WRITE(LFNERR,21) NSTAT+NCENTR,SIZE(STNAME)
+21              FORMAT(/,' *** SR GETSTAF: TOO MANY STATIONS',/,
+     1                             17X,'NUMBER OF STATIONS >=',I4,/,
+     2                             17X,'MAXIMUM NUMBER      :',I4,/)
+                CALL EXITRC(2)
+              ENDIF
+              STNAME(NCENTR+NSTAT)=ECCENT%ECC(IECC)%CENNAM
+              ICENTR(NCENTR+NSTAT)=NCENTR+NSTAT
+              IC=NCENTR
+80            ICENTR(ISTA)=IC+NSTAT
+              GOTO 100
+            ENDIF
+
+90        CONTINUE
+100     CONTINUE
+C110     CLOSE(UNIT=LFNLOC)
+        DEALLOCATE(ECCENT%ECC,STAT=IAC)
+      END IF
+C
+C GET COORDINATES FOR CENTER STATIONS
+C -----------------------------------
+      NSTAT=NSTAT+NCENTR
+      DO 160 ISTAT=1,NSTAT
+        XSTAT(1,ISTAT)=99999.D0
+160   CONTINUE
+C
+      CALL OPNFIL(LFNLOC,CRDNAM,'OLD','FORMATTED',
+     1            'READONLY',' ',IOSTAT)
+      CALL OPNERR(LFNERR,LFNLOC,IOSTAT,CRDNAM,srName)
+      READ(LFNLOC,151)
+151   FORMAT(/////)
+C
+C DETERMINE TYPE OF STATION COORDINATES (X,Y,Z OR ELLIPT.)
+C
+      READ(LFNLOC,152) LINE1
+152   FORMAT(A80)
+      IF(LINE1(31:31).EQ.'.'.OR.LINE1(32:32).EQ.'.') THEN
+        ITYP=1
+      ELSE
+        ITYP=2
+      ENDIF
+      BACKSPACE LFNLOC
+C
+C LOOP OVER ALL STATION COORDINATES AVAILABLE
+C
+      DO 300 ILINE=1,100000
+        IF(ITYP.EQ.1) THEN
+          READ(LFNLOC,201,END=310) NR,STANAM,(XST(K),K=1,3)
+201       FORMAT(I3,2X,A16,3F15.5)
+        ELSE
+          READ(LFNLOC,202,END=310) NR,STANAM,VP,IP1,IP2,P3,
+     1                             VL,L1,L2,XL3,H
+202       FORMAT(I3,2X,A16,2X,A1,I2,I3,F9.5,2X,A1,2I3,F9.5,F11.4)
+        ENDIF
+        IF(STANAM.EQ.' ') GOTO 310
+        DO 200 ISTAT=1,NSTAT
+          IF(ICENTR(ISTAT).NE.ISTAT) GOTO 200
+          IF(STNAME(ISTAT).EQ.STANAM) THEN
+            STANUM(ISTAT)=NR
+            IF(ITYP.EQ.1) THEN
+              DO 210 I=1,3
+                XSTAT(I,ISTAT)=XST(I)
+210           CONTINUE
+              CALL XYZELL(AELL,BELL,DXELL,DRELL,SCELL,XST,
+     1                    XSTELL(1:3,ISTAT))
+            ELSE
+              CALL GMSRAD(1,VP,IP1,IP2,P3,XSTELL(1,ISTAT))
+              CALL GMSRAD(1,VL,L1,L2,XL3,XSTELL(2,ISTAT))
+              XSTELL(3,ISTAT)=H
+              CALL ELLXYZ(AELL,BELL,DXELL,DRELL,SCELL,XSTELL(1:3,ISTAT),
+     1                    XSTAT(1:3,ISTAT))
+            ENDIF
+            GOTO 300
+          ENDIF
+200     CONTINUE
+300   CONTINUE
+C
+C CHECK, IF COORDINATES AVAILABLE FOR ALL CENTERS
+C -----------------------------------------------
+310   CLOSE(UNIT=LFNLOC)
+      IOK=1
+      DO 320 ISTAT=1,NSTAT
+        IF(ICENTR(ISTAT).NE.ISTAT) GOTO 320
+        IF(XSTAT(1,ISTAT).EQ.99999.D0) THEN
+          WRITE(LFNERR,311) STNAME(ISTAT)
+311       FORMAT(/,' *** SR GETSTAF: COORDINATES NOT FOUND',/,
+     1                         17X,'STATION: ',A16)
+          IOK=0
+        ENDIF
+320   CONTINUE
+      IF(IOK.EQ.0) CALL EXITRC(2)
+C
+C COMPUTE ECCENTER STATION COORDINATES
+C ------------------------------------
+      DO 400 ISTAT=1,NSTAT
+        IC=ICENTR(ISTAT)
+        IF(IC.EQ.ISTAT) THEN
+          DO 325 I=1,3
+            XSTECC(I,ISTAT)=0.D0
+325       CONTINUE
+        ELSE
+C
+C TRANSFORM LOCAL ECCENTRICITIES (NORTH,EAST,UP) INTO GLOBAL ELLIPSOID
+C ECCENTRICITIES
+          IF(ECCENT%ECCTYP.EQ.1) THEN
+            DO 330 I=1,3
+              LOCECC(I)=XSTECC(I,ISTAT)
+330         CONTINUE
+            CALL ELLECC(XSTELL(1:3,IC),LOCECC,XSTECC(1:3,ISTAT))
+          END IF
+          DO 340 I=1,3
+            XSTAT(I,ISTAT)=XSTAT(I,IC)+XSTECC(I,ISTAT)
+340       CONTINUE
+          CALL XYZELL(AELL,BELL,DXELL,DRELL,SCELL,XSTAT(1:3,ISTAT),
+     1                XSTELL(1:3,ISTAT))
+        ENDIF
+400   CONTINUE
+C
+C CHECK FOR DOUBLE-ENTRIES OF STATIONS
+C ------------------------------------
+      DO ISTA = 1,NSTAT
+        DO JSTA = ISTA+1,NSTAT
+          IF (STNAME(ISTA) == STNAME(JSTA)) THEN
+             WRITE(LFNERR,'(/,A,2(/,17X,A),/)')
+     1            ' *** SR GETSTAF: MORE THAN ONE ENTRY FOR STATION "'//
+     2                             TRIM(STNAME(ISTA))//'"',
+     3                            'FOUND IN FILE: '//TRIM(CRDNAM),
+     4                            'PROCESSING IS STOPPED.'
+            CALL EXITRC(2)
+          ENDIF
+        ENDDO
+      ENDDO
+C
+      RETURN
+C
+      END SUBROUTINE
+C
+      END MODULE

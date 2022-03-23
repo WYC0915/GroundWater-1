@@ -1,0 +1,8 @@
+Example for a station weight file                                19-OCT-03 17:08
+--------------------------------------------------------------------------------
+                                        VALID:  from                  to
+STATION NAME          MEATYP  SIG-FACT  yyyy mm dd hh mm ss  yyyy mm dd hh mm ss
+****************      *****   ****.***  **** ** ** ** ** **  **** ** ** ** ** **
+AUCK 50209M001        CODE       1.000  2003 10 01 00 00 00  2003 10 01 23 59 59
+ONSA 10402M004        PHASE      0.454  
+WTZR 14201M010        CODE       1.414  2003 10 01 00 00 00  2003 10 01 23 59 59

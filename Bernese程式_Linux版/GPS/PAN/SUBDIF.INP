@@ -1,0 +1,350 @@
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+CAMPAIGN 0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+USR_INFO 1  "${USER}"
+ ## widget = comment
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+
+! Show general files
+! ------------------
+SHOWGEN 1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+! -------------------------------------------------------------------------
+! General Constants
+! -----------------
+CONST 1  "${X}/GEN/CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  # CONST.
+
+DESCR_CONST 1  "General Constants"
+
+! Title
+! -----
+TITLE 1  "Compare Sub-daily ERP Models"
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+
+! Scratch File
+! ------------
+AUXFIL 1  "${U}/WORK/SUBDIF.SCR"
+  ## widget = lineedit; path = PTH_SCR; ext = EXT_SCR
+  # SUBDIF
+
+DESCR_AUXFIL 1  "Scratch File"
+
+DELETE_FILES 1  "AUXFIL"
+
+! Program Output File
+! -------------------
+SYSODEF 1  "0"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT 1  "${Q}/PFS/OUT/SUBDIF.LST"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  # SUBDIF
+
+DESCR_SYSOUT 1  "Program Output"
+
+! Error Message File
+! ------------------
+ERRMRG 1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR 1  "${U}/WORK/ERROR.MSG"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  # ERROR
+
+DESCR_SYSERR 1  "Error Messages"
+
+! System Input (not used)
+! -----------------------
+SYSINP 0
+
+! Input Files
+! -----------
+SUBINP 2
+  "${X}/GEN/GIPS96_R.SUB"
+  "${X}/GEN/GIPS96_U.SUB"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_SUB; emptyallowed = false
+  # SELECTED
+
+MSG_SUBINP 1 "Sub-daily ERP models "
+
+SUBINP_TXT_COL_1 1  "Sub-daily Models"
+
+! Extensions of the Output Files
+! ------------------------------
+SUBINP_EXT_COL_2 1  "LST"
+  ## widget = initmenu; pointer = EXT_OUT
+
+SUBINP_PTH_COL_2 1  "${Q}/PFS/OUT/"
+  ## widget = initmenu; pointer = DIR_OUT
+
+SUBINP_TXT_COL_2 1  "Sub-daily ERP-Values"
+
+! Options
+! -------
+TRMPRS 1  "NO"
+  ## widget = combobox; editable = false; cards = YES NO
+
+MSG_TRMPRS 1  "Use terms present in one model only"
+
+PRTDIF 1  "YES"
+  ## widget = combobox; editable = false; cards = YES NO
+
+MSG_PRTDIF 1  "Print differences between models"
+
+ICOMP 1  "YES"
+  ## widget = combobox; editable = false; cards = YES NO
+
+MSG_ICOMP 1  "Comparison of models"
+
+! Sampling Rate
+! -------------
+SAMPL 1  "60"
+  ## widget = lineedit
+
+MSG_SAMPL 1  "Sampling of the data (minutes)"
+
+! Frequencies
+! -----------
+PMDP 1  "1"
+  ## widget = checkbox
+
+MSG_PMDP 1  "PM diurnal prograde"
+
+PMDR 1  "1"
+  ## widget = checkbox
+
+MSG_PMDR 1  "PM diurnal retrograde"
+
+PMSP 1  "1"
+  ## widget = checkbox
+
+MSG_PMSP 1  "PM Semi-d. prograde"
+
+PMSR 1  "1"
+  ## widget = checkbox
+
+MSG_PMSR 1  "PM semi-d. retrograde"
+
+UTDP 1  "1"
+  ## widget = checkbox
+
+MSG_UTDP 1  "UT diurnal prograde"
+
+UTDR 1  "1"
+  ## widget = checkbox
+
+MSG_UTDR 1  "UT diurnal retrograde"
+
+UTSP 1  "1"
+  ## widget = checkbox
+
+MSG_UTSP 1  "UT semi-d. prograde"
+
+UTSR 1  "1"
+  ## widget = checkbox
+
+MSG_UTSR 1  "UT semi-d. retrograde"
+
+! Terms
+! -----
+USELST 1  "DO_NOT_USE"
+  ## widget = combobox; editable = false; cards = DO_NOT_USE INCLUDE EXCLUDE
+
+MSG_USELST 1  "Use list"
+
+PMTERM 9
+  "PM" "3" "-1" "2" "0" "2" "-2"
+  "PM" "1" "1" "2" "0" "1" "-2"
+  "PM" "0" "0" "0" "-2" "2" "-2"
+  "PM" "0" "0" "0" "-4" "-1" "1"
+  "PM" "-1" "0" "-4" "2" "-2" "1"
+  "PM" "0" "0" "0" "-1" "0" "1"
+  "PM" "-3" "1" "-2" "0" "-2" "2"
+  "PM" "-1" "-1" "-2" "0" "-1" "2"
+  "PM" "0" "0" "0" "2" "-2" "2"
+  ## widget = uniline
+  ## numlines = 20
+
+MSG_PMTERM 1  "PM terms"
+
+UTTERM 6
+  "UT" "0" "0" "0" "4" "1" "-1"
+  "UT" "1" "0" "4" "-2" "2" "-1"
+  "UT" "0" "0" "0" "1" "0" "-1"
+  "UT" "3" "-1" "2" "0" "2" "-2"
+  "UT" "1" "1" "2" "0" "1" "-2"
+  "UT" "0" "0" "0" "-2" "2" "-2"
+  ## widget = uniline
+  ## numlines = 20
+
+MSG_UTTERM 1  "UT terms"
+
+! Output Files
+! ------------
+ERPOUT 0
+  ## widget = lineedit; path = DIR_OUT; ext = NO_EXT; emptyallowed = true
+  # 
+
+DESCR_ERPOUT 1  "Output: Sub-daily ERP values "
+ 
+! Observation Window
+! ------------------
+RADIO_1 1  "0"
+  ## widget = radiobutton; group = DUMMY
+  ## radiokeys = SESSION_YEAR SESSION_STRG
+
+MSG_RADIO_1 1  "Defined by year and session number"
+
+RADIO_2 1  "1"
+  ## widget = radiobutton; group = DUMMY
+  ## radiokeys = STADAT STATIM ENDDAT ENDTIM
+
+MSG_RADIO_2 1  "Defined by start and end time"
+
+! Observation Window from Session Table
+! -------------------------------------
+SESSION_YEAR 1  "2002"
+  ## widget = lineedit
+  # $Y+0
+
+MSG_SESSION_YEAR 1  "Year for sessions def. the time window"
+
+SESSION_STRG 1  "3360"
+  ## widget = lineedit
+  # $S+0
+
+MSG_SESSION_STRG 1  "Sessions defining the time window"
+
+! Observation Window from Datum
+! -----------------------------
+STADAT 1  "1998 01 01"
+  ## widget = lineedit
+
+MSG_STADAT 1  "Start of time window (year month day)"
+
+STATIM 1  "00 00 00"
+  ## widget = lineedit
+
+MSG_STATIM 1  "Start of time window (hour min. sec.)"
+
+ENDDAT 1  "1998 01 03"
+  ## widget = lineedit
+
+MSG_ENDDAT 1  "End of time window (year month day)"
+
+ENDTIM 1  "00 00 00"
+  ## widget = lineedit
+
+MSG_ENDTIM 1  "End of time window (hour min. sec.)"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+#  SUBDIF 1: Input and Output Files                                            #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files > % <                                               # SHOWGEN
+#                                                                              #
+# INPUT FILE                                                                   #
+#   Sub-daily ERP models   > %%%%%%%%%%% <                                     # SUBINP
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output         > % < use SUBDIF.Lnn           or  > %%%%%%%% <     # SYSODEF SYSOUT
+#   Error messages         > % < merged to program output or  > %%%%%%%% <     # ERRMRG SYSERR
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # TITLE
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# SUBDIF 1.1: General Files                                                    #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants       > %%%%%%%%%%% <                                    # CONST
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# TEMPORARY FILES                                                              #
+#   Scratch file            > %%%%%%%%%%% <                                    # AUXFIL
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# SUBDIF 2: Options                                                            #
+#                                                                              #
+# OPTIONS FOR COMPARISON                                                       #
+#   Use terms present in one model only              > %%% <                   # TRMPRS
+#   Print differences between models                 > %%% <                   # PRTDIF
+#   Comparison of models                             > %%% <                   # ICOMP
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# SUBDIF 3: Frequencies and Terms to be Included or Exlcuded                   #
+#                                                                              #
+# FREQUENCIES TO BE INCLUDED IN STATISTICS                                     #
+#   PM diurnal prograde     > % <        UT diurnal prograde      > % <        # PMDP UTDP
+#   PM diurnal retrograde   > % <        UT diurnal retrograde    > % <        # PMDR UTDR
+#   PM semi-d. prograde     > % <        UT semi-d. prograde      > % <        # PMSP UTSP
+#   PM semi-d. retrograde   > % <        UT semi-d. retrograde    > % <        # PMSR UTSR
+#                                                                              #
+# TERMS                                                                        #
+#   > %%%%%%%%%% <    List                                                     # USELST
+#     PM-terms                          UT-terms                               #
+#   > __ __ __ __ __ __ __       <    > __ __ __ __ __ __ __       <           # PMTERM UTTERM
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL ICOMP = YES ######################################################
+# SUBDIF 4: Comparison of Models                                               #
+#                                                                              #
+#   Sampling of the data (minutes) > %%%%% <                                   # SAMPL
+#                                                                              #
+# OUTPUT FILE                                                                  #
+#   Sub-daily ERP values     > %%%%%%%%%%% <                                   # ERPOUT
+#                                                                              #
+# TIME WINDOW                                                                  #
+#   > % < Defined by year and session number                                   # RADIO_1
+#         Year > %%%% <    Session > %%%% <                                    # SESSION_YEAR SESSION_STRG
+#                                                                              #
+#                                                                              #
+#   > % < Defined by start and end time                                        # RADIO_2
+#                 yyyy mm dd     hh mm ss           yyyy mm dd     hh mm ss    #
+#         Start > %%%%%%%%%% < > %%%%%%%% <   End > %%%%%%%%%% < > %%%%%%%% <  # STADAT STATIM ENDDAT ENDTIM
+#                                                                              #
+# END_PANEL ####################################################################
+

@@ -1,0 +1,97 @@
+      MODULE s_NEQINI
+      CONTAINS
+
+C*
+      SUBROUTINE NEQINI(IPTYP,NIONP,NAMBP,MAXPAR,ANOR,BNOR)
+CC
+CC NAME       :  NEQINI
+CC
+CC PURPOSE    :  INITIALIZE NORMAL EQUATION MATRICES A,B
+CC
+CC PARAMETERS :
+CC         IN :  IPTYP  : PARAMETER TYPE
+CC                        (1: IONOSPHERE / 2: AMBIGUITY)      I*4
+CC               NIONP  : TOTAL NUMBER OF ION. PARAMETERS     I*4
+CC               NAMBP  : TOTAL NUMBER OF AMB. PARAMETERS  -  I*4
+CC               MAXPAR : MAXIMUM NUMBER OF PARAMETERS        I*4
+CC               ANOR
+CC               BNOR   : RESULTING NORMAL EQUATION MATRICES  R*8
+CC                        MATRIX A ONLY CONSISTS OF THE UPPER
+CC                        TRIANGLE, LINEARIZED COLUMNWISE
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  U. WILD
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  88/11/14 11:45
+CC
+CC CHANGES    :  10-AUG-94 : MR: CALL EXITRC
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1988     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IK    , IPTYP , K     , MAXPAR, MXCLCQ, NAMBP ,
+     1          NHELP , NIONP , NP    , NPAR
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      REAL*8      ANOR(*),BNOR(*)
+      CHARACTER*6 MXNLCQ
+C
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+C
+C ACTUAL SIZE OF NEQ-SYSTEM
+      IF(IPTYP .EQ. 1)THEN
+        NHELP=NIONP
+      ELSE
+        NPAR = NIONP + NAMBP
+      ENDIF
+C
+C CHECK MAXIMUM DIMENSIONS ALLOWED
+      NP = NIONP + NAMBP
+      IF(NP.GT.MAXPAR) THEN
+        WRITE(LFNERR,1) NP,MAXPAR
+1       FORMAT(/,' *** SR NEQINI: TOO MANY PARAMETERS',/,
+     1                       16X,'NUMBER OF PARAMETERS:',I5,/,
+     2                       16X,'MAXIMUM NUMBER      :',I5,/)
+        CALL EXITRC(2)
+      ENDIF
+C
+      IF (IPTYP .EQ. 1) THEN
+C
+C INITIALIZE MATRICES A,B :
+        DO 10 I=1,NHELP
+          BNOR(I)=0.D0
+          DO 10 K=1,I
+            IK=I*(I-1)/2+K
+            ANOR(IK)=0.D0
+10      CONTINUE
+C
+      ELSE IF (IPTYP .EQ. 2) THEN
+C
+C INITIALIZE MATRICES A,B
+        DO 50 I=NIONP+1,NPAR
+          BNOR(I)=0.D0
+          DO 50 K=1,I
+            IK=I*(I-1)/2+K
+            ANOR(IK)=0.D0
+50      CONTINUE
+C
+      ENDIF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

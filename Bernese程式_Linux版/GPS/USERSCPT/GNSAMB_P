@@ -1,0 +1,95 @@
+package GNSAMB_P;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  GNSAMB_P
+#
+# Purpose :  Execute GPSEST for WL/NL ambiguity resolution
+#
+# PARAMs  :  PARAM1 - 4-character baseline name
+#
+# Author  :  S. Schaer
+# Created :  30-Mar-2005
+#
+# Changes :  11-Aug-2011 RD: Updated for version 5.2
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtMess setUserVar);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($ssss,
+      $param1,
+      $dirCsh,
+      $extCsh) =
+    $bpe->getKeys(
+      '$S+0',
+      'PARAM1',
+      'DIR_CSH',
+      'EXT_CSH');
+
+# Set filename variable
+# ---------------------
+  setUserVar($bpe,"FFFF",$param1);
+
+# Run program
+# -----------
+  $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","SATSYS","GPS");
+
+# Check whether PSH file available
+# --------------------------------
+  my $cshFil = "${dirCsh}${param1}${ssss}.${extCsh}";
+  if (-s $cshFil) {
+
+# - Code data screening
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","TITLE","Code data screening wrt \$(FFFF)\$S+0");
+
+    my $PGMNAM = "GPSEST";
+    $bpe->RUN_PGMS($PGMNAM);
+
+# - Residual data screening
+    $PGMNAM = "RESRMS";
+    $bpe->RUN_PGMS($PGMNAM);
+
+# - Remove bad observations
+    $PGMNAM = "SATMRK";
+    $bpe->RUN_PGMS($PGMNAM);
+
+# - First GPSEST for WL ambiguity resolution
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","TITLE","WL AR wrt \$(FFFF)\$S+0");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","PSFILES","\$(FFFF)\$S+0");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","RESIDRS","");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","SYSOUT","\$(FFFF)\$S+0_W");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","FREQUENCY","MELWUEBB");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","AMBSTRAT","SIGMA");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","AMBSAVE","1");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","APRWIDE","1");
+
+    $PGMNAM = "GPSEST";
+    $bpe->RUN_PGMS($PGMNAM);
+
+# - Second GPSEST for NL ambiguity resolution
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","TITLE","NL AR wrt \$(FFFF)\$S+0");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","CSFILES","");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","DCBINP","");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","SYSOUT","\$(FFFF)\$S+0_N");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","FREQUENCY","L3");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","APRL1L2","1");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","FIXSTA","FIRST");
+
+    $PGMNAM = "GPSEST";
+    $bpe->RUN_PGMS($PGMNAM);
+
+  } else {
+
+    prtMess($bpe,"$cshFil not found");
+
+  }
+
+}

@@ -1,0 +1,44 @@
+Observation selection example for Bernese GNSS Software Version 5.2  21-Aug-2012
+--------------------------------------------------------------------------------
+
+Format version:  1.00
+
+Receiver type         S/S  O/F  RINEX observation codes and their priority
+********************  ***  ***  *** *** *** *** *** *** *** *** *** *** *** ***
+
+DEFAULT               G    L1   L1P L1C     L1X
+                      G    L2   L2P L2C L2D L2X
+                      G    C1   C1P C1C     C1X
+                      G    C2   C2P C2C C2D C2X
+                      R    L1   L1P L1C     L1X
+                      R    L2   L2P L2C     L2X
+                      R    C1   C1P C1C     C1X
+                      R    C2   C2P C2C     C2X
+                      R26  L1   L1P L1C
+                      R26  L2   L2P L2C
+                      R26  C1   C1P C1C
+                      R26  C2   C2P C2C
+                      E    L1   L1C L1X
+                      E    L2   L5Q L5I L5X L7Q L7X L8Q L8X L6X
+                      E    C1   C1C C1X
+                      E    C2   C5Q C5I C5X C7Q C7X C8Q C8X C6X
+
+TRIMBLE*              G    L1   L1C L1P     L1X
+                      G    L2   L2P L2C L2D L2X
+                      G    C1   C1C C1P     C1X
+                      G    C2   C2P C2C C2D C2X
+                      R    L1   L1C L1P     L1X
+                      R    L2   L2P L2C     L2X
+                      R    C1   C1C C1P     C1X
+                      R    C2   C2P C2C     C2X
+
+SIMULA                G    L1    1P
+                      G    L2    2P
+                      G    C1    1P
+                      G    C2    2P
+                      R    L1    1P
+                      R    L2    2P
+                      R    C1    1P
+                      R    C2    2P
+
+

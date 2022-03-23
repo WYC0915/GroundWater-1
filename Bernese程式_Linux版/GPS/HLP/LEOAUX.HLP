@@ -1,0 +1,193 @@
+<html>
+<body>
+
+<center>
+<b>PREPARE LEO AUXILIARY INFORMATION</b>
+<p>Program: LEOAUX
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="SATNAM"        default="GOCE"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program concatenates once-per-revolution attitude files from GOCE and
+if the original star tracker information is given, the quaternions are
+rotated into the correct system.
+
+<p><hr>
+
+<p><b>LEOAUX 1: General files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get the currently active campaign, session and session table.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="LEOAUX"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or to specify a separate file to which error messages are
+written.
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<p><hr>
+
+<p><b>LEOAUX 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">CONST.</a>
+
+<p><hr>
+
+
+<p><b>LEOAUX 2.1: Specifications for GOCE</b>
+
+<a name="CONAUX" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>GOCE attitude files:</b>
+Select GOCE attitude files, which should be concatenated. This can either
+be original star tracker files or the preprocessed attitude files.
+
+<a name="STRQUA" default="0"></a>
+<p><b>Star tracker quaternions</b>
+Check this box if the attitude files are the original star tracker
+files. In this case the quaternions are rotated according to the star
+tracker number indicated in the files, because the star trackers are tilted
+with respect to the satellite body-fixed system.
+
+<a name="OUTAUX" default=""></a>
+<p><b>OUTPUT FILE</b>
+<p><b>Attitude file:</b>
+The concatenated attitude quaternions will be stored in this file.
+
+<!--
+<p><hr>
+
+<p><b>LEOAUX 2.2: Specifications for CHAMP and GRACE</b>
+
+<a name="LEOAUX" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>LEO auxiliary file:</b>
+Select the auxiliary file, which should be processed.
+
+<a name="TYP1" default="1"></a>
+<p><b>Epoch, Accelerations, Attitude, Manoeuvres:</b>
+This option is only active if the auxiliary file is from CHAMP. Check this
+option if you would like to get all this information out of the auxiliary
+file. If you are only interested in the attitude uncheck it.
+
+<a name="IXYZ" default="RSW"></a>
+<p><b>System in which the accelerations will be stored:</b>
+This option is only active if the auxiliary file is from CHAMP and if you
+would like to get all auxiliary information extracted from this
+file. Select the system in which the accelerations should be stored in the
+resulting acceleration file.
+
+<br><br>
+
+<a name="ATTIT" default=""></a>
+<p><b>OUTPUT FILES</b>
+<p><b>Attitude file:</b>
+The attitude rotation matrix will be stored in this file.
+
+<a name="ACCEL" default=""></a>
+<p><b>Acceleration file:</b>
+The accelerations will be stored in this file.
+
+<a name="MANEUV" default=""></a>
+<p><b>Maneuver file:</b>
+The small maneuvers from CHAMP will be stored in this file.
+-->
+
+<p><hr>
+
+<p><b>LEOAUX 3: Observation Window</b>
+
+<a name="RADIO_0" default="1"></a>
+<p><b>OBSERVATION WINDOW</b>
+This panel allows to specify a time window. Only observations
+within this time window will be used for processing.
+
+<p><b>Take all observations:</b>
+When checking this option, no observation window is set and all available
+information is extracted.
+
+<a name="RADIO_1" default="0"></a>
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the observation window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the observation window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: <tt>00&nbsp;00&nbsp;00</tt>, end date: <tt>$YMD_STR+0</tt>,
+end time: <tt>23&nbsp;59&nbsp;59<Ttt>
+
+<p><hr>
+
+</body>
+</html>

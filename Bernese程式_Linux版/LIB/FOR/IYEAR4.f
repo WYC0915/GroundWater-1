@@ -1,0 +1,53 @@
+      MODULE f_IYEAR4
+      CONTAINS
+
+C*
+        FUNCTION IYEAR4(IYEAR)
+CC
+CC
+CC PURPOSE    :  Expands 2-digit year to 4-digit year, avoiding Y2K
+CC               Problems
+CC
+CC PARAMETERS :
+CC         IN :  IYEAR  : 2-DIGIT YEAR  (e.g. 95)             I*4
+CC        OUT :  IYEAR4 : 4-DIGIT YEAR  (e.g. 1995)           I*4
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  P.FRIDEZ
+CC               ASTRONOMICAL INSTITUTE
+CC               UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+CC CREATED    :  22-JUN-99
+CC
+CC CHANGES    :  04-DEC-03 : CU: CHANGE LIMYR: 1980 -> 1960
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               19-JUL-10 : SL: TAB CHARACTERS REMOVED
+CC
+CC
+C*
+        IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+        INTEGER*4 IYEAR , IYEAR4, LIMYR , LIMYR0, LIMYR2
+C
+CCC        IMPLICIT INTEGER*4 (I-N)
+CCC        IMPLICIT REAL*8    (A-H,O-Z)
+C
+        DATA LIMYR/1960/
+C
+        LIMYR2=MOD(LIMYR,100)
+        LIMYR0=(LIMYR/100)*100
+C
+        IYEAR4=IYEAR
+C
+        IF (IYEAR4.LT.LIMYR2) IYEAR4=IYEAR4+LIMYR0+100
+        IF (IYEAR4.LT.100)    IYEAR4=IYEAR4+LIMYR0
+C
+        RETURN
+        END FUNCTION
+
+
+      END MODULE

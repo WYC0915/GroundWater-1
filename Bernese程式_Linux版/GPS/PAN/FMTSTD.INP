@@ -1,0 +1,118 @@
+
+CAMPAIGN     0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! ASCII Standard Orbit Input File
+! -------------------------------
+STDASCII     0
+  ## widget = selwin; path = DIR_FSO; ext = EXT_FSO; maxfiles = 999
+  ## emptyallowed = true
+
+STDASCII_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_STD
+
+STDASCII_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_STD
+
+MSG_STDASCII 1 "Standard orbits"
+
+! ASCII Rad.Press. Input File
+! ---------------------------
+RPRASCII     0
+  ## widget = selwin; path = DIR_FRP; ext = EXT_FRP; maxfiles = 999
+  ## emptyallowed = true
+
+RPRASCII_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_RPR
+
+RPRASCII_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_RPR
+
+MSG_RPRASCII 1  "Radiation pressure coefficients"
+
+! Program Output File
+! -------------------
+SYSODEF     1  "1"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "FMTSTD"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG     1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR     1  "ERROR"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+
+DESCR_SYSERR 1  "Error message"
+
+SHOWGEN     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+! Title: new entry
+! ----------------
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CONVERT STD AND RPR FILES (ASCII TO BINARY) - FMTSTD 1: Input/Output Files   #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files  > % <                                              # SHOWGEN
+#                                                                              #
+# INPUT FILES                                                                  #
+#   Standard orbits                 > %%%%%%%% <                               # STDASCII
+#   Radiation pressure coefficients > %%%%%%%% <                               # RPRASCII
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output          > % < use FMTSTD.Lnn            or    > %%%%%%%% < # SYSODEF SYSOUT
+#   Error messages          > % < merged to program output  or    > %%%%%%%% < # ERRMRG SYSERR
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# FMTSTD 1.1: General Files                                                    #
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################

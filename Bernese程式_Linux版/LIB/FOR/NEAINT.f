@@ -1,0 +1,61 @@
+      MODULE s_NEAINT
+      CONTAINS
+
+C*
+      SUBROUTINE NEAINT(N,X,SEQ)
+CC
+CC NAME       :  NEAINT
+CC
+CC PURPOSE    :  GIVEN A REAL NUMBER X, STORE N NEAREST
+CC               INTEGERS IN ARRAY SEQ(I),I=1,2,..,N
+CC               WHERE THE NEAREST INTEGER IS IN SEQ(1),
+CC               THE SECOND NEAREST IN SEQ(2),...
+CC
+CC PARAMETERS :
+CC         IN :  N      : NUMER OF ELEMENTS IN SEQ            I*4
+CC               X      : REAL NUMBER                         R*8
+CC        OUT :  SEQ(I),I=1,2,..,N :                          R*8
+CC                        NEAREST INTEGERS
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  88/11/17 11:11
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1988     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I    , INTER, ISIG , N
+C
+      REAL*8    X
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+      REAL*8 SEQ(*)
+C
+      SEQ(1)=DNINT(X)
+      IF(X-SEQ(1).GE.0.D0)THEN
+        ISIG=1
+      ELSE
+        ISIG=-1
+      END IF
+      DO 10 I=2,N
+        INTER=I/2*ISIG*(-1)**I
+        SEQ(I)=SEQ(1)+INTER
+10    CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

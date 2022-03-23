@@ -1,0 +1,231 @@
+      MODULE s_GETPAN
+      CONTAINS
+
+C*
+      SUBROUTINE GETPAN(PANNAM,IRCODE)
+CC
+CC NAME       :  GETPAN
+CC
+CC PURPOSE    :  READ DATA PANEL FOR GPS PROGRAMS
+CC
+CC PARAMETERS :
+CC         IN :  PANNAM : PANEL FILENAME                        CH*(*)
+CC        OUT :  IRCODE : RETURN CODE                            I*4
+CC                        2: ERROR DETECTED
+CC
+CC REMARKS    :  1. DELIMITERS OF INPUT FIELDS GIVEN IN 'START' AND
+CC                  'END'
+CC                  CHARACTERS OF FRAME GIVEN IN 'FRAME'
+CC               2. COMMON /CGTPAN/ :
+CC                  NKEYWD : NUMBER OF KEYWORDS FOUND            I*4
+CC                  VALSTR(1:8) : LIST OF KEYWORDS              CH*8(N)
+CC                  VALSTR(9:88): LIST OF CORRESPONDING INPUT  CH*80(N)
+CC                                FIELDS
+CC                  USED IN SR DSGARC, GTKEYW, TOO.
+CC
+CC AUTHOR     :  W. GURTNER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  03-JUL-89
+CC
+CC CHANGES    :  21-APR-92 : ??: CALL TO UPPERC
+CC               10-AUG-92 : ??: USE OPNFIL (READONLY) TO OPEN PANEL
+CC               28-OCT-93 : SF: UPDATE HEADER INFORMATION
+CC               27-AUG-94 : MR: NO PROMP1 FOR NON-INTERACTIVE MODE
+CC               30-AUG-94 : WG: MORE FLEXIBLE PANEL DESIGN
+CC               26-JAN-98 : MR: HANDLE EMPTY PANELS
+CC               04-AUG-99 : LM: '@' = END OF DISPLAY
+CC               01-SEP-99 : TS: ADD OLDPAN TO COMMON
+CC               17-FEB-03 : LM: USE PREPROCESSOR COMMANDS
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               27-MAR-12 : RD: USE PROMP1 AS MODULE NOW
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1989     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE s_promp1
+      USE s_opnfil
+      USE f_lengt0
+      USE s_upperc
+      USE f_lengt1
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , I1    , I2    , IFIRST, IOSTAT, K     , K1    ,
+     1          L     , L1    , L2    , LFNLOC, LS    ,
+     2          LSTR  , MAXNUM, MXCKEY, NOINTR
+C
+      PARAMETER (MAXNUM=5)
+C
+C  GLOBAL PARAMETERS
+      INTEGER*4    IRCODE
+      CHARACTER    PANNAM*(*)
+C
+C  LOCAL PARAMETERS
+      LOGICAL      YES
+      CHARACTER*127 STRING
+      CHARACTER*80  STRG(1)
+      CHARACTER*1   START,END,CHR1
+      CHARACTER*7  FRAME
+C
+C  COMMON PARAMETERS
+      PARAMETER (MXCKEY=2000)
+      INTEGER*4  NKEYWD,MAXKEY
+      CHARACTER*88 VALSTR(MXCKEY)
+      CHARACTER*80 OLDPAN
+      COMMON /CGTPAN/ MAXKEY,NKEYWD,OLDPAN,VALSTR
+C
+      DATA IFIRST/1/
+      DATA START/'>'/,END/'<'/
+
+#ifdef OS_WIN32
+      DATA FRAME/'อออออออ'/
+#else
+      DATA FRAME/'-------'/
+#endif
+
+C GET INTERACTION MODE
+      IF (IFIRST.EQ.1) THEN
+ccccc        CALL GTINTM(NOINTR)
+        nointr = 1
+        LFNLOC=99
+        IFIRST=0
+      ENDIF
+C
+C CHECK WHETHER PANEL EXISTS
+      INQUIRE(FILE=PANNAM,EXIST=YES)
+      IF(.NOT.YES) THEN
+        WRITE (*,1) PANNAM(1:LENGT1(PANNAM))
+1       FORMAT(/,' *** SR GETPAN: PANEL NOT FOUND',
+     1         /,16X,'PANEL NAME: ',A,/)
+        IF (NOINTR.NE.1) THEN
+          STRG(1)='PRESS <ENTER> TO CONTINUE'
+          CALL PROMP1(1,STRG)
+          READ(*,'(A)') CHR1
+        ENDIF
+        IRCODE=2
+        GOTO 999
+      END IF
+C
+      CALL OPNFIL(LFNLOC,PANNAM,'OLD',' ','READONLY',' ',IOSTAT)
+C
+      NKEYWD=0
+      READ(LFNLOC,2,END=910)
+2     FORMAT(//)
+C
+C  READ ONE LINE OF PANEL
+10    READ(LFNLOC,11,END=100) STRING
+      if (string(1:1) .eq. '@') goto 100
+11    FORMAT(A)
+      IF(INDEX(STRING(83:),FRAME).NE.0) GOTO 10
+      K1=1
+C
+C  LENGTH OF PANEL LINE (WITHOUT RIGHT END OF BOX)
+      LS=LENGT0(STRING)-1
+C
+C  LOOK FOR KEYWORDS (82-89, 91-98, 100-107, ETC)
+      DO 20 I=1,MAXNUM
+C
+C  START / END OF KEYWORD
+        I1=73+9*I
+        I2=I1+7
+C
+C  BEYOND STRING LENGTH
+        IF(I2.GT.LS) GOTO 10
+C
+C  BLANK: NO KEYWORD
+        IF(STRING(I1:I2).EQ.' '.OR.
+     1     STRING(I1:I2).EQ.'KEYWORDS') GOTO 10
+C
+C  LOOK FOR START OF CORRESPONDING INPUT FIELD
+        DO 30 K=K1,79
+          IF(STRING(K:K).EQ.START) GOTO 50
+30      CONTINUE
+        WRITE(*,31) PANNAM(1:LENGT1(PANNAM))
+31      FORMAT(/,' *** SR GETPAN: START OF FIELD NOT FOUND IN PANEL',
+     1         /,16X,'PANEL NAME: ',A,/)
+        IF (NOINTR.NE.1) THEN
+          STRG(1)='PRESS <ENTER>, TO CONTINUE'
+          CALL PROMP1(1,STRG)
+          READ(*,'(A)') CHR1
+        ENDIF
+        IRCODE=2
+        GOTO 999
+C
+C  FOUND: LOOK FOR END OF INPUT FIELD
+50      L1=K+2
+        DO 40 L=L1,79
+          IF(STRING(L:L).EQ.END) GOTO 60
+40      CONTINUE
+        WRITE(*,51) PANNAM(1:LENGT1(PANNAM))
+51      FORMAT(/,' *** SR GETPAN: END OF FIELD NOT FOUND IN PANEL',
+     1         /,16X,'PANEL NAME: ',A,/)
+        IF (NOINTR.NE.1) THEN
+          STRG(1)='PRESS <ENTER>, TO CONTINUE'
+          CALL PROMP1(1,STRG)
+          READ(*,'(A)') CHR1
+        ENDIF
+        IRCODE=2
+        GOTO 999
+C
+C  FOUND: KEEP KEYWORD, INPUT FIELD
+60      L2=L-2
+        K1=L+1
+        IF(NKEYWD+1.GT.MAXKEY) THEN
+          WRITE(*,61) MAXKEY,PANNAM(1:LENGT1(PANNAM))
+61        FORMAT(/,' *** SR GETPAN: TOO MANY KEYWORDS FOUND IN PANEL',
+     1           /,16X,'INCREASE "MAXKEY" IN SR GETPAN',
+     2           /,16X,'AND IN CALLING ROUTINE',
+     3           /,16X,'MAX. NUMBER OF KEYWORDS ALLOWED:',I5,
+     3           /,16X,'PANEL NAME                     : ',A,/)
+          IF (NOINTR.NE.1) THEN
+            STRG(1)='PRESS <ENTER>, TO CONTINUE'
+            CALL PROMP1(1,STRG)
+            READ(*,'(A)') CHR1
+          ENDIF
+          IRCODE=2
+          GOTO 999
+        END IF
+        NKEYWD=NKEYWD+1
+        VALSTR(NKEYWD)(1:8)=STRING(I1:I2)
+C
+C  INPUT FIELD: REMOVE LEADING BLANKS, UPPERCASE
+        LSTR=LENGT0(STRING(L1:L2))
+        IF(LSTR.NE.0) THEN
+          DO 70 L=L1,L2
+            IF(STRING(L:L).NE.' ') GOTO 80
+70        CONTINUE
+80        VALSTR(NKEYWD)(9:88)=STRING(L:L2)
+          CALL UPPERC(VALSTR(NKEYWD)(9:88))
+        ELSE
+          VALSTR(NKEYWD)(9:88)=' '
+        END IF
+C
+20    CONTINUE
+      GOTO 10
+C
+C ERROR READING PANEL
+910   WRITE(*,911) PANNAM(1:LENGT1(PANNAM))
+911   FORMAT(/,' *** SR GETPAN: ERROR READING PANEL',
+     1       /,16X,'PANEL NAME: ',A,/)
+      IF (NOINTR.NE.1) THEN
+        STRG(1)='PRESS <ENTER>, TO CONTINUE'
+        CALL PROMP1(1,STRG)
+        READ(*,'(A)') CHR1
+      ENDIF
+      IRCODE=2
+      CLOSE(UNIT=LFNLOC)
+      GOTO 999
+C
+100   IRCODE=0
+      CLOSE(UNIT=LFNLOC)
+C
+999   OLDPAN=PANNAM
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

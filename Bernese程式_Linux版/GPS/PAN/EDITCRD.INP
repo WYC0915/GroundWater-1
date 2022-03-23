@@ -1,0 +1,73 @@
+
+! Environment variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! Necessary to write the result file
+! ----------------------------------
+AUXFIL     1  "EDITCRD$J"
+
+! Datum file name
+! ---------------
+DATUM     1  "DATUM."
+
+MSG_DATUM 1  "Geodetic datum file"
+
+! Coordinate file name
+! --------------------
+COORDRS     0
+  ## widget = comment
+
+MSG_COORDRS 1 "Filename"
+
+! Title line of coordinate file
+! -----------------------------
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1 "Title line"
+
+! Coordinate epoch
+! ----------------
+TIMCRD     0
+  ## widget = lineedit
+
+MSG_TIMCRD 1  "Reference epoch"
+
+! Datum string for coordinate file
+! --------------------------------
+DATUM_STRG     0
+  ## widget = lineedit; check_strlen = 16
+
+MSG_DATUM_STRG 1 "Geodetic datum"
+
+! Station coordinate records
+! --------------------------
+STACRD     1  "" "" "" "" "" ""
+  ## widget = uniline
+  ## check_type.1 = integer
+  ## check_min.1 = 1; check_max.1 = 999
+  ## check_strlen.2 = 16
+  ## check_type.3 = real
+  ## check_type.4 = real
+  ## check_type.5 = real
+  ## check_strlen.6 = 1
+  ## numlines = 10
+
+MSG_STACRD 1  "Num/Station name/X (m)/Y (m)/Z (m)/Flag"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CREATE/UPDATE STATION COORDINATES - EDITCRD                                  #
+#                                                                              #
+#  Filename > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # COORDRS
+#  Title    > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # TITLE
+#                                                                              #
+#                       yyyy mm dd hh mm ss                                    #
+#  Coordinate epoch   > %%%%%%%%%%%%%%%%%%% <                                  # TIMCRD
+#  Geodetic datum     > %%%%%%%%%%%%%%%%%%% <                                  # DATUM_STRG
+#                                                                              #
+# > Num Station_name____  __X_(meter)__  __Y_(meter)__ __Z_(meter)__ Flag<     # STACRD
+#                                                                              #
+# END_PANEL ####################################################################

@@ -1,0 +1,107 @@
+      MODULE s_GETCOV
+      CONTAINS
+
+C*
+      SUBROUTINE GETCOV(FILNAM,TITLE,NSTAT,STNAME,STFLAG,COV,SIGMA,
+     1                  NOBS,NPARMS)
+CC
+CC NAME       :  GETCOV
+CC
+CC PURPOSE    :  GET THE VARIANCE COVARIANCE MATRIX OF FILE 'FILENAME'
+CC
+CC PARAMETERS :
+CC         IN :  FILNAM : NAME OF VARIANCE COVARIANCE MATRIX  CH*32
+CC        OUT :  TITLE  : GENERAL TITLE                       CH*80
+CC               NSTAT  : NUMBER OF ESTIM. STATIONS IN FILE   I*4
+CC               STNAME(I),I=1,..,NSTAT: STATION NAMES        CH*16
+CC               STFLAG(I),I=1,..,NSTAT: STATION FLAGS        CH*1
+CC                         BLANK: VELOCITIES
+CC                         V: VELOCITIES
+CC               COV(I),I=1,3*NSTAT*(3*NSTAT+1)/2
+CC                        VARIANCE MATRIX                     R*8
+CC               SIGMA  : SIGMA                               R*8
+CC               NOBS   : NUMBER OF OBSERVATIONS              I*4
+CC               NPARMS : NUMBER OF UNKNOWNS                  I*4
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  E.BROCKMANN
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  01-MAR-93
+CC
+CC CHANGES    :  09-JUN-93 : ??: READ NUMBER OF OBS. AND NUMBER OF
+CC                               UNKNOWNS
+CC               04-APR-95 : ??: WARNING OF VELOCITY FLAG
+CC               10-SEP-95 : EB: END= AND ERR= FOR UNIC VERSION
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1993     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE s_opnfil
+      USE s_opnerr
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IFIRST, IND   , IND0  , IOSTAT, IPAR  , ISTAT , KPAR  ,
+     1          NOBS  , NPARMS, NSTAT
+C
+      REAL*8    SIGMA
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+      REAL*8        COV(*)
+      CHARACTER*80  TITLE
+      CHARACTER*32  FILNAM
+      CHARACTER*16  STNAME(*)
+      CHARACTER*1   STFLAG(*)
+      DATA IFIRST/1/
+C
+C OPEN COVARIANCE FILE
+C --------------------
+      CALL OPNFIL(LFNLOC,FILNAM,'OLD','FORMATTED',
+     1            'READONLY',' ',IOSTAT)
+      CALL OPNERR(LFNERR,LFNLOC,IOSTAT,FILNAM,'GETCOV')
+C
+C READ  TITLE
+C -----------
+      READ (LFNLOC,10) TITLE,SIGMA,NOBS,NPARMS
+10    FORMAT(A80,//////,19X,F8.4,8X,I11,13X,I9,////)
+C
+C LOOP OVER ALL LINES OF UPPER TRIANGULAR PART OF MATRIX
+C ------------------------------------------------------
+      DO 100 IPAR=1,1000000
+        IND0=IPAR*(IPAR-1)/2
+        ISTAT=(IPAR-MOD(IPAR-1,3))/3+1
+        DO 50 KPAR=1,IPAR
+          IND=IND0+KPAR
+          READ(LFNLOC,30,ERR=999,END=999) STNAME(ISTAT),STFLAG(ISTAT),
+     1                                    COV(IND)
+CC30        FORMAT(A16,32X,D20.10)
+30        FORMAT(A16,28X,A1,3X,D20.10)
+          IF (STFLAG(ISTAT).EQ.'V'.AND.IFIRST.EQ.1) THEN
+            WRITE(LFNERR,901)
+901         FORMAT(/,' *** SR GETCOV: WARNING: VELOCITIES IN',
+     1               ' COVARIANCES!',/,
+     2           16X,'COMPAR CAN NOT HANDLE THIS CORRECTLY!',/)
+            IFIRST=0
+          ENDIF
+50      CONTINUE
+        READ(LFNLOC,'(A)',END=999)
+100   CONTINUE
+C
+999   NSTAT=(IPAR-1)/3
+C
+C CLOSE FILE
+C ----------
+      CLOSE(UNIT=LFNLOC)
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

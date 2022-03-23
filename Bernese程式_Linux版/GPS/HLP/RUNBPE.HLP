@@ -1,0 +1,764 @@
+<html>
+<body>
+
+<center>
+<b>START BPE PROCESSING</b>
+<p>Program: RUNBPE
+</center>
+<hr width="100%">
+
+<a name="SERVER_VARIABLES_0" default="%% %% %%"></a>
+<a name="S_SERVER_VARIABLES_0" default="%% %% %%"></a>
+<a name="PIDLIST" default=""></a>
+<a name="S_PIDLIST" default=""></a>
+<a name="BPE_CAMPAIGN" default=""></a>
+<a name="S_BPE_CAMPAIGN" default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YEAR" default="$Y+0"></a>
+<a name="SESSION" default="$S+0"></a>
+<a name="NEWCAMP_BPE" default="NEWCAMP"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The Bernese Processing Engine (BPE) executes a list of tasks specified
+in a process control file (PCF) for one or more sessions. The BPE may
+process different sessions in parallel.
+<br>
+The BPE consists of a server which takes the general control over the
+tasks defined in the PCF. It controls the execution of the individual scripts
+and decides on which CPU a job is running according to the CPU control file.
+The server starts the
+clients on remote hosts, specifies the task for the client (user script
+name, campaign, session, etc.) using a TCP/IP connection, and waits for
+the termination of the client's job. It starts more clients to run the
+following scripts until all tasks defined in the PCF are completed.
+<br>
+In the case of windows platforms the server starts clients only
+on the local host.
+<br>
+For a more detailed description of the mechanism of the BPE we refer to
+the user manual.
+
+<p><hr>
+
+<p><b>BPE 1: Client Environment/Session Selection</b>
+
+<a name="BPE_CLIENT" default="${BPE}/RUNBPE.pm"></a>
+<p><b>CLIENT FILES/ENVIRONMENT</b>
+<p><b>Client script:</b>
+Specify the name of the client script including the full path name. This script
+has to exist at the specified location on all hosts where clients are
+started.
+<br>
+You may use an environment variable here which must be defined on the
+servers host. An environment variable has to be enclosed in curly brackets
+(even on windows platforms).
+<br>
+Most probably you will never have to modify this entry.
+
+<p><i>Default value:</i> <tt>${BPE}/RUNBPE.pm</tt>
+
+<a name="CLIENT_ENV" default="${X}/EXE/LOADGPS.setvar"></a>
+<p><b>Client's environment file:</b>
+
+<p><i>UNIX platforms:</i>
+All Bernese specific environment variables must be defined for each
+client separately. Specify the file containing the environment variables
+definition necessary to run the Bernese GNSS Software. The file must be
+specified with the full path and has to exist at that location on all hosts
+where clients are started.
+<br>
+You may use an environment variable here which must be defined on each
+client host by the login procedure. An environment variable has to be
+enclosed in curly brackets.
+
+<p><i>Default value for UNIX:</i> <tt>${X}/EXE/LOADGPS.setvar</tt>
+
+<p><i>Windows platforms:</i>
+Because all clients are running on
+the local host only no environment has to be loaded for the clients. Therefore
+this field is blank for windows platforms.
+
+<p><i>Default value for windows:</i> blank
+
+<br><br>
+
+<a name="NUM_SESS" default="1"></a>
+<p><b>SESSION PROCESSING OPTIONS</b>
+<p><b>Number of sessions to be processed:</b>
+This option specifies the number of session to be processed sequentially using
+the same process control file (PCF) and the same options. If this number is
+negative, the sessions will be processed backwards. The processing starts
+with the currently active session.  You may change the session
+in dialog <b>Menu &gt; Configure &gt; Set session/compute date</b>.
+
+<p><i>Remark:</i>
+Sessions are counted according to their definition in the
+<a href="SESSIONS.HLP">session table</a> and need not necessarily be days
+(see <a href="PRIMARY.HLP#SESSION">Session table</a>).
+
+<a name="MODULO_SESS" default="1"></a>
+<p><b>Modulo:</b>
+If more than one session is selected for processing, it may be specified a
+modulo number of sessions. This means, that the BPE is executed only for the
+first (default) and for every n-th session.
+<br>
+A typical application is to generate weekly solutions: Modulo 7 means
+that only every 7th session is processed. Using a
+<a href="PRIMARY.HLP#SESSION">daily session table</a>
+it means that the BPE runs only for one day per week.
+
+<p><i>Default value:</i> <tt>1</tt>
+
+<a name="NEXTSESS" default="0"></a>
+<p><b>Cont. with next sess. if not more errors than:</b>
+If one of the clients reports an error to the server in the single session
+mode the server stops to start further clients. It waits only until all
+clients which are still running are finished.
+<br>
+If you are running more than one session (sequentially or in parallel) you may
+decide how many erroneous sessions are allowed until no further sessions are
+started. There are the following applications possible:
+<ul>
+  <li>stop starting of new clients for all sessions in case of an error in
+      one user script (value: 0) or</li>
+  <li>stop starting of new clients for that session only in which the error
+      has been reported. The server will continue with the processing of the
+      next session independently of the error occurring in the processing of a
+      session (value: bigger than the number of sessions to be processed).</li>
+</ul>
+In case of a reprocessing of many sessions a setting in between both extrema
+my be convenient: If only a few sessions fail (e.g., because of wrong equipment
+specification in the RINEX headers) one can process most of the sessions if
+you specify a value of about 10% of the sessions to be processed. If in your
+BPE is a general problem (e.g., a needed input file is missing) the BPE will
+stop starting new sessions before all sessions have been processed to a certain
+point.
+<p><i>Default value:</i> <tt>0</tt>
+
+<a name="SUPERBPE" default="0"></a>
+<p><b>Run sessions in parallel:</b>
+Check this box if you want to run several sessions in parallel. Be aware
+that in case of parallel processing all program output files, program result
+files, and also intermediate files of the user scripts need to have session
+specific names. Otherwise programs or scripts running in parallel in
+different sessions may severely interfere with each other.
+
+<p><i>Default value:</i> unmarked
+
+<a name="BPE_MAXTIME" default=""></a>
+<p><b>Stop BPE with an error after:</b>
+Time limit for the running time of a BPE (in seconds). If this limit is reached, the BPE
+stops with an error.
+<br>This feature is intended to limit the runtime of a BPE, e.g., to prevent overlaps of running BPEs in an hourly processing scheme.
+
+<p><i>Default value:</i> blank
+
+<p><hr>
+
+<p><b>BPE 1.1: Multi Session Processing Options</b>
+
+<a name="RADIO_P" default="1"></a>
+<p><b>Simple parallel multi session run:</b>
+Select this option to run a 'normal' process control file (PCF) in parallel
+for a number of consecutive sessions. The program output and the BPE status
+information for all sessions will be written into one set of files which you
+have to specify in panel "BPE 3: Output Filenames".
+<p>
+A number of scripts at the beginning or at the end of the PCF may be
+flagged as singleton scripts (script flag <tt>S</tt>). Singleton scripts
+are executed only once for the current session whereas all other scripts
+run for each session (in parallel if possible) specified
+for the multi-session BPE.
+<p>
+If you have a PCF starting BPE servers (Super-BPE) you are referred to
+the 'Special parallel multi session run (Super-BPE)' below.
+
+<a name="MAXSESS" default="2"></a>
+<p><b>Maximum number of sessions run in parallel:</b>
+Specify the maximum number of sessions that may run in parallel. The actual
+number of clients started by the BPE server depends on the available free
+CPUs in the "CPU control file" you have to specify in the section "CPU
+CONTROL". The number of CPUs available in this file and the CPU requests
+in your process control file (PCF) may give you an indication about a
+reasonable number for this option.
+
+<a name="REPR_MODE"                 default="0"></a>
+<a name="REPR_MODE_PATH"            default=""></a>
+<a name="REPR_MODE_CAMPAIGN"        default=""></a>
+<a name="REPR_MODE_ON_SUCCESS"      default="remove"></a>
+<a name="REPR_MODE_ON_SUCCESS_PATH" default=""></a>
+<a name="REPR_MODE_ON_ERROR"        default="keep"></a>
+<a name="REPR_MODE_ON_ERROR_PATH"   default=""></a>
+<p><b>Each session in separate campaign (reprocessing mode):</b>
+If several sessions shall be processed in parallel, it might be useful if each
+session runs independently in its own campaign. This has the advantages that
+<ul>
+<li>the filenaming must not be fully session-independent.
+<li>in case of processing many sessions in parallel the directories are not
+    filled by thousands or even ten-thousands of files which may reduce the
+    performance of the processing when generating lists of files.
+</ul>
+The disadvantage is that you cannot include verification steps by comparing
+the results from the current session with respect to the results from
+the previous sessions. In conclusion, this feature is mainly useful for
+reprocessing several months or even years of GNSS data.
+<br>The following settings are needed to customize this feature:
+<ul>
+<li><b>Path where to compute</b> is the root path where the session-wise
+    campaigns shall be located. Note that it must be accessible by all
+    computers you want to include in the processing of these sessions.
+<li><b>Campaign ID</b> You may add an identifier for this particular
+    BPE that is prepended to the year-session part of the name of the
+    campaign.
+    <br>
+    It is recommended to limit the length of this identifier to two letters
+    since the length of the complete filename (including the path) is
+    unfortunately limited to 32 characters in the Fortran programs.
+<li>In case of <b>success</b> or <b>error</b> you may decide whether you
+    want to <b>remove</b> the campaign of the session, <b>keep</b> the
+    campaign for the session untouched or to <b>copy</b> the complete
+    campaign to a specific location (which might be useful if the campaign
+    for the session is located in a scratch area which is cleaned up by the
+    system after finishing the processing of the session).
+</ul>
+To create the campaign for the particular session, the current panel from
+<b>Menu &gt; Campaign &gt; Create new campaign</b> is used (the filename is
+displayed for information).
+
+<p><i>Default value:</i> <tt>remove</tt> if success, <tt>keep</tt> if error
+(it is assumed, that at the end of a successful run the data is moved to the
+savedisc by a script of the BPE)
+
+<a name="RADIO_S" default="0"></a>
+<p><b>Special parallel multi session run (Super-BPE):</b>
+Select this option if you want to run a process control file (PCF) containing
+user scripts starting BPE servers in a parallel mode. This allows you to
+run user scripts before (e.g., copy scripts) and after (e.g., to
+make a summary) a script executing a PCF for several sessions in parallel.
+<br>
+In fact you have to specify the options for two BPEs here: First for the
+Super-BPE which is the server to handle the PCF which will start further
+BPE servers for a number of sessions. This is done in the following panels
+(BPE 1.2-1.4). In addition you have to specify the input options for the client
+BPEs started by the Super-BPE. Here it is highly recommended to use the
+menu variable for the session to specify the name of the program output and
+the BPE status file in panel "BPE 3: Output Filenames".
+
+<p><hr>
+
+<p><b>BPE 1.2: Process Control Options for Special Super-BPE</b>
+
+<a name="S_CPU_FILE" default=""></a>
+<p><b>CPU CONTROL</b>
+<p><b>CPU control file:</b>
+Specify the name of the CPU control file containing the names of the CPUs
+resp. groups of CPUs defined for the individual jobs in the process control
+file (PCF) of the Super-BPE.
+<br>
+Normally the same CPU control file should be used for all BPEs running
+under the same account. Please keep in mind that the number of available CPUs
+specified in the CPU control file is the only information for the Super-BPE
+server to decide where to start new clients (no CPU load or other indicators
+are used).
+
+<p><i>Remark:</i>
+Take special care on the CPUs you assign to the
+jobs starting the BPE servers in the Super-BPE. The number of available jobs
+for those CPUs decide the number of BPEs running in parallel.
+
+<p><a href="CPU.HLP">Format</a>
+
+<a name="S_CPUUPDRATE" default="60"></a>
+<p><b>Check for free CPU every:</b>
+If the Super-BPE server cannot issue a job because all CPUs are occupied,
+the server checks for free CPUs at a rate specified in this field.
+If your Super-BPE runs jobs which require only short execution time it is
+recommended to use a short time interval (e.g., 10&nbsp;seconds). If your jobs take 
+several minutes or longer you may use a longer interval.
+<br>
+Independent of this time interval the Super-BPE server checks for
+starting a new job at any time when a client has finished its task.
+
+<p><i>Default value:</i> <tt>60&nbsp;seconds</tt>
+
+<br><br>
+
+<a name="S_PCF_FILE" default=""></a>
+<p><b>BPE TASK SELECTION</b>
+<p><b>Process control file:</b>
+Select the process control file (PCF) the Super-BPE shall execute. For the
+Super-BPE it is expected that there is a pair of user scripts to start
+BPE servers in parallel (default scripts: <tt>SBPEAP</tt> and <tt>SBPE_P</tt>
+respectively).
+
+<p><a href="/$X/PCF/SUPERBPE.PCF">Example</a>
+
+<a name="S_SCRIPT_START" default=""></a>
+<p><b>Start with script:</b>
+Enter the process ID from the process control file (PCF) of
+the user script you would like to start with. This will be the first task
+started by the Super-BPE. All scripts before this script are skipped and
+get the status <tt>finished</tt>. Scripts located before the selected start
+script may nevertheless be executed if a script issues a jump backwards in the
+PCF.
+<br>
+If you leave the field blank the Super-BPE starts with the first user
+script in the PCF.
+<br>
+If you press the button next to the field you get a selection list from
+which you can select the start process ID.
+
+<p><i>Default value:</i> blank
+
+<a name="S_SCRIPT_SKIP" default=""></a>
+<p><b>Skip scripts:</b>
+One or more user scripts may be skipped. You may either enter one
+process ID to be skipped directly into this field or select the list of
+processes to be skipped from a selection list that will be displayed if
+you press the button next to the field. A skipped script will not
+be executed during the run of the Super-BPE server: It is skipped in any
+case, even if a jump backward before the skipped script is issued.
+
+<p><i>Default value:</i> blank
+
+<br><br>
+
+<a name="S_DEBUG" default="0"></a>
+<p><b>OUTPUT OPTIONS</b>
+<p><b>Report server/client communication:</b>
+If this box is checked the Super-BPE server will add all strings from the
+TCP/IP connection with the clients to the "Program output" you specify in
+the section "GENERAL OUTPUT FILES" of the Super-BPE. The option is used for
+debugging purposes only.
+
+<p><i>Default value:</i> unmarked
+
+<a name="S_NOCLEAN" default="0"></a>
+<p><b>Do not remove temporary user environment:</b>
+Normally the temporary user environment of the Super-BPE (directory structure
+and files) are removed as soon as the client has finished its task
+without an error. If you check this box
+the temporary directories and files will not be removed allowing you to
+verify intermediate Super-BPE steps for debugging purposes.
+<br>
+In the protocol file of each user script of the Super-BPE you may find
+the location of the corresponding user environment. Each user script runs
+in its own directory structure containing
+<ul>
+  <li>a copy of the input files from the option directory in the <tt>PAN</tt>
+      subdirectory with all modifications done within the user script
+      (e.g., using the '$bpe-&gt;putKey' function).
+  <li>the input files for the executed Bernese programs after being updated for
+      the current session and current campaign by the menu in the <tt>INP</tt>
+      subdirectory.
+  <li>other temporary files in the <tt>WORK</tt> subdirectory of the user
+      script.
+</ul>
+
+<p><i>Remark:</i>
+If you have checked this box for any purpose please do
+not forget to remove the temporary user environments of the finished
+Super-BPEs by hand from time to time. Otherwise you will fill your hard-disk!
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+<p><b>BPE 1.3: Output Filenames for Special Super-BPE</b>
+
+<a name="S_TASKID" default=""></a>
+<p><b>OUTPUT FILES</b>
+<p><b>Task ID:</b>
+The task identification is used to uniquely identify protocol and log files
+(default extensions: PRT and LOG)
+created by the Super-BPE. The complete file name will be constructed
+automatically:
+<br>
+<tt>xxyyssss_ppp_qqq.PRT</tt> for the process protocol files and
+<br>
+<tt>xxyyssss_ppp_qqq.LOG</tt> for the process log files, where
+<table>
+<tr><td><tt>xx</tt></td>
+    <td> = task ID from this input field,</td></tr>
+<tr><td><tt>yy</tt></td>
+    <td> = year of the actual session for the Super-BPE,</td></tr>
+<tr><td><tt>ssss</tt></td>
+    <td> = actual session for the Super-BPE,</td></tr>
+<tr><td><tt>ppp</tt></td>
+    <td> = process ID,</td></tr>
+<tr><td><tt>qqq</tt></td>
+    <td> = sub process ID for parallel running scripts.</td></tr>
+</table>
+
+<p><i>Remark:</i>
+The task ID for the Super-BPE <i>must</i> be different
+from the "Task ID" of the individual BPEs you want to run in parallel. If you
+have running more than one BPE (and Super-BPE) for the same session in one
+campaign you should select different "Task ID"s for each individual BPE.
+Otherwise the protocol and log files may be removed or overwritten which
+may lead to unpredictable situations for BPEs running at the same time.
+
+<a name="S_STATUS" default="SUPERBPE.RUN"></a>
+<p><b>Status file:</b>
+The status file contains the current status of execution of the process
+control file (PCF). It is updated by the Super-BPE server every 5 seconds.
+<br>
+The example of the Super-BPE status file indicates that currently
+the parallel running BPE servers are executed. Seven jobs are either
+currently running or still waiting for execution:
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+Status of SUPERBPE.PCF at Wed Oct 15 08:55:38 2003
+
+Session 2870: running
+  001 SBPE_COP NO_OPT      finished
+  002 COOVEL   SBPE_A      finished
+  101 SBPEAP   NO_OPT      finished
+  102 SBPE_P   NO_OPT      running   &lt;      (7 remaining)
+  901 SBPE_SUM SBPE_A      waiting
+  902 SBPE_DEL NO_OPT      waiting
+  999 DUMMY    NO_OPT      waiting
+</pre>
+
+<br>
+
+<a name="S_SYSODEF" default="0"></a>
+<a name="S_SYSOUT" default="SUPERBPE">
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b></a>
+The Super-BPE output contains for all user scripts three lines annotated by
+time tags: start of the client by the server, start of processing of the task
+by the client, and end of the processing by the client.
+<br>
+The filename allows to characterize the Super-BPE run, e.g., by using
+the day and year (<tt>$YD+0</tt>). The time variables are set to the actual
+session for the filename specification of the Super-BPE.
+
+<a name="S_ERRMRG" default="1"></a>
+<a name="S_SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the Super-BPE's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>BPE 1.4: Server Variables Sent to Client for Special Super-BPE</b>
+
+<a name="S_SERVER_VARIABLES" default="%% %% %%"></a>
+<p><b>Variable</b>/<b>Value</b>/<b>Description:</b>
+This table lists the server variables for the Super-BPE. The default
+entries are compiled from the list of variables in the process control
+file (PCF) selected in panel "BPE 1.2: Process Control Options for Special
+Super-BPE". You may change all entries in the table or add more server
+variables. Your modified list will be used to run the Super-BPE. Until
+you select another PCF the last entries you made are kept for
+further runs of the PCF.
+<br>
+BPE variables all start with the string 'V_'. You may
+access them in user scripts ('$$bpe{V_xxx}') or as menu variables in the
+program input files ('$xxx' to access the server variable 'V_xxx'), e.g.,
+as part of filenames. 
+<br>
+The values of the BPE variables may even contain menu time variables 
+(e.g., 'HOI$YSS+0'). The time variables are replaced by the expression
+to the correct session at the runtime of the BPE.
+<br>
+Some variables have a special meaning:
+<ul>
+<li>The special parameters V_MINUS and V_PLUS specify the ranges for
+    session variables. If they are present in the list of server variables
+    their value will be put automatically
+    into the corresponding input fields of <a href="MENU_VAR.HLP">Menu &gt;
+    Configure &gt; Menu variables</a> panel. If these variables are not in
+    the list of server variables the ranges for the session variables are
+    defined by the entries in the <b>Menu &gt; Configure &gt; Menu
+    variables</b> input fields in the option directory of the user script.
+<li>The variable V_CAMP may be used to define the campaign
+    in which the Super-BPE has to run. The Super-BPE will stop if
+    it is started in another campaign. If the variable is not
+    specified the Super-BPE may run in any campaign.
+<li>The variable V_RERUN is used to restart the user script in the case
+    of an error. The value of this variable specifies the number of additional
+    attempts to run the script. This may make sense if the user script fails due to
+    system or network problems. If this variable is not contained in the list (or has the
+    value <tt>0</tt>) no reruns are done.
+    <br>
+    <i>Remark:</i>
+    Use the rerun options with special care for
+    Super-BPEs.
+</ul>
+
+<p><hr>
+
+<p><b>BPE 2: Process Control Options</b>
+
+<a name="CPU_FILE" default=""></a>
+<p><b>CPU CONTROL</b>
+<p><b>CPU control file:</b>
+Specify the name of the CPU control file containing the names of the CPUs
+resp. groups of CPUs defined for the individual jobs in the process control
+file (PCF) of the BPE.
+<br>
+Normally the same CPU control file should be used for all BPEs running
+under the same account. Please keep in mind that the number of available CPUs
+specified in the CPU control file is the only information for the BPE server
+to decide where to start new clients (no CPU load or other indicators are used).
+
+<p><a href="CPU.HLP">Format</a>
+
+<a name="CPUUPDRATE" default="10"></a>
+<p><b>Check for free CPU every:</b>
+If the BPE server cannot issue a job because all CPUs are occupied,
+the server checks for free CPUs at a rate specified in this field.
+If your BPE runs jobs which require only short execution time it is
+recommended to use a short time interval (e.g., 10&nbsp;seconds). If your jobs take 
+several minutes or longer you may use a longer interval.
+<br>
+Independent of this time interval the BPE server checks for
+starting a new job at any time when a client has finished its task.
+
+<p><i>Default value:</i> <tt>10&nbsp;seconds</tt>
+
+<br><br>
+
+<a name="PCF_FILE" default=""></a>
+<p><b>BPE TASK SELECTION</b>
+<p><b>Process control file:</b>
+Select the process control file (PCF) the BPE shall execute.
+<br>
+<a href="/$X/PCF/RNX2SNX.PCF">Example</a>
+
+<a name="SCRIPT_START" default=""></a>
+<p><b>Start with script:</b>
+Enter the process ID from the process control file (PCF) of
+the user script you would like to start with. This will be the first task
+started by the BPE server. All scripts before this script are skipped and
+get the status <tt>finished</tt>. Scripts located before the selected start
+script may nevertheless be executed if a script issues a jump backwards in the
+PCF.
+<br>
+If you leave the field blank the BPE server starts with the first user
+script in the PCF.
+<br>
+If you press the button next to the field you get a selection list from
+which you can select the start process ID.
+
+<p><i>Default value:</i> blank
+
+<a name="SCRIPT_SKIP" default=""></a>
+<p><b>Skip scripts:</b>
+One or more user scripts may be skipped. You may either enter one
+process ID to be skipped directly into this field or select the list of
+processes to be skipped from a selection list that will be displayed if
+you press the button next to the field. A skipped script will not
+be executed during the run of the BPE server: It is skipped in any
+case, even if a jump backward before the skipped script is issued.
+
+<p><i>Default value:</i> blank
+
+<br><br>
+
+<a name="DEBUG" default="0"></a>
+<p><b>OUTPUT OPTIONS</b>
+<p><b>Report server/client communication:</b>
+If this box is checked the BPE server will add all strings from the
+TCP/IP connection with the clients to the "Program output" you specify in
+the section "GENERAL OUTPUT FILES". The option is used for debugging purposes
+only.
+
+<p><i>Default value:</i> unmarked
+
+<a name="NOCLEAN" default="0"></a>
+<p><b>Do not remove temporary user environment:</b>
+Normally the temporary user environment of the BPE (directory structure
+and the files) are removed as soon as the client has finished its task
+without an error. If you check this box
+the temporary directories and files will not be removed allowing you to
+verify intermediate BPE steps for debugging purposes.
+<br>
+In the protocol file of each user script of the BPE you may find
+the location of the corresponding user environment. Each user script runs
+in its own directory structure containing
+<ul>
+<li>a copy of the input files from the option directory in the <tt>PAN</tt>
+    subdirectory with all modifications done within the user script
+    (e.g., using the '$bpe-&gt;putKey' function).
+<li>the input files for the executed Bernese programs after being updated for
+    the current session and current campaign by the menu in the <tt>INP</tt>
+    subdirectory.
+<li>other temporary files in the <tt>WORK</tt> subdirectory of the user script.
+</ul>
+
+<p><i>Remark:</i>
+If you have checked this box for any purpose please do
+not forget to remove the temporary user environments of the finished
+BPEs by hand from time to time. Otherwise you will fill your hard-disk!
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+<p><b>BPE 3: Output Filenames</b>
+
+<a name="TASKID" default=""></a>
+<p><b>Task ID:</b>
+The task identification is used to uniquely identify protocol and log files
+(default extensions: PRT and LOG)
+created by the BPE. The complete file name will be constructed
+automatically:
+<br>
+<tt>xxyyssss_ppp_qqq.PRT</tt> for the process protocol files and
+<br>
+<tt>xxyyssss_ppp_qqq.LOG</tt> for the process log files, where
+<table>
+<tr><td><tt>xx</tt></td>
+    <td> = task ID from this input field,</td></tr>
+<tr><td><tt>yy</tt></td>
+    <td> = year of the actual session for the BPE,</td></tr>
+<tr><td><tt>ssss</tt></td>
+    <td> = actual session for the BPE,</td></tr>
+<tr><td><tt>ppp</tt></td>
+    <td> = process ID,</td></tr>
+<tr><td><tt>qqq</tt></td>
+    <td> = sub process ID for parallel running scripts.</td></tr>
+</table>
+
+<p><i>Remark:</i>
+If you have running more than one BPE for the same session in one
+campaign you should select different "Task ID"s for each individual BPE.
+Otherwise the protocol and log files may be removed or overwritten which
+may lead to unpredictable situations for BPEs running at the same time.
+
+<a name="STATUS" default="RUNBPE"></a>
+<p><b>Status file:</b>
+The status file contains the current status of execution of the process
+control file (PCF). It is updated by the BPE server every 5 seconds.
+<br>
+The example of the BPE status file indicates that the scripts
+<tt>001&nbsp;CLKCOP</tt>, <tt>011&nbsp;COOVEL</tt>, <tt>101&nbsp;POLUPD</tt>,
+and <tt>201&nbsp;CCRNXOAP</tt> are finished already. The script
+<tt>111&nbsp;PRETAB</tt> and <tt>202&nbsp;CCRNXO_P</tt> are currently
+running. The script <tt>202&nbsp;CCRNXO_P</tt> is running in the parallel
+mode with six jobs either running or waiting for
+execution. The scripts from <tt>151&nbsp;CCRNXN</tt> to
+<tt>154&nbsp;SATCLK</tt> are skipped in the input field "Skip scripts" in
+section "BPE TASK SELECTION". All other scripts are waiting for execution.
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+Status of CLKDET.PCF at Wed Oct 15 15:50:50 2003
+
+Session 2880: running
+  001 CLKCOP   NO_OPT      finished
+  011 COOVEL   CLK_GEN     finished
+  101 POLUPD   CLK_GEN     finished
+  111 PRETAB   CLK_GEN     running   &lt;
+  112 ORBGEN   CLK_GEN     waiting
+  151 CCRNXN   CLK_GEN     skipped 
+  152 RXNBV3   CLK_GEN     skipped    
+  153 BRDTST   CLK_GEN     skipped
+  154 SATCLK   CLK_GEN     skipped
+  201 CCRNXOAP CLK_GEN     finished
+  202 CCRNXO_P CLK_GEN     running   &lt;      (6 remaining)
+  211 RNXGRA   CLK_GEN     waiting
+  221 RNXSMTAP CLK_GEN     waiting
+  222 RNXSMT_P CLK_GEN     waiting
+  ...
+</pre>
+
+<br>
+
+<a name="SYSODEF" default="0"></a>
+<a name="SYSOUT"  default="RUNBPE"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+The BPE output contains for all user scripts three lines with annotated time
+tags: start of the client by the server, start of processing of the task by
+the client, and end of the processing by the client.
+<br>
+The filename allows to characterize the BPE run, e.g., by using the
+day and year (<tt>$YD+0</tt>).
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the BPE's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>BPE 4: Server Variables Sent to Client</b>
+
+<a name="SERVER_VARIABLES" default="%% %% %%"></a>
+<p><b>Variable</b>/<b>Value</b>/<b>Description:</b>
+This table lists the server variables for the BPE. The default
+entries are compiled from the list of variables in the process control
+file (PCF) selected in the section "BPE TASK SELECTION". You may change all
+entries in the table or add more server variables. Your modified list
+will be used to run the BPE. Until you select another PCF the last
+entries you made are kept for further runs of the PCF.
+<br>
+BPE variables all start with the string 'V_'. You may
+access them in user scripts ('$$bpe{V_xxx}') or as menu variables in the
+program input files ('$xxx' to access the server variable 'V_xxx'), e.g.,
+as part of filenames.
+<br>
+The values of the BPE variables may even contain menu time variables 
+(e.g., 'HOI$YSS+0'). The time variables are replaced by the expression
+to the correct session at the runtime of the BPE.
+<br>
+Some variables have a special meaning:
+<ul>
+<li>The special parameters V_MINUS and V_PLUS specify the ranges for
+    session variables. If they are present in the list of server variables
+    their value will be put automatically
+    into the corresponding input fields of <a href="MENU_VAR.HLP">Menu &gt;
+    Configure &gt; Menu variables</a> panel. If these variables are not in
+    the list of server variables the ranges for the session variables are
+    defined by the entries in the <b>Menu &gt; Configure &gt; Menu
+    variables</b> input fields in the option directory of the user script.
+<li>The variable V_CAMP may be used to define the campaign
+    in which the BPE has to run. The BPE will stop if
+    it is started in another campaign. If the variable is not
+    specified the BPE may run in any campaign.
+<li>The variable V_RERUN is used to restart the user script in the case
+    of an error. The value of this variable specifies the number of additional
+    attempts to run the script. This may make sense if the user script fails due to
+    system or network problems. If this variable is not contained in the list (or has the
+    value <tt>0</tt>) no reruns are done.
+</ul>
+
+<p><hr>
+<p><b>Example BPEs</b>
+The distribution of the software package contains also ready-to-use examples:
+<p align="center"><table border="1" width="95%">
+<tr><td><a href="/$X/PCF/PPP_BAS.PCF">PPP_BAS.PCF</a></td>
+    <td>Standard PPP for coordinate, troposphere, and receiver clock determination based only on GPS data or a combined GPS/GLONASS solution</td>
+    <td><a href="/$X/PCF/PPP_BAS.README">Description</a></td></tr>
+<tr><td><a href="/$X/PCF/PPP_DEMO.PCF">PPP_DEMO.PCF</a></td>
+    <td>PPP containing several extended processing examples, like pseudo-kinematic, high-rate troposphere, or ionosphere solutions</td>
+    <td><a href="/$X/PCF/PPP_DEMO.README">Description</a></td></tr>
+<tr><td><a href="/$X/PCF/RNX2SNX.PCF">RNX2SNX.PCF</a></td>
+    <td>Standard double-difference network solution based only on GPS data or a combined GPS/GLONASS solution with an extended ambiguity resolution scheme</td>
+    <td><a href="/$X/PCF/RNX2SNX.README">Description</a></td></tr>
+<tr><td><a href="/$X/PCF/BASTST.PCF">BASTST.PCF</a></td>
+    <td>Baseline by baseline processing for trouble shooting.</td>
+    <td><a href="/$X/PCF/BASTST.README">Description</a></td></tr>
+<tr><td><a href="/$X/PCF/CLKDET.PCF">CLKDET.PCF</a></td>
+    <td>Zero-difference network solution based only on GPS data or a combined GPS/GLONASS solution providing clock corrections (e.g., w.r.t. an existing coordinate and troposphere solution)</td>
+    <td><a href="/$X/PCF/CLKDET.README">Description</a></td></tr>
+<tr><td><a href="/$X/PCF/LEOPOD.PCF">LEOPOD.PCF</a></td>
+    <td>Precise Orbit Determination for a Low Earth Orbiting Satellites based on on-board GPS-measurements (e.g., for GRACE)</td>
+    <td><a href="/$X/PCF/LEOPOD.README">Description</a></td></tr>
+<tr><td><a href="/$X/PCF/SLRVAL.PCF">SLRVAL.PCF</a></td>
+    <td>Validation of an existing GNSS or LEO orbit using SLR measurements</td>
+    <td><a href="/$X/PCF/SLRVAL.README">Description</a></td></tr>
+</table></p>
+<p><hr>
+
+</body>
+</html>

@@ -1,0 +1,56 @@
+      MODULE s_SIDSET
+      CONTAINS
+
+C*
+      SUBROUTINE SIDSET(S,X,Y,R)
+CC
+CC NAME       :  SIDSET
+CC
+CC PURPOSE    :  COMPUTE THE PRODUCT OF THE TRANSPOSE OF THE POLAR
+CC               MOTION MATRIX XY AND THE SIDERAL TIME MATRIX TH
+CC                     T
+CC               R = XY *TH(S)
+CC
+CC PARAMETERS :
+CC         IN :  S      : TRUE SIDERAL TIME                   R*8
+CC               X,Y    : POLAR COORDINATES IN RADIAN         R*8
+CC        OUT :  R(I,K),I,K=1,2,3: RESULTING ROTATION-MATRIX  R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/12/11 12:02
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      REAL*8    CS, S , SS, X , Y
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+      REAL*8 R(3,3)
+      CS=DCOS(S)
+      SS=DSIN(S)
+      R(1,1)=CS
+      R(1,2)=SS
+      R(1,3)=X
+      R(2,1)=-SS
+      R(2,2)=CS
+      R(2,3)=-Y
+      R(3,1)=-CS*X-SS*Y
+      R(3,2)=-SS*X+CS*Y
+      R(3,3)=1
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

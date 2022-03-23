@@ -1,0 +1,93 @@
+package QLRNX_1;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  QLRNX_1
+#
+# Purpose :  Convert SLR quicklook data into RINEX files
+#            (range observations and meteo data)
+#            Program QLRINEXO or CRD2RNXO
+#
+# PARAMs  :
+#
+# Author  :  D. Thaller
+# Created :  10-Feb-2012
+#
+# Changes :  29-Oct-2012 DT: Consider CRD format
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util;
+
+
+sub run{
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my $mjd = $$bpe{MJD};
+
+  my ($ssss, $dirFix, $dirRxo, $dirRxm, $extRxo, $extRxm,
+      $SatSel) =
+  $bpe->getKeys
+     ('$S+0','DIR_FIX','DIR_RXO','DIR_RXM','EXT_RXO','EXT_RXM',
+      'V_SATSEL');
+
+  my ($PGMNAM, $panel);
+
+# Set type of data (QLD or CRD format)
+#  official switch in ILRS: May 2, 2012; MJD = 56049.0
+# ----------------------------------------------------
+  my $mjd_CRD = 56049.0;
+
+
+# Delete RINEX files
+# ------------------
+  unlink glob "${dirRxo}????${ssss}.$extRxo";
+  unlink glob "${dirRxm}????${ssss}.$extRxm";
+
+
+# Satellite selection list
+# ------------------------
+  my $selFil = "${dirFix}${SatSel}.FIX";
+  print "\n Satellite selection file: ${selFil}\n";
+
+  my $iLine = 0;
+  my $SatLst = "";
+
+  open(FIX,$selFil);
+  while(<FIX>) {
+    $iLine++;
+    if ($iLine > 5) {
+      $SatLst .= substr($_,0,3) . " ";
+    }
+  }
+  close FIX;
+
+
+  if ($mjd < $mjd_CRD) {
+    $PGMNAM = "QLRINEXO";
+    $panel  = "$ENV{U}/PAN/${PGMNAM}.INP";
+
+    $bpe->putKey($panel,"SATLST","$SatLst");
+
+    # Run program QLRINEXO
+    # --------------------
+    $bpe->RUN_PGMS($PGMNAM);
+  }
+
+  else {
+    $PGMNAM = "CRD2RNXO";
+    $panel  = "$ENV{U}/PAN/${PGMNAM}.INP";
+
+    $bpe->putKey($panel,"SATLST","$SatLst");
+
+    # Run program CRD2RNXO
+    # --------------------
+    $bpe->RUN_PGMS($PGMNAM);
+
+  }
+
+}

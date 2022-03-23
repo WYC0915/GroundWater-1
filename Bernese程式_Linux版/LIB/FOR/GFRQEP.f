@@ -1,0 +1,190 @@
+      MODULE s_gfrqep
+      CONTAINS
+C*
+      SUBROUTINE GFRQEP(IFREQ,NFLSES,FILACT,NSATFL,SVNFIL,OBSFLG,OBSERV,
+     1                  NFRFIL,ICARR,FILNUM,MEATYP,MEA   ,IZEROD,MAXSAS,
+     3                  ISASYS,NSATEP,NFILEP,SVNEP,FILEP,
+     4                  NSFLEP,SAFLEP,OBFLEP)
+CC
+CC NAME       :  GFRQEP
+CC
+CC PURPOSE    :  GIVEN NFLSES FILES, GET ALL ACTUAL OBSERVATIONS
+CC               OF FREQUENCY IFREQ OF ALL SATELLITES IN TWO
+CC               DIMENSIONAL ARRAY OBSEP(ISAT,IBL)
+CC
+CC PARAMETERS :
+CC         IN :  IFREQ  : REQUESTED FREQUENCY                 I*4
+CC               NFLSES : NUMBER OF FILES IN SESSION          I*4
+CC               FILACT(I),I=1,..,NFLSES: FLAG:               CH*1
+CC                        ='R': FILE USED IN CURRENT EPOCH
+CC                        ='U': FILE NOT USED IN CURRENT EPOCH
+CC               NSATFL(I),I=1,..,NFLSES: NUMBER OF SATELLITES I*4
+CC                        PER FILE
+CC               SVNFIL(K,I),K=1,..,NSATFL(I), I=1,..,NFLSES  I*4
+CC                        SATELLITES IN FILE I
+CC               OBSFLG : OBSERVATION FLAGS                   CH*1
+CC                      (J,K,I): SATELLITE J
+CC                               FREQUENCY K
+CC                               FILE I
+CC               OBSERV : OBSERVATIONS                        R*8
+CC                      (I,J,IF): SATELLITE I
+CC                                FREQUENCY J
+CC                                FILE IF
+CC               NFRFIL(I),I=1,...,NFTOT : NUMBER OF FREQ.    I*4
+CC               ICARR(K,I),K=1,2,I=1,...,NFLSES: CARRIERS    I*4
+CC               FILNUM(I),I=1,..,NFLSES: FILE NUMBERS        I*4
+CC               MEATYP(I),I=1,..,NFTOT: FILE MEAS.TYPE       I*4
+CC               MEA    : REQUESTED MEASUREMENT TYPE          I*4
+CC               MAXSAS : MAXIMUM NUMBER OF SATELLITES IN     I*4
+CC                        SESSION
+CC               ISASYS : SATELLITE SYSTEM TO BE CONSIDERED   I*4
+CC                        =0: ALL
+CC                        =1: GPS
+CC                        =2: GLONASS
+CC        OUT :  NSATEP : NUMBER OF ACTUALLY OBSERVED SAT.    I*4
+CC               NFILEP : ACTUAL NUMBER OF FILES              I*4
+CC               SVNEP(I),I=1,..,NSATEP: SATELLITE NUMBERS    I*4
+CC               FILEP(I),I=1,..,NFILEP: FILE NUMBERS         I*4
+CC               NSFLEP(I),I=1,..,NFILEP: ACTUAL NUMBER OF    I*4
+CC                        SATELLITES IN FILE I
+CC               SAFLEP(K,I),K=1,..,NSFLEP(I),I=1,..,NFILEP:  I*4
+CC                        ACTUAL SATELLITE NUMBERS IN FILE I
+CC               OBFLEP(K,I),K=1,..,NSFLEP(I),I=1,..,NFILEP:  R*8
+CC                        ACTUAL OBSERVATIONS IN FILE I, SAT. K
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/10/19 13:36
+CC
+CC CHANGES    :  10-AUG-94 : MR: CALL EXITRC
+CC               30-MAR-98 : TS: SIMULTANEOUS CODE AND PHASE ZD PROCESSING
+CC               20-OCT-04 : RD: SELECT SATELLITE SYSTEM HERE
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               17-AUG-06 : HU: CONVERTED TO MODULE
+CC               17-MAY-07 : AG: ISASYS= 3 IMPLEMENTED
+CC               27-MAY-10 : RD: CONSIDER ISASYS WHEN GENERATING THE LISTS
+CC               28-MAR-12 : RD: USE SVN2CHR AS MODULE NOW
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern,  ONLY: LFNERR
+      USE f_tstflg
+      USE s_exitrc
+      USE s_svn2chr
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IF    , IFIL  , IFREQ , IFRQ  , INUM  , ISASYS, ISAT  ,
+     1          ISATEP, IZEROD, MAXSAS, MEA   , MXCFRQ, MXCSAT, NFIL  ,
+     2          NFILEP, NFLSES, NSATEP, NSVN
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+C
+      INTEGER*4 NSATFL(*),SVNFIL(MXCSAT,*)
+      INTEGER*4 NFRFIL(*),ICARR(MXCFRQ,*),MEATYP(*),FILNUM(*)
+      INTEGER*4 SVNEP(*),NSFLEP(*),SAFLEP(MAXSAS,*)
+      INTEGER*4 FILEP(*)
+C
+      REAL*8      OBSERV(MXCSAT,MXCFRQ,*),OBFLEP(MAXSAS,*)
+      CHARACTER*1 OBSFLG(MXCSAT,MXCFRQ,*),FILACT(*),SVNCHR
+      CHARACTER*6 MXNSAT,MXNFRQ
+C
+C COMMON FOR MAXIMAL DIMENSIONS
+C -----------------------------
+      COMMON/MCMSAT/MXCSAT,MXNSAT
+      COMMON/MCMFRQ/MXCFRQ,MXNFRQ
+C
+C GET ALL VALID OBSERVATIONS OF ONE EPOCH
+C ---------------------------------------
+      NSATEP=0
+      NFILEP=0
+      NFIL=0
+      DO 100 IFIL=1,NFLSES
+        IF=FILNUM(IFIL)
+C
+C MEASUREMENT TYPE OK ?
+        IF(MEA.NE.MEATYP(IF) .AND. IZEROD.NE.1) GOTO 100
+C
+C NO OBSERVATIONS FOR THIS FILE AND THIS EPOCH
+        IF(FILACT(IFIL).NE.'R')GO TO 100
+        DO 10 IFRQ=1,NFRFIL(IF)
+          IF(IFREQ.EQ.ICARR(IFRQ,IF)) GOTO 20
+10      CONTINUE
+        GOTO 100
+C
+20      NFIL=NFIL+1
+        FILEP(NFIL)=IFIL
+        NSVN=0
+        DO 50 ISAT=1,NSATFL(IFIL)
+C
+C FLAG SET OR OBSERVATION = 0.D0 ?
+          IF(TSTFLG(OBSFLG(ISAT,IFRQ,IFIL),0).OR.
+     1       OBSERV(ISAT,IFRQ,IFIL).EQ.0.D0) GOTO 50
+C
+C SELECT SATELLITE SYSTEM
+          CALL SVN2CHR(SVNFIL(ISAT,IFIL),INUM,SVNCHR)
+          IF (ISASYS.EQ.1 .AND. SVNCHR.NE.'G') GOTO 50
+          IF (ISASYS.EQ.2 .AND. SVNCHR.NE.'R') GOTO 50
+          IF (ISASYS.EQ.3 .AND. SVNCHR.NE.'E') GOTO 50
+          IF (ISASYS.EQ.4 .AND. SVNCHR.NE.'G'.AND.SVNCHR.NE.'R') GOTO 50
+          IF (ISASYS.EQ.5 .AND. SVNCHR.NE.'G'.AND.SVNCHR.NE.'E') GOTO 50
+          IF (ISASYS.EQ.6 .AND. SVNCHR.NE.'R'.AND.SVNCHR.NE.'E') GOTO 50
+C
+C UPDATE NUMBER OF SATELLITES, SATELLITE NUMBERS AND OBSERVATIONS
+          NSVN=NSVN+1
+C
+C CHECK MAXIMUM NUMBER OF SATELLITES IN ONE FILE AT ONE EPOCH
+          IF(NSVN.GT.MAXSAS) THEN
+            WRITE(LFNERR,901) NSVN,MAXSAS,IF
+901         FORMAT(/,' *** SR GFRQEP: TOO MANY SATELL. AT ONE EPOCH',/,
+     1                           16X,' NUMBER OF SATELL. >=',I4,/,
+     2                           16X,' MAX. NUMBER OF SAT.:',I4,/,
+     3                           16X,' FILE NUMBER        :',I4,/)
+            CALL EXITRC(2)
+          ENDIF
+C
+          SAFLEP(NSVN,NFIL)=SVNFIL(ISAT,IFIL)
+          OBFLEP(NSVN,NFIL)=OBSERV(ISAT,IFRQ,IFIL)
+C
+C UPDATE SATELLITES OF THE ENTIRE SESSION FOR THIS EPOCH
+          DO 30 ISATEP=1,NSATEP
+            IF(SAFLEP(NSVN,NFIL).EQ.SVNEP(ISATEP)) GOTO 50
+30        CONTINUE
+          NSATEP=NSATEP+1
+C
+C CHECK MAXIMUM NUMBER OF SATELLITES AT ONE EPOCH, ALL FILES (1 FRQ.)
+          IF(NSATEP.GT.MAXSAS) THEN
+            WRITE(LFNERR,902) NSATEP,MAXSAS
+902         FORMAT(/,' *** SR GFRQEP: TOO MANY SATELL. AT ONE EPOCH',/,
+     1                           16X,' NUMBER OF SATELL. >=',I4,/,
+     2                           16X,' MAX. NUMBER OF SAT.:',I4,/)
+            CALL EXITRC(2)
+          ENDIF
+C
+          SVNEP(NSATEP)=SVNFIL(ISAT,IFIL)
+50      CONTINUE
+C
+C NO SATELLITE OK ?
+        IF(NSVN.EQ.0) THEN
+          NFIL=NFIL-1
+        ELSE
+          NSFLEP(NFIL)=NSVN
+        ENDIF
+100   CONTINUE
+C
+C ACTUAL NUMBER OF FILES
+      NFILEP=NFIL
+C
+      RETURN
+      END SUBROUTINE
+      END MODULE

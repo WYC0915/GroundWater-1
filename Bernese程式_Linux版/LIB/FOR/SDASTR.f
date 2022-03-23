@@ -1,0 +1,111 @@
+      MODULE s_SDASTR
+      CONTAINS
+
+C*
+      SUBROUTINE SDASTR(NSITE,SITCOR,NRREF,IRCODE)
+CC
+CC NAME        : SDASTR
+CC
+CC PURPOSE     : DETERMINE REFERENCE STATION
+CC               (PGM. SNGDIF_P)
+CC
+CC PARAMETERS  :
+CC          IN : NSITE  : NUMBER OF SITES                       I*4
+CC               SITCOR : LIST OF SITE COORDINATES              R*8(3,*)
+CC         OUT : NRREF  : NUMBER OF REFERENCE SITE              I*4
+CC               IRCODE : RETURN CODE                           I*4
+CC                        1: TOO MANY SITES
+CC
+CC AUTHOR      : W. GURTNER
+CC               ASTRONOMICAL INSTITUTE, UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+CC CREATED     :  9-JAN-1992
+CC
+CC CHANGES     :  28-OCT-93 : SF: END OF HEADER := "C*"
+CC                27-AUG-94 : MR: NO PROMP1 FOR NON-INTERACTIVE MODE
+CC                18-SEP-95 : JJ: MAXSTA TO 200 FROM 100
+CC                25-OCT-01 : MM: MODIFIED FOR NEW MENU
+CC                28-JUN-04 : RD: ALLOCATE LOCAL ARRAYS
+CC                23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC                28-JUN-05 : MM: UNUSED VARIABLES REMOVED
+CC
+C*
+      USE M_BERN
+C
+      USE f_ikf
+      USE s_alcerr
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IK    , IRC   , IRCODE, J     , K     ,
+     1          MAXDIS, NOINTR, NRREF , NSITE
+C
+      REAL*8    SUM   , SUMMIN
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      REAL*8    SITCOR(3,*)
+C
+      REAL(r8b),    DIMENSION(:), ALLOCATABLE :: DIST
+C
+C GET INTERACTION MODE
+CC      CALL GTINTM(NOINTR)
+      NOINTR = 1
+C
+C ALLOCATE LOCAL ARRAYS
+C ---------------------
+      MAXDIS=IKF(NSITE,NSITE)
+C
+      ALLOCATE(DIST(MAXDIS),STAT=IRC)
+      CALL ALCERR(IRC,'DIST',(/MAXDIS/),'SDSHRT')
+C
+C  COMPUTE ALL N*(N-1) DISTANCES
+      DO 30 K=2,NSITE
+        IK=(K-2)*(K-1)/2
+        DO 40 I=1,K-1
+          IK=IK+1
+          SUM=0.
+          DO 50 J=1,3
+            SUM=SUM+(SITCOR(J,K)-SITCOR(J,I))**2
+50        CONTINUE
+          DIST(IK)=DSQRT(SUM)
+40      CONTINUE
+30    CONTINUE
+C
+C  COMPUTE ALL POSSIBLE SUMS OF BASELINE-LENGTHS, TAKING EACH SITE AS
+C  REFERENCE SITE. LOOK FOR MINIMUN SUM. TAKE CORRESPONDING SITE
+C  AS REFERENCE SITE.
+      SUMMIN=1.D37
+      DO 60 I=1,NSITE
+        SUM=0.
+        DO 70 K=1,NSITE
+          IF(I.NE.K) THEN
+            IF(I.LT.K) THEN
+              IK=(K-2)*(K-1)/2+I
+            ELSE
+              IK=(I-2)*(I-1)/2+K
+            END IF
+            SUM=SUM+DIST(IK)
+          END IF
+70      CONTINUE
+        IF(SUM.LT.SUMMIN) THEN
+          SUMMIN=SUM
+          NRREF=I
+        END IF
+60    CONTINUE
+C
+      IRCODE=0
+      GOTO 999
+C
+999   CONTINUE
+C
+C DEALLOCATE LOCAL ARRAYS
+C -----------------------
+      DEALLOCATE(DIST,STAT=IRC)
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

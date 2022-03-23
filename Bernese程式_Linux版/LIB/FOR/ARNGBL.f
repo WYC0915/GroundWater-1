@@ -1,0 +1,258 @@
+      MODULE s_ARNGBL
+      CONTAINS
+
+C*
+      SUBROUTINE ARNGBL(ISTART,NFTOT,STNAME,ICENTR,STFIL,NUMOBS,
+     1                  NPAR,ANOR,BNOR,SOL,RMSFIL,LOCQ,ANBL,BNBL,
+     2                  SOLBL,SUMABS,NOBSBL,NPNBL,NAMBBL,LOCLOC,
+     3                  NEWSTA,NBLINE)
+CC
+CC NAME       :  ARNGBL
+CC
+CC    CALL ARNGBL(ISTART,NFTOT,STNAME,ICENTR,STFIL,NUMOBS,NPAR,
+CC   1            ANOR,BNOR,SOL,RMSFIL,LOCQ,ANBL,BNBL,
+CC   2            SOLBL,SUMABS,NOBSBL,NPNBL,NAMBBL,LOCLOC,
+CC   3            NEWSTA,NBLINE)
+CC
+CC PURPOSE    :  RESOLVE AMBIGUITIES TO INTEGER NUMBERS (IF POSSIBLE)
+CC               USING DIFFERENT STRATEGIES (ISTRAT)
+CC
+CC PARAMETERS :
+CC         IN :  ISTART : START INDEX IN PRIMARY NEQ-SYSTEM   I*4
+CC               NFTOT  : TOTAL NUMBER OF FILES               I*4
+CC               STNAME(I),I=1,2,... : STATION NAMES          CH*16(*)
+CC               STFIL(K,I),K=1,2 : INDEX OF STATIONS 1,2     I*4
+CC                       OF FILE I IN ARRAY STNAME
+CC               NUMOBS : NUMBER OF OBS (PER FRQ AND FILE)    I*4(*,*)
+CC               NPAR   : NUMBER OF PAR. IN PRIMARY SYSTEM    I*4
+CC               ANOR   : PRIMARY NEQ MATRIX                  R*8(*)
+CC               BNOR   : RIGHT HAND SIDE OF ORIGINAL SYSTEM  R*8(*)
+CC               SOL    : SOLUTION VECTOR OF PRIMARY SYSTEM   R*8(*)
+CC               RMSFIL : SUM OF TERMS RES**2 PER FILE        R*8(*)
+CC               LOCQ   : PARAMETER DESCRIPTOR                I*4(*,*)
+CC        OUT :  ANBL   : NEQ MATRIX FOR CURRENT BASELINE     R*8(*)
+CC               BNBL   : RHS OF BL-NEQ-SYSTEM                R*8(*)
+CC               SOLBL  : SOLUTION VECTOR FOR BASELINE        R*8(*)
+CC               SUMABS : SUM OF TERMS (O-C)**2 FOR BASELINE  R*8
+CC               NOBSBL : NUMBER OF OBSERVATIONS FOR CURRENT  I*4
+CC                        BASELINE
+CC               NPNBL  : NUMBER OF PARAMETERS (WITHOUT       I*4
+CC                        AMBIGUITIES) FOR BASELINE
+CC               NAMBBL : NUMBER OF AMBIGUITIES FOR CURRENT   I*4
+CC                        BASELINE
+CC               LOCLOC : PARAMETER DESCRIPTOR FOR CURRENT    I*4(*,*)
+CC                        BASELINE
+CC               NEWSTA : NEW STARTING INDEX FOR NEXT BL      I*4
+CC               NBLINE : NUMBER OF CURRENT BASELINE          I*4
+CC               DONE   : INDEX INDICATING WHICH FILES ARE    I*4(*)
+CC                        PROCESSED
+CC               ICENTR : CENTER INDEX                        I*4(*)
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/03 09:24
+CC
+CC CHANGES    :  10-AUG-94 : MR: CALL EXITRC
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE f_ikf
+      USE s_maxtst
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IFIL  , IFIRST, IFL   , IFL1  , IFL2  , IFLOAT,
+     1          IKNEW , IKOLD , IND   , IPAR  , IPNEW , IRC   ,
+     2          IST1  , IST2  , ISTART, K     , KK    , KPAR  , KPNEW ,
+     3          MAXFIL, MXCFIL, MXCFRQ, MXCLCQ, NAMBBL, NBLINE, NEWSTA,
+     4          NFBL  , NFTOT , NOBSBL, NPAR  , NPNBL
+C
+      REAL*8    SUMABS
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      PARAMETER    (MAXFIL=300)
+C
+      CHARACTER*16 STNAME(*)
+      CHARACTER*6  MXNLCQ,MXNFIL,MXNFRQ
+C
+      INTEGER*4    STFIL(2,*),LOCQ(MXCLCQ,*),LOCLOC(MXCLCQ,*)
+      INTEGER*4    NUMOBS(MXCFRQ,*),DONE(MAXFIL),NRFIL(MAXFIL)
+      INTEGER*4    ICENTR(*)
+C
+      REAL*8       ANOR(*),BNOR(*),SOL(*),RMSFIL(*),ANBL(*),BNBL(*),
+     1             SOLBL(*)
+C
+C
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+      COMMON/MCMFIL/MXCFIL,MXNFIL
+      COMMON/MCMFRQ/MXCFRQ,MXNFRQ
+C
+      DATA IFIRST/1/
+C
+C INITIALIZE ARRAY DONE UPON FIRST CALL
+C -------------------------------------
+      IF(IFIRST.EQ.1)THEN
+        DO 10 I=1,NFTOT
+          DONE(I)=0
+10      CONTINUE
+        IFIRST=0
+        NBLINE=0
+        NEWSTA=1
+        CALL MAXTST(1,'ARNGBL',MXNFIL,MAXFIL,MXCFIL,IRC)
+        IF (IRC.NE.0) CALL EXITRC(2)
+      END IF
+C
+C STATIONS OF CURRENT BASELINE
+C ----------------------------
+      IST1=STFIL(1,ISTART)
+      IST2=STFIL(2,ISTART)
+      IST1=ICENTR(IST1)
+      IST2=ICENTR(IST2)
+      NRFIL(1)=ISTART
+      NBLINE=NBLINE+1
+      DONE(ISTART)=1
+C
+C FIND THE SAME BASELINE IN REMAINING FILES
+C -----------------------------------------
+      NFBL=1
+      DO 30 IFIL=ISTART+1,NFTOT
+        IF((STFIL(1,IFIL).EQ.IST1.OR.STFIL(1,IFIL).EQ.IST2).AND.
+     1     (STFIL(2,IFIL).EQ.IST1.OR.STFIL(2,IFIL).EQ.IST2))THEN
+          NFBL=NFBL+1
+          NRFIL(NFBL)=IFIL
+          DONE(IFIL)=1
+        END IF
+30    CONTINUE
+C
+C DEFINE FLOATING STATION
+C -----------------------
+      IFL1=0
+      IFL2=0
+      DO 40 IPAR=1,NPAR
+        IF(LOCQ(1,IPAR).EQ.1.AND.LOCQ(2,IPAR).EQ.IST1)THEN
+          IFL1=IST1
+        ELSE IF(LOCQ(1,IPAR).EQ.1.AND.LOCQ(2,IPAR).EQ.IST2)THEN
+          IFL2=IST2
+        END IF
+40    CONTINUE
+C
+      IF(IFL1.NE.0.AND.IFL2.NE.0) THEN
+        WRITE(LFNERR,41) STNAME(STFIL(1,ISTART)),
+     1                   STNAME(STFIL(2,ISTART))
+41      FORMAT(/,' *** SR ARNGBL: ESTIMATION OF BOTH SITES OF ',
+     1           'BASELINE NOT ALLOWED',/,
+     2        16X,'WITH GENERAL SEARCH FOR AMBIGUITIES (OPTION 2)',/,
+     3        16X,'BASELINE: ',A16,2X,A16,/)
+        CALL EXITRC(2)
+      ELSE IF(IFL1.EQ.0.AND.IFL2.EQ.0)THEN
+        IFLOAT=0
+        NPNBL=0
+      ELSE IF(IFL1.NE.0)THEN
+        IFLOAT=IFL1
+        NPNBL=3
+      ELSE IF(IFL2.NE.0)THEN
+        IFLOAT=IFL2
+        NPNBL=3
+      END IF
+C
+C CONSTRUCT BASELINE SPECIFIC NORMAL EQUATION SYSTEM
+C --------------------------------------------------
+C (A) COORDINATES
+      IPNEW=0
+      DO 100 IPAR=1,NPAR
+        IF(LOCQ(1,IPAR).EQ.1.AND.LOCQ(2,IPAR).EQ.IFLOAT)THEN
+          IPNEW=IPNEW+1
+          DO 60 K=1,MXCLCQ
+            LOCLOC(K,IPNEW)=LOCQ(K,IPAR)
+60        CONTINUE
+          BNBL(IPNEW)=BNOR(IPAR)
+          SOLBL(IPNEW)=SOL(IPAR)
+          I=LOCQ(3,IPAR)
+          DO 80 K=1,I
+            IKNEW=IKF(I,K)
+            DO 70 KK=1,IPAR
+              IF(LOCQ(1,KK).EQ.1.AND.LOCQ(2,KK).EQ.IFLOAT.AND.
+     1           LOCQ(3,KK).EQ.K)THEN
+                IKOLD=IKF(IPAR,KK)
+                ANBL(IKNEW)=ANOR(IKOLD)
+                GO TO 80
+              END IF
+70          CONTINUE
+80        CONTINUE
+        END IF
+100   CONTINUE
+C
+C AMBIGUITIES OF ALL FILES
+C ------------------------
+      NAMBBL=0
+      DO 200 IFL=1,NFBL
+        IFIL=NRFIL(IFL)
+        DO 190 IPAR=1,NPAR
+          IF(LOCQ(1,IPAR).EQ.4.AND.LOCQ(2,IPAR).EQ.IFIL)THEN
+            NAMBBL=NAMBBL+1
+            IPNEW=NPNBL+NAMBBL
+            DO 61 K=1,MXCLCQ
+              LOCLOC(K,IPNEW)=LOCQ(K,IPAR)
+61          CONTINUE
+            BNBL(IPNEW)=BNOR(IPAR)
+            SOLBL(IPNEW)=SOL(IPAR)
+            KPNEW=0
+            DO 180 KPAR=1,IPAR
+              IF((LOCQ(1,KPAR).EQ.1.AND.LOCQ(2,KPAR).EQ.IFLOAT).OR.
+     1           (LOCQ(1,KPAR).EQ.4.AND.LOCQ(2,KPAR).EQ.IFIL))THEN
+                KPNEW=KPNEW+1
+                IKOLD=IKF(IPAR,KPAR)
+                IKNEW=IKF(IPNEW,KPNEW)
+                ANBL(IKNEW)=ANOR(IKOLD)
+              ELSE IF(LOCQ(1,KPAR).EQ.4.AND.LOCQ(2,KPAR).NE.IFIL)THEN
+                DO 62 K=1,NFBL
+                  IF(LOCQ(2,KPAR).EQ.NRFIL(K))THEN
+                    KPNEW=KPNEW+1
+                    IKOLD=IKF(IPAR,KPAR)
+                    IKNEW=IKF(IPNEW,KPNEW)
+                    ANBL(IKNEW)=ANOR(IKOLD)
+                  END IF
+62              CONTINUE
+              END IF
+180         CONTINUE
+          END IF
+190     CONTINUE
+200   CONTINUE
+C
+C NEXT INDEX
+C ----------
+      DO 210 IFIL=1,NFTOT
+        IF(DONE(IFIL).EQ.0)THEN
+          NEWSTA=IFIL
+          GO TO 220
+        END IF
+210   CONTINUE
+      NEWSTA=NFTOT+1
+220   CONTINUE
+C
+C SUM OF TERMS (O-C)**2 FOR BASELINE
+      SUMABS=0.D0
+      NOBSBL=0
+      DO 250 IFIL=1,NFBL
+        IND=NRFIL(IFIL)
+        SUMABS=SUMABS+RMSFIL(IND)
+        NOBSBL=NOBSBL+NUMOBS(1,IND)+NUMOBS(2,IND)
+250   CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

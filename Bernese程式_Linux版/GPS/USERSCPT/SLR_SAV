@@ -1,0 +1,74 @@
+package SLR_SAV;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  SLR_SAV
+#
+# Purpose :  Store SLRVAL BPE processing result files in the archive
+#
+# PARAMs  :
+#
+# Author  :  D. Thaller
+# Created :  09-Mar-2012
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use File::Basename;
+use File::Copy;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtMess check_dir copy2archive);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyyy, $yyddd, $v_o1,
+      $sav, $result, $dirOut ) =
+
+    $bpe->getKeys(
+      '$Y+0', '$YD+0', 'V_O1',
+      'V_SAV', 'V_RESULT', 'DIR_OUT' );
+
+# Title of processing
+# -------------------
+  my $tit = "SLRVAL running for orbit ${v_o1}";
+
+# Some directories
+# ----------------
+    my $dirSav = "$ENV{S}/" . $result . "/$yyyy/";
+    $bpe->setVar('DIRSAV',$dirSav);
+
+    check_dir($dirSav) if ( $sav eq "Y" );
+
+
+# Files to be copied to savedisk
+# ------------------------------
+    my @cpyLst = ( "${dirOut}SLRVAL${yyddd}.PRC   ${dirSav} f " );
+
+
+# Distribution not allowed
+# ------------------------
+    if ( uc $sav ne "Y" ) {
+      prtMess($bpe,"FILES NOT SAVED");
+
+
+# Do the distribution
+# -------------------
+    } else {
+
+      print "\n Processing result files saved to archive: ${dirSav}\n";
+
+      my $iErr = 0;
+
+      map { $iErr += copy2archive( split(" ",$_),$tit ) } @cpyLst;
+
+      # Stop in case of errors
+      die() if $iErr;
+    }
+
+}

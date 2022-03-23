@@ -1,0 +1,175 @@
+# ==============================================================================
+#
+# Name:       Makefile.template for Windows platforms
+#
+# Purpose:    Definition of C-compiler (CC) and librarian (AR) as well as the
+#             Fortran pre-processor (CPP), F77 compiler (F77), Fortran
+#             compiler (FC) and linking program (LD) with their respective
+#             options and flags.
+#
+# Authors:    S.Lutz
+#
+# Created:    28-Aug-2012
+#
+# Changes:    __-___-____ __:
+#
+# ==============================================================================
+
+# Default C-compiler
+# ------------------
+CC      = cc
+CFLAGS  = -c -O
+
+
+# Default Librarian
+# -----------------
+AR      = ar
+ARFLAGS = r
+
+
+# OTHER Fortran compiler
+# ----------------------
+ifeq ($(F_VERS),OTHER)
+  # Pre-compiler
+  # ************
+  # CPP is copy (cp) if the preprocessor can be evoked by an option of the
+  # Fortran compiler. In this case CPPDEFS has to be empty.
+  # If there is a separate pre-compiler it has to be put to CPP together with
+  # its pre-compiler options. Then, the FPPDEFS options have to be moved to
+  # CPPDEFS.
+  CPP     = copy
+  CPPDEFS =
+  FPPDEFS = -DOS_WIN32 -DEPH_$(JPLEPH) -DGRP_$(CGROUP)
+
+  # Fortran compiler for Fortran 77 source code
+  # *******************************************
+  F77    =
+  # Fortran compiler for Fortran 90 source code
+  # *******************************************
+  FC     =
+  # Begin of the command to get the version information for FC
+  # **********************************************************
+  FCVERS =
+
+  ifeq ($(F_DEBUG),YES)
+    # Debugging mode
+    # Options for F77 (put local vars to static memory!)
+    # **************************************************
+    FFLAGS  =  \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS)c -I$(I) $(FC_OPTIONS)
+    # Options for FC
+    # **************
+    FCFLAGS =  \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS)c -I$(I) $(FC_OPTIONS)
+  else
+    # Options for F77 (put local vars to static memory!)
+    # **************************************************
+    FFLAGS  =  \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS) -I$(I) $(FC_OPTIONS)
+    # Options for FC
+    # **************
+    FCFLAGS =  \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS) -I$(I) $(FC_OPTIONS)
+  endif
+
+  # Linker
+  # ******
+  LD      =
+  LDFLAGS =
+endif
+
+
+# G95
+# ---
+ifeq ($(F_VERS),G95)
+  CPP     = copy
+  CPPDEFS =
+  FPPDEFS = -DOS_WIN32 -DCMP_G95 -DEPH_$(JPLEPH) -DGRP_$(CGROUP)
+
+  F77     = g95
+  FC      = g95
+  LD      = g95
+  FCVERS  = --version
+
+  ifeq ($(F_DEBUG),YES)
+    FFLAGS  = -c -cpp -g -Wall -Wextra -Wno=163 -ftrace=full -fbounds-check \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS)c -I$(I) $(FC_OPTIONS) -fstatic
+    FCFLAGS = -c -cpp -g -Wall -Wextra -Wno=163 -ftrace=full -fbounds-check \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS)c -I$(I) $(FC_OPTIONS)
+    # no=163 : Disable warnings about missing intents on format arguments
+  else
+    FFLAGS  = -c -cpp -O -Wall -ftrace=full \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS) -I$(I) $(FC_OPTIONS) -fstatic
+    FCFLAGS = -c -cpp -O -Wall -ftrace=full \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS) -I$(I) $(FC_OPTIONS)
+  endif
+
+  LDFLAGS =
+endif
+
+
+# Lahey 95 Fortran compiler (external preprocessor)
+# -------------------------
+ifeq ($(F_VERS),LF95)
+
+  CPP     = cpp -P -C
+  CPPDEFS = -DOS_WIN32 -DCMP_LF95 -DIO_BLANK -DEPH_$(JPLEPH) -DGRP_$(CGROUP)
+  FPPDEFS =
+
+  AR      = lib
+  F77     = lf95
+  FC      = lf95
+  LD      = lf95
+  FCVERS  = --version
+
+  ifeq ($(F_DEBUG),YES)
+    FFLAGS  = -c -w -info -O0 -trace \
+              -mod . -I . -I $(C)/LIB/OBJ_$(F_VERS)c -I $(I) $(FC_OPTIONS) -sav
+    FCFLAGS = -c -w -info -O0 -trace \
+              -mod . -I . -I $(C)/LIB/OBJ_$(F_VERS)c -I $(I) $(FC_OPTIONS)
+  else
+    FFLAGS  = -c -w \
+              -mod . -I . -I $(C)/LIB/OBJ_$(F_VERS) -I $(I) $(FC_OPTIONS) -sav
+    FCFLAGS = -c -w \
+              -mod . -I . -I $(C)/LIB/OBJ_$(F_VERS) -I $(I) $(FC_OPTIONS)
+  endif
+
+  ARFLAGS = /out:
+  LDFLAGS =
+endif
+
+
+# PG_F90 32 & 64 bit
+# ------------------
+ifneq (,$(filter $(F_VERS),PG_F90 AIUB))
+  CPP     = copy
+  CPPDEFS =
+  FPPDEFS = -DOS_WIN32 -DCMP_PG_F90 -DEPH_$(JPLEPH) -DGRP_$(CGROUP)
+
+  AR      = lib
+  F77     = pgf90
+  FC      = pgf90
+  LD      = pgf90
+  FCVERS  = --version
+
+# $(F_TP) : Variable may be used to defined the target system for compilation.
+#           set F_TP=-tp px-32 # to generate generic 32-bit executables
+#           set F_TP=-tp x64   # to generate generic 64-bit executables
+
+  ifeq ($(F_DEBUG),YES)
+    FFLAGS  = -c -Mpreprocess $(F_TP) -Minform=inform -Minfo=all -traceback -Mbounds -Mbackslash \
+              -module . -I. -I$(I) -I$(C)/LIB/OBJ_$(F_VERS)c $(FC_OPTIONS) -Msave
+    FCFLAGS = -c -Mpreprocess $(F_TP) -Minform=inform -Minfo=all -traceback -Mbounds -Mbackslash \
+              -module . -I. -I$(I) -I$(C)/LIB/OBJ_$(F_VERS)c $(FC_OPTIONS)
+  else
+    FFLAGS  = -c -Mpreprocess -O $(F_TP) -Minform=inform -traceback -Mbackslash \
+              -module . -I. -I$(I) -I$(C)/LIB/OBJ_$(F_VERS) $(FC_OPTIONS) -Msave
+    FCFLAGS = -c -Mpreprocess -O $(F_TP) -Minform=inform -traceback -Mbackslash \
+              -module . -I. -I$(I) -I$(C)/LIB/OBJ_$(F_VERS) $(FC_OPTIONS)
+  endif
+
+  ARFLAGS = /out:
+  LDFLAGS =
+endif
+
+# ==============================================================================

@@ -1,0 +1,189 @@
+      MODULE s_POLSAV
+      CONTAINS
+
+C*
+      SUBROUTINE POLSAV(TITLE ,NPOL  ,TPOL  ,NPAR  ,HPVAL ,DTSIM ,
+     1                  LOCQ  ,RMS   ,XXX   ,ANOR  )
+CC
+CC NAME       :  POLSAV
+CC
+CC PURPOSE    :  SAVE THE VALUES OF THE ESTIMATED POLE PARAMETERS.
+CC
+CC PARAMETERS :
+CC         IN :  TITLE  : TITLE FOR FILE                       CH*80
+CC               NPOL   : NUMBER OF POLE PARAMETER SETS         I*4
+CC               TPOL   : START AND END TIME OF INTERVAL FOR    R*8(2,*)
+CC                        ONE SET OF PARAMETERS
+CC                        1,2 :=BEGIN,END TIME, *:= 1..MAXPOL
+CC               NPAR   : TOTAL NUMBER OF PARAMETERS            I*4
+CC               HPVAL  : TIME RESOLUTION TO STORE VALUES-HOURS R*8
+CC               DTSIM  : TIME INTERVAL TO IDENTIFY OBSERV.     R*8
+CC                        OF THE SAME EPOCH
+CC               LOCQ(K,I),K=1,..,MAXLCQ,I=1,2,...              I*4
+CC                        CHARACTERIZATION OF PARAMETERS
+CC               RMS    : MEAN ERROR OF OBSERVATION             R*8
+CC               XXX(I),I=1,2,....                              R*8
+CC                        SOLUTION VECTOR
+CC               ANOR    : UPPER TRIANGULAR PART OF COVARI-     R*8(*)
+CC                        ANCE MATRIX
+CC
+CC REMARKS    :  PARAMETER SETS MUST BE SORTED CHRONOLOGICALLY
+CC
+CC AUTHOR     :  S.FANKHAUSER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  92/01/20
+CC
+CC CHANGES    :  29-APR-92 : ??: DECLARATION OF MXNLCQ
+CC               23-JUN-92 : ??: INIT OF POLHLP AND POLINF CORRECTED
+CC               25-JUN-92 : ??: OPTION APPEND OR OVERWRITE (NEW CALL)
+CC               02-AUG-92 : ??: NEW VERSION OF SUBROUTINE DUE TO
+CC                               POLYNOM FOR ERPS
+CC               20-MAR-93 : ??: MODIFICATIONS DUE TO NEW ERP MODELS
+CC               19-APR-94 : RW: CPO-MODEL INCLUDED
+CC               04-JAN-96 : EB: ROUND SAVING REQUEST TO 5 SEC.
+CC               04-JUN-96 : TS: ADDED SUBDAILY MODEL
+CC               08-JAN-03 : PS: NAME OF NUTATION MODEL
+CC               04-FEB-03 : PS: USE SR RDNUTSUB
+CC                               CALL TO SR GETPOL CHANGED
+CC               08-MAR-03 : HU: INTERFACE FOR RDNUTSUB ADDED
+CC               08-APR-03 : RD: NPVAL->HPVAL (NOT NUMBER BUT HOURS)
+CC               05-NOV-03 : HU: ADDITIONAL ARGUMENTS FOR GETPOL
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1992     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE M_TIME,   ONLY: T_TIMINT
+C
+      USE s_opnfil
+      USE s_parint
+      USE s_mjdgps
+      USE s_wtlerp
+      USE s_opnerr
+      USE s_getpol
+      USE s_wtpolh
+      USE s_rdnutsub
+      USE f_gpsmjd
+      USE s_gtflna
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IOSTAT, IPL   , IPVAL , IRC   , MXCLCQ, NPAR  , NPOL  ,
+     1          NPOLSV, NWEEK
+C
+      REAL*8    DTSAVE, DTSIM , GPSSEC, HPVAL , RMS   , TSAV
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+C GLOBAL DECLARATION
+C ------------------
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+C
+      CHARACTER*80 TITLE
+      CHARACTER*16 NUTNAM,SUBNAM
+      CHARACTER*6  MXNLCQ
+C
+      REAL*8       TPOL(2,*),XXX(*),ANOR(*)
+C
+      INTEGER*4    LOCQ(MXCLCQ,*)
+C
+C INTERNAL DECLARATION
+C --------------------
+      TYPE(T_TIMINT) POLINT
+      TYPE(T_TIMINT), DIMENSION(:),POINTER :: SAVWIN
+C
+      CHARACTER*32 FILPOL
+C
+      REAL*8       D1(2),D2(2),D3(2),D4(2),D5(2),D6(2),D7(2)
+C
+      INTEGER*4    POLTYP(2)
+
+C
+C
+      DTSAVE=5.D0
+C
+C IF OUTPUT FILENAME IS BLANK, THEN NO INFORMATION IS SAVED
+C ---------------------------------------------------------
+      CALL GTFLNA(0,'POLERS ',FILPOL,IRC)
+      IF(IRC.NE.0) RETURN
+C
+C OPEN THE OUTPUT POLE FILE AND WRITE THE HEADER
+C ----------------------------------------------
+      CALL GTFLNA(1,'POLERS ',FILPOL,IRC)
+      CALL OPNFIL(LFNRES,FILPOL,'UNKNOWN',' ',' ',' ',IOSTAT)
+      CALL OPNERR(LFNERR,LFNRES,IOSTAT,FILPOL,'POLSAV')
+C
+C CALL GETPOL TO GET THE POLE MODEL TYPES
+C ---------------------------------------
+      IF (NPOL.GT.0) CALL GETPOL(TPOL(1,1),1,D1,D2,D3,D4,D5,D6,D7,
+     1                                                      POLTYP)
+C
+C FOR GPSEST-ESTIMATES SET NUTATION MODEL (POLTYP(1) ALWAYS=OBSERVED=2)
+C ---------------------------------------------------------------------
+      POLTYP(1)=2
+C
+C WRITE HEADER OF ERP FILE
+C ------------------------
+      CALL RDNUTSUB(NUTNAM,SUBNAM)
+      CALL WTPOLH(LFNRES,1,TITLE,POLTYP,NUTNAM,SUBNAM)
+C
+C GET THE EPOCHS FOR STORING POLE VALUES
+C --------------------------------------
+      NULLIFY(SAVWIN)
+      IF (HPVAL.NE.0D0) THEN
+        POLINT%T(1)=TPOL(1,1)   +1D0/86400D0
+        POLINT%T(2)=TPOL(2,NPOL)-1D0/86400D0
+        CALL PARINT(POLINT,DTSIM,1D20,0D0,HPVAL,
+     1       'TIME RESOLUTION FOR BERNESE POLE FILES',NPOLSV,SAVWIN)
+      ENDIF
+C
+C PREPARE THE SAVE TIMES AND SAVE THE INFORMATION
+C -----------------------------------------------
+      DO 60 IPL=1,NPOL
+        IF (HPVAL.EQ.0D0.OR.NPOLSV.EQ.0) THEN
+          TSAV=(TPOL(2,IPL)+TPOL(1,IPL))/2.D0
+C
+C ROUND SAVE TIME TO NEAREST DTSAVE (E.G. TO NEAREST 5 SEC)
+          CALL MJDGPS(TSAV,GPSSEC,NWEEK)
+          GPSSEC=DNINT(GPSSEC/DTSAVE)*DTSAVE
+          TSAV=GPSMJD(GPSSEC,NWEEK)
+C
+          CALL WTLERP(LFNRES,IPL,TSAV,TPOL(1,IPL),XXX,ANOR,NPAR,LOCQ,
+     1                RMS,TPOL)
+        ELSE
+          DO 70 IPVAL=1,NPOLSV+1
+            IF (IPVAL.LE.NPOLSV) THEN
+              TSAV=SAVWIN(IPVAL)%T(1)
+            ELSE IF (IPVAL.GT.1) THEN
+              TSAV=SAVWIN(IPVAL-1)%T(2)
+            ENDIF
+            IF (TSAV+DTSIM.LT.TPOL(1,IPL)) GOTO 70
+            IF (TSAV-DTSIM.GT.TPOL(2,IPL)) GOTO 60
+C
+C ROUND SAVE TIME TO NEAREST DTSAVE (E.G. TO NEAREST 5 SEC)
+            CALL MJDGPS(TSAV,GPSSEC,NWEEK)
+            GPSSEC=DNINT(GPSSEC/DTSAVE)*DTSAVE
+            TSAV=GPSMJD(GPSSEC,NWEEK)
+C
+            CALL WTLERP(LFNRES,IPL,TSAV,TPOL(1,IPL),XXX,ANOR,NPAR,LOCQ,
+     1                  RMS,TPOL)
+70        CONTINUE
+        END IF
+60    CONTINUE
+      CLOSE(LFNRES)
+C
+C RETURN CODES
+C ------------
+      DEALLOCATE(SAVWIN,STAT=IRC)
+C
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

@@ -1,0 +1,142 @@
+      MODULE s_BLKRET
+      CONTAINS
+
+C*
+      SUBROUTINE BLKRET(IADD,NPOL,NDEG,NPAR,LOCQ,TPOL,S0,ANOR)
+CC
+CC NAME       :  BLKRET
+CC
+CC PURPOSE    : IADD=1
+CC            : BLOCK RETROGRADE DIURNAL TERMS IN ESTIMATES OF
+CC              SUB-DAILY EXTIMATES OF POLAR WOBBLE SERIES X AND Y.
+CC              IADD=-1
+CC              REMOVE THE BLOCKING OF RETROGRADE DIURNAL TERMS
+CC              FOR THE THEORY SEE
+CC              BEUTLER, G. (1995). "HANDLING THE DIURNAL RETROGRADE TERMS
+CC              IN SUB-DAILY ESTIMATES OF POLAR WOBBLE COMPONENTS."
+CC
+CC PARAMETERS :
+CC        IN  : IADD    : =1 OR -1 :ADD/REMOVE BLOCKING THE         I*4
+CC                        RETROGRADE DIURNAL TERMS
+CC              NPOL    : NUMBER OF POLE INTERVALS                  I*4
+CC              NPAR    : NUMBER OF PARAMETERS IN ADJUSTMENT        I*4
+CC              LOCQ    : PARAMETER DESCRIPTION                     I*4
+CC              TPOL    : INTERVAL BOUNDARIES FOR POLE INTERVALS    I*4
+CC              S0      : MEAN ERROR OF WEIGHT UNIT                 R*8
+CC     IN/OUT : ANOR    : NEQ MATRIX                                I*4
+CC
+CC REMARKS    :
+CC
+CC AUTHOR     :  G.BEUTLER
+CC
+CC VERSION    :  3.6  (JUNE 95)
+CC
+CC CREATED    :  95/06/12
+CC
+CC CHANGES    :  27-AUG-03 : HU: SHARED DO LABELS REMOVED
+CC               16-JUN-05 : MM: COMCONST.inc REPLACED BY d_const
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1995     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE d_const, ONLY: OMEGA
+      USE f_ikf
+      USE s_setaob
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IADD  , IDEG  , IEQN  , IK    , INDEX , IPAR  ,
+     1          IPOL  , IXY   , KPOL  , MAXPOL, MXCLCQ, NDEG  , NPAR  ,
+     2          NPOL
+C
+      REAL*8    COSWT , OMEGD , S0    , SIGREL, SINWT , T0    , TREF0
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+      PARAMETER (MAXPOL=1000)
+C
+C MAXPOL=MAXIMUM NUMBER OF POLE VALUES
+      CHARACTER*6  MXNLCQ
+      INTEGER*4    LOCQ(MXCLCQ,*)
+      REAL*8       ANOR(*),TPOL(2,*)
+C
+      REAL*8       AOBS(2,2*MAXPOL)
+      INTEGER*4    INDPAR(2*MAXPOL)
+C
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+C
+C DEFINE RELATIVE ACCURACY
+C ------------------------
+      SIGREL=1.D-6
+C
+C CHECK MAXIMUM NUMBER OF SUB-INTERVALS
+C -------------------------------------
+      IF(NPOL.GT.MAXPOL)THEN
+        WRITE(LFNERR,1)MAXPOL,NPOL
+1       FORMAT(//,' ** SR BLKRET: MAXPOL',I5,' TOO SMALL',
+     1            ' (NPOL=',I5,' REQUESTED)',//)
+        CALL EXITRC(2)
+      END IF
+C
+C ANGULAR VELOCITY OF EARTH (RAD/DAY)
+C -----------------------------------
+      OMEGD=OMEGA*86400.D0
+C
+C DEFINE TIME ORIGIN
+C ------------------
+      T0=100000000.D0
+      DO 5 IPOL=1,NPOL
+        IF(TPOL(1,IPOL).LT.T0)T0=TPOL(1,IPOL)
+5     CONTINUE
+C
+C LOOP OVER ALL DERIVATIVES
+C -------------------------
+      DO 1000 IDEG=1,NDEG
+C
+C SET UP PSEUDO-OBSERVATION A-MATRIX
+C ----------------------------------
+        DO 100 IPOL=1,NPOL
+          DO 90 IXY=1,2
+            DO 10 IPAR=1,NPAR
+C
+C PARAMETER TYPE MATCHES, COMPONENT OF ERP MATCHES, ZERO DEGREE POLYNOMIAL,
+C INTERVAL NUMBERS MATCH
+C ------------------------------------------------------------------------
+              IF(LOCQ(1,IPAR).EQ.10.AND.LOCQ(4,IPAR).EQ.IXY.AND.
+     1           LOCQ(5,IPAR).EQ.IDEG.AND.LOCQ(3,IPAR).EQ.IPOL)THEN
+                INDEX=2*(IPOL-1)+IXY
+                TREF0=TPOL(1,IPOL)
+                COSWT= DCOS(OMEGD*(TREF0-T0))
+                SINWT= DSIN(OMEGD*(TREF0-T0))
+                CALL SETAOB(IXY,IDEG,OMEGD,COSWT,SINWT,AOBS(1,INDEX))
+                INDPAR(INDEX)=IPAR
+                GO TO 90
+              END IF
+10          CONTINUE
+90        CONTINUE
+100     CONTINUE
+C
+C MODIFY MATRIX ANOR
+C ------------------
+        DO 200 IEQN=1,2
+          DO IPOL=1,2*NPOL
+            DO KPOL=1,IPOL
+              IK=IKF(INDPAR(IPOL),INDPAR(KPOL))
+              ANOR(IK)=ANOR(IK)+IADD*1.D0/NPOL*(S0/SIGREL)**2/NPOL*
+     1                          AOBS(IEQN,IPOL)*AOBS(IEQN,KPOL)
+            ENDDO
+          ENDDO
+200     CONTINUE
+C
+1000  CONTINUE
+        RETURN
+        END SUBROUTINE
+
+      END MODULE

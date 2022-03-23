@@ -1,0 +1,97 @@
+<html>
+<body>
+
+<center>
+<b>CREATE/UPDATE STATION OBSERVATION SIGMA FACTORS</b>
+<p>Editor: EDITSOS
+</center>
+<hr width="100%">
+
+<a name="DATUM"      default="DATUM."></a>
+<a name="COORD"      default=""></a>
+<a name="NEWFILE"    default=""></a>
+<a name="STAWGT_HLP" default="%% %% %% %% %%"></a>
+<a name="STALST"     default=""></a>
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+This file provides station observation sigma factors for a list of
+stations and for specific measurement types. This
+input panel helps you to create or to edit this type of files.
+<br>
+To create a new station observation sigma factor file specify a new
+filename in the file selection dialogue. In this case you will be asked to
+select an existing coordinate file. Select a subset of the stations in
+this file to generate a template for the new station sigma factor file.
+
+<p><i>Remark:</i>
+The end of the station observation sigma factor file is indicated by a
+blank line. Lines below the blank line are ignored. If you use this
+input mask to edit a station sigma factor file these additional lines
+will be lost. If you want to keep them in the file you have to use an
+external text file editor.
+<br>
+A station observation sigma factor file may also be created by the program
+<a href="PGMLST.HLP#RESRMS">RESRMS</a> (see option
+<a href="RESRMS.HLP#STAWGTRS">STAWGTRS</a>).
+
+<p><a href="/$X/DOC/EXAMPLE.SOS">Example</a>
+
+<p><hr>
+
+<p><b>CREATE A NEW STATION OBSERVATION SIGMA FACTOR FILE</b>
+
+<a name="STASEL" default=""></a>
+<p><b>Station list for sigma factor file:</b>
+Select the stations (taken from the coordinate file specified before)
+you want to add to the template of the station observation sigma factor file.
+
+<a name="PHASE" default="0"></a>
+<a name="CODE"  default="0"></a>
+<a name="RANGE" default="0"></a>
+<p><b>TYPES OF OBSERVATIONS</b>
+<p>
+Choose the type(s) of observation:
+<ul>
+<li><b>Sigma factors for phase observations</b>
+<li><b>Sigma factors for code observations</b>
+<li><b>Sigma factors for range observations</b>
+</ul>
+For each station and each observation type selected above there will be one
+record in the new station weight file, initialized with a sigma factor of 1.000.
+
+<p><hr>
+
+<p><b>STATION OBSERVATION SIGMA FACTOR FILE</b>
+
+<a name="STAWGTRS" default=""></a>
+<p><b>Filename:</b>
+The absolute path and the name of the station observation sigma factor file is
+given here.
+
+<a name="TITLE" default=""></a>
+<p><b>Title:</b>
+Enter a title line. The title will be saved in the header of the file.
+
+<a name="STAWGT" default="%% %% %% %% %%"></a>
+<p><b>Station name:</b>
+Enter the station name.
+
+<p><b>Meatyp:</b>
+Enter the measurement type (type of observations). Allowed are the strings
+<tt>PHASE</tt>, <tt>CODE</tt>, and <tt>RANGE</tt> to indicate the corresponding
+measurement type.
+
+<p><b>Sigma factor:</b>
+Enter the sigma factor for each of the stations and each measurement type.
+A sigma factor&nbsp;<i>n</i> larger than 1.000 corresponds to a down-weighting
+of the observations by <i>n<sup>2</sup></i>.
+
+<p><b>Valid from</b> - <b>to:</b>
+The sigma factors are valid for the time window specified here. An empty
+input field indicates an open boundary of the time window.
+
+<p><hr>
+
+</body>
+</html>

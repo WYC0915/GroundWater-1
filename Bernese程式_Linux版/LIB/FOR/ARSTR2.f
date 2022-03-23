@@ -1,0 +1,345 @@
+      MODULE s_ARSTR2
+      CONTAINS
+
+C*
+      SUBROUTINE ARSTR2(TITLES,AR2MOD,NPP1,NAMB,NPATOT,
+     1                  NOBS,AR2INF,SIGAPR,ANOR,BNOR,SUMABS,LOCQ,
+     2                  INDOK,SOL,PARFLG,RMS)
+CC
+CC NAME       :  ARSTR2
+CC
+CC PURPOSE    :  AMBIGUITY RESOLUTION USING A GENERAL SEARCH
+CC               ALGORITHM
+CC
+CC PARAMETERS :
+CC         IN :  TITLES(I),I=1,2: TITLE LINES                 CH*132
+CC               AR2MOD : MODE OF PROCESSING FOR AMBIGUITY    I*4
+CC                        RESOLUTION, STRATEGY 2
+CC                        =1 : BASELINE-WISE AMBIGUITY RESOLUTION
+CC                        =0 : RESOLVE ALL PRESENT AMBIGUITIES
+CC               NPP1   : NUMBER OF PARAMETERS WITHOUT AMB    I*4
+CC               NAMB   : NUMBER OF AMBIGUITIES               I*4
+CC               NPATOT : NUMBER OF PARAMETERS TO COMPUTE RMS I*4
+CC               NOBS   : NUMBER OF OBSERVATIONS              I*4
+CC               AR2INF : INFORMATION FOR A.R., STRATEGY 2    R*8
+CC                        (1) : SEARCH WIDTH IN UNITS OF STD DEV
+CC                        (2) : MAX ALLOWED RMS(FIXED)/RMS(FLOAT)
+CC                        (3) : MIN ALLOWED
+CC                              RMS(2-ND AMB)/RMS(1-ST AMB)
+CC                        (4) : SEARCH WIDTH FOR GEOMETRY-FREE
+CC                              LC (IN L1 CYCLES)
+CC                              =X : USE THIS VALUE
+CC                              =0 : COMPUTE FORMAL WIDTH
+CC               SIGAPR: A PRIORI SIGMA OF OBSERVATIONS       R*8
+CC     IN/OUT :  ANOR(I),I=1,2,..: TOTAL NEQ MATRIX           R*8
+CC                        END OF SR : THE NEQ-MATRIX WITHOUT
+CC                        AMBIGUITIES IS COPIED INTO ANOR
+CC               BNOR(I),I=1,2,..,NPP1+NAMB: RIGHT HAND SIDE  R*8
+CC                        OF NEQ SYSTEM
+CC               SUMABS : WEIGHTED SUM OF TERMS (OBS-COMP)**2 R*8
+CC               LOCQ(K,I),K=1,2,..,MAXLCQ,I=1,2,..,NP:       I*4
+CC                        PARAMETER CHARACTERIZATION ARRAY
+CC        OUT :  INDOK  : =1 : AMBIGUITY RESOLUTION O.K.      R*8
+CC                        =0 : AMBIGUITY RESOLUTION FAILED    R*8
+CC               SOL(I),I=1,2,..,NPP1+NAMB: SOLUTION VECTOR   R*8
+CC               PARFLG(K),K=1,..NPAR: FLAG FOR SINGULAR PAR. I*4
+CC                        =0 : PARAMETER NOT SINGULAR
+CC                        =1 : PARAMETER SINGULAR
+CC               RMS    : RMS ERROR OF FINAL SOLUTION         R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER
+CC
+CC VERSION    :  3.4  (JAN 94)
+CC
+CC CREATED    :  89/07/01 09:57
+CC
+CC CHANGES    :  25-JUN-93 : MAXVAL=60
+CC               12-APR-94 : SS: MAXPP1=300 (INSTEAD OF 50), DSQRT(2)
+CC                               IN RMS
+CC               21-APR-94 : MR: NEW PARAMETER "SIGAPR" FOR SR SIGMA1
+CC               25-JUL-94 : MR: PRE-ELIMINATION STATISTICS SIMPLIFIED
+CC               28-JUL-94 : MR: SYMING INSTEAD OF SYMIN8, "PARFLG"
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               28-SEP-95 : JJ: DECLARE INDA AS I*2
+CC               28-SEP-95 : JJ: DECLARE WEIGHT AS R*4
+CC               09-OCT-97 : SS: PRINT POST-FIT SIGMA FOR ONE-WAY OBSERVABLE
+CC               09-FEB-02 : RD: WEIGHT REAL*4->REAL*8
+CC               27-AUG-03 : HU: SHARED DO LABELS REMOVED
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               03-FEB-06 : RD: ENABLE MODULE FOR SIGMA1
+CC               10-JUL-12 : RD: USE SYMINVG INSTEAD OF SYMING
+CC               10-JUL-12 : RD: USE M_BERN WITH ONLY
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1989     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern,  ONLY: lfnprt, lfnerr
+      USE f_sigma1
+      USE s_ambith
+      USE s_rstruc
+      USE s_syminvg
+      USE s_bestn
+      USE s_rmssum
+      USE s_solve
+      USE s_nxtind
+      USE s_exitrc
+      USE s_matd23
+      USE s_defsrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IA    , IBEST , IK    , IND   , INDOK , INDP  ,
+     1          IPAR  , ISING , K     , MAXAMB, MAXBST, MAXPP1, MAXVAL,
+     2          MXCLCQ, NAMB  , NAMBL1, NBACT , NBEST , NCOMP , NOBS  ,
+     3          NPAR  , NPARM1, NPARMS, NPATOT, NPP1
+C
+      REAL*8    AOBS  , BOBS  , D1    , RMS   , RMS1  , RMS2  , RMSII ,
+     1          RMSNEW, RMSXXX, SIGAPR, SUMABS, VSIG  , XDUMMY,
+     2          XITH  , XITHE , XNCOMP, XNEXT
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+C
+      PARAMETER (MAXPP1=1000,MAXAMB=200,MAXVAL=60,MAXBST=10)
+C
+      CHARACTER*132 TITLES(2)
+      CHARACTER*6   MXNLCQ
+C
+      INTEGER*4 INDA
+C
+      INTEGER*4 NVAL(MAXAMB),AMBVAL(MAXVAL,MAXAMB),IAMBL1(MAXAMB)
+      INTEGER*4 IAMB(MAXAMB),AMBCOR(MAXVAL,MAXAMB),MATCH(2,MAXVAL)
+      INTEGER*4 CONDLC(2,MAXAMB*(MAXAMB-1)/2),LOCQ(MXCLCQ,*)
+      INTEGER*4 AR2MOD,PARFLG(*)
+C
+      REAL*8 WEIGHT
+C
+      REAL*8 ANOR(*),BNOR(*),SOL(*)
+      REAL*8 N11(MAXPP1*(MAXPP1+1)/2),N12(MAXPP1*MAXAMB)
+      REAL*8 N22(MAXAMB*(MAXAMB+1)/2),U1(MAXPP1),U2(MAXAMB)
+      REAL*8 D2(MAXAMB),D3(MAXAMB*MAXPP1)
+      REAL*8 INDBST(MAXBST),RMSBST(MAXBST),NATOT
+      REAL*8 AR2INF(*)
+C
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+C
+C NUMBER OF PARAMETERS FOR RMS / NUMBER OF PRE-ELIMINATED PARAMETERS
+C ------------------------------------------------------------------
+      IF (AR2MOD.EQ.0) THEN
+        NPARMS=NPATOT
+      ELSE
+        NPARMS=NPP1+NAMB
+      ENDIF
+      NPARM1=NPARMS-NAMB
+C
+C WRITE TITLE FOR AMBIGUITY RESOLUTION PROTOCOL
+C ---------------------------------------------
+      WRITE(LFNPRT,10)TITLES
+10    FORMAT(//,A132,/,A132,/,' ',131('-'),//)
+      WRITE(LFNPRT,20) NPP1,NAMB,NOBS
+20    FORMAT(' AMBIGUITY RESOLUTION PROTOCOL FOR GENERAL SEARCH:',//,
+     1       ' NUMBER OF NON-AMBIGUITY PARAMETERS:',I6,
+     2       '  (NOT PRE-ELIMINATED)',/,
+     3       ' NUMBER OF AMBIGUITY PARAMETERS    :',I6,/,
+     4       ' NUMBER OF DD-OBSERVATIONS         :',I6,/)
+      IF (AR2MOD.EQ.1 .AND. NPATOT-NPP1-NAMB.GT.0) THEN
+        WRITE(LFNPRT,30)
+30      FORMAT(' NUMBER OF PRE-ELIMINATED PARAMETERS NOT INCLUDED',/,
+     1         ' IN BASELINE-SPECIFIC DEGREE OF FREEDOM',/)
+      ENDIF
+C
+C CHECK MAXIMUM LOCAL DIMENSIONS
+C ------------------------------
+      IF(NPP1.GT.MAXPP1)THEN
+        WRITE(LFNERR,1) NPP1,MAXPP1
+1       FORMAT(/,' *** SR ARSTR2: TOO MANY NON-AMBIGUITY PARAMETERS',/,
+     1            16X,'NUMBER OF NON-AMBIG. PARAMETERS :',I4,/,
+     2            16X,'MAX. NUMBER OF NON-AMBIG. PARAM.:',I4,/)
+        CALL EXITRC(2)
+      END IF
+      IF(NAMB.GT.MAXAMB)THEN
+        WRITE(LFNERR,2) NAMB,MAXAMB
+2       FORMAT(/,' *** SR ARSTR2: TOO MANY AMBIGUITY PARAMETERS',/,
+     1            16X,'NUMBER OF AMBIG. PARAMETERS :',I4,/,
+     2            16X,'MAX. NUMBER OF AMBIG. PARAM.:',I4,/)
+        CALL EXITRC(2)
+      END IF
+C
+C SPLIT UP ORIGINAL NEQ SYSTEM
+C ----------------------------
+      CALL RSTRUC(1,NPP1+NAMB,NPP1,ANOR,BNOR,N11,N12,N22,U1,U2)
+C
+C COMPUTE SOLUTION WITH REAL VALUED AMBIGUITIES
+C ---------------------------------------------
+      NPAR=NPP1+NAMB
+      CALL SYMINVG(NPAR,ANOR,1,ISING,PARFLG)
+      CALL SOLVE(NPAR,ANOR,BNOR,SOL)
+      RMSXXX=SIGMA1(0,NPAR,NPARMS,NOBS,SOL,(/INDP/),(/AOBS/),(/INDA/),
+     1          (/BOBS/),(/WEIGHT/),BNOR,SUMABS,(/VSIG/),SIGAPR)
+C
+C WRITE AMBIGUITIES/RMS ERRORS FOR ALL SATELLITE COMBINATIONS
+C -----------------------------------------------------------
+CCC   CALL PRERAM(RMSXXX,ANOR,NPP1,NAMB,SOL)
+C
+C DEFINE AMBIGUITY VALUES FOR EACH AMBIGUITY
+C ------------------------------------------
+      CALL DEFSRC(AR2INF(1),AR2INF(4),RMS,ANOR,NPP1,NAMB,SOL,LOCQ,
+     1         NATOT,NVAL,MAXVAL,AMBVAL,CONDLC,NAMBL1,MATCH,AMBCOR)
+C
+C COMPUTE RELEVANT MATRICES FOR GENERAL SEARCH STRATEGY
+C -----------------------------------------------------
+      CALL SYMINVG(NPP1,N11,0,ISING,PARFLG)
+      D1=SUMABS
+      CALL MATD23(NPP1,NAMB,N11,N12,N22,U1,U2,D1,D2,D3)
+C
+C GENERAL SEARCH
+C --------------
+      NBEST=10
+      NBACT=0
+      NCOMP=0
+      XITH=1
+      CALL AMBITH(XITH,NATOT,MAXVAL,NAMBL1,NVAL,AMBVAL,AMBCOR,
+     1            MATCH,IAMBL1,IAMB)
+      NCOMP=NCOMP+1
+      CALL RMSSUM(NAMB,D1,D2,D3,IAMB,RMSNEW)
+      CALL BESTN(XITH,NBEST,RMSNEW,NBACT,RMSBST,INDBST)
+C
+C LOOP OVER ALL ALLOWED AMBIGUITY SETS
+      XITHE=0
+300   XITHE=XITHE+1
+C
+C GET ACTUAL INTEGER VALUED AMBIGUITIES
+C -------------------------------------
+499     CALL AMBITH(XITH,NATOT,MAXVAL,NAMBL1,NVAL,AMBVAL,AMBCOR,
+     1              MATCH,IAMBL1,IAMB)
+        CALL NXTIND(NAMBL1,NVAL,XITH,IAMBL1,CONDLC,XNEXT)
+        IF(XNEXT.NE.XITH)THEN
+         IF(XNEXT.GT.NATOT)GO TO 510
+          XITH=XNEXT
+          GO TO 499
+        END IF
+        NCOMP=NCOMP+1
+        CALL RMSSUM(NAMB,D1,D2,D3,IAMB,RMSNEW)
+        CALL BESTN(XITH,NBEST,RMSNEW,NBACT,RMSBST,INDBST)
+        RMS=DSQRT(RMSNEW/(NOBS-NPARM1))
+        XITH=XITH+1
+        IF(XITH.GT.NATOT)GO TO 510
+      IF(XITHE.LT.NATOT)GO TO 300
+510   CONTINUE
+C
+C WRITE NBEST BEST RMS-VALUES
+C ---------------------------
+      XDUMMY=NATOT-NCOMP
+      XNCOMP=NCOMP
+      WRITE(LFNPRT,501)NATOT,XNCOMP,XDUMMY
+501   FORMAT(/,' SEARCH STATISTICS',/,
+     1         ' -----------------',/,
+     2         ' NUMBER OF AMBIGUITY SETS=',F30.0,/,
+     3         ' RMS ACTUALLY COMPUTED   =',F30.0,/,
+     4         ' DUMMY SETS              =',F30.0,/)
+      WRITE(LFNPRT,505)
+505   FORMAT(/,'  #   RMS    RMS/RMS1     AMBIGUITIES',/,
+     1         ' ------------------------------------',/)
+      DO 600 IBEST=1,NBACT
+        CALL AMBITH(INDBST(IBEST),NATOT,MAXVAL,NAMBL1,NVAL,
+     1              AMBVAL,AMBCOR,MATCH,IAMBL1,IAMB)
+        RMS=DSQRT(RMSBST(IBEST)/(NOBS-NPARM1))
+        IF(IBEST.EQ.1)RMS1=RMS
+        IF (NAMB.LE.30) THEN
+          WRITE(LFNPRT,506) IBEST,RMS,RMS/RMS1,
+     1                      (IAMB(I),I=1,NAMB)
+506       FORMAT(I3,F7.4,F9.3,3X,30I3)
+        ELSE
+          WRITE(LFNPRT,506) IBEST,RMS,RMS/RMS1,
+     1                      (IAMB(I),I=1,30)
+          WRITE(LFNPRT,507) (IAMB(I),I=31,NAMB)
+507       FORMAT(21X,30I3)
+        END IF
+600   CONTINUE
+C
+C COMPUTE SOLUTION VECTOR FOR NBEST BEST SOLUTIONS
+C SAVE BEST SOLUTION
+C ------------------------------------------------
+      DO 700 IBEST=NBACT,1,-1
+        CALL AMBITH(INDBST(IBEST),NATOT,MAXVAL,NAMBL1,NVAL,
+     1              AMBVAL,AMBCOR,MATCH,IAMBL1,IAMB)
+        WRITE(LFNPRT,605)IBEST
+605     FORMAT(/,' SOLUTION NUMBER=',I3,/,
+     1           ' -------------------',//,
+     2           ' PAR  TYPE  LOCQ(2)  SOLUTION      RMS'/)
+C
+C CORRECT RIGHT HAND SIDE OF NEQ-SYSTEM
+C -------------------------------------
+        DO 610 IPAR=1,NPP1
+          U1(IPAR)=BNOR(IPAR)
+          DO IA=1,NAMB
+            IK=IPAR+(IA-1)*NPP1
+            U1(IPAR)=U1(IPAR)-N12(IK)*IAMB(IA)
+          ENDDO
+610     CONTINUE
+C
+C DEFINE FINAL SOLUTION
+C ---------------------
+        CALL SOLVE(NPP1,N11,U1,SOL)
+        DO 620 I=NPP1+1,NPP1+NAMB
+          SOL(I)=IAMB(I-NPP1)
+620     CONTINUE
+C
+C RESULTING RMS ERROR
+C -------------------
+        CALL RMSSUM(NAMB,D1,D2,D3,IAMB,RMSNEW)
+        RMS=DSQRT(RMSNEW/(NOBS-NPARM1))
+        IF(IBEST.EQ.2)RMS2=RMS
+        DO 640 I=1,NPP1
+          RMSII=RMS*DSQRT(N11(I*(I+1)/2))
+          WRITE(LFNPRT,630)I,LOCQ(1,I),LOCQ(2,I),SOL(I),RMSII
+630       FORMAT(I4,I5,I7,F13.4,F11.4)
+640     CONTINUE
+700   CONTINUE
+C
+C DECIDE WHETHER AMBIGUITY RESOLUTION WAS SUCCESSFUL
+C --------------------------------------------------
+      IF(NBACT.LT.2)RMS2=10.D0
+      IF(RMS/RMSXXX.LE.AR2INF(2).AND.RMS2/RMS1.GE.AR2INF(3))THEN
+        INDOK=1
+        WRITE(LFNPRT,701)RMS1/RMSXXX,RMS2/RMS1
+701     FORMAT(//,' AMBIGUITY RESOLUTION SUCCESSFUL',/,
+     1            ' RMS(FIXED)/RMS(FLOAT)               =',F10.3,/,
+     2            ' RMS(2-ND AMB SET)/RMS(1-ST AMB SET) =',F10.3,/)
+      ELSE
+        INDOK=0
+        WRITE(LFNPRT,702)RMS1/RMSXXX,RMS2/RMS1
+702     FORMAT(//,' AMBIGUITY RESOLUTION NOT SUCCESSFUL',/,
+     1            ' RMS(FIXED)/RMS(FLOAT)               =',F10.3,/,
+     2            ' RMS(2-ND AMB SET)/RMS(1-ST AMB SET) =',F10.3,/)
+      END IF
+C
+C
+C COPY NEQ-MATRIX WITHOUT AMBIGUITIES
+C EXTERNAL NEQ MATRIX
+C -----------------------------------
+      IF(INDOK.EQ.1)THEN
+        SUMABS=(NOBS-NPARM1)*RMS**2
+        IND=0
+        DO 710 I=1,NPP1
+          BNOR(I)=U1(I)
+          SUMABS=SUMABS+BNOR(I)*SOL(I)
+          DO K=1,I
+            IND=IND+1
+            ANOR(IND)=N11(IND)
+          ENDDO
+710     CONTINUE
+      ELSE
+        RMS=RMSXXX
+      END IF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

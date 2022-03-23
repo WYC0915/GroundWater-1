@@ -1,0 +1,381 @@
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT 1  "" "${}"
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! General Setup: Title
+! --------------------
+TITLE 1  "SLRVAL_800060: Statistics for SLR residuals"
+  ## widget = lineedit
+  # SLRVAL_$YSS+0: Statistics for SLR residuals
+
+MSG_TITLE 1  "Specify a title"
+
+! Some title information
+! ----------------------
+USR_INFO 1  "${USER}"
+  ## widget = comment
+
+SESSION_TABLE 1  "${X}/SKL/SESSIONS.SES"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO 1  "1980"
+  ## widget = comment
+  # $Y+0
+
+SES_INFO 1  "0060"
+  ## widget = comment
+  # $S+0
+
+! Active Campaign
+! ---------------
+CAMPAIGN 1  "./DUMMY"
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+! General Constants
+! -----------------
+! Show general files
+! ------------------
+SHOWGEN 1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+CONST 1  "${X}/GEN/CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  # CONST.
+
+DESCR_CONST 1  "General constants"
+
+! Pole File
+! ---------
+POLE 1  "./DUMMY/ORB/$(O1)00000.ERP"
+  ## widget = selwin; path = DIR_ERP; ext = EXT_ERP; maxfiles = 1
+  # $(O1)$WD+0
+
+DESCR_POLE 1  "A priori pole file"
+
+! Subdaily Pole Model
+! -------------------
+SUBMOD 1  "${X}/GEN/IERS2010XY.SUB"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_SUB; maxfiles = 1
+  # IERS2010XY
+
+DESCR_SUBMOD 1  "Subdaily pole model"
+
+! Nutation Model
+! -------------------
+NUTMOD 1  "${X}/GEN/IAU2000R06.NUT"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_NUT; maxfiles = 1
+  # IAU2000R06
+
+DESCR_NUTMOD 1  "Nutation model"
+
+! Difference of GPS-TIME - UTC-TIME
+! ---------------------------------
+GPSUTC 1  "${X}/GEN/GPSUTC."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  # GPSUTC.
+
+DESCR_GPSUTC 1  "GPS-UTC seconds"
+
+! Satellite Information
+! ---------------------
+SATELL 1  "${X}/GEN/$(SATINF).$(PCV)"
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  # $(SATINF).$(PCV)
+
+DESCR_SATELL 1  "Satellite information"
+
+! Station Name Abbreviations
+! --------------------------
+ABBREV 1  "./DUMMY/STA/$(CRDINF).ABB"
+  ## widget = selwin; path = DIR_ABB; ext = EXT_ABB; maxfiles = 1
+  # $(CRDINF)
+
+DESCR_ABBREV 1  "Abbreviation table"
+
+! STAINFO with information for the Bernese files
+! ----------------------------------------------
+STAINFO 1  "./DUMMY/STA/$(CRDINF).STA"
+  ## widget = selwin; path = DIR_STA; ext = EXT_STA; maxfiles = 1
+  # $(CRDINF)
+
+DESCR_STAINFO 1  "Station information file"
+
+! Residual files
+! --------------
+RESFIL 1  "./DUMMY/OUT/$G80006.RES"
+  ## widget = selwin; path = DIR_RES; ext = EXT_RES; maxfiles = 999
+  # $G$YD+0
+
+MSG_RESFIL 1  "Residual files"
+
+RESFIL_TXT_COL_1 1  "Residual files"
+
+! Standard Orbit
+! --------------
+STDORB 1  "./DUMMY/ORB/$(O1)00000.STD"
+  ## widget = selwin; path = DIR_STD; ext = EXT_STD; maxfiles = 999
+  # $(O1)$WD+0
+
+MSG_STDORB 1  "Standard orbit files"
+
+STDORB_TXT_COL_1 1  "Standard orbit files"
+
+! Skeleton file for slrmail
+! -------------------------
+SKLFIL 0
+  ## widget = selwin; path = PTH_SKL; ext = EXT_SKL; maxfiles = 1
+  ## emptyallowed = true
+  # 
+
+MSG_SKLFIL 1  "Skeleton file for slrmail"
+
+DESCR_SKLFIL 1  "Skeleton file for slrmail"
+
+! Station coordinates
+! -------------------
+CRDFIL 1  "./DUMMY/STA/$A80006.CRD"
+  ## widget = selwin; path = DIR_CRD; ext = EXT_CRD; maxfiles = 1
+  # $A$YD+0
+
+MSG_CRDFIL 1  "Station coordinates file"
+
+CRDFIL_TXT_COL_1 1  "Station coordinates file"
+
+! Summary file
+! ------------
+SUMFIL 0
+  ## widget = lineedit; path = DIR_SUM; ext = EXT_SUM; emptyallowed = true
+  # 
+
+MSG_SUMFIL 1  "Summary file for slrmail"
+
+DESCR_SUMFIL 1  "Summary file for slrmail"
+
+! Detailed residual output
+! ------------------------
+ALLFIL 1  "./DUMMY/OUT/$Q_80006.SUM"
+  ## widget = lineedit; path = DIR_SUM; ext = EXT_SUM; emptyallowed = true
+  # $Q_$YD+0
+
+MSG_ALLFIL 1  "Detailed residual output"
+
+DESCR_ALLFIL 1  "Detailed residual output"
+
+! Detailed residual output for graphic tools (gnuplot)
+! ----------------------------------------------------
+PLTFIL 1  "./DUMMY/OUT/$Q_80006.PLT"
+  ## widget = lineedit; path = DIR_PLT; ext = EXT_PLT; emptyallowed = true
+  # $Q_$YD+0
+
+MSG_PLTFIL 1  "Residuals for graphic tools"
+
+DESCR_PLTFIL 1  "Residuals for graphic tools"
+
+! Edit file for observations during shadow passage + 30 min
+! ---------------------------------------------------------
+EDITRS 1  "./DUMMY/OUT/$Q_80006.EDT"
+  ## widget = lineedit; path = DIR_EDT; ext = EXT_EDT; emptyallowed = true
+  # $Q_$YD+0
+
+MSG_EDITRS 1  "Edit file (shadow)"
+
+DESCR_EDITRS 1  "Edit file (shadow)"
+
+! Edit file for outliers
+! -----------------------
+EDTFIL 0
+  ## widget = lineedit; path = DIR_EDT; ext = EXT_EDT; emptyallowed = true
+  # 
+
+MSG_EDTFIL 1  "Edit file (outlier)"
+
+DESCR_EDTFIL 1  "Edit file (outlier)"
+
+! Program Output File
+! -------------------
+SYSODEF 1  "0"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT 1  "./DUMMY/OUT/$Q_80006.OUT"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+  # $Q_$YD+0
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG 1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR 1  "${U}/WORK/ERROR.MSG"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+  # ERROR
+
+DESCR_SYSERR 1  "Error messages"
+
+! Editing criteria
+! ----------------
+RESMAX 1  "1.0"
+  ## widget = lineedit; emptyallowed = false
+
+MSG_RESMAX 1  "Absolute maximum of the residuals"
+
+SIGMAX 1  "1000.0"
+  ## widget = lineedit; emptyallowed = false
+
+MSG_SIGMAX 1  "Maximum overall sigma"
+
+SIGFAC 1  "5.0"
+  ## widget = lineedit; emptyallowed = false
+
+MSG_SIGFAC 1  "Multiplication factor for overall sigma"
+
+! Outlier detection
+! -----------------
+EDIT_1 1  "1"
+  ## widget = radiobutton; group = DUMMY; activeif = EDTFIL / _
+
+MSG_EDIT_1 1  "Edit sta/sat with largest RMS"
+
+EDIT_2 1  "0"
+  ## widget = radiobutton; group = DUMMY; activeif = EDTFIL / _
+
+MSG_EDIT_2 1  "Edit according to settings above"
+
+! Check number of observations
+! ----------------------------
+CHKNUM 1  "0"
+  ## widget = checkbox
+
+MSG_CHKNUM 1  "Check number of observations"
+
+MINOBS 1  "10"
+  ## widget = lineedit; activeif = CHKNUM == 1
+
+MSG_MINOBS 1  "Minimum number of observations"
+
+CHKNUM_1 1  "1"
+  ## widget = radiobutton; group = DUMMY2; activeif = CHKNUM == 1
+
+MSG_CHKNUM_1 1  "Min. obs. per station"
+
+CHKNUM_2 1  "0"
+  ## widget = radiobutton; group = DUMMY2; activeif = CHKNUM == 1
+
+MSG_CHKNUM_2 1  "Min. obs. per station and satellite"
+
+! List of satellites
+! ------------------
+SATLST 1  ""
+  ## widget = uniline; check_type.1 = integer; check_min.1 = 1
+  ## check_max.1 = 999; numlines = 20
+
+MSG_SATLST 1  "LIST OF SATELLITES"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CREATE SLR QUICK-LOOK RESIDUAL STATISTICS - QLRSUM 1: Filenames              #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files   > % <                                             # SHOWGEN
+#                                                                              #
+# INPUT FILES                                                                  #
+#   Residual files           > %%%%%%%% <                                      # RESFIL
+#   Standard orbit files     > %%%%%%%% <                                      # STDORB
+#   Skeleton file for slrmail> %%%%%%%% <                                      # SKLFIL
+#                                                                              #
+#   Station coordinates      > %%%%%%%% <                                      # CRDFIL
+#   ERP file                 > %%%%%%%% <                                      # POLE
+#                                                                              #
+# OUTPUT FILES                                                                 #
+#   Summary file for slrmail                                    > %%%%%%%% <   # SUMFIL
+#   Detailed residual output                                    > %%%%%%%% <   # ALLFIL
+#   Detailed residual output for graphic tools (gnuplot)        > %%%%%%%% <   # PLTFIL
+#   Edit file (observations during shadow passage)              > %%%%%%%% <   # EDITRS
+#   Edit file (outlier detection; too few observations)         > %%%%%%%% <   # EDTFIL
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output           > % < use QLRSUM.Lnn            or > %%%%%%%% <   # SYSODEF SYSOUT
+#   Error messages           > % < merged to program output  or > %%%%%%%% <   # ERRMRG SYSERR
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# QLRSUM 1.1: General Files                                                    #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants       > %%%%%%%%%%%% <                                   # CONST
+#   Subdaily pole model     > %%%%%%%%%%%% <                                   # SUBMOD
+#   Nutation model          > %%%%%%%%%%%% <                                   # NUTMOD
+#   Satellite information   > %%%%%%%%%%%% <                                   # SATELL
+#   GPS-UTC seconds         > %%%%%%%%%%%% <                                   # GPSUTC
+#   Abbreviation table      > %%%%%%%%%%%% <                                   # ABBREV
+#   Station information     > %%%%%%%%%%%% <                                   # STAINFO
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# QLRSUM 2: Input Options                                                      #
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <      # TITLE
+#                                                                              #
+# LIST OF SATELLITES (Satellite number according to satellite information file)#
+#        > PRN         < e.g.   5 ... GPS 35                                   # SATLST
+#                               6 ... GPS 36                                   #
+#                             103 ... GLONASS 87                               #
+#                             105 ... GLONASS 88                               #
+#                             106 ... GLONASS 86                               #
+#                             107 ... GLONASS 82                               #
+#                             108 ... GLONASS 81                               #
+#                             122 ... GLONASS 89                               #
+#                             124 ... GLONASS 84                               #
+#                             901 ... TOPEX/Poseidon                           #
+#                             906 ... CHAMP                                    #
+#                             908 ... Jason                                    #
+#                             909 ... Grace A                                  #
+#                             910 ... Grace B                                  #
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# QLRSUM 3: Outlier detection                                                  #
+#                                                                              #
+# EDITING LEVEL                                                                #
+#   Absolute maximum of the residuals       > %%%%%% <m                        # RESMAX
+#   Maximum overall sigma                   > %%%%%% <mm                       # SIGMAX
+#   Multiplication factor for overall sigma > %%%%%% <                         # SIGFAC
+#                                                                              #
+# OUTLIER DETECTION                                                            #
+#   > % < Edit only station/satellite with largest RMS                         # EDIT_1
+#   > % < Edit all residuals according to editing criteria above               # EDIT_2
+#                                                                              #
+# CHECK NUMBER OF OBSERVATIONS                                                 #
+#   > % < Mark observations if number of observations too small                # CHKNUM
+#                                                                              #
+#   Minimum number of observations requested > %%%%%% <                        # MINOBS
+#                                                                              #
+#   Check number of observations                                               #
+#   > % < per station (sum over all satellites)                                # CHKNUM_1
+#   > % < per station and satellite                                            # CHKNUM_2
+#                                                                              #
+# END_PANEL ####################################################################

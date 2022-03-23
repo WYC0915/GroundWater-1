@@ -1,0 +1,89 @@
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT 6
+  "K" "/home/ubelix/aiub/aiub_u_camp"
+  "U" "/home/ubelix/aiub/agaede/GPSUSER"
+  "T" "/scratch/global/agaede"
+  "X" "/home/ubelix/aiub/aiub_datapool/software/BERN/GPS"
+  "P" "/home/ubelix/aiub/agaede/GPSDATA"
+  "USER" "agaede"
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! Some keywords for automatic output
+! ----------------------------------
+CAMPAIGN 1  "${K}/FINTSTAG"
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+SESSION_TABLE 1  "${K}/FINTSTAG/STA/SESSIONS.SES"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO 1  "2005"
+  ## widget = comment
+  # $Y+0
+
+SES_INFO 1  "2260"
+  ## widget = comment
+  # $S+0
+
+USR_INFO 1  "${USER}"
+  ## widget = comment
+
+! Satellite Information File
+! --------------------------
+SATELL 1  "${X}/GEN/SATELLIT.I08"
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  # SATELLIT.I08
+
+DESCR_SATELL 1  "Satellite information"
+
+! old formated file
+! ----------------------
+OLDFIL 1  "${X}/GEN/SATELLIT.OLD"
+  ## widget = lineedit; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  ## emptyallowed = false
+  # SATELLIT.OLD
+
+DESCR_OLDFIL 1  "old SATELLIT. file"
+
+! Program Output File
+! -------------------
+SYSODEF     1  "1"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "SATFCNV"
+  ## widget = lineedit; path = PTH_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG 1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR 1  "${U}/WORK/ERROR.MSG"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+  # ERROR
+
+DESCR_SYSERR 1  "Error messages"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# SATFCNV: Convert Satellite Information File from New to Old                  #
+#                                                                              #
+#   new SATELLIT. file > %%%%%%%%%%%% <                                        # SATELL
+#   old SATELLIT. file > %%%%%%%%%%%% <                                        # OLDFIL
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output          > % < use SATFCNV.Lnn           or    > %%%%%%%% < # SYSODEF SYSOUT
+#   Error messages          > % < merged to program output  or    > %%%%%%%% < # ERRMRG SYSERR
+#                                                                              #
+# END_PANEL ####################################################################

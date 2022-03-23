@@ -1,0 +1,85 @@
+      MODULE s_SPLSTR
+      CONTAINS
+
+C*
+      SUBROUTINE SPLSTR(STRING,MAXSTR,DELIM,NOUT,STROUT,IRCODE)
+CC
+CC NAME       :  SPLSTR
+CC
+CC PURPOSE    :  SPLIT STRINGS INTO SUB-STRINGS
+CC
+CC PARAMETERS :
+CC         IN :  STRING : STRING TO BE SPLIT                   CH*(*)
+CC               MAXSTR : MAXIMUM NUMBER OF SUBSTRINGS          I*4
+CC               DELIM  : LIST OF DELIMITERS                   CH*(*)
+CC        OUT :  NOUT   : NUMBER OF SUBSTRINGS IDENTIFIED       I*4
+CC               STROUT : VECTOR OF SUBSTRINGS               CH(*)*(*)
+CC               IRCODE : RETURN CODE                           I*4
+CC                        2: TOO MANY SUBSTRINGS FOUND
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  W. GURTNER
+CC
+CC CREATED    :  16-FEB-92
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               12-MAR-12 : RD: USE SPLSTR AS MODULE NOW
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1992     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE f_lengt0
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IRCODE, J     , K     , K0    , K1    , K2    ,
+     1          LS    , MAXSTR, NDEL  , NOUT
+C
+      CHARACTER  STRING*(*),STROUT(*)*(*),DELIM*(*)
+C
+C  NUMBER OF DELIMITERS
+      NDEL=LENGT0(DELIM)
+      IF(NDEL.EQ.0) NDEL=1
+C
+      LS=LENGT0(STRING)
+C
+      K0=1
+      NOUT=0
+      DO 10 I=1,MAXSTR+1
+        DO 20 K=K0,LS
+          DO 25 J=1,NDEL
+            IF(STRING(K:K).EQ.DELIM(J:J)) GOTO 20
+25        CONTINUE
+          GOTO 30
+20      CONTINUE
+        GOTO 900
+30      K1=K
+        DO 40 K=K1+1,LS
+          DO 45 J=1,NDEL
+            IF(STRING(K:K).EQ.DELIM(J:J)) GOTO 50
+45        CONTINUE
+40      CONTINUE
+50      K2=K-1
+        IF(I.LE.MAXSTR) THEN
+          NOUT=I
+          STROUT(NOUT)=STRING(K1:K2)
+        ELSE
+          GOTO 920
+        END IF
+        K0=K2+1
+10    CONTINUE
+C
+900   IRCODE=0
+      GOTO 999
+C
+920   IRCODE=2
+      GOTO 999
+C
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

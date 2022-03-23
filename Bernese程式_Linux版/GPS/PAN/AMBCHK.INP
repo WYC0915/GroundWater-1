@@ -1,0 +1,142 @@
+
+! SOME KEYWORDS FOR AUTOMATIC OUTPUT
+! ----------------------------------
+CAMPAIGN     0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+! Environment variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! ---------------------------------------------------------------------
+! INPUTFILES                                                          |
+! ---------------------------------------------------------------------
+! Header files for which amb should be checked
+! --------------------------------------------
+OBSFIL     1  "????$S+0"
+  ## widget = selwin; path = DIR_PSH; ext = EXT_PSH
+
+MSG_OBSFIL 1  "Observation header files"
+
+! ---------------------------------------------------------------------
+! OUTPUTFILES                                                         |
+! ---------------------------------------------------------------------
+! Summary file
+! ------------
+SUMMARY     0
+  ## widget = lineedit; path = DIR_SUM; ext = EXT_SUM
+
+DESCR_SUMMARY 1  "Summary file"
+
+! Program output file
+! -------------------
+SYSODEF     1  "1"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "AMBCHK"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error message file
+! ------------------
+ERRMRG     1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR     1  "ERROR"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+
+DESCR_SYSERR 1  "Error message"
+
+! ---------------------------------------------------------------------
+! OPTIONS                                                             |
+! ---------------------------------------------------------------------
+! Title
+! -----
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+! Wildcards
+! ---------
+WLDCARD     1  "????????"
+  ## widget = lineedit
+
+MSG_WLDCARD 1  "Wildcards for second file"
+
+! Extension
+! ---------
+EXTENS     0
+  ## widget = lineedit
+
+MSG_EXTENS 1  "Extension added to filename"
+
+SHOWGEN     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# COMPARE AMBIGUITIES - AMBCHK 1: Input/Output files                           #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files  > % <                                              # SHOWGEN
+#                                                                              #
+# INPUT FILE                                                                   #
+#   Observation header files> %%%%%%%% <                                       # OBSFIL
+#                                                                              #
+# OUTPUT FILE                                                                  #
+#   Summary file            > %%%%%%%% <                                       # SUMMARY
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output          > % < use AMBCHK.Lnn            or    > %%%%%%%% < # SYSODEF SYSOUT
+#   Error messages          > % < merged to program output  or    > %%%%%%%% < # ERRMRG SYSERR
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# AMBCHK 1.1: General Files                                                    #
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# AMBCHK 2: Options                                                            #
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <      # TITLE
+#                                                                              #
+# OPTIONS                                                                      #
+#   Wildcards for second file   > %%%%%%%% < (e.g. "????X" gives ????X.PSH)    # WLDCARD
+#   Extension added to filename > %%%%%%%% < (e.g. "_TST"  gives ?????.PSH_TST)# EXTENS
+#                                                                              #
+# END_PANEL ####################################################################

@@ -1,0 +1,63 @@
+      MODULE s_TYP2SVN
+      CONTAINS
+C*
+      SUBROUTINE TYP2SVN(NSAT,SATMOD,SATTYP,SATNUM)
+CC
+CC NAME       :  TYP2SVN
+CC
+CC PURPOSE    :  CONVERSION FROM 1-CHARACTER IDENFTIFICATION
+CC               SV TYPE," ","G","R" OR "L"
+CC               AND SUBNUMBER (1-99) TO SV NUMBER
+CC               E.G  "L",01-->901 FOR LEO
+CC
+CC PARAMETERS :
+CC         IN :  NSAT   : NUMBER OF SATELLITES                 I*4
+CC               SATMOD : SV SUBNUMBER (0-99)                  I*4(*)
+CC               SATTYP : 1-CHARACTER IDENFTIFICATION         CH*1(*)
+CC                        (" "OR"G":GPS, "R":GLONASS, "L":LEO)
+CC         OUT:  SATNUM : SV SUBNUMBER (1-999)                 I*4(*)
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  D. SVEHLA
+CC
+CC VERSION    :  5.0
+CC
+CC CREATED    :  09-FEB-01
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               28-MAR-12 : RD: USE TYP2SVN AS MODULE NOW
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC               UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+
+C
+C DECLARATIONS
+C ------------
+      USE s_chr2svn
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I   , NSAT
+C
+CCC       IMPLICIT INTEGER*4 (I-N)
+
+      INTEGER*4   SATNUM(NSAT),SATMOD(NSAT)
+
+      CHARACTER*1 SATTYP(NSAT)
+
+C
+C ASSIGN 1-CHARACTER IDENFTIFICATION AND SV NUMBER
+C -------------------------------------------------
+      DO I=1,NSAT
+        CALL CHR2SVN(SATMOD(I),SATTYP(I),SATNUM(I))
+      END DO
+
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

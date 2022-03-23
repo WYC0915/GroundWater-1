@@ -1,0 +1,291 @@
+<html>
+<body>
+
+<center>
+<b>EDIT PROCESS CONTROL FILE (PCF)</b>
+<p>Editor: EDITPCF
+</center>
+<hr width="100%">
+
+<a name="ADDITIONAL_INFO" default="%% %% %% %%"></a>
+<a name="PCFFILRS" default=""></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The process control file (PCF) defines a list of scripts
+which have to be run sequentially or in parallel by the Bernese
+Processing Engine (BPE). The scripts are assigned to integer numbers,
+the process identifiers (PID).
+<br>
+For each script you have to specify an option directory, a CPU
+name from the CPU control file, and a list of scripts which have to be
+finished before this script can start. In the following section scripts
+requiring special action (skip script, run script in parallel, jump in the
+execution of the scripts, continue BPE processing even in case of an error)
+are selected with all necessary options.
+Furthermore script parameters may be defined for each script. BPE
+server variables  with their default values may be defined, too.
+<br>
+The PCF consists of three sections. Each section starts with a
+header and a format line:
+<pre>
+PID SCRIPT   OPT_DIR  CAMPAIGN CPU      F WAIT FOR....
+3** 8******* 8******* 8******* 8******* 1 3** 3** 3** 3** 3** 3** 3** 3** 3**
+    ...
+PID USER         PASSWORD PARAM1   PARAM2   PARAM3   PARAM4   PARAM5   PARAM6
+3** 12********** 8******* 8******* 8******* 8******* 8******* 8******* 8******* 
+    ...
+VARIABLE DESCRIPTION                              DEFAULT          LENGTH
+8******* 40************************************** 16************** 2*
+</pre>
+<br>
+Comment lines are allowed in the PCF before, between, and after each
+section as well as between the items of each section. These comment lines
+have to start with the character <tt>#</tt>. You cannot edit these comments
+within this mask. If you edit a PCF with comment lines they will be inserted
+again when saving the PCF after editing. The comments will be written to the
+correct section following the PID where they were located before the editing.
+
+<p><i>Remark:</i>
+When you make changes in the list of BPE scripts of
+an existing PCF the editing mask tries to adapt the special actions and the
+script parameters to your changes. This will not work anymore if you
+completely reorganize the PCF (changing two items of PID, script name, and
+option directory per line). Check all panels for consistency in this case.
+
+<p><hr>
+
+<a name="LIST_OF_SCRIPTS" default="%% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %%"></a>
+<p><b>LIST OF BPE SCRIPTS</b>
+<p>
+In this mask you have to specify:
+
+<a name="PID"></a>
+<p><b>PID:</b>
+The process identifier (PID) has to be a unique integer value between
+<tt>1</tt> and <tt>999</tt> assigned to each script (usually written as
+<tt>001</tt>). The PIDs have to increase from script to script. There may be
+unused numbers between the scripts.
+<br>
+A good convention is to group scripts into sections, e.g, using
+PIDs&nbsp;<tt>001</tt> to <tt>099</tt> for the data preparing scripts,
+PIDs&nbsp;<tt>100</tt> to <tt>199</tt> for the preprocessing steps,
+etc. This makes it easier to add a new script into a section of the PCF
+in future.
+
+<p><b>Script:</b>
+Enter the name of the user script. The script has to exist in the
+'BPE script directory' specified under <b>Menu &gt; Configure &gt;
+Paths and extensions</b>.
+
+<p><b>Opt_dir:</b>
+Enter the name of the option directory, which has to be created in the
+'BPE option directory' specified under <b>Menu &gt; Configure &gt;
+Paths and extensions</b>. It must in all cases contain at least the
+menu configuration files (default: <tt>MENU.INP</tt>,
+<tt>MENU_PGM.INP</tt>, <tt>MENU_EXT.INP</tt>, and <tt>MENU_VAR.INP</tt>).
+If the user script starts any Bernese programs the
+corresponding program input files need to be in this directory, too. The
+options for the Bernese program input files may be set in <b>Menu &gt;
+BPE &gt; Edit PCF program input files</b>.
+
+<p><b>Campaign:</b>
+By default the BPE runs all scripts of the PCF in the active campaign
+selected when you start the BPE. You may enter the name of a campaign here if
+you want to enforce to run the script in another campaign. Usually this field
+is empty to run the script in the active campaign.
+
+<p><b>CPU:</b>
+Enter the CPU specification for the script. This value must be consistent
+with the 'CPU control file' you specify when starting the BPE. There are the
+following possibilities to specify a CPU on which the script shall be executed:
+<ul>
+<li>Specify a CPUs name from your CPU control file to make sure that
+    the script runs only on this particular CPU.
+<li>Specify a Speed class from your CPU control file. The script
+    will only run on a CPU belonging to this speed class.
+<li>Enter IDLE to run the script on a CPU where no other BPE job
+    is currently running.
+<li>Enter ANY or blank if the script can run on any CPU defined in your CPU
+    control file.
+</ul>
+
+<p><b>F:</b>
+This column contains an one-character flag for the script. Currently one flag is
+defined:
+<table>
+<tr>
+<td><tt>S</tt> </td><td> to indicate singleton scripts for a multi-session
+    processing.
+    Singleton scripts are executed only once for the current session whereas
+    all other scripts run for each session (in parallel if possible)
+    specified when a multi-session BPE is started.
+    <br>
+    A number of singleton scripts may be defined at the begin and/or at the
+    end of the PCF. They are executed before resp. after the multi-session
+    processing of all other scripts.
+</td>
+</tr>
+</table>
+
+<p><b>Wait for...:</b>
+The script is started after the completion of all user scripts which
+are specified by the PIDs in these input fields.
+
+<p><i>Remark:</i>
+The PID of the script itself cannot occur in this list
+because the script cannot wait for itself. Check the waiting conditions
+carefully for conditions that may cause an endless loop.
+
+<p><hr>
+
+<a name="SPECIALS" default="%% %% %% %% %% %% %% %% %% %% %% %% %% %%"></a>
+<p><b>SPECIAL ACTIONS FOR BPE SCRIPTS</b>
+<p>
+For each user script in the PCF you may define special actions in this mask:
+<p><b>Special:</b>
+Define one of the following keywords to assign a special action to a user
+script:
+<br>
+<ul>
+<li>SKIP: to skip the script.
+<li>PARALLEL: to run several entities of the script in parallel.
+    <br>
+    You have to specify "File" and "Master" entries in the
+    corresponding fields.
+<li>NEXTJOB: to enable the script to jump in the execution of scripts.
+    <br>
+    You have to specify <tt>NEXTJOB PID</tt> entries in the corresponding
+    fields.
+<li>CONT_ERR: continue BPE processing even in the case of an error in
+    this script.
+</ul>
+
+<p><b>Special action:</b> <b>SKIP</b>
+<p>
+The user script will be skipped. No further parameters are necessary for
+this special action.
+
+<p><b>Special action:</b> <b>PARALLEL</b>
+<p>
+To run a script in parallel you need a parallelization script to define
+the tasks for each script running in parallel. This master script has to
+generate one line for each parallel script in a parallelization file.
+
+<p><i>Example:</i>
+Let's assume that we want to run CODSPP for each
+code observation file of a session in parallel. The master script
+has to generate a list of all code observation files of the session. It
+writes each code observation filename to a successive line in the
+parallelization file.
+The BPE server starts as many parallel scripts as there are lines
+in the parallelization file. Each parallel script gets one line
+from the parallelization file in its parameter list.
+
+<p><b>File:</b>
+Define the name of the parallelization file. It should be individual for each
+parallel script within the PCF.
+<br>
+To be compatible with the old BPE entries starting with <tt>$tmp</tt>
+are translated to arbitrary filenames.
+
+<p><b>Master:</b>
+Enter the PID of the master script which produces the parallelization file.
+Even if it is technically not required it is recommended to place the
+master script directly before the parallel script to increase the clearness
+of the PCF.
+
+<p><b>Special action:</b> <b>NEXTJOB</b>
+<p><b>NEXTJOB</b> <b>PID:</b>
+Enter the list of PIDs, which can be used as target PID for a script to
+continue execution, e.g., depending on results generated in this script.
+The user script gets this list as <tt>PARAMx</tt> parameters and may select
+one of them to perform a jump.
+<br>
+If a jump is indicated the server waits until all user scripts between
+the actual script and the target script have been finished. If the
+target script is located before the actual script in the PCF all scripts
+between them are flagged as 'waiting' and the target script is started.
+If the target script is located after the actual script in the PCF all
+scripts between them are skipped and flagged as 'finished' and the target
+script is started.
+
+<p><b>Special action:</b> <b>CONT_ERR</b>
+<p>
+The BPE processing continuous with the next script even in the case of
+an error in this particular script. No further parameters are necessary for
+this special action.
+
+<p><hr>
+
+<a name="PARAMETERS" default="%% %% %% %% %% %% %% %% %% %% %% %%"></a>
+<p><b>PARAMETERS FOR BPE SCRIPTS</b>
+<p><b>Param1</b>&nbsp;...&nbsp;<b>Param9:</b>
+You may specify up to 9&nbsp;parameters for each script. Some of them are
+occupied by the specification for special actions: they are inactive in the
+mask.
+The values of these script parameters are available in the user scripts
+as BPE client variables (e.g., <tt>$$bpe{PARAM1}</tt> or using the bpe client
+method <tt>my $param1 = $bpe->getKeys('PARAM1')</tt>).
+
+<p><i>Remark:</i>
+For parallel scripts the script parameters
+are taken from the parallelization file. The parameters have to be separated by
+one or more blank characters in the line in the parallelization file
+intended for the actual parallel script.
+
+<p><hr>
+
+<a name="PCF_VARIABLES" default="%% %% %%"></a>
+<b>BPE SERVER VARIABLES</b>
+<p>
+The parameters listed in this table are BPE server variables, which may
+be used in the BPE scripts:
+
+<p><b>Variable:</b>
+BPE variables have to start with the string <tt>V_</tt>. You may access them in
+user scripts as BPE client variables (e.g., <tt>$$bpe{V_OUTPUT}</tt> to
+get the value of the BPE server variable <tt>V_OUTPUT</tt>) or in the program
+input files in any input field as user variables (e.g.,
+<tt>$(OUTPUT)</tt> to specify a filename).
+<br>
+Some of the variables have a special meaning:
+<ul>
+<li>V_MINUS: The variable <tt>V_MINUS</tt> specifies the ranges of time
+    variables in the menu input fields. If this variable is defined in the PCF
+    the entries for the 'minus range' in the
+    <a href="MENU_VAR.HLP">Menu variables</a> file
+    (default <tt>MENU_VAR.INP</tt>) of all option directories are replaced
+    by this value. This is done in the temporary user environment
+    before the user script starts. I.e., the settings in the option
+    directory remain unchanged and the value may be adapted in the user
+    scripts for specific program runs.
+<li>V_PLUS: Same as <tt>V_MINUS</tt> but for the entry 'plus range'.
+<li>V_CAMP: The variable <tt>V_CAMP</tt> may be used to define the campaign
+    in which the PCF has to run. The BPE will stop if it is started in
+    another campaign (an error message is issued). If the variable is not
+    specified the PCF may run in any campaign.
+    <br><i>Remark:</i> The BPE runs a PCF in the active
+    campaign selected on start-up.</li>
+<li>V_RERUN: The variable <tt>V_RERUN</tt> is used to restart the user
+    scripts in the case of an error. The value of this variable specifies
+    the number of additional attempts to run the script. This may make
+    sense if the user script fails due to system or network problems.
+    If this variable is not contained in the list (or has the
+    value&nbsp;<tt>0</tt>) no reruns are performed.
+</ul>
+
+<p><b>Default value:</b>
+Enter the default values for the variables here. They will be used if you
+start the BPE for the PCF without interactions (e.g., by a BPE start up
+script based on the Perl-package <tt>${BPE}/startBPE.pm</tt>).
+
+<p><b>Description:</b>
+The description will be displayed when you start a BPE for the PCF manually
+by the menu. It is not used by the BPE but it shall help you to check and
+adapt the default values for the variables.
+
+<p><hr>
+
+</body>
+</html>

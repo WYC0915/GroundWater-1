@@ -1,0 +1,81 @@
+      MODULE s_CORDUP
+      CONTAINS
+
+C*
+      SUBROUTINE CORDUP(C,N,N1,N2,INDEX)
+CC
+CC NAME        : CORDUP
+CC
+CC PURPOSE     : SORT THE FIRST N ELEMENTS OF CHAR*80 VECTOR C IN
+CC               ASCENDING ORDER: INDEX(1) WILL POINT TO THE SMALLEST
+CC               ELEMENT OF C, INDEX(N) TO THE LARGEST ONE.
+CC               (THE VECTOR C KEEPS ITS INTERNAL ORDER)
+CC               THE CHARCTERS C(I)(N1:N2) WILL BE USED FOR ORDERING
+CC               ONLY
+CC
+CC PARAMETERS  :
+CC          IN : C      : CHARACTER VECTOR                     CH*(*)(N)
+CC               N      : NUMBER OF ELEMENTS IN VECTOR C        I*4
+CC               N1,N2  : START, END POSITIONS OF CHAR. TO      I*4
+CC                        BE USED FOR SORTING
+CC         OUT : INDEX  : VECTOR WITH POINTERS TO C             I*4(N)
+CC
+CC REMARKS     : VECTOR ELEMENT: < 256 CHARACTERS
+CC
+CC               SUNOS: LARGEST ASCII CHARACTER VALUE: 127
+CC
+CC AUTHOR      : W. GURTNER
+CC               ASTRONOMICAL INSTITUTE, UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+CC CREATED     : ??-???-??
+CC
+CC CHANGES     : 29-OCT-93 : SF: UPDATE HEADER INFORMATION
+CC               09-SEP-95 : LM: UNIX VERSION
+CC               10-APR-96 : MR: ADD LAHEY VERSION
+CC               17-FEB-03 : LM: USE PREPROCESSOR COMMANDS
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               29-OCT-12 : RD: REMOVE #ifdef OS_VMS
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , ILIMIT, IMIN  , J     , N     , N1    , N2
+C
+      INTEGER*4 INDEX(*)
+      CHARACTER    C(*)*(*)
+      CHARACTER*255 C255,CMIN,CLIM,CLIMIT
+C
+      ILIMIT=0
+      CLIMIT=' '
+      DO 40 J=1,N
+C
+        CMIN=CHAR(127)
+        DO 20 I=1,N
+          C255=C(I)(N1:N2)
+          IF(LLT(C255,CLIMIT)) GOTO 20
+          IF(C255.EQ.CLIMIT) THEN
+            IF(I.GT.ILIMIT) THEN
+              IMIN=I
+              CLIM=C255
+              GOTO 30
+            ELSE
+              GOTO 20
+            END IF
+          END IF
+          IF(LLT(C255,CMIN)) THEN
+            CMIN=C255
+            CLIM=C255
+            IMIN=I
+          END IF
+20      CONTINUE
+30      INDEX(J)=IMIN
+        CLIMIT=CLIM
+        ILIMIT=IMIN
+40    CONTINUE
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

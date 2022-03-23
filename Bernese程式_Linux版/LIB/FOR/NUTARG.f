@@ -1,0 +1,130 @@
+      MODULE s_NUTARG
+      CONTAINS
+
+C*
+      SUBROUTINE NUTARG(TMJD,THETA,BETA,FNUT)
+CC
+CC NAME       :  NUTARG
+CC
+CC PURPOSE    :  COMPUTE DOODSON'S FUNDAMENTAL ARGUMENTS (BETA)
+CC               AND FUNDAMENTAL ARGUMENTS FOR NUTATION (FNUT)
+CC               BETA=(B1,B2,B3,B4,B5,B6)
+CC               FNUT=(F1,F2,F3,F4,F5)
+CC               F1=MEAN ANOMALY (MOON)
+CC               F2=MEAN ANOMALY (SUN)
+CC               F3=F=MOON'S MEAN LONGITUDE-LONGITUDE OF LUNAR ASC. NODE
+CC               F4=D=MEAN ELONGATION OF MOON FROM SUN
+CC               F5=MEAN LONGITUDE OF LUNAR ASC. NODE
+CC
+CC               B2=S=F3+F5
+CC               B3=H=S-F4=S-D
+CC               B4=P=S-F1
+CC               B5=NP=-F5
+CC               B6=PS=S-F4-F2
+CC               B1=THETA+PI-S
+CC
+CC PARAMETERS :
+CC        IN  :  TMJD   : TIME IN MJD                               R*8
+CC               THETA  : CORRESPONDING MEAN SID.TIME GREENWICH     R*8
+CC        OUT :  BETA   : DOODSON ARGUMENTS                         R*8
+CC               FNUT   : FUNDAMENTAL ARGUMENTS FOR NUTATION        R*8
+CC
+CC REMARKS    :
+CC
+CC AUTHOR     :  G.BEUTLER
+CC
+CC VERSION    :  4.0
+CC
+CC CREATED    :  96/08/24
+CC
+CC CHANGES    :  16-JUN-05 : MM: COMCONST.inc REPLACED BY d_const
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               06-MAY-11 : HB: IERS CONVENTIONS 2003/2010 APPLIED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1996     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern,  ONLY: r8b
+      USE d_const, ONLY: PI
+      USE d_model,  ONLY: getModKey, mod_orb_nutMod,
+     1                    chrValLength
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      REAL*8    F1   , F2   , F3   , F4   , F5   , R    , ROH  , S    ,
+     1          THETA, TMJD , TU
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+      REAL*8 BETA(*),FNUT(*)
+C
+      LOGICAL, SAVE    :: first = .TRUE.
+      CHARACTER(LEN=chrValLength), SAVE :: nutMod
+      CHARACTER(LEN=8) :: srNget
+      REAL(r8b)        :: numVal
+
+      IF (first) THEN
+        first=.FALSE.
+
+! Get nutMod-string
+! -----------------
+        CALL getModKey(mod_orb_nutMod,nutMod,srNget,numVal)
+
+      ENDIF
+
+
+C  TIME INTERVAL (IN JUL. CENTURIES) BETWEEN TMJD AND J2000.0
+      TU =(TMJD-51544.5)/36525.D0
+C
+C  FUNDAMENTAL ARGUMENTS (IN RAD)
+      ROH = PI/648000.D0
+      R   = 1296000.D0
+C OLD
+      IF ( nutMod(1:10) /= 'IAU2000R06' .AND.
+     1     nutMod(1:7)  /= 'IAU2006') THEN
+        F1=(485866.733D0+(1325.D0*R+715922.633D0)*TU+31.31D0*TU*TU+
+     1            .064D0*TU*TU*TU)*ROH
+        F2=(1287099.804D0+(99.D0*R+1292581.224D0)*TU-0.577D0*TU*TU-
+     1            .012D0*TU*TU*TU)*ROH
+        F3=(335778.877D0+(1342.D0*R+295263.137D0)*TU-13.257D0*TU*TU+
+     1            .011D0*TU*TU*TU)*ROH
+        F4=(1072261.307D0+(1236.D0*R+1105601.328D0)*TU-6.891D0*TU*TU+
+     1            .019D0*TU*TU*TU)*ROH
+        F5=(450160.28D0-(5.D0*R+482890.539D0)*TU+7.455D0*TU*TU+
+     1            .008D0*TU*TU*TU)*ROH
+      ELSE
+
+C NEW  Ch. 5.7.2, Eq(43)
+        F1=(485868.249036D0+(1325.D0*R+715923.217799902D0)*TU+
+     1    31.8792D0*TU*TU+.051635D0*TU*TU*TU-.0002447D0*TU*TU*TU*TU)*ROH
+        F2=(1287104.79305D0+(99.D0*R+1292581.0480999947D0)*TU-
+     1     .5532D0*TU*TU+.000136D0*TU*TU*TU-.00001149D0*TU*TU*TU*TU)*ROH
+        F3=(335779.526232D0+(1342.D0*R+295262.8478000164D0)*TU-
+     1   12.7512D0*TU*TU-.001037D0*TU*TU*TU+.00000417D0*TU*TU*TU*TU)*ROH
+        F4=(1072260.7036900001D0+(1236.D0*R+1105601.2090001106D0)*TU-
+     1    6.3706D0*TU*TU+.006593D0*TU*TU*TU-.00003169D0*TU*TU*TU*TU)*ROH
+        F5=(450160.398036D0-(5.D0*R+482890.5431000004D0)*TU+
+     1    7.4722D0*TU*TU+.007702D0*TU*TU*TU-.00005939D0*TU*TU*TU*TU)*ROH
+       ENDIF
+C
+      FNUT(1)=F1
+      FNUT(2)=F2
+      FNUT(3)=F3
+      FNUT(4)=F4
+      FNUT(5)=F5
+C
+      BETA(2)=F3+F5
+      S=BETA(2)
+      BETA(3)=S-F4
+      BETA(4)=S-F1
+      BETA(5)=-F5
+      BETA(6)=S-F4-F2
+      BETA(1)=THETA+PI-S
+999   CONTINUE
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

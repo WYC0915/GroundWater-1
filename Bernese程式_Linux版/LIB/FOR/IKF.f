@@ -1,0 +1,46 @@
+      MODULE f_ikf
+      CONTAINS
+
+C*
+      FUNCTION IKF(I,K)
+CC
+CC NAME       :  IKF
+CC
+CC    XX = IKF(I,K)
+CC
+CC PURPOSE    :  COMPUTES THE INDEX FOR A COLUMNWISE LINEARISED
+CC               (UPPER TRIANGLE) 2-DIMENSIONAL MATRIX FROM THE
+CC               INDICES I AND K : A(IK)=A(I,K)
+CC
+CC PARAMETERS :
+CC         IN :  I      : COLUMN NUMBER                       I*4
+CC               K      : ROW NUMBER                          I*4
+CC        OUT :  IKF    : INDEX OF LINEARIZED MATRIX          I*4
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/02 12:10
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I  , IKF, K
+C
+      IKF=I*(I-1)/2+K
+      IF(K.GT.I) IKF=K*(K-1)/2+I
+      RETURN
+      END FUNCTION
+
+      END MODULE

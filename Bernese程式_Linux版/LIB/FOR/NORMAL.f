@@ -1,0 +1,61 @@
+      MODULE s_NORMAL
+      CONTAINS
+
+C*
+      SUBROUTINE NORMAL(S,M,IX,V)
+CC
+CC NAME       :  NORMAL
+CC
+CC PURPOSE    :  GENERATE A NOMALLY DISTRIBUTED RANDOM NUMBER V
+CC               WITH MEAN M AND VARIANCE S**2
+CC
+CC PARAMETERS :
+CC         IN :  S      : ROOT OF VARIANCE                    R*8
+CC               M      : EXPECTATION VALUE OF RANDOM NUMBER  R*8
+CC     IN/OUT :  IX     : INTEGER RANDOM VARIABLE             I*4
+CC        OUT :  V      : RESULT                              R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  88/02/26 08:18
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1988     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE s_randu
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IFIRST, IX    , IY    , N
+C
+      REAL*8    A     , FAC   , S     , V     , Y
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4(I-N)
+      REAL*8 M
+      DATA IFIRST/1/
+      N=20
+      IF(IFIRST.EQ.1)THEN
+        FAC=DSQRT(12.D0/N)
+        IFIRST=0
+      END IF
+      A=0.D0
+      DO 1 I=1,N
+        CALL RANDU(IX,IY,Y)
+        IX=IY
+        A=A+Y
+1     CONTINUE
+      V=FAC*(A-N*.5D0)*S+M
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

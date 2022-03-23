@@ -1,0 +1,251 @@
+<html>
+<body>
+
+<center>
+<b>MENU VARIABLES</b>
+<p>Menu: MENU_VAR
+</center>
+<hr width="100%">
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The Bernese GNSS Software knows two types of variables: menu variables and
+environment variables. Both types may be used in the input fields of the menu,
+e.g., as part of filenames.
+Menu variables are translated by the menu when storing the input files whereas
+the environment variables are translated during the execution of the FORTRAN
+programs.
+<br>
+There are two types of menu variables: user variables and time variables.
+The user is free to define user variables and assign values to them. The time
+variables are a list of predefined variables to have different time strings
+available that may be used in
+the input fields. The values of these time variables are computed from the
+currently selected session.
+<br>
+The environment variables get their values from the operating system.
+<br>
+These variables should be used in all program input panels
+wherever applicable to take advantage for a session by session processing:
+Once you have prepared all the input files using, e.g., time variables for
+naming the files you will not have to change these input panels when you
+process another session. The files will automatically get session specific
+names.
+
+<p><hr>
+
+<p><b>Variables</b>
+
+<a name="YEAR2"      default="$Y"></a>
+<a name="MONTH2"     default="$M"></a>
+<a name="DAY2"       default="$D"></a>
+<a name="JOB_ID"     default="$J"></a>
+<p><b>PREDEFINED VARIABLES</b>
+<p>
+The following four variables are defined by the menu. The panel displays
+the current values of these variables depending on the current session selected
+in the dialogue <a href="SETDATE.HLP">Menu &gt; Configure &gt;
+Set session/compute day</a>.
+<p>
+<table cellspacing=4>
+<tr><td align=center><b>Variable</b></td>
+    <td align=center><b>Value</b></td>
+    <td><b>Description</b></td></tr>
+<tr><td valign=top align=center><tt>Y</tt></td>
+    <td valign=top align=center><tt>$Y</tt></td>
+    <td>Two digit year of the current session</td></tr>
+<tr><td valign=top align=center><tt>M</tt></td>
+    <td valign=top align=center><tt>$M</tt></td>
+    <td>Month of the current session</td></tr>
+<tr><td valign=top align=center><tt>D</tt></td>
+    <td valign=top align=center><tt>$D</tt></td>
+    <td>Day of month of the current session</td></tr>
+<tr><td valign=top align=center><tt>J</tt></td>
+    <td valign=top align=center><tt>$J</tt></td>
+    <td>Job ID</td></tr>
+</table>
+
+<br><br>
+
+<a name="USERVAR" default="%% %%"></a>
+<p><b>USER-DEFINED VARIABLES</b>
+<p>
+User variables are menu variables which may be used in all
+program input panels. These variables are translated into the
+defined values when an input file is saved by the user.
+<br>
+The user is free to define and use these variables. You may, e.g.,
+define an user variable for the orbit you are going to use. If you make
+a consistent use of the user variable in all input fields (in filenames, title
+lines, etc.) you need to change only the value of this variable to
+adapt the entries in all your input panels.
+<br>
+Specify the variable name and its value in the corresponding input fields:
+<pre>
+ USER-DEFINED VARIABLES
+   (translated in the menu)
+   Variable (w/o $)  Value
+   S                 S1
+   ORB               IGS
+</pre>
+<br>
+You can use these variables in the program input panels by specifying
+<tt>$S</tt> instead of <tt>S1</tt> in the input fields. If the variable
+name is longer than one character, you have to use parentheses:
+<tt>$(ORB)</tt>.
+<br>
+It is not allowed to define the variables <tt>Y</tt>, <tt>M</tt>, <tt>D</tt>,
+and <tt>J</tt>, because they are predefined variables (see above).
+
+<br><br>
+
+<a name="ENVIR_LIST" default="%U%\n%T%\n%X%\n%P%\n%USER%"></a>
+<p><b>ENVIRONMENT VARIABLES:</b>
+<p>
+The menu takes the values for the environment variables from the system
+environment. They are stored in a special keyword
+<tt>ENVIR_LIST</tt> when saving the program input file. The FORTRAN programs
+translate the environment variables when they are executed. They are used,
+e.g., to replace long directory path names.
+<br>
+You have to put the complete list of environment variables  which are
+necessary to run the FORTRAN programs into this input field.
+The minimum list of environment variables currently used by the
+Bernese programs is listed here:
+<p>
+<table cellspacing=4>
+<tr><td><b>Variable</b></td>
+    <td><b>Value</b></td>
+    <td><b>Description</b></td></tr>
+<tr><td valign=top><tt>U</tt></td>
+    <td valign=top><tt>${U}</tt></td>
+    <td>Path to user environment</td></tr>
+<tr><td valign=top><tt>T</tt></td>
+    <td valign=top><tt>${T}</tt></td>
+    <td>Path to temporary user environment</td></tr>
+<tr><td valign=top><tt>X</tt></td>
+    <td valign=top><tt>${X}</tt></td>
+    <td>Path to general software-related file</td></tr>
+<tr><td valign=top><tt>P</tt></td>
+    <td valign=top><tt>${P}</tt></td>
+    <td>Path to the user campaigns</td></tr>
+<tr><td valign=top><tt>USER</tt></td>
+    <td valign=top><tt>${USER}</tt></td>
+    <td>User name to be printed into program output header</td></tr>
+</table>
+<br>
+You can add any variable to this list which is defined in your system
+environment.
+<br>
+The environment variables have to be enclosed in curly brackets when
+used in panel input fields in order to distinguish them from menu variables.
+
+<p><hr>
+
+<p><b>Ranges</b>
+
+<a name="VAR_MINUS" default="-1"></a>
+<a name="VAR_PLUS"  default="1"></a>
+<p><b>RANGES OF PREDEFINED VARIABLES</b>
+<p>
+This panel displays predefined time variables supported by the menu. You can
+use these variables, e.g., in filenames, title lines or observation windows:
+<p>
+<table cellspacing=4>
+<tr><td valign=top><b>Variable</b></td>
+    <td valign=top><b>Value</b></td>
+    <td valign=top><b>Format</b></td>
+    <td><b>Description</b></td></tr>
+<tr><td valign=top><tt>$+0</tt></td>
+    <td valign=top><tt>243</tt></td>
+    <td valign=top><tt>DDD</tt></td>
+    <td>Day of year</td></tr>
+<tr><td valign=top><tt>$S+0</tt></td>
+    <td valign=top><tt>2430</tt></td>
+    <td valign=top><tt>DDDS</tt></td>
+    <td>Day of year, session character<br>Session identifier</td></tr>
+<tr><td valign=top><tt>$Y+0</tt></td>
+    <td valign=top><tt>2003</tt></td>
+    <td valign=top><tt>YYYY</tt></td>
+    <td>Year, four digits</td></tr>
+<tr><td valign=top><tt>$W+0</tt></td>
+    <td valign=top><tt>1234</tt></td>
+    <td valign=top><tt>WWWW</tt></td>
+    <td>GPS week</td></tr>
+<tr><td valign=top><tt>$M+0</tt></td>
+    <td valign=top><tt>0308</tt></td>
+    <td valign=top><tt>YYMM</tt></td>
+    <td>Year, month</td></tr>
+<tr><td valign=top><tt>$JD+0</tt></td>
+    <td valign=top><tt>52882</tt></td>
+    <td valign=top><tt>DDDDD</tt></td>
+    <td>Modified Julian date</td></tr>
+<tr><td valign=top><tt>$WD+0</tt></td>
+    <td valign=top><tt>12340</tt></td>
+    <td valign=top><tt>WWWWD</tt></td>
+    <td>GPS week and day of week</td></tr>
+<tr><td valign=top><tt>$YD+0</tt></td>
+    <td valign=top><tt>03243</tt></td>
+    <td valign=top><tt>YYDDD</tt></td>
+    <td>Year (two digits) and day of year</td></tr>
+<tr><td valign=top><tt>$YSS+0</tt></td>
+    <td valign=top><tt>032430</tt></td>
+    <td valign=top><tt>YYDDDS</tt></td>
+    <td>Year (two digits), day of year, session character
+    <br>Year (two digits), session identifier</td></tr>
+<tr><td valign=top><tt>$YMD_STR+0</tt></td>
+    <td valign=top><tt>2003&nbsp;08&nbsp;31</tt></td>
+    <td valign=top><tt>YYYY&nbsp;MM&nbsp;DD</tt></td>
+    <td>Year (four digits), month, day of month</td></tr>
+</table>
+<br>
+The values for the time variables are computed from the current session
+selected in the dialogue <a href="SETDATE.HLP">Menu &gt; Configure &gt;
+Set session/compute day</a>.
+
+<br><br>
+
+From these basic time variables two more groups of variables are derived:
+
+<p>Time variables <b>Without ranges:</b>
+You may use the time variables with <tt>+n</tt> resp. <tt>-n</tt>
+where <i>n</i> is an integer value specifying an offset to the current
+session. If you use the time variables with <i>n</i>=0 they refer to the
+current session. E.g., <tt>$S+0</tt> is translated to
+the current session, e.g., '2430'. Specifying, e.g., <tt>$S+1</tt>
+resp. <tt>$S-1</tt> translates the variables into the next resp. previous
+session ('2420' resp. '2440'), etc. If <i>n</i>&gt;9 parentheses have to
+be used in input fields, e.g., <tt>$S+(10)</tt>.
+
+<p><i>Remark:</i>
+The menu counts sessions in the session table
+starting from the current session. These need not necessarily be daily sessions, 
+depending on your session table. See examples in
+<a href="SESSIONS.HLP">Session definition</a>.
+
+<p>Time variables <b>With ranges:</b>
+You can specify ranges of the predefined time variables by adding
+<tt>+-</tt>. A range of sessions will be counted starting from your current
+session. The range are defined by the user input in the fields of
+<b>Minus range</b> and <b>Plus range</b>.
+<br>
+This option is used to automatically select more than one input file
+from a selection list. For each session of the range one input value is
+generated. Because <a href="PRIMARY.HLP#INPUT">selwin</a> is the only type
+of input fields which allows to select more than one input value the use
+of time variables with ranges is limited to selwin. (The only exception here
+is the definition of time windows using ranges of sessions.) See examples in
+<a href="SESSIONS.HLP">Session definition</a>.
+<br>
+A more robust way to specify a range of files is to write <tt>~~</tt> instead
+of <tt>+-</tt>. In this case the absence of non-mandatory files within the
+range does not lead to an error. A possible application would be the choice of
+input coordinate files for the program <a href="PGMLST.HLP#COMPAR">COMPAR</a>.
+With <tt>+-</tt> all files within the specified range have to actually exist.
+Using <tt>~~</tt> instead, only the available files within the range are
+compared.
+
+<p><hr>
+
+</body>
+</html>

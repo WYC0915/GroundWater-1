@@ -1,0 +1,39 @@
+)A
+/*                                                                            */
+/*   Skeleton file to display POLXTR results: one plot is generated for       */
+/*   an x-y-pole graphic. Device PS300.                                       */
+/*                                                                            */
+filename psfile 'POLXTR.PS';
+goptions device=ps300 gsfmode=replace gsfname=psfile
+         gsflen=132 handshake=none nodisplay noprompt
+         gprolog='2521'x penmounts=255 chartype=12
+         hsize=6.0 in vsize=6.0 in gunit=pct
+         ftext=swissl htitle=6 htext=3.5 colors=(black) csymbol=black;
+title1 height=4.0
+       '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%';
+legend label=none
+       shape=symbol(5,2.5)
+       value=(tick=1 height=3.5 justify=left 'CODE'
+              tick=2 height=3.5 justify=left 'IERS')
+       frame;
+axis1 label=(height=3.5 'Y-Coordinate of the Pole in Arcsec');
+axis2 label=(height=3.5 angle=90 'X-Coordinate of the Pole in Arcsec');
+axis3 label=(height=3.5 angle=90 'UT1-UTC in sec');
+axis4 label=(height=3.5 angle=90 'UT1-UTC Drift in msec/day');
+symbol1 interpol=join value=dot height=2.0;
+symbol2 interpol=join line=2 value=dot height=2.3;
+data pole;
+  INPUT day type xpole ypole ut1utc drift;
+  if drift = 0.0000 then drift =.;
+  if type=1;
+  cards;
+)B
+;
+run;
+proc sort data=pole out= sorted;
+     by type day;
+PROC GPLOT data=sorted;
+PLOT xpole*ypole/
+        haxis=axis1
+        vaxis=axis2
+        frame;

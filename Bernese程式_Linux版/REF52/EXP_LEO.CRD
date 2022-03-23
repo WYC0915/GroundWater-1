@@ -1,0 +1,9 @@
+Example LEOPOD                                                   31-JAN-12 11:56
+--------------------------------------------------------------------------------
+LOCAL GEODETIC DATUM: IGS08             EPOCH: 2005-01-01 00:00:00
+
+NUM  STATION NAME           X (M)          Y (M)          Z (M)     FLAG
+
+  1  GRCA L09                0.00000        0.00000        0.00000    LEO
+  2  GRCB L10                0.00000        0.00000        0.00000    LEO
+

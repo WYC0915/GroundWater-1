@@ -1,0 +1,38 @@
+package RXOBV3;
+@ISA = ("RUNBPE");
+# ----------------------------------------------------------------------------
+#
+# Name    :  RXOBV_1
+#
+# Purpose :  Execute RXOBV3
+#
+# PARAMs  :
+#
+# Author  :  D. Thaller
+# Created :  10-Feb-2012
+#
+# Changes :
+#
+# ----------------------------------------------------------------------------
+use strict;
+
+sub run{
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($ssss, $dirRzh, $dirRzo, $extRzh, $extRzo) =
+  $bpe->getKeys
+     ('$S+0','DIR_RZH','DIR_RZO','EXT_RZH','EXT_RZO');
+
+# Delete existing range observation files
+# ---------------------------------------
+  unlink glob "${dirRzh}????${ssss}.$extRzh";
+  unlink glob "${dirRzo}????${ssss}.$extRzo";
+
+# Execute Program
+# ---------------
+  my $PGMNAM = "RXOBV3";
+  $bpe->RUN_PGMS($PGMNAM);
+
+}

@@ -1,0 +1,114 @@
+)A
+/*                                                                            */
+/*   Skeleton file to display POLXTR results: one plot is generated for       */
+/*   x-pole, y-pole, UT1-UTC, and the drift in UT1-UTC. The plots also        */
+/*   contain the a priori pole. Device PS300.                                 */
+/*                                                                            */
+filename psfile 'polxtr.ps';
+goptions device=ps300 gsfmode=replace gsfname=psfile
+         gsflen=132 handshake=none nodisplay noprompt
+         gprolog='2521'x penmounts=255 chartype=12
+         hsize=10.0 in vsize=7.0 in gunit=pct
+         rotate=landscape
+         ftext=swissl htitle=6 htext=3.5 colors=(black) csymbol=black;
+title1 height=4.0
+       '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%';
+legend label=none
+       shape=symbol(5,2.5)
+       value=(tick=1 height=3.5 justify=left 'CODE'
+              tick=2 height=3.5 justify=left 'IERS')
+       frame;
+axis1 label=(height=3.5 'Day of Year');
+axis2 label=(height=3.5 angle=90 'Pole Coord. Diff. in mas');
+axis3 label=(height=3.5 angle=90 'UT1-UTC Diff. in msec');
+axis4 label=(height=3.5 angle=90 'UT1-UTC Drift Diff. in msec/day');
+axis5 label=(height=3.5 angle=90 'Nut-Offset Diff. in mas');
+axis6 label=(height=3.5 angle=90 'Nut-Offset Drift Diff. in mas/day');
+symbol1 interpol=join value=triangle height=2.5;
+symbol2 interpol=join line=2 value=dot height=2.3;
+data pole;
+  INPUT day1 type1 xpole1 ypole1 ut1utc1 drift1 eps1 psi1 epsdr1 psidr1;
+  INPUT day2 type2 xpole2 ypole2 ut1utc2 drift2 eps2 psi2 epsdr2 psidr2;
+  if drift1 = 0.0000 then drift1 =.;
+  if drift2 = 0.0000 then drift2 =.;
+  xpole=(xpole1-xpole2)*1000.;
+  ypole=(ypole1-ypole2)*1000.;
+  eps=(eps1-eps2)*1000.;
+  psi=(psi1-psi2)*1000*0.397;
+  ut1utc=(ut1utc1-ut1utc2)*1000.;
+  drift=drift1-drift2;
+  epsdr=(epsdr1-epsdr2)*1000.;
+  psidr=(psidr1-psidr2)*1000*0.397;
+/*  day1=day1-366;  */
+  drop type1 type2 xpole1 xpole2 ypole1 ypole2 ut1utc1 ut1utc2 drift1 drift2
+       day2 eps1 eps2 psi1 psi2 epsdr1 epsdr2 psidr1 psidr2;
+  cards;
+)B
+;
+run;
+proc sort data=pole out= sorted;
+     by day1;
+PROC GPLOT data=sorted;
+title2 height=4.0 'X-POLE';
+PLOT xpole*day1/
+        legend=legend1
+        haxis=axis1
+        vaxis=axis2
+        vref=0.0
+        frame;
+PROC GPLOT data=sorted;
+title2 height=4.0 'Y-POLE';
+PLOT ypole*day1/
+        legend=legend1
+        haxis=axis1
+        vaxis=axis2
+        vref=0.0
+        frame;
+PROC GPLOT data=sorted;
+title2 height=4.0 'UT1-UTC';
+PLOT ut1utc*day1/
+        legend=legend1
+        haxis=axis1
+        vaxis=axis3
+        vref=0.0
+        frame;
+PROC GPLOT data=sorted;
+title2 height=4.0 'UT1-UTC DRIFT';
+PLOT drift*day1/
+        legend=legend1
+        haxis=axis1
+        vaxis=axis4
+        vref=0.0
+        frame;
+PROC GPLOT data=sorted;
+title2 height=4.0 'Nutation Offset deps';
+PLOT eps*day1/
+        legend=legend1
+        haxis=axis1
+        vaxis=axis5
+        vref=0.0
+        frame;
+PROC GPLOT data=sorted;
+title2 height=4.0 'Nutation Offset dpsi*sin(eps)';
+PLOT psi*day1/
+        legend=legend1
+        haxis=axis1
+        vaxis=axis5
+        vref=0.0
+        frame;
+PROC GPLOT data=sorted;
+title2 height=4.0 'Nutation Offset Drift deps';
+PLOT epsdr*day1/
+        legend=legend1
+        haxis=axis1
+        vaxis=axis6
+        vref=0.0
+        frame;
+PROC GPLOT data=sorted;
+title2 height=4.0 'Nutation Offset Drift dpsi*sin(eps)';
+PLOT psidr*day1/
+        legend=legend1
+        haxis=axis1
+        vaxis=axis6
+        vref=0.0
+        frame;

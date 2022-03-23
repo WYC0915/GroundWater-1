@@ -1,0 +1,21 @@
+${BPE}/RUN_PGMS.pl
+RC=$?
+
+# Set $SYSOUT and $JOBNUM
+# ---------------------------------------------
+SYSOUT=`${BPE}/NGETKEY $U/INP/${PGMNAM}.INP SYSOUT FILEXT`
+export SYSOUT
+JOBNUM=`${BPE}/MATCH.pl ${SYSOUT} '.*\.L(\d\d)\s*$'`
+export JOBNUM
+
+if test $RC -ne 0 
+then
+  exit 1
+fi
+
+
+
+
+
+
+

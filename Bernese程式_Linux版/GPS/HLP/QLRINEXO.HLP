@@ -1,0 +1,229 @@
+<html>
+<body>
+
+<center>
+<b>CONVERT SLR QUICK-LOOK FILES TO RINEX</b>
+<p>Program: QLRINEXO
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="DELETE_FILES"  default="AUXFIL"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program transfers SLR quick look files into RINEX observation and
+meteo files. These RINEX files then have to be transferred into Bernese
+observation and meteo files with the
+programs <a href="PGMLST.HLP#RXOBV3">RXOBV3</a>
+and <a href="PGMLST.HLP#RXMBV3">RXMBV3</a>.
+
+<p><hr>
+
+<p><b>QLRINEXO 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="QLFILE" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>SLR quick look files:</b>
+Select the SLR quick look files, which should be transferred to RINEX format.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="QLRINEXO"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or to specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>QLRINEXO 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO/SLR)
+satellites.  For the session to be processed, each satellite has to appear
+once in this file within a corresponding time window. QLRINEXO needs
+this file to translate the PRN specified in the <a href="#SATLST">LIST OF
+SATELLITES</a> into corresponding COSPAR numbers, because the tracked
+satellites are specified with these numbers in the quick look files.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<a name="GPSUTC" default="GPSUTC."></a>
+<p><b>GPS-UTC seconds:</b>
+Specify the file with GPS-UTC values here. You have to update this file each
+time a leap second is introduced. The GPS-UTC values are needed,
+because the time argument in the quick look files is in UTC time and
+the time argument in the RINEX file is GPS time.
+
+<p>Example: <a href="/$X/GEN/GPSUTC.">$X/GEN/GPSUTC.</a>
+
+<a name="ABBREV" default="ABBREV"></a>
+<p><b>Abbreviation table:</b>
+This file contains a station name abbreviation table containing
+<nobr>4-character</nobr> and <nobr>2-character</nobr> abbreviations for a
+list of station names. QLRINEXO uses the abbreviations to name the
+RINEX files according to this list.
+
+<p><a href="/$X/DOC/EXAMPLE.ABB">Example</a>
+
+<a name="STAINFO" default=""></a>
+<p><b>Station information:</b>
+This file contains station specific information. QLRINEXO only needs the
+information on the SLR stations.
+
+<p><a href="/$X/DOC/EXAMPLE.STA">Example</a>
+
+<br><br>
+
+<a name="AUXFIL" default="QLRINEXO$J"></a>
+<p><b>TEMPORARY FILES</b>
+<p><b>Scratch file:</b>
+Enter the name of the scratch file used by this program. The scratch file
+needs to be named differently for different programs running simultaneously. This
+may be achieved, e.g., by adding the job ID <tt>$J</tt> to the program name
+(define the job ID in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>).
+
+<p><i>Default value:</i> <tt>QLRINEXO$J</tt>
+
+<p><hr>
+
+<p><b>QLRINEXO 2: Input Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<br><br>
+
+<a name="SESSID" default="$S+0"></a>
+<p><b>CREATION OF RINEX OBSERVATION FILE NAMES</b>
+<p><b>Session ID:</b>
+Specify the session ID for the RINEX files. This specification is
+necessary, because the quick look files may contain data from more than one
+day.
+
+<p><i>Default value:</i> <tt>$S+0</tt>
+
+<a name="YEARID" default="$Y"></a>
+<p><b>Year ID:</b>
+Specify the year ID for the RINEX files. This specification is necessary,
+because the quick look files may contain observations from different years.
+
+<p><i>Default value:</i> <tt>$Y</tt>
+
+<br><br>
+
+<a name="SATLST" default=""></a>
+<p><b>LIST OF SATELLITES</b>
+<p><b>Satellite number according to satellite information file:</b>
+Specify the satellite numbers to be processed according to the satellite
+information file. The example list shows different satellite numbers.
+
+<p><i>Remark:</i>
+The example list is not valid for all time intervals. The
+PRN of the GPS and GLONASS satellites may change from time to time. Please
+carefully check the satellite information file for the correct numbering.
+
+<p><hr>
+
+<p><b>QLRINEXO 3: Observation Window</b>
+
+<a name="RADIO_0" default="0"></a>
+<p><b>OBSERVATION WINDOW</b>
+<p><b>Take all observations:</b>
+Select this option to transfer all observations available in the quick look
+files into RINEX format.
+
+<a name="RADIO_1" default="1"></a>
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the observation window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the observation window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: <tt>00&nbsp;00&nbsp;00</tt>, end date: <tt>$YMD_STR+0</tt>,
+end time: <tt>23&nbsp;59&nbsp;59</tt>
+
+<p><hr>
+
+</body>
+</html>

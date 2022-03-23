@@ -1,0 +1,90 @@
+      MODULE s_MAJOR
+      CONTAINS
+
+C*
+      SUBROUTINE MAJOR(N,ARRAY,TOL,NOK,NMAX,VALUE,IREF)
+CC
+CC NAME       :  MAJOR
+CC
+CC PURPOSE    :  MAJORITY VOTING: IN AN ARRAY OF N ELEMENTS
+CC               FIND THE MAXIMUM NUMBER OF ELEMENTS WITHIN
+CC               TOL
+CC               IF AN ARRAY ELEMENT HAS THE VALUE 1.D20,
+CC               IT IS NOT CONSIDERED
+CC
+CC PARAMETERS :
+CC         IN :  N      : NUMBER OF ELEMENTS                  I*4
+CC               ARRAY(I),I=1,2,..,N: ARRAY ELEMENTS          R*8
+CC               TOL    : TOLERANCE FOR ACCEPTANCE            R*8
+CC        OUT :  NOK    : NUMBER OF VALID ELEMENTS (I.E. NOT  I*4
+CC                        EQUAL 1.D20)
+CC               NMAX   : MAXIMUM NUMBER OF ELEMENTS PASSING  I*4
+CC                        THE TEST (TEST RELATIVE TO "IREF")
+CC               VALUE  : MEAN VALUE OF ELEMENTS              R*8
+CC               IREF   : REFERENCE ELEMENT                   I*4
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  88/05/09 14:40
+CC
+CC CHANGES    :  14-OCT-98 : MR: ADD MORE OUTPUT PARAMETERS
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1988     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I1    , I2    , IREF  , N     , NEQUAL, NMAX  , NOK
+C
+      REAL*8    TEST  , TOL   , VALTMP, VALUE
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+C
+      REAL*8 ARRAY(*)
+C
+C MAJORITY VOTING
+C ---------------
+      NOK=0
+      NMAX=0
+C
+      DO 20 I1=1,N
+        NEQUAL=1
+        VALTMP=ARRAY(I1)
+        IF (VALTMP.EQ.1.D20) GOTO 20
+        NOK=NOK+1
+C
+        DO 10 I2=1,N
+          IF (I1.EQ.I2) GOTO 10
+          TEST=DABS(ARRAY(I1)-ARRAY(I2))
+          IF (TEST.LE.TOL) THEN
+            NEQUAL=NEQUAL+1
+            VALTMP=VALTMP+ARRAY(I2)
+          END IF
+10      CONTINUE
+C
+        IF (NEQUAL.GT.NMAX) THEN
+          IREF=I1
+          NMAX=NEQUAL
+          VALUE=VALTMP/NEQUAL
+        END IF
+20    CONTINUE
+C
+      IF(NOK.EQ.0)THEN
+        IREF=0
+        VALUE=0.D0
+      END IF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

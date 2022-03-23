@@ -1,0 +1,155 @@
+<html>
+<body>
+
+<center>
+<b>PREPARE SLR DATA HANDLING FILE</b>
+<p>Program: SNX2SLR
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The purpose of the program SNX2SLR is to prepare a file containing the
+SLR data handling information. This comprises:
+<ul>
+<li>A priori range biases to be considered.
+<li>Center-of-mass corrections for spherical satellites.
+</ul>
+The information can be extracted either from a SINEX file
+(e.g. the official data handling file provided by the ILRS)
+or from a previously generated Bernese-formatted SLR data handling file.
+<br>
+A second Bernese-formatted SLR data handling file can be merged into the
+resulting file. This is especially needed for merging information on
+range biases with the center-of-mass values into one file.
+<br>
+Additionally, a station information file containing station exclusions
+can be written.
+This information must come from the input SINEX file.
+Only exclusion intervals larger than 1 day are considered.
+
+<p><hr>
+
+<p><b>SNX2SLR 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get the currently active campaign, session and session table.
+
+<br><br>
+
+<a name="SNXFILE" default=""></a>
+<a name="SLRFIL1" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Master file:</b>
+Selection of a master file. All data handling information from the master file
+will be taken over to the new file. The content
+of the master file will not be changed in any way.
+Only entries of the merge file which are not contained in the master file
+will be added.
+<br>
+The master file can be in SINEX format (e.g. official ILRS files)
+or in the Bernese-formatted SLR data handling file
+(<a href="/$X/DOC/EXAMPLE.SLR">Example</a>).
+
+<a name="SLRFIL2" default=""></a>
+<p><b>Merge file:</b>
+A Bernese-formatted SLR data handling file to be merged into one resulting
+SLR data handling file
+(<a href="/$X/DOC/EXAMPLE.SLR">Example</a>).
+The content of this merged set is only written into the resulting file if the
+entry is not present in the "Master file".
+
+<br><br>
+
+<a name="SLR_OUT" default=""></a>
+<p><b>OUTPUT FILES</b>
+<p><b>SLR data handling file:</b>
+Name of resulting Bernese-formatted SLR data handling file.
+
+<p><a href="/$X/DOC/EXAMPLE.SLR">Example</a>
+
+<a name="STAFILE" default=""></a>
+<p><b>Station information file:</b>
+Name of resulting Station information file containing exclusions of stations
+for specific intervals (according to the information given in the SINEX
+master input file).
+
+<p><a href="/$X/DOC/EXAMPLE.STA">Example</a>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="SNX2SLR"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or to specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>SNX2SLR 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<p><hr>
+
+<p><b>SNX2SLR 2: Settings</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<a name="MININTE" default="1"></a>
+<p><b>OPTIONS</b>
+<p><b>Minimum number of days for station exclusions:</b>
+You can specify here the minimum day interval for station exclusion.
+If the chosen value is 0, then all exclusions will be stored in the Station
+information file.
+Otherwise only those exclusions will be saved, for which the time interval
+specified in the SINEX file is equal or longer than the interval specified
+by this option.
+
+<p><i>Default value:</i> <tt>1&nbsp;day</tt>
+
+<p><hr>
+
+</body>
+</html>

@@ -1,0 +1,710 @@
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+CAMPAIGN 0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+MSG_CAMPAIGN 1 "Selected campaign"
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+! Show general files
+! ------------------
+SHOWGEN 1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+! -------------------------------------------------------------------------
+! General Constants
+! -----------------
+CONST 1  "${X}/GEN/CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  # CONST.
+
+DESCR_CONST 1  "General Constants"
+
+! Leap Second File
+! ----------------
+GPSUTC 1  "${X}/GEN/GPSUTC."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  # GPSUTC.
+
+DESCR_GPSUTC 1  "Difference GPS-UTC"
+
+! Title
+! -----
+TITLE 1  "ESTIMATION 112/1994-172/2003 (C3_ALL03.DAT), IAU2000R06 Reference"
+  ## widget = lineedit
+
+MSG_TITLE 1 "Title line"
+
+! Scratch File
+! ------------
+AUXFIL 1  "${U}/WORK/ERPEST.SCR"
+  ## widget = lineedit; path = PTH_SCR; ext = EXT_SCR
+  # ERPEST
+
+DESCR_AUXFIL 1  "Scratch File"
+
+DELETE_FILES 1  "AUXFIL"
+
+! Program Output File
+! -------------------
+SYSODEF 1  "0"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT 1  "${P}/NUTATION/OUT/C3_IAU03.LST"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  # C3_IAU03
+
+DESCR_SYSOUT 1  "Program Output"
+
+! Error Message File
+! ------------------
+ERRMRG 1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR 1  "${U}/WORK/ERROR.MSG"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  # ERROR
+
+DESCR_SYSERR 1  "Error Message"
+
+! System Input (not used)
+! -----------------------
+SYSINP 0
+
+! Input Files
+! -----------
+! A Priori Pole
+! -------------
+POLE 1  "${P}/NUTATION/ORB/BULLET_A.ERP"
+  ## widget = selwin; path = DIR_ERP; ext = EXT_ERP; emptyallowed = true
+  ## maxfiles = 1
+  # BULLET_A
+
+DESCR_POLE 1  "A priori Pole"
+
+! Reference Subdaily ERP Model
+! ----------------------------
+SUBREF 1  "${P}/NUTATION/ORB/RAY_96.SUB"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_SUB; maxfiles = 1
+  # RAY_96
+
+DESCR_SUBREF 1  "Reference Sub-daily ERP Model"
+
+! Simulation Subdaily ERP Model
+! -----------------------------
+SUBDAT 0
+  ## widget = selwin; path = DIR_ERP; ext = EXT_SUB
+  ## maxfiles = 1
+  # 
+
+DESCR_SUBDAT 1  "Simulation Sub-daily ERP Model"
+
+! Tidal Potential
+! ---------------
+SUBPOT 0
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  ## emptyallowed = true
+  # 
+
+DESCR_SUBPOT 1  "Tidal Potential"
+
+! ERP data from POLXTR
+! --------------------
+ERPDAT 0
+  ## widget = selwin; path = DIR_IEP; ext = EXT_IEP
+  ## emptyallowed = true; maxfiles = 1
+  # 
+
+DESCR_ERPDAT 1  "Input ERP data from POLXTR"
+
+! VLBI data
+! ---------
+VLBIDAT 0
+  ## widget = selwin; path = DIR_IEP; ext = NO_EXT
+  ## emptyallowed = true; maxfiles = 1
+  # VLBI1135T.HF5
+
+DESCR_VLBIDAT 1  "VLBI data"
+
+! Nutation data
+! -------------
+NUTDAT 1  "${P}/NUTATION/ORB/C3_ALL03.DAT"
+  ## widget = selwin; path = DIR_IEP; ext = NO_EXT
+  ## maxfiles = 1
+  # C3_ALL03.DAT
+
+DESCR_NUTDAT 1  "Input Nutation data"
+
+! Reference Nutation Model
+! ----------------------------
+NUTREF 1  "${X}/GEN/IAU2000R06.NUT"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_NUT; activeif = NUTDAT /= _
+  ## maxfiles = 1
+  # IAU2000R06
+
+DESCR_NUTREF 1  "Reference Nutation Model"
+
+! Nutation Model used as A Priori
+! -------------------------------
+NUTAPR 1  "${X}/GEN/IAU80.NUT"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_NUT; activeif = NUTDAT /= _
+  ## maxfiles = 1
+  # IAU80
+
+DESCR_NUTAPR 1  "Nutation Model Used as a priori"
+
+! Input data from Ringlaser (G1)
+! ------------------------------
+G1_DAT 0
+  ## widget = selwin; path = DIR_IEP; ext = NO_EXT
+  ## maxfiles = 1
+  # 
+
+DESCR_G1_DAT 1  "Input from G-Ringlaser"
+
+! Input data from Ringlaser (UG)
+! ------------------------------
+UG_DAT 0
+  ## widget = selwin; path = DIR_IEP; ext = NO_EXT
+  ## maxfiles = 1
+  # 
+
+DESCR_UG_DAT 1  "Input from UG-Ringlaser"
+
+! Input data in Residual Format
+! -----------------------------
+RESDAT 0
+  ## widget = selwin; path = DIR_OUT; ext = NO_EXT
+  ## maxfiles = 1
+  # 
+
+MSG_RESDAT 1 "Input data in Res.Format"
+
+! Input data in Residual Format for Simulation
+! --------------------------------------------
+000DAT 0
+  ## widget = selwin; path = DIR_OUT; ext = NO_EXT
+  ## maxfiles = 1
+  # 
+
+! Output Files
+! ------------
+! Subdaily ERP Result File
+! ------------------------
+SUBSAV 0
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_SUB
+  ## activeif = NUTDAT == _
+  # GV5HF52WC
+
+DESCR_SUBSAV 1  "Sub-daily ERP Result File"
+
+! Nutation Result File
+! --------------------
+NUTSAV 1  "${P}/NUTATION/OUT/C3_IAU03.NUT"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_NUT
+  ## activeif = NUTDAT /= _
+  # C3_IAU03
+
+DESCR_NUTSAV 1  "Nutation Result File"
+
+! Residuals
+! ---------
+RESID 1  "${P}/NUTATION/OUT/C3_IAU03.RES"
+  ## widget = lineedit; path = DIR_RES; ext = EXT_RES
+  # C3_IAU03
+
+DESCR_RESID 1  "Residuals"
+
+! Options
+! -------
+! Model Name
+! ----------
+MODNAM 1  "C3_IAU03"
+  ## widget = lineedit
+
+MSG_MODNAM 1 "Name of resulting model"
+
+! Title of Model
+! --------------
+TITNEW 1  "NUTATION: 112/1994-172/2003, IAU2000R06.NUT as reference"
+  ## widget = lineedit
+
+MSG_TITNEW 1 "Title of resulting model"
+
+! A Priori Sigma
+! --------------
+SIGMA0 1  "0.025"
+  ## widget = lineedit
+
+MSG_SIGMA0 1 "A Priori Sigma of Obs. of Unit Weight (mas)"
+
+! Activation of Observations and Relative Weight
+! ----------------------------------------------
+XPOLG 1  "0"
+  ## widget = checkbox
+
+MSG_XPOLG 1 "x-Pole GPS"
+
+XPOLWG 1  "1"
+  ## widget = lineedit
+
+MSG_XPOLWG 1 "x-Pole GPS weight"
+
+XPOLRG 1  "0"
+  ## widget = checkbox
+
+MSG_XPOLRG 1 "x-Pole Rate GPS"
+
+XPOLRWG 1  "0.345"
+  ## widget = lineedit
+
+MSG_XPOLRWG 1 "x-Pole Rate GPS weight"
+
+YPOLG 1  "0"
+  ## widget = checkbox
+
+MSG_YPOLG 1 "y-Pole GPS"
+
+YPOLWG 1  "1"
+  ## widget = lineedit
+
+MSG_YPOLWG 1 "y-Pole GPS weight"
+
+YPOLRG 1  "0"
+  ## widget = checkbox
+
+MSG_YPOLRG 1 "y-Pole Rate GPS"
+
+YPOLRWG 1  "0.345"
+  ## widget = lineedit
+
+MSG_YPOLRWG 1 "y-Pole Rate GPS weight"
+
+UT1CG 1  "0"
+  ## widget = checkbox
+
+MSG_UT1CG 1 "UT1-UTC GPS"
+
+UT1CWG 1  "1"
+  ## widget = lineedit
+
+MSG_UT1CWG 1 "UT1-UTC GPS weight"
+
+UT1CRG 1  "0"
+  ## widget = checkbox
+
+MSG_UT1CRG 1 "UT1-UTC Rate GPS"
+
+UT1CRWG 1  "0.00081"
+  ## widget = lineedit
+
+MSG_UT1CRWG 1 "UT1-UTC Rate GPS weight"
+
+DEPSG 1  "0"
+  ## widget = checkbox
+
+MSG_DEPSG 1 "DEPS GPS"
+
+DEPSWG 1  "1"
+  ## widget = lineedit
+
+MSG_DEPSWG 1 "DEPS GPS weight"
+
+DEPSRG 1  "1"
+  ## widget = checkbox
+
+MSG_DEPSRG 1 "DEPS Rate GPS"
+
+DEPSRWG 1  "1."
+  ## widget = lineedit
+
+MSG_DEPSRWG 1 "DEPS Rate GPS weight"
+
+DPSIG 1  "0"
+  ## widget = checkbox
+
+MSG_DPSIG 1 "DPSI GPS"
+
+DPSIWG 1  "1"
+  ## widget = lineedit
+
+MSG_DPSIWG 1 "DPSI GPS weight"
+
+DPSIRG 1  "1"
+  ## widget = checkbox
+
+MSG_DPSIRG 1 "DPSI Rate GPS"
+
+DPSIRWG 1  "0.158"
+  ## widget = lineedit
+
+MSG_DPSIRWG 1 "DPSI Rate GPS weight"
+
+SAGNFG 1  "0"
+  ## widget = checkbox
+
+MSG_SAGNFG 1 "Sagnac"
+
+SAGNFWG 1  "1"
+  ## widget = lineedit
+
+MSG_SAGNFWG 1 "Sagnac weight"
+
+! VLBI options
+! ------------
+XPOLV 1  "0"
+  ## widget = checkbox; activeif = VLBIDAT /= _
+
+MSG_XPOLV 1 "x-Pole VLBI"
+
+XPOLWV 1  "2.5"
+  ## widget = lineedit; activeif = VLBIDAT /= _
+
+MSG_XPOLWV 1 "x-Pole VLBI weight"
+
+XPOLRV 1  "0"
+  ## widget = checkbox; activeif = VLBIDAT /= _
+
+MSG_XPOLRV 1 "x-Pole Rate VLBI"
+
+XPOLRWV 0
+  ## widget = lineedit; activeif = VLBIDAT /= _
+  # 
+
+MSG_XPOLRWV 1 "x-Pole Rate VLBI weight"
+
+YPOLV 1  "0"
+  ## widget = checkbox; activeif = VLBIDAT /= _
+
+MSG_YPOLV 1 "y-Pole VLBI"
+
+YPOLWV 1  "2.5"
+  ## widget = lineedit; activeif = VLBIDAT /= _
+
+MSG_YPOLWV 1 "y-Pole VLBI weight"
+
+YPOLRV 1  "0"
+  ## widget = checkbox; activeif = VLBIDAT /= _
+
+MSG_YPOLRV 1 "y-Pole Rate VLBI"
+
+YPOLRWV 0
+  ## widget = lineedit; activeif = VLBIDAT /= _
+  # 
+
+MSG_YPOLRWV 1 "y-Pole Rate VLBI weight"
+
+UT1CV 1  "0"
+  ## widget = checkbox; activeif = VLBIDAT /= _
+
+MSG_UT1CV 1 "UT1-UTC VLBI"
+
+UT1CWV 1  "0.00676"
+  ## widget = lineedit; activeif = VLBIDAT /= _
+
+MSG_UT1CWV 1 "UT1-UTC VLBI weight"
+
+UT1CRV 1  "0"
+  ## widget = checkbox; activeif = VLBIDAT /= _
+
+MSG_UT1CRV 1 "UT1-UTC Rate VLBI"
+
+UT1CRWV 0
+  ## widget = lineedit; activeif = VLBIDAT /= _
+  # 
+
+MSG_UT1CRWV 1 "UT1-UTC Rate VLBI weight"
+
+DEPSV 1  "0"
+  ## widget = checkbox; activeif = VLBIDAT /= _
+
+MSG_DEPSV 1 "DEPS VLBI"
+
+DEPSWV 0
+  ## widget = lineedit; activeif = VLBIDAT /= _
+  # 
+
+MSG_DEPSWV 1 "DEPS VLBI weight"
+
+DEPSRV 1  "0"
+  ## widget = checkbox; activeif = VLBIDAT /= _
+
+MSG_DEPSRV 1 "DEPS Rate VLBI"
+
+DEPSRWV 0
+  ## widget = lineedit; activeif = VLBIDAT /= _
+  # 
+
+MSG_DEPSRWV 1 "DEPS Rate VLBI weight"
+
+DPSIV 1  "0"
+  ## widget = checkbox; activeif = VLBIDAT /= _
+
+MSG_DPSIV 1 "DPSI VLBI"
+
+DPSIWV 0
+  ## widget = lineedit; activeif = VLBIDAT /= _
+  # 
+
+MSG_DPSIWV 1 "DPSI VLBI weight"
+
+DPSIRV 1  "0"
+  ## widget = checkbox; activeif = VLBIDAT /= _
+
+MSG_DPSIRV 1 "DPSI Rate VLBI"
+
+DPSIRWV 0
+  ## widget = lineedit; activeif = VLBIDAT /= _
+  # 
+
+MSG_DPSIRWV 1 "DPSI Rate VLBI weight"
+
+! Use ERP Sigmas for Weighting
+! ----------------------------
+IUSSIG 1  "NO"
+  ## widget = combobox; editable = false; cards = NO YES
+
+MSG_IUSSIG 1 "Use ERP Sigmas for Weighting"
+
+! Sampling
+! --------
+ISAMPL 1  "1"
+  ## widget = lineedit
+
+MSG_ISAMPL 1 "Sampling of the Input Data (Every n-th Obs.)"
+
+! Start Record Number
+! -------------------
+ISTART 1  "1"
+  ## widget = lineedit
+
+MSG_ISTART 1 "Start With Input Data Record Number"
+
+! Sampling Interval for Simulation
+! --------------------------------
+SPLSIM 1  "6"
+  ## widget = lineedit
+
+MSG_SPLSIM 1 "Sampling Interval for Simulation (min)"
+
+! Adjust Epochs to Nearest n Min
+! ------------------------------
+IADEPO 1  "0"
+  ## widget = lineedit
+
+MSG_IADEPO 1 "Adjust Epochs to the Nearest n Min."
+
+! Sum up Differences up to Periods of
+! -----------------------------------
+SUMPER 1  "17"
+  ## widget = lineedit
+
+MSG_SUMPER 1 "Sum up Differences up to Periods of"
+
+! File with List of Parameters to be Estimated
+! --------------------------------------------
+FILEST 1  "${P}/NUTATION/OUT/P_NUT.LST"
+  ## widget = selwin; path = DIR_OUT; ext = NO_EXT; emptyallowed = false
+  ## maxfiles = 1
+  # P_NUT.LST
+
+MSG_FILEST 1 "File with the Parameter List to be Estimated"
+
+! Observation Window
+! ------------------
+RADIO_1 1  "0"
+  ## widget = radiobutton; group = DUMMY
+  ## radiokeys = SESSION_TABLE SESSION_YEAR SESSION_STRG
+
+MSG_RADIO_1 1 "Defined by year and session number"
+
+RADIO_2 1  "1"
+  ## widget = radiobutton; group = DUMMY
+  ## radiokeys = STADAT STATIM ENDDAT ENDTIM
+
+MSG_RADIO_2 1 "Defined by start and end time"
+
+! Observation Window from Session Table
+! -------------------------------------
+SESSION_TABLE 1  "${P}/NUTATION/STA/SESSIONS.SES"
+  ## widget = selwin; path = DIR_SES; ext = EXT_SES; maxfiles = 1
+  ## emptyallowed = true
+  # SESSIONS
+
+MSG_SESSION_TABLE 1 "Session table"
+
+SESSION_YEAR 1  "2003"
+  ## widget = lineedit
+  # $Y+0
+
+MSG_SESSION_YEAR 1 "Year for sessions def. the time window"
+
+SESSION_STRG 1  "1260"
+  ## widget = lineedit
+  # $S+0
+
+MSG_SESSION_STRG 1 "Sessions defining the time window"
+
+! Observation Window from Datum
+! -----------------------------
+STADAT 1  "1969 09 01"
+  ## widget = lineedit
+
+MSG_STADAT 1 "Start of time window (year month day)"
+
+STATIM 1  "00 00 00"
+  ## widget = lineedit
+
+MSG_STATIM 1 "Start of time window (hour min. sec.)"
+
+ENDDAT 1  "2999 01 01"
+  ## widget = lineedit
+
+MSG_ENDDAT 1 "End of time window (year month day)"
+
+ENDTIM 1  "00 00 00"
+  ## widget = lineedit
+
+MSG_ENDTIM 1 "End of time window (hour min. sec.)"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# ERPEST 1: Input Files                                                        #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files           > % <                                     # SHOWGEN
+#                                                                              #
+# INPUT FILES                                                                  #
+#   A Priori Pole                    > %%%%%%%% <                              # POLE
+#   Reference Sub-daily ERP Model    > %%%%%%%%%%% <                           # SUBREF
+#   Tidal Potential                  > %%%%%%%%%%% <                           # SUBPOT
+#   Simulation Sub-daily ERP Model   > %%%%%%%%%%% <                           # SUBDAT
+#                                                                              #
+# ERP AND VLBI INPUT DATA                                                      #
+#   Input ERP data from POLXTR       > %%%%%%%%%%% <                           # ERPDAT
+#   VLBI data                        > %%%%%%%%%%% <                           # VLBIDAT
+#                                                                              #
+# NUTATION INPUT DATA                                                          #
+#   Input Nutation data              > %%%%%%%%%%% <                           # NUTDAT
+#   Reference Nutation Model         > %%%%%%%%%%% <                           # NUTREF
+#   Nutation Model Used as a priori  > %%%%%%%%%%% <                           # NUTAPR
+#                                                                              #
+# SAGNAC FREQUENCY DATA                                                        #
+#   Input from G-Ringlaser           > %%%%%%%%%%% <                           # G1_DAT
+#   Input from UG-Ringlaser          > %%%%%%%%%%% <                           # UG_DAT
+#                                                                              #
+# OTHER INPUT DATA                                                             #
+#   Input data in Res.Format         > %%%%%%%%%%% <                           # RESDAT
+#   Input data in Res.Format for sim.> %%%%%%%%%%% <                           # 000DAT
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# ERPEST 1.1: General Files                                                    #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#    General Constants                > %%%%%%%% <                             # CONST
+#    GPS-UTC Seconds                  > %%%%%%%% <                             # GPSUTC
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign        > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <  # CAMPAIGN
+#   Selected session           year> %%%% <  session> %%%% <                   # YR4_INFO SES_INFO
+#   Session table            > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <  # SESSION_TABLE
+#                                                                              #
+# TEMPORARY FILES                                                              #
+#    Scratch File                     > %%%%%%%% <                             # AUXFIL
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# ERPEST 2: Output Files                                                       #
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output         > % < use ERPEST.Lnn           or  > %%%%%%%% <     # SYSODEF SYSOUT
+#   Error messages         > % < merged to program output or  > %%%%%%%% <     # ERRMRG SYSERR
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # TITLE
+#                                                                              #
+# RESULT FILES                                                                 #
+#   Sub-daily ERP Result File        > %%%%%%%%%%% <                           # SUBSAV
+#   Nutation Result File             > %%%%%%%%%%% <                           # NUTSAV
+#   Residuals                        > %%%%%%%%%%% <                           # RESID
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# ERPEST 3: Options (1)                                                        #
+#                                                                              #
+# NAME OF RESULTING MODEL                                                      #
+#    > %%%%%%%%%%%%%%%% <                                                      # MODNAM
+#                                                                              #
+# TITLE OF RESULTING MODEL                                                     #
+#     > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITNEW
+#                                                                              #
+# OPTIONS                                                                      #
+#   A Priori Sigma of Obs. of Unit Weight (mas)           > %%%%% <            # SIGMA0
+#   Activate Observations and Relative Weights                                 #
+#             GPS  VLBI  Weights                     GPS  VLBI  Weights        #
+#   x-Pole   > % <> % <> %%%% <> %%%% < x-Pole Rate > % <> % <> %%%% <> %%%% < # XPOLG XPOLV XPOLWG XPOLWV XPOLRG XPOLRV XPOLRWG XPOLRWV
+#   y-Pole   > % <> % <> %%%% <> %%%% < y-Pole Rate > % <> % <> %%%% <> %%%% < # YPOLG YPOLV YPOLWG YPOLWV YPOLRG YPOLRV YPOLRWG YPOLRWV
+#   UT1-UTC  > % <> % <> %%%% <> %%%% < UT1-UTC Rate> % <> % <> %%%% <> %%%% < # UT1CG UT1CV UT1CWG UT1CWV UT1CRG UT1CRV UT1CRWG UT1CRWV
+#   DEPS(mas)> % <> % <> %%%% <> %%%% < DEPS  Rate  > % <> % <> %%%% <> %%%% < # DEPSG DEPSV DEPSWG DEPSWV DEPSRG DEPSRV DEPSRWG DEPSRWV
+#   DPSI(mas)> % <> % <> %%%% <> %%%% < DPSI  Rate  > % <> % <> %%%% <> %%%% < # DPSIG DPSIV DPSIWG DPSIWV DPSIRG DPSIRV DPSIRWG DPSIRWV
+#   Sagnac   > % <     > %%%% <                                                # SAGNFG SAGNFWG                                          
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# ERPEST 4: Options (2)                                                        #
+#                                                                              #
+# OPTIONS                                                                      #
+#   Use ERP Sigmas for Weighting                     > %%% <                   # IUSSIG
+#   Sampling of the Input Data (Every n-th Obs.)     > %%% <                   # ISAMPL
+#   Start With Input Data Record Number              > %%% <                   # ISTART
+#   Sampling Interval for Simulation (min)           > %%% <                   # SPLSIM
+#                                                                              #
+#   Adjust Epochs to the Nearest n Min.              > %%% <                   # IADEPO
+#   Sum up Differences up to Periods of              > %%%%%%% < Days          # SUMPER
+#                                                                              #
+#   File with the Parameter List to be Estimated     > %%%%%%%%%%%% <          # FILEST
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# ERPEST 5: Time Window                                                        #
+#                                                                              #
+# TIME WINDOW                                                                  #
+#  > % <    Table> %%%%%%%% <         Year> %%%% <    Session> %%%% <          # RADIO_1 SESSION_TABLE SESSION_YEAR SESSION_STRG
+#                                                                              #
+#                     START                            END                     #
+#           yyyy mm dd     hh mm ss         yyyy mm dd     hh mm ss            #
+#  > % <  > %%%%%%%%%% < > %%%%%%%% <     > %%%%%%%%%% < > %%%%%%%% <          # RADIO_2 STADAT  STATIM   ENDDAT  ENDTIM
+#                                                                              #
+# END_PANEL ####################################################################

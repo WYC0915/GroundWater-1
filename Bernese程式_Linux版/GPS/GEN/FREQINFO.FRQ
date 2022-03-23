@@ -1,0 +1,123 @@
+ Frequencies of observation types                                                                                  18-JUN-13 16:30
+ ---------------------------------------------------------------------------------------------------------------------------------
+
+ Type   Satellite/Station    Name     Value      Unit  Valid from           to                   Remarks
+ *****  ********************  **  ***********.*  ****  **** ** ** ** ** **  **** ** ** ** ** **  *********************************
+ RANGE  1824 12356S001        R1          532.0  nm                                              manual aj              
+ RANGE  1831 12368S001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  1863 12340S001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  1864 12340S002        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  1867 12344S001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  1868 12341S001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  1873 12337S003        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  1879 12372S001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  1884 12302S002        R1          532.0  nm                                              manual aj              
+ RANGE  1885 12302S006        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  1886 12373S001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  1887 25603S001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  1888 12350S002        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  1889 12351S002        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  1890 12338S004        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  1893 12337S006        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  1953 40701S001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7080 40442M006        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7090 50107M001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7105 40451M105        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7105 40451M105        R2         1064.0  nm                                              manual KS -log file    
+ RANGE  7106 40451M113        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7109 40433M002        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7110 40497M001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7119 40445M004        R1          532.0  nm                                              manual dt, ILRS site lo
+ RANGE  7124 92201M007        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7130 40451M116        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7210 40445M001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7231 21602S004        R1          532.1  nm                                              RXOBV3 update          
+ RANGE  7236 21602S003        R1          532.1  nm                                              RXOBV3 update          
+ RANGE  7237 21611S001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7237 21611S001        R2          532.1  nm                                              RXOBV3 update          
+ RANGE  7249 21601S004        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7249 21601S004        R2          532.0  nm                         2000 09 24 23 59 59  RXOBV3 update          
+ RANGE  7249 21601S004        R2          532.1  nm    2000 09 25 00 00 00                       RXOBV3 update          
+ RANGE  7295 40499M002        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7308 21704S002        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7328 21704M001        R1          532.0  nm                                              manual DT              
+ RANGE  7335 21701M002        R1          532.0  nm                                              manual DT              
+ RANGE  7337 21739M001        R1          532.0  nm                                              manual DT              
+ RANGE  7339 21740M001        R1          532.0  nm                                              manual DT              
+ RANGE  7343 21601M002        R1          532.1  nm                                              RXOBV3 update          
+ RANGE  7355 21612M002        R1          532.1  nm                                              RXOBV3 update          
+ RANGE  7356 21613M003        R1          532.1  nm                                              RXOBV3 update          
+ RANGE  7357 21601S005        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7358 21749S001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7370 50186M001        R1          532.1  nm                                              RXOBV3 update          
+ RANGE  7403 42202M003        R1          532.0  nm                                              manual hu              
+ RANGE  7404 41705M004        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7405 41719M001        R1          423.5  nm                         2010 02 27 23 59 59  RXOBV3 update          
+ RANGE  7405 41719M001B       R1          423.5  nm    2010 04 29 00 00 00                       manual DT              
+ RANGE  7405 41719M001        R2          847.0  nm                         2010 02 27 23 59 59  RXOBV3 update          
+ RANGE  7405 41719M001B       R2          847.0  nm    2010 04 29 00 00 00                       manual DT              
+ RANGE  7405 41719M001        R1          423.5  nm    2010 12 08 00 00 00                       RXOBV3 update          
+ RANGE  7405 41719M001        R2          847.0  nm    2010 04 29 00 00 00                       RXOBV3 update          
+ RANGE  7406 41508S003        R1          532.1  nm                                              RXOBV3 update          
+ RANGE  7406 41508S003        R2          532.0  nm    2006 04 02 00 00 00                       RXOBV3 update          
+ RANGE  7411 40132M001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7501 30302M003        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7505 11101M001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7505 11101M001        R2          532.1  nm                                              RXOBV3 update          
+ RANGE  7520 12614M001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7548 12725S013        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7587 20804M001        R1          532.1  nm                                              RXOBV3 update          
+ RANGE  7594 14201M200        R1          423.5  nm                                              RXOBV3 update          
+ RANGE  7597 14201M005        R1          532.1  nm                                              RXOBV3 update          
+ RANGE  7597 14201M005        R2          532.1  nm    1995 07 17 00 00 00  1996 07 09 23 59 59  RXOBV3 update          
+ RANGE  7597 14201M005        R2          532.0  nm    1996 07 10 00 00 00                       RXOBV3 update          
+ RANGE  7805 10503S001        R1          532.1  nm                                              RXOBV3 update          
+ RANGE  7806 10503S014        R1          532.1  nm                                              RXOBV3 update          
+ RANGE  7806 10503S014        R2          532.0  nm                         2003 04 21 23 59 59  RXOBV3 update          
+ RANGE  7806 10503S014        R2          532.1  nm    2003 04 22 00 00 00                       RXOBV3 update          
+ RANGE  7810 14001S007        R1          423.0  nm                         2008 03 03 23 59 59  manual dt, ILRS site lo
+ RANGE  7810 14001S007        R1          532.1  nm    2008 03 04 00 00 00                       manual dt, ILRS site lo
+ RANGE  7810 14001S007        R2          846.0  nm                         2008 03 03 23 59 59  manual dt, ILRS site lo
+ RANGE  7810 14001S007        R2         1064.2  nm    2008 03 04 00 00 00                       manual dt, ILRS site lo
+ RANGE  7811 12205S001        R1          532.0  nm                                              manual aj              
+ RANGE  7820 21609S002        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7821 21605S010        R1          532.1  nm                                              manual DT              
+ RANGE  7821 21605S010        R2          532.0  nm    2011 01 10 00 00 00                       RXOBV3 update          
+ RANGE  7822 92201M017        R1          532.1  nm                                              RXOBV3 update          
+ RANGE  7824 13402S004        R1          532.1  nm                                              RXOBV3 update          
+ RANGE  7824 13402S007        R1          532.0  nm                                              manual hu              
+ RANGE  7825 50119S003        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7825 50119S003        R2          106.0  nm                                              RXOBV3 update          
+ RANGE  7830 12617M002        R1          532.0  nm                                              manual aj              
+ RANGE  7830 12617M002        R2          532.1  nm                                              RXOBV3 update          
+ RANGE  7831 30101S001        R1          532.1  nm                                              RXOBV3 update          
+ RANGE  7832 20101S001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7835 10002S001        R1          532.0  nm                                              manual                 
+ RANGE  7835 10002S001        R2          532.4  nm                                              RXOBV3 update          
+ RANGE  7836 14106S009        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7837 21605S001        R1          532.1  nm                                              RXOBV3 update          
+ RANGE  7838 21726S001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7839 11001S002        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7839 11001S002        R2          532.0  nm                                              RXOBV3 update          
+ RANGE  7840 13212S001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7840 13212S001        R2          532.1  nm    2011 01 18 00 00 00                       RXOBV3 update          
+ RANGE  7841 14106S011        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7841 14106S011        R2          532.1  nm                                              RXOBV3 update          
+ RANGE  7843 50103S007        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7845 10002S002        R1          532.4  nm                         2003 10 15 23 59 59  manual cu              
+ RANGE  7845 10002S002        R1          532.1  nm    2003 10 16 00 00 00                       manual cu              
+ RANGE  7845 10002S002        R2          532.1  nm    2003 10 13 00 00 00                       RXOBV3 update          
+ RANGE  7847 50107S009        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7848 10077M002        R1          532.0  nm                                              manual hu              
+ RANGE  7849 50119S001        R1          532.0  nm                                              manual                 
+ RANGE  7882 40505M001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7883 40506M001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7884 40429S001        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7918 40451M120        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7920 40451M117        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  7939 12734S001        R2          694.3  nm                                              RXOBV3 update          
+ RANGE  7941 12734S008        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  8833 13504M002        R1          532.1  nm                                              RXOBV3 update          
+ RANGE  8834 14201S018        R1          532.0  nm                                              RXOBV3 update          
+ RANGE  8834 14201S018        R2         1064.0  nm                                              manual KS - log        
+

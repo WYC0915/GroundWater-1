@@ -1,0 +1,183 @@
+<html>
+<body>
+
+<center>
+<b>TRANSFER BERNESE OBSERVATION FILES TO RINEX</b>
+<p>Program: BV3RXO
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The main purpose of the program BV3RXO is to convert
+Bernese observation files to RINEX observation files.
+If there are phase and code files you can specify them both to generate
+RINEX files containing both phase and code observations.
+
+<p><hr>
+
+<p><b>BV3RXO 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RADIO_1" default="1"></a>
+<a name="PHSFIL" default="????$S+0"></a>
+<p><b>INPUT FILES</b>
+<p><b>Use phase observation files: </b>
+Select this option if you have phase observation files to be converted. Specify
+the names of the Bernese phase observation files.
+
+<a name="BOTH" default="1"></a>
+<p><b>Use corresponding code file: </b>
+If you select this option code files with filenames identical to
+the phase files are used and both, phase and code observations, will be written
+into the resulting RINEX files. If the option is not selected, no code
+files are used and only phase observations are written to the output RINEX
+files.
+
+<p><i>Default value:</i> marked
+
+<a name="RADIO_2" default="0"></a>
+<a name="CODFIL" default=""></a>
+<p><b>Use code observation files only: </b>
+If you want to transform only code files and no phase files, select this option and
+specify the corresponding filenames here. The resulting RINEX files will
+contain only code observations.
+
+<a name="COORD" default=""></a>
+<p><b>Coordinate file: </b>
+Specify a coordinate file from which the station coordinates are extracted
+to be written in the header of the RINEX observation file.
+
+<br><br>
+
+<a name="RXNFIL" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>RINEX observation file: </b>
+If you leave this input field blank, the names for the RINEX observation files
+are the same as the Bernese files (but with a different extension).
+If you convert one file only, you can specify another name for the RINEX
+output file.
+
+<p><i>Default value:</i> blank
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="BV3RXO"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+year and day of year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>BV3RXO 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates. It is used
+to apply antenna heights and for the printing of coordinates in the
+local system (north, east, up). You only have to modify this file
+when you want to introduce a new reference ellipsoid.
+
+<p><i>Caution:</i>
+This file has no effect on Cartesian coordinates.
+
+<p>Example: <a href="/$X/GEN/DATUM.">$X/GEN/DATUM.</a>
+
+<a name="RECEIVR" default="RECEIVER."></a>
+<p><b>Receiver information:</b>
+This file contains in essence the code measurement types for a list of
+receivers. These specifications are relevant when considering so-called
+differential (P1-P2 or P1-C1) code biases.
+
+<p>Example: <a href="/$X/GEN/RECEIVER.">$X/GEN/RECEIVER.</a>
+
+<p><hr>
+
+<p><b>BV3RXO 2: Processing Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="RUNBY" default=""></a>
+<p><b>HEADER INFORMATION</b>
+<p><b>Run by:</b>
+Specify the content of the RUNBY section in the header of the RINEX
+observation file, i.e., the name of the your agency.
+
+<br><br>
+
+<a name="COMMENT1" default=""></a>
+<a name="COMMENT2" default=""></a>
+<a name="COMMENT3" default=""></a>
+<p><b>COMMENT LINES</b>
+<p><b>Line 1</b>, <b>Line 2</b>, <b>Line 3: </b>
+The user may specify up to 3 comment lines, which will appear in
+the header of the RINEX observation file(s).
+
+<a name="IFLGCO" default="1"></a>
+<p><b>Add campaign and Bernese observation file title to RINEX header:</b>
+If the option is selected, the campaign name and the title of the
+Bernese observation files will be added as comment lines to the
+resulting RINEX observation files.
+
+<p><i>Remark:</i>
+These title lines are independent from the program
+"TITLE" you have specified above for the run of BV3RXO.
+
+<p><i>Default value:</i> marked
+
+<p><hr>
+
+</body>
+</html>

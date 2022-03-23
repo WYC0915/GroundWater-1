@@ -1,0 +1,74 @@
+      MODULE s_RMSSUM
+      CONTAINS
+
+C*
+      SUBROUTINE RMSSUM(N,R0,B,Q,IA,R1)
+CC
+CC NAME       :  RMSSUM
+CC
+CC PURPOSE    :  COMPUTE SUM OF RESIDUALS SQUARE IN THE SECOND
+CC               PART OF THE PROGRAM GPSEST IN AN
+CC               EFFICIENT WAY
+CC               THEORY: R. LANGLEY ET AL. "STUDIES IN THE
+CC                       APPLICATION OF THE G.P.S. - SYSTEM FOR
+CC                       DIFFERENTIAL POSITIONING", CHAPTER 9
+CC                       DEPT. OF SURVEYING ENGINEERING, UNB
+CC                       FREDERICTON, 1984
+CC
+CC PARAMETERS :
+CC         IN :  N      : NUMBER OF AMBIGUITY-PARAMETERS      I*4
+CC               R0     : NON-AMBIGUITY - PART OF RMS-SUM     R*8
+CC               Q      : PART OF NORMAL-EQUATION - MATRIX    R*8
+CC               B1     : PART OF RIGHT HAND SIDES OF         R*8
+CC                        NORMAL-EQUATION - SYSTEM
+CC               IA     : ARRAY CONTAINING THE INTEGER VALUES I*4
+CC                        FOR THE AMBIGUITIES
+CC               R1     : ACTUAL RESIDUAL SQUARE SUM OBTAINED R*8
+CC                        WITH AMBIGUITIES IA
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER
+CC
+CC VERSION    :  3.0
+CC
+CC CREATED    :  87/11/03 10:30
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I   , IK  , K   , N
+C
+      REAL*8    HELP, R0  , R1
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      REAL*8    B(*),Q(*)
+C
+      INTEGER*4 IA(*)
+C
+      R1=R0
+      DO 1 I=1,N
+        R1=R1+B(I)*IA(I)
+1     CONTINUE
+      DO 3 I=1,N
+        HELP=0.D0
+        DO 2 K=1,N
+          IK=I+(K-1)*N
+          HELP=HELP+Q(IK)*IA(K)
+2       CONTINUE
+        R1=R1+HELP*IA(I)
+3     CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

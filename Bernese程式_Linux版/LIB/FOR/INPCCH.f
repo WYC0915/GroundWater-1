@@ -1,0 +1,211 @@
+      MODULE f_inpcch
+      CONTAINS
+
+C*
+      FUNCTION INPCCH(LUN,NCHAR,NMENU,STRINP,
+     1                CHROUT,CHMENU,NRMENU,IRCODE)
+CC
+CC NAME        : INPCCH
+CC
+CC PURPOSE     : INPUT OF A LINE OF CHARACTERS OR MENU PARAMETERS
+CC
+CC               THE SUBROUTINE IS INTENDED TO BE USED E.G. FOR THE
+CC               FOLLOWING TYPE OF INPUT:
+CC               - THE PROGRAM ASKS FOR A LINE OF CHARACTERS
+CC               - INSTEAD OF CHARACTERS THE USER MAY INPUT
+CC                 MENU PARAMETERS, E.G. =2.3.4
+CC                                       =X
+CC                                       =T      ETC.
+CC                 THIS MEANS THAT A CHARACTER STRING MAY NOT START WITH
+CC                 '=' IF NMENU IS GREATER THAN ZERO.
+CC
+CC               - NUMERIC MENU PARAMETERS ARE STORED IN VECTOR NRMENU
+CC                 IF NMENU MENU PARAMETERS ARE EXPECTED AND ONLY N
+CC                 PARAMETERS ARE INPUT, NRMENU(N+1),NRMENU(N+2),...,
+CC                 NRMENU(NMENU) ARE SET TO ZERO.
+CC               - A CHARACTER MENU PARAMETER IS STORED IN CHARACTER
+CC                 CHMENU (BLANK IF NO CHARACTER PARAMETER HAS BEEN
+CC                 INPUT) IN ORDER TO ACCEPT A CHARACTER PARAMETER,
+CC                 NMENU HAS TO BE PUT TO AT LEAST 1.
+CC               - THE FUNCTION VALUE GIVES THE ACTUAL NUMBER OF INPUT
+CC                 CHARACTERS (VALUES IN CHROUT, NUMERIC MENU PARAMETERS
+CC                 IN NRMENU, CHARACTER MENU PARAMETER IN CH)
+CC               - IF NO CHARACTERS ARE INPUT (JUST <RETURN> OR MENU
+CC                 PARAMETERS) THE VALUES OF CHROUT ARE NOT CHANGED.
+CC                 OTHERWISE THE CHARACTER VECTOR IS FILLED WITH
+CC                 TRAILING BLANKS UP TO ITS ELEMENT NUMBER NCHAR.
+CC               - IF THE LOGICAL UNIT NUMBER IS SET TO A NEGATIVE
+CC                 VALUE, THE INPUT LINE IS TAKEN FROM STRING 'STRINP'
+CC                 UP TO CHARACTER NUMBER ABS(LUN)
+CC
+CC
+CC PARAMETERS  :
+CC          IN : LUN    : LOGICAL UNIT NUMBER FOR INPUT           I*4
+CC               NCHAR  : NUMBER OF EXPECTED CHARACTERS           I*4
+CC               NMENU  : NUMBER OF EXPECTED MENU PARAMETERS      I*4
+CC               STRINP : INPUT STRING (READ IF LUN<0)           CH*(*)
+CC         OUT : CHROUT : CHARACTERS (MAY BE DEFINED EXTERNALLY) CH*(*)
+CC               CHMENU : CHARACTER MENU PARAMETER               CH*1
+CC                        (BLANK IF NOT INPUT)
+CC               NRMENU : NUMERIC MENU PARAMETERS                 I*4(.)
+CC                        (MAY BE DEF. EXT.)
+CC               IRCODE : RETURN CODE                             I*4
+CC                        0: OK
+CC                        1: END OF FILE ON CHANNEL LUN
+CC                        2: INPUT ERROR
+CC                        3: NUMERIC MENU PARAMETERS
+CC                        4: '=X'  5: '=Q'   6: '=?', ? ANY CHAR.
+CC                           EXCEPT X,Q
+CC                        7: INPCCH=0    8: INPCCH<NCHAR
+CC
+CC               INPCCH : ACTUAL NUMBER OF VALUES
+CC
+CC REMARKS     : NOT MORE THAN 127 CHARACTERS INPUT
+CC
+CC AUTHOR      : W. GURTNER
+CC               ASTRONOMICAL INSTITUTE, UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+CC CREATED     : 04-JUN-89
+CC
+CC CHANGES:      03-SEP-98 : READ(*,...) IF LUN=5 OR LUN=0
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS
+CC
+C*
+      USE s_upperc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C -------------------------------
+      INTEGER*4 LSTRNG, IEND, IPOS, J, I, N, IG, NGUT, IZ,INPCCH
+
+C
+C  GLOBAL PARAMETERS
+      CHARACTER*1  CHMENU
+      INTEGER*4    LUN,NCHAR,NMENU,NRMENU(*),IRCODE
+      CHARACTER    CHROUT*(*),STRINP*(*)
+C
+C  LOCAL PARAMETERS
+      PARAMETER (LSTRNG=127)
+      CHARACTER*1   Z
+      CHARACTER*127 STRING
+C
+      INPCCH=0
+C
+      IEND=0
+      STRING=' '
+      CHMENU=' '
+C
+C  READ STRING
+      IF(LUN.LT.0) THEN
+        STRING=STRINP(1:IABS(LUN))
+      ELSE
+        IF(LUN.EQ.5.OR.LUN.EQ.0) THEN
+          READ(*,1,END=10) STRING
+        ELSE
+          READ(LUN,1,END=10) STRING
+        END IF
+1       FORMAT(A)
+        GOTO 20
+10      IRCODE=1
+        GOTO 999
+      END IF
+C
+20    IPOS=1
+      Z=STRING(IPOS:IPOS)
+C
+C  DETECT  '='-CHARACTER
+      IF(NMENU.GT.0.AND.Z.EQ.'=') GOTO 410
+C
+C  COPY STRING
+      DO 30 IPOS=NCHAR,1,-1
+        IF(STRING(IPOS:IPOS).NE.' ') GOTO 40
+30    CONTINUE
+40    DO 50 J=1,IPOS
+        CHROUT(J:J)=STRING(J:J)
+50    CONTINUE
+      INPCCH=IPOS
+      IF(IPOS.NE.0) THEN
+        DO 60 I=IPOS+1,NCHAR
+          CHROUT(I:I)=' '
+60      CONTINUE
+      END IF
+      IF(INPCCH.EQ.0) THEN
+        IRCODE=7
+      ELSEIF(INPCCH.LT.NCHAR) THEN
+        IRCODE=8
+      ELSE
+        IRCODE=0
+      END IF
+      GOTO 999
+C
+C  CHECK INPUT WITH '=' (MENU INPUT)
+C
+410   N=0
+      DO 420 I=1,NMENU
+        IG=0
+        NGUT=0
+400     IPOS=IPOS+1
+        IF(IPOS.GT.LSTRNG) GOTO 500
+C
+        Z=STRING(IPOS:IPOS)
+C
+C  DETECT FIRST ALPHABETIC CHARACTER
+        CALL UPPERC(Z)
+        IF(Z.GE.'A'.AND.Z.LE.'Z') THEN
+          CHMENU=Z
+          INPCCH=1
+          IF(CHMENU.EQ.'X') THEN
+            IRCODE=4
+          ELSEIF(CHMENU.EQ.'Q') THEN
+            IRCODE=5
+          ELSE
+            IRCODE=6
+          END IF
+          GOTO 999
+        END IF
+C
+C  PERIOD (DELIMITER)
+C
+        IF(Z.EQ.'.') GOTO 510
+C
+C  END
+        IF(Z.EQ.' ') GOTO 500
+C
+C  MANTISSE
+C
+        READ(Z,11,ERR=920) IZ
+11      FORMAT(I1)
+        IG=10*IG+IZ
+        NGUT=NGUT+1
+C
+        GOTO 400
+C
+500     IEND=1
+C
+C  END OF CURRENT NUMBER
+C
+510     IF(NGUT.NE.0) THEN
+          N=N+1
+          NRMENU(N)=IG
+        ELSE
+          IF(IEND.EQ.0) GOTO 920
+        END IF
+C
+        IF(IEND.EQ.1) GOTO 600
+420   CONTINUE
+C
+600   INPCCH=N
+      DO 610 I=N+1,NMENU
+        NRMENU(I)=0
+610   CONTINUE
+      IRCODE=3
+      GOTO 999
+C
+920   IRCODE=2
+      GOTO 999
+C
+999   RETURN
+      END FUNCTION
+
+      END MODULE

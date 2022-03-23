@@ -1,0 +1,50 @@
+<html>
+<body>
+
+<center>
+<b>CREATE/UPDATE BASELINE DEFINITION FILE</b>
+<p>Editor: EDITBSL
+</center>
+<hr width="100%">
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The baseline file contains a list of pairs of station names defining baselines.
+This input panel helps you to create or to edit this type of files.
+<br>
+To create a new baseline file specify a new filename in the file
+selection dialogue. In this case you will be asked to select an existing
+coordinate file. The station names will be read from this
+file to generate a baseline file template.
+
+<p><i>Remark:</i>
+The end of the baseline file is indicated by a blank line. Lines below the
+blank line are ignored. If you use this input mask to edit a baseline file
+these additional lines will be lost. If you want to keep them in the file
+you have to use an external text file editor.
+<br>
+A baseline definition file may also be created by the programs
+<a href="PGMLST.HLP#SNGDIF">SNGDIF</a> (see option
+<a href="SNGDIF.HLP#BASPRT">BASPRT</a>) or
+<a href="PGMLST.HLP#MPRXTR">MPRXTR</a> (see option
+<a href="MPRXTR.HLP#BSLFIL">BSLFIL</a>).
+
+<p><a href="/$X/DOC/EXAMPLE.BSL">Example</a>
+
+<p><hr>
+
+<b>BASELINE DEFINITION FILE</b>
+
+<a name="BASLINRS" default=""></a>
+<p><b>Filename:</b>
+The absolute path and the name of the baseline definition file is given here.
+
+<a name="STABSL" default="%% %%"></a>
+<p><b>Station name&nbsp;1</b>,
+   <b>Station name&nbsp;2:</b>
+Enter two station names line by line defining one baseline.
+
+<p><hr>
+
+</body>
+</html>

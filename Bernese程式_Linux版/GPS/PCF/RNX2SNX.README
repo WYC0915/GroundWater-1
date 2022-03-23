@@ -1,0 +1,690 @@
+======================================================================
+Bernese GNSS Software, Version 5.2              Last mod.: 01-Nov-2012
+----------------------------------------------------------------------
+RNX2SNX.PCF README
+======================================================================
+
+------------------------------------------------------------
+Purpose:
+------------------------------------------------------------
+
+RINEX-TO-SINEX (RNX2SNX): standard double-difference
+processing for regional networks for static, dual-frequency
+stations.
+
+The purpose of this BPE is to compute coordinates and
+troposphere parameters for all included stations in
+a given reference frame using the translation conditions
+from a minimum constraint solution. In addition, normal
+equation files are generated.
+
+
+------------------------------------------------------------
+Description:
+------------------------------------------------------------
+
+This BPE performs a full double-difference solution for a
+regional network assuming dual-frequency data. It starts
+from RINEX observation files and precise orbit information
+(e.g., from CODE) and generates a SINEX solution file
+(RNX2SNX).
+
+The following results are obtained:
+- computation of high precision station coordinates (on
+  the millimeter level accuracy),
+- estimation of station-specific troposphere parameters.
+
+A project-specific coordinate file (V_CRDINF, e.g., EXAMPLE
+for EXAMPLE.CRD) is merged with a reference frame coordinate
+file (V_REFINF, e.g., IGB08 for IGB08_R.CRD) to use the
+latest coordinate reference frame for the analysis.
+
+An advanced ambiguity resolution scheme is included:
+- Code-Based Widelane (WL) Ambiguity Resolution
+  For baselines shorter than V_BL_AMB, e.g., 6000km, a
+  Melbourne-Wuebbena wide-lane (after checking the residuals
+  of the code observations for outliers) and a narrow-lane
+  ambiguity resolution is performed.
+  Note: this ambiguity resolution strategy good quality
+  code measurements are required.
+- Phase-Based Widelane (L5) Ambiguity Resolution
+  For baselines shorter than V_BL_L52, e.g., 200km) the
+  code-based wide-lane ambiguity resolution is replaced by
+  a phase-only wide-lane with a subsequent narrow-lane
+  ambiguity resolution.
+- Quasi-Ionosphere-Free (QIF) Ambiguity Resolution
+  The QIF-strategy is applied on the remaining real-valued
+  ambiguities for baselines shorter than V_BL_QIF,
+  e.g., 2000km.
+- Direct L1/L2 Ambiguity Resolution
+  A direct L1/L2 ambiguity resolution is applied instead of
+  the above mentioned sequence of strategies on very short
+  baselines (shorter than V_BL_L12, e.g., 20km).
+- Ambiguity Resolution Verification
+  Each baseline is processed with introducing the resolved
+  ambiguities with their integer values and checking the
+  residuals. If there is any problem accounted, the resolved
+  ambiguities are re-initialized.
+  Note: for a robust automated processing it is preferable
+  to have no ambiguity fixed rather than ambiguities set to
+  a wrong integer value.
+
+The resulting coordinates of the session are compared with
+the reference frame coordinates via a HELMERT-transformation
+(three translations, because of the degrees of freedom for
+the datum definition of a regional network).
+In addition a comparison of all resulting coordinates with
+the previous solutions is done.
+
+Remarks:
+Depending on the session table in the campaign, either
+daily sessions or hourly files are processed. In the latter
+case several hourly observation files are concatenated in
+a sliding window scheme.
+
+If you want to process several sessions you may either
+analyze them sequentially or in separate campaigns for each
+session (see panel BPE 1.1: Multi Session Processing Options
+when launching the BPE with the menu > BPE > Start BPE
+process). PLEASE NOTE THAT THE BPE IS NOT DESIGNED TO PROCESS
+MORE THAN ONE SESSION IN THE SAME CAMPAIGN AREA AT THE SAME
+TIME.
+
+
+------------------------------------------------------------
+Quality control:
+------------------------------------------------------------
+
+The processing is summarized in a so-called protocol file.
+It is compiled in the BPE user script R2S_SUM and exists first
+in the OUT directory of the campaign. Depending on the settings
+for the BPE server variables (at the end the PCF file) the
+protocol is copied by the R2S_SAV script (if V_SAV == 'Y')
+   -->> ${S}/{V_RESULT}/yyyy/OUT/R2Syyssss.PRC
+and is removed from the campaign area by the script R2S_DEL
+(if V_DEL == 'Y').
+
+This protocol file is divided into sections related to the
+different tasks/features of this BPE:
+
+PART 1: RINEX PSEUDO-GRAPHICS
+   The content of the RINEX observation files is summarized
+   here (summary file output from program RNXGRA). Here you
+   may detect stations with problems in the data (e.g.,
+   reduced tracking performance of a station).
+
+PART 2: ORBIT GENERATION SUMMARY
+   The summary file from ORBGEN reports the RMS of the fit of
+   the satellite positions given in the precise orbit file
+   ${D}/{V_B}/(V_B}wwwwd.PRE with the orbit model from
+   ORBGEN. It is expected that the RMS is on the few
+   millimeters level (for ORBGEN, pseudo-stochastic pulses are
+   setup every twelve hours to compensate for different orbit
+   models in ORBGEN and the external orbit program). If the
+   RMS is bigger, you should check the consistency of the
+   Earth rotation files ${D}/{V_B}/(V_B}wwww7.ERP.
+
+PART3: SINGLE-POINT-POSITIONING SUMMARY
+   The output from program CODXTR gives an overview on the
+   performance of CODSPP synchronizing the receiver clocks
+   to GPS system time using pseudorange measurements. It
+   is expected that the RMS is below 5.00 meters. No additional
+   exclusion periods should be reported in this part.
+   If this is the case, they may be caused by serious data
+   problems in a specific station (please have a closer look
+   to its results later in the protocol) or there are some
+   problems/inconsistency with the introduced satellite clock
+   file (if all stations are listed for a specific interval).
+   If you have a rather high number of bad observations
+   indicated in the protocol file but the output does not
+   contain other indications for problems, it might have a
+   very simple explanation: you have imported GPS and GLONASS
+   observations from the RINEX files (V_SATSYS == 'BOTH')
+   but your satellite clock file does not provide any
+   GLONASS clock information. If only the GLONASS satellite
+   clock corrections are missing, the GLONASS observations
+   can be processed if the GLONASS orbit information is
+   available.
+
+PART 4: PREPROCESSING OF PHASE OBSERVATIONS
+   This section contains the summary generated by MPRXTR
+   from the MAUPRP program outputs.
+   Pay attention to the RMS of the epoch-difference
+   solution which should be below 20 mm. If all baselines
+   show big RMS values, a problem with the satellite orbits
+   is likely the source. If only a limited number of baselines
+   is affected the limit for observed-computed in the input
+   panel need to be revised or the constraints on the
+   coordinate differences in the input panel do not correspond
+   to the quality of the a priori coordinates. In the latter
+   case, a repetition of MAUPRP with improved a priori
+   coordinates may help.
+
+PART 5: DATA PREPROCESSING/SCREENING SUMMARY
+   This section contains the output and summary files from the
+   program RESCHK and RESRMS. They provide some statistics on
+   the residual screening (RMS before and after screening,
+   number of removed measurements). The tables are useful to
+   detect  whether a certain problem is related to a
+   baseline/station or a satellite. The RMS after the screening
+   should be in the order of 1.2..1.4 mm. It should also be
+   verified that not more than 3% of the data are removed.
+   Otherwise you have to find out whether there are some
+   problems with your satellite orbits or whether one or a few
+   of the stations have introduced the problem (e.g., due
+   to tracking problems of the receiver).
+
+PART 6: AMBIGUITY RESOLUTION SUMMARY
+   This section provides a summary on the ambiguity resolution.
+   You can expect the following key parameters for the different
+   strategies:
+   Code-based widelane ambiguity resolution
+     RMS before: < 0.5 mm / after: slightly above; 95..100% resolved
+   Code-based narrowlane ambiguity resolution
+     RMS: 1.0..1.5 mm; about 90% resolved
+   Phase-based widelane ambiguity resolution
+     RMS: 1.0..1.5 mm; 95..100% resolved
+   Phase-based narrowlane ambiguity resolution
+     RMS: 1.0..1.5 mm; about 80% resolved
+   Quasi-Ionosphere-Free (QIF) Ambiguity Resolution
+     RMS: 1.0..1.5 mm; about 40% resolved
+   Direct L1/L2 Ambiguity Resolution
+     RMS: 1.0..1.5 mm; close to 100% resolved
+   Remark: Phase-based wide- and narrowlane and direct L1/L2
+   strategies start the ambiguity resolution after resetting
+   already resolved ambiguities. On the other hand, the
+   QIF-strategy resolves (at least for GPS) only the remaining
+   real valued ambiguities.
+   Big RMS before the ambiguity resolution in the QIF-strategy
+   may indicate that the real behaviour of the ionosphere cannot
+   sufficiently represented by the a priori ionosphere model
+   and absolute a prior sigma of the stochastic ionosphere
+   parameters (which maximum value is given by the strategy
+   itself). As the only consequence possibly not all ambiguities
+   are resolved.
+
+PART 7: GNSS COORDINATE/TROPOSPHERE SOLUTION STATISTICS
+   For each station, the output summary from the GPSEST after
+   the residual screening is provided. The solution V_C
+   (default P1_) is the network solution before the ambiguity
+   resolution. The second solution is V_E (default F1_)
+   the network solution introducing the resolved ambiguities.
+   This should translate in a smaller number of parameters.
+   The RMS for the third solution where the content of the
+   NEQ V_F (default R1_) is reduced to station coordinates
+   should be identical with the V_E solution. The differences
+   in the number of observations can be explained by differences
+   in the number of necessary pseudo-observations according
+   to the included parameters.
+   The RMS is expected to be 1 millimeter or slightly below.
+
+PART 8: VERIFICATION OF DATUM DEFINITION
+   The final coordinate solution (solution ID V_E) is
+   compared with the reference frame coordinates. The datum
+   definition in the final solution was realized by a minimum
+   constraint solution for the translation parameters (for
+   regional networks). For that reason, only translation
+   parameters in the HELMR1-program have been setup, which
+   should be estimated to zero.
+   Outliers in the coordinate residuals (after considering the
+   transformation parameters) may indicate weakly estimated
+   coordinates (due to data problems, pre-processing issues,
+   or incorrectly resolved ambiguities). If they are caused
+   by permanent crustal deformations (like an Earthquake)
+   the corresponding site should be removed from the list of
+   reference sites. An equipment change may also introduce
+   a deviation in the coordinate result series.
+   Stations with big residuals in the coordinate comparison
+   may also be listed in the section 'REJECTED STATIONS' which
+   reports stations which have not been used for the datum
+   definition are marked with a flag. If some of these stations
+   have residuals bigger than about 10 cm, the a priori
+   coordinates should be updated.
+
+PART 9: SLIDING 7-SESSION COMPARISON OF STATION COORDINATES
+   In this part, the network solution for the coordinates is
+   compared to the coordinate solutions from the previous
+   days. It is a consistency check of the series of solutions
+   which allows to detect events in the time series. The
+   reasons are usually the same as mentioned above in PART 8:
+   equipment changes, Earthquakes, or problems with the
+   coordinate estimation.
+   This section does not appear if no coordinate files of
+   previous days are available in the active campaign.
+
+
+------------------------------------------------------------
+BPE server variables:
+------------------------------------------------------------
+
+There are several variables, assigned with a default value
+in the PCF file (last section). When starting a BPE manually
+they may be modified in the fourth panel 'BPE 4: Server
+Variables Sent to Client'.
+
+The following group of BPE server variables are used as
+solution identifiers, consequently used for file naming
+within the BPE processing:
+V_B (default: COD)
+   Name of the external product for GNSS orbit, ERP and
+   satellite clock information.
+   It is expected that the products are available in the
+   ${D} (datapool) area in a specific subdirectory V_B; the
+   filenames must also contain this label: {V_B}wwwwd
+   (see 'Input files' section below for more details)
+V_A (default: APR)
+   Station coordinates, improving with each processing step
+V_C (default: P1_)
+   Label of the program output and result files from the
+   RNX2RNX process from the intermediate network solution
+   before resolving the ambiguities (CRD, TRP, TRO, NQ0).
+   These files are NOT copied to the product archive with
+   the version of R2S_SAV from the distribution of the
+   Bernese Software, Version 5.2
+V_E (default: F1_)
+   Label of the program output and result files from the
+   final processing step with introduced resolved integer
+   ambiguities for the station coordinates and troposphere
+   parameters (CRD, TRP, TRO, NQ0, SNX). These five files
+   are copied with this label into the product archive.
+V_F (default: R1_)
+   Label of the program output and result files from a reduced
+   version of the final normal equation file (NQ0) of the
+   current session containing only station coordinates
+   (troposphere parameters are pre-eliminated).
+
+The next group of BPE server variables manages the directories
+of the input data and the location of the result files in the
+product database:
+V_RNXDIR (default: RINEX)
+   Directory in the ${D} (datapool) area where the RINEX files
+   are expected. The selection of stations for processing is
+   managed by the V_OBSSEL variable, see below.
+V_REFDIR (default: REF52)
+   Directory in the ${D} (datapool) area where the basic Bernese
+   files for the processing are located, the detailed list of
+   files is given in the section on 'Input files' below.
+V_CRDINF (default: EXAMPLE)
+   The basename of the files used as basic Bernese input files
+   for this RNX2SNX procedure. Copying these files is managed
+   in the BPE user script R2S_COP.
+V_HOIFIL (default: HOI102070)
+   Specify the filename used for the ionosphere model within
+   your campaign area that is used to compute the higher-
+   order ionosphere (HOI) corrections. The ionosphere model is
+   copied from ${D}/BSW52/CODwwwwd.ION into the ATM-directory
+   of the campaign using the given filename.
+   If the variable is empty, the HOI corrections are disabled.
+V_BLQINF (default: EXAMPLE)
+   The basename of the file containing the ocean tidal
+   loading corrections for the stations. The file has also
+   to contain the center-of-mass corrections (CMC) connected
+   to ocean tidal loading. These corrections are needed for
+   the orbit generation.
+   If the variable is empty, no displacement corrections to
+   the stations or CMC for the orbit generation are applied.
+   The file ${D}/REF52/${V_BLQINF}.BLQ is copied by the
+   script R2S_COP into the campaign.
+V_ATLINF (default: EXAMPLE)
+   The basename of the file containing the atmosphere tidal
+   loading corrections for the stations. The file must also
+   contain the center-of-mass corrections (CMC) connected
+   to atmosphere tidal loading. These corrections are needed
+   for orbit generation.
+   If the variable is empty, no displacement corrections to
+   the stations or CMC for the orbit generation are applied.
+   The file ${D}/REF52/${V_ATLINF}.ATL is copied by the
+   script R2S_COP into the campaign.
+V_CRXINF (default: empty)
+   Inconsistencies between the RINEX observation file headers
+   and the station information file can be recorded in a file
+   with 'Accepted station information' inconsistencies in
+   program RXOBV3. If you need such a file for your processing,
+   you can specify its name here. It will be copied from
+   ${D}/REF52/${V_CRXINF}.CRX
+V_RESULT (default: RNX2SNX)
+   Directory in the ${S} (savedisk) area where the result files
+   from the RNX2SNX processing are collected in yearly
+   sub-directories (saving of the result files is managed by
+   the BPE user script R2S_SAV).
+
+V_REFINF (default: IGB08)
+   Reference frame files, used as master files when updating
+   coordinate and velocity files.
+   The corresponding files are expected as
+      ${D}/{V_REFDIR}/(V_REFINF}_R.CRD
+      ${D}/{V_REFDIR}/(V_REFINF}_R.VEL
+   The first sequence of the RNX2SNX processing replaces
+   coordinates for stations given in these reference frame
+   files in the project-related coordinate file. Keep this
+   variable empty to skip this update. You will need in this
+   case a station selection file for the reference frame
+   sites ${D}/{V_REFDIR}/(V_REFINF}.FIX.
+
+The following variables are responsible for the data selection:
+V_OBSSEL (default: blank)
+   This variable may contain a filename for a cluster file or
+   a file with the RINEX station abbreviations (see section
+   on Station selection below for more details).
+V_SATSYS (default: GPS/GLO)
+   Select the system(s) (usually GPS or GPS/GLO) to be used
+   for the RNX2SNX processing.
+   The value of this variable is directly introduced in the
+   option 'Satellite system to be considered' in panel
+   'RXOBV3 2: Input Options 1' (user script RXOBV3_P).
+   Note: whether all selected systems are really used for the
+   processing depends also on the availability of satellite
+   orbits as well as on the contents of the RINEX observation
+   file. This option acts only as a filter to remove
+   non-selected systems from the observation files.
+V_SAMPL (default: 180)
+   Sampling interval for the final solution.
+   The value of this variable is directly introduced as the
+   option 'Sampling interval' in panel 'RXOBV3 2:
+   Input Options 1' (user script RXOBV3_P).
+V_HOURLY (default: 8)
+   In case of hourly session definition, a number of hours can
+   be specified that are prepended to stabilize the estimation
+   of ambiguity parameters and improves the capability to
+   resolve the ambiguities. It should not be much shorter than
+   the length of a satellite path, e.g., 6 hours.
+   It is obsolete if daily session definition is given.
+
+Ambiguity resolution:
+V_GNSSAR (default: ALL)
+   The content of this variable is filled into the selection
+   of systems for the ambiguity resolution (panel GPSEST 3.2:
+   General Options 2). It may either contain a single GNSS
+   ('GPS' or 'GLONASS') to allow the ambiguity resolution only
+   for this particular system or it can be 'ALL' to resolve all
+   ambiguities.
+   If the variable is empty, the value in the input file is kept.
+V_BL_AMB (default: 6000)
+   The variable contains the maximum length of a baseline
+   included in the Melbourne-Wuebbena / Narrow-Lane ambiguity
+   resolution scheme. The value of this variable is fed
+   into the program BASLST (running in GNSAMBAP) to select
+   the baselines.
+V_BL_QIF (default: 2000)
+   The variable contains the maximum length of a baseline
+   included in the Quasi-Ionosphere-Free (QIF) ambiguity
+   resolution algorithm that is carried out on the ambiguities
+   that are not resolved in the first step yet. The value of
+   this variables is fed into the program BASLST (running
+   in user script GNSQIFAP) for baselines selection.
+V_BL_L53 (default: 200)
+   The variable contains the maximum length of a baseline
+   included in the phase-based wide-/narrow-lane ambiguity
+   resolution scheme.
+   Note: all already resolved ambiguities are reset to
+   the status 'unresolved' to start the ambiguity resolution
+   for this group of baselines from scratch.
+   The value of this variable is fed into the program BASLST
+   (running in GNSL53AP) to select the baselines.
+V_BL_L12 (default: 20)
+   The variable contains the maximum length of a baseline
+   included in the direct L1/L2 ambiguity resolution scheme.
+   All ambiguities already resolved for this baseline are
+   reset to 'unresolved' to re-initialize the ambiguity
+   resolution by this algorithm. The value of this variable
+   is fed into the program BASLST (running in GNSL12AP) for
+   baseline selection.
+
+Clustering for parallel scripts
+V_CLU (default: 7)
+   For all parallel running scripts it is a question on how
+   many files (stations/baselines) should be processed together
+   and how many jobs are running in parallel. The answer to this
+   question depends on the system architecture (regarding
+   speed disk access, the number of available CPUs).
+   In general you can plan one job per available CPU with a
+   quick access to your data partition. If this number exceeds
+   15 to 20 stations/baselines per cluster it is worth to
+   divide the jobs in additional clusters.
+   In any case it is important to have approximately the same
+   computing time for each of the clusters because the BPE
+   only continues with the next script when the last of the
+   parallel running jobs is finished.
+   The default value if computed to process the example
+   (13 stations/12 baselines) on a dual-core machine. It gives
+   two clusters which can processed in parallel at the same
+   time (2 processing cores).
+V_CLUEDT (default: 5)
+   The residual screening step (GPSEDT_P) is very CPU consuming
+   because several GPSEST runs are included.
+   For that reason you may reduce the size of the clusters
+   to speed up the processing.
+   If the variable V_CLUEDT is not specified or is empty,
+   the number from V_CLU also used in this step.
+V_CLUFIN (default: Y)
+   The baselines created in SNGDIF are assigned to cluster
+   numbers according to the file V_CRDINF.CLU. All baselines
+   where the first of the two stations has the same cluster
+   number are processed together in the final solution
+   considering the correct correlations (script GPSCLU_P).
+   These clusters are transferred from SNGDIF to GPSCLUAP
+   by CLB-files in the STA-directory of your campaign.
+   You may suppress the use of this cluster technology without
+   changing the file V_CRDINF.CLU by changing the value of this
+   variable to 'N' to process all baselines in one cluster.
+   Note: if you have asked for redundant baselines, they will
+   be listed in yyssss00.CLB file. This cluster is not touched
+   by changing the value of this variable because these
+   baselines may also contain closed loops which is not allowed
+   for the correct correlation strategy in GPSEST.
+
+Model selection related BPE variables:
+V_PCV (default: I08)
+   Selection of the antenna phase center model identifier.
+V_SATINF (default: SATELLIT)
+   Basename of the satellite information file.
+   The resulting filename is ${X}/GEN/{V_SATINF}.{V_PCV}.
+V_PCVINF (default: PCV)
+   Basename of the antenna phase center correction file.
+   The resulting filename is ${X}/GEN/{V_PCVINF}.{V_PCV}.
+   If you create your own antenna phase center correction
+   file considering your own station information file using
+   the program ATX2PCV (menu > Conversion > ANTEX to Bernese
+   format) we recommend to change the filename to indicate
+   which station information file was used (e.g., PCV_EXAMPLE).
+V_SATCRX (default: SAT_2010)
+   Name of the satellite problem file.
+V_MYATX (default: empty)
+   Filename (including extension) for an ANTEX file containing
+   receiver and possibly satellite antenna phase center
+   corrections. The file is used to update the Bernese phase
+   center file in ${X}/GEN/{V_PCVINF}.{V_PCV}, e.g., in case
+   of new antennas in the network.
+   It is expected that the file is available in ${X}/GEN/.
+   Note: if you plan to use a file containing individually
+   calibrated antennas you need to change the settings for
+   'Set number of generic receiver antennas to 999999' in
+   panel ATX2PCV 2: ANTEX Conversion (Script 002 ATX2PCV):
+     - checkbox unmarked: type specific calibrations
+     - checkbox marked:   antenna specific calibrations
+   Please remind that calibration values for all antennas
+   with number different from 999999 in the station information
+   file must be available with individually calibrations.
+
+There are two variables defining a range of sessions to be
+considered to compute the comparison of the coordinate
+solution from the current session with the results from
+previous sessions.
+V_MINUS (default: -6)
+   Start of the range of sessions (relevant to the script
+   COMPARF)
+V_PLUS (default: 0)
+   End of the range of sessions (relevant to the script
+   COMPARF)
+
+The last group is related to the file handling in the
+campaign
+V_SAV (default: Y)
+   Save result file into the ${S}/{V_RESULT} area
+   if V_SAV == 'Y'. This variable is managed by the BPE user
+   script R2S_SAV.
+V_DEL (default: Y)
+   Delete all files from the currently processed session from
+   the campaign if V_DEL == 'Y'; managed in R2S_DEL user script.
+   Usually the deletion should be enabled to keep the campaign
+   clean. For debugging purposes and to identify sources for
+   errors in the processing it may be useful to keep all files.
+ATTENTION: This logic implies that you will see no results in
+   case of Y_SAV == 'N' and V_DEL == 'Y' (clean up the campaign
+   but do not store the results).
+
+
+------------------------------------------------------------
+Input files:
+------------------------------------------------------------
+
+The input files are copied from the datapool area into
+campaign area in the BPE user script 'R2S_COP':
+
+- External products files (mandatory):
+  -->>  ${D}/{V_B}/(V_B}wwwwd.PRE
+  -->>  ${D}/{V_B}/(V_B}wwww7.ERP
+  The variable V_B is defined above in the 'BPE server
+  variables' section and defines the product series to be
+  considered for the PPP (e.g., COD or IGS), where wwwwd
+  stands for the GPS week and the day of week to be
+  processed.
+  Note: orbit and ERP should be consistent for the
+  orbit integration.
+
+- Bernese formatted products files (mandatory):
+  -->>  ${D}/BSW52/P1C1yymm.DCB
+  -->>  ${D}/BSW52/CODwwwwd.ION
+  The DCB corrections are necessary to unify the reference
+  for the different receiver tracking techniques what may
+  become important for the Melbourne-Wuebbena linear
+  combination with two receivers using different tracking
+  technologies in one baseline (yymm is related to the
+  months of the processing session).
+  The ionosphere file is needed to correct for the higher
+  order ionosphere terms and for the ambiguity resolution.
+
+  Both files can be downloaded from
+       ftp://ftp.unibe.ch/aiub/CODE
+
+- Reference frame files (mandatory)
+  The reference frame in the project specific coordinate file
+  is introduced by adding/overwriting the station coordinates
+  with the values given in the reference frame files. The
+  reference frame coordinate and velocity files are named:
+  -->>  ${D}/{V_REFDIR}/(V_REFINF}_R.CRD
+  -->>  ${D}/{V_REFDIR}/(V_REFINF}_R.VEL
+
+- Project-specific station-related files are needed for the
+  processing (mandatory):
+  -->>  ${D}/{V_REFDIR}/(V_CRDINF}.CRD
+  -->>  ${D}/{V_REFDIR}/(V_CRDINF}.VEL
+  -->>  ${D}/{V_REFDIR}/(V_CRDINF}.ABB
+  -->>  ${D}/{V_REFDIR}/(V_CRDINF}.STA
+  -->>  ${D}/{V_REFDIR}/(V_CRDINF}.CLU
+  We refer to the user manual for a description on the
+  content of each of these files.
+
+- RINEX header inconsistency acceptance file (optional)
+  The station information file ({V_CRDINF}.STA) is used
+  to verify the header information of the RINEX observation
+  files to be processed. If there are known inconsistencies
+  they can be documented in this file. The program will accept
+  RINEX files with such entries without further notice. The
+  file with the accepted RINEX header inconsistencies is
+  copied from
+  -->>  ${D}/{V_REFDIR}/(V_CRXINF}.CRX
+  as soon as the variable (V_CRXINF) contains a non-blank
+  value.
+
+- Tidal loading corrections (optional)
+  Ocean and atmospheric tidal loading may be corrected
+  during the RNX2SNX procedure if the corresponding
+  corrections are provided in the files.
+  Note: these files must also contain corresponding
+  CMC (center-of-mass correction) values for the translation
+  of the orbit positions from the Earth fixed system in
+  the center-of-mass system for the orbit integration.
+  -->>  ${D}/{V_REFDIR}/(V_BLQINF}.BLQ
+  -->>  ${D}/{V_REFDIR}/(V_ATLINF}.ATL
+
+
+------------------------------------------------------------
+Observations:
+------------------------------------------------------------
+
+The observation files are expected in RINEX format (Hatanaka
+compressed is allowed if the decompression program is available
+in ${X}/EXE/CRX2RNX -- see variable $c2rPgm definition
+in ${BPE}/bpe_util.pm) in the directory
+  -->>  ${D}/{V_RNXDIR}/
+The station/observation file selection is realized in the
+BPE user script RNX_COP.
+
+Three opportunities to select stations for processing are
+implemented (considered in the following order):
+1) A file {CAMPAIGN}/STA/{V_OBSSEL}.CLU exists
+   In the current campaign a cluster file with the name
+   V_OBSSEL (see BPE server variables below) does exist.
+   The station names from this file are translated into the
+   four-character-IDs using the abbreviation table
+   {CAMPAIGN}/STA/{V_CRDINF}.ABB. These four-character-IDs
+   are used to copy the corresponding RINEX files from the
+   source directory in the data base.
+2) A file {CAMPAIGN}/{V_OBSSEL} contains the RINEX abbreviations
+   of the files to be processed. They have to be separated
+   by blank characters or may start with a new line.
+3) If V_OBSSEL is empty all RINEX files of the specified
+   session(s) are processed.
+
+Usually only the RINEX files of the current session are
+processed. If you are going to process hourly sessions
+(session identifier must end with 'A'..'X' -- see method
+'isHourly' in ${BPE}/bpe_util.pm), all hours defined
+by the range of the last V_HOURS (given by the BPE variables
+in the lower part of this file) are concatenated and processed
+together under the label of the current session (of course
+the corresponding input files are copied, too).
+
+
+------------------------------------------------------------
+Result files:
+------------------------------------------------------------
+
+The most important result files are copied by the BPE
+user script R2S_SAV into the ${S}/{V_RESULT} area
+(V_RESULT is defined below in the BPE server variables area)
+if the BPE server variable V_SAV == 'Y'. The files are
+located in yearly sub-directories (yyyy). These files are:
+
+-->> ${S}/{V_RESULT}/yyyy/OUT/R2Syyssss.PRC
+Main protocol file containing the summary of the processing
+steps (more details are provided in the 'Quality control'
+section).
+
+-->> ${S}/{V_RESULT}/yyyy/STA/{V_E}yyssss.CRD
+Resulting station coordinates for the stations from the
+ambiguity resolved, minimum constraint network solution
+(epoch of the processed data).
+
+-->> ${S}/{V_RESULT}/yyyy/ATM/{V_E}yyssss.TRP
+-->> ${S}/{V_RESULT}/yyyy/ATM/{V_E}yyssss.TRO
+Troposphere estimates (Bernese troposphere format and
+troposphere SINEX format) as obtained from the ambiguity-fixed
+network solution.
+
+-->> ${S}/{V_RESULT}/yyyy/SOL/{V_E}yyssss.NQ0.gz
+Normal equation file (gnu-compressed) with the coordinate
+and troposphere parameters of all stations of the
+double difference solution.
+
+-->> ${S}/{V_RESULT}/yyyy/SOL/{V_F}yyssss.NQ0.gz
+-->> ${S}/{V_RESULT}/yyyy/SOL/{V_E}yyssss.SNX.gz
+Reduced version of the normal equation with pre-eliminated
+troposphere parameters containing, e.g., only the coordinate
+parameters.
+
+Note: the BPE server variables V_E and V_F are defined per
+default by the identifiers
+
+======================================================================

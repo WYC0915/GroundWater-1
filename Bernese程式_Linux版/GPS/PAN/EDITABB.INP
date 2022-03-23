@@ -1,0 +1,32 @@
+
+ABBREVRS     0
+  ## widget = comment
+
+MSG_ABBREVRS 1  "Filename"
+
+TITLE     0
+  ## widget = lineedit
+  ## check_strlen = 80
+
+MSG_TITLE 1  "Title"
+
+LIST_OF_ABBREV     1  "" "" "" ""
+  ## widget = uniline
+  ## check_strlen.1 = 16
+  ## check_strlen.2 = 4
+  ## check_strlen.3 = 2
+  ## numlines = 15
+
+MSG_LIST_OF_ABBREV 1  "Station name/4-Chr Abbreviation/2-Chr Abbreviation"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CREATE/UPDATE STATION ABBREVIATION TABLE - EDITABB                           #
+#                                                                              #
+#  Filename> %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # ABBREVRS
+#  Title   > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # TITLE
+#                                                                              #
+#                      Abbreviations                                           #
+# > Station_name________ 4-Chr 2-Chr Remark___________________________   <     # LIST_OF_ABBREV
+#                                                                              #
+# END_PANEL ####################################################################

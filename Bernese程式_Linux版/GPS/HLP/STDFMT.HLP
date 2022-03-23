@@ -1,0 +1,104 @@
+<html>
+<body>
+
+<center>
+<b>CONVERT STD AND RPR FILES (BINARY TO ASCII)</b>
+<p>Program: STDFMT
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The program STDFMT converts binary standard orbit and radiation pressure
+coefficient files into formatted ASCII files. The program allows the conversion
+of a number of standard orbit and radiation pressure coefficient files in one
+run and is mainly used for orbit file transfer between different computer
+systems using different binary formats: The files are first converted into
+ASCII using this program here, then transferred to the target computer,
+and finally reconverted from ASCII into binary using the program
+<a href="PGMLST.HLP#FMTSTD">FMTSTD</a>.
+
+<p><hr>
+
+<p><b>STDFMT 1: Input/Output Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+This program does not need general files. If you check this box, the currently
+active campaign, session and session table are displayed.
+
+<br><br>
+
+<a name="STDFIL" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Standard orbits:</b>
+Enter the name of the binary standard orbit file you want to convert.
+The ASCII version will be written into files with the same names but with a
+different extension (default: FSO).
+
+<a name="RPRFIL" default=""></a>
+<p><b>Radiation pressure coefficients:</b>
+Enter the name of the binary radiation pressure coefficient file you want
+to convert.
+The ASCII version will be written into files with the same names but with a
+different extension (default: FRP).
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="STDFMT"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output.
+The title should characterize the program run.
+
+<br><br>
+
+<p><a name="OUTFORM" default="NEW"></a>
+<b>OUTPUT FORMAT</b>
+<p>
+Specify the ASCII output format. Select <i>always</i> the option <tt>NEW</tt>
+unless in very special cases. The option may be used to convert standard
+orbit files from new format to the old format used in Version 4.2 and earlier.
+
+<p><i>Default value:</i> <tt>NEW</tt>
+
+<p><hr>
+
+</body>
+</html>

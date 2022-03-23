@@ -1,0 +1,86 @@
+      MODULE s_PRICMP
+      CONTAINS
+
+C*
+      SUBROUTINE PRICMP(TITLES,NCAMP,CAMPGN,STANUM,STNAME,NSCAMP,STCAMP)
+CC
+CC NAME       :  PRICMP
+CC
+CC PURPOSE    :  PRINT CAMPAIGN LIST
+CC
+CC PARAMETERS :
+CC         IN :  TITLES(I),I=1,2: TITLE LINES                 CH*132
+CC               NCAMP  : NUMBER OF CAMPAIGNS                 I*4
+CC               CAMPGN(I),I=1,..,NCAMP: CAMPAIGN NAMES       CH*16
+CC               STANUM(I),I=1,..,NSTAT: EXTERNAL STATION     I*4
+CC                        NUMBERS
+CC               STNAME(I),I1,..,NSTAT: STATION NAMES         CH*16
+CC               NSCAMP(I),I=1,..,NCAMP: NUMBER OF STATIONS   I*4
+CC                        IN CAMPAIGN I
+CC               STCAMP(I),I=1,..,NSCAMP(I): STATION NUMBERS  I*4
+CC                        FOR CAMPAIGN I
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/18 09:32
+CC
+CC CHANGES    :  27-MAY-91 : ??: DON'T PRINT TRAILING BLANKS
+CC               05-MAR-03 : CU: REMOVE USE OF SKELETON FILE
+CC               15-APR-03 : CU: BUG FIXED (FORMAT STATEMENTS)
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               14-FEB-11 : RD: REMOVE MAXSTA-COMMON (NOT NEEDED)
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE f_lengt1
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , ICAMP , NCAMP
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      CHARACTER*132 TITLES(2)
+      CHARACTER*16  CAMPGN(*),STNAME(*)
+      INTEGER*4     STANUM(*),NSCAMP(*),STCAMP(:,:)
+C
+C PRINT TITLE LINES
+C -----------------
+      WRITE(LFNPRT,1) TITLES(1)(1:LENGT1(TITLES(1))),
+     1                TITLES(2)(1:LENGT1(TITLES(2)))
+1     FORMAT(//,A,/,A,/,' ',131('-'),//)
+C
+      WRITE(LFNPRT,"(
+     1     ' 1. CAMPAIGNS'
+     2  ,/,' ------------'
+     3  ,/,' '
+     4  ,/,' CAMPAIGN NAME      NUM STATION NAME      '
+     4    ,' NUM STATION NAME       NUM STATION NAME      '
+     4    ,' NUM STATION NAME       NUM STATION NAME'
+     5  ,/,1X,131('-')
+     6  ,/,1X)")
+C
+C PRINT CAMPAIGN LIST
+C -------------------
+      DO 20 ICAMP=1,NCAMP
+        WRITE(LFNPRT,1001) CAMPGN(ICAMP),(STANUM(STCAMP(I,ICAMP)),
+     1                     STNAME(STCAMP(I,ICAMP)),I=1,NSCAMP(ICAMP))
+1001    FORMAT(' ',A16,':',2X,I3,1X,A16,4(I6,1X,A16),/,
+     1         40(' ',16X,5(I6,1X,A16),/))
+        IF(MOD(NSCAMP(ICAMP),5).NE.0) WRITE(LFNPRT,'( )')
+20    CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

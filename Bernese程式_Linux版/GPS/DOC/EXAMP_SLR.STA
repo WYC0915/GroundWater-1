@@ -1,0 +1,55 @@
+Example for a station information file for SLR                   12-JUL-11 16:38
+--------------------------------------------------------------------------------
+
+FORMAT VERSION: 1.01
+TECHNIQUE:      
+
+TYPE 001: RENAMING OF STATIONS
+------------------------------
+
+STATION NAME          FLG          FROM                   TO         OLD STATION NAME      REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ********************  ************************
+7501 30302M003        001  1993 06 15 00 00 00                       7501*                 ecc_une.snx
+7604 10004M002        001  2004 09 01 00 00 00  2004 12 31 23 59 59  7604*                 ecc_une.snx
+7810 14001S001        001  1984 05 01 00 00 00  1995 04 30 23 59 59  7810*                 ecc_une.snx
+7810 14001S007        001  1995 10 01 00 00 00                       7810*                 ecc_une.snx
+7840 13212S001        001  1983 01 01 00 00 00                       7840*                 ecc_une.snx
+8834 14201S018        001  1990 09 01 00 00 00                       8834*                 ecc_une.snx
+
+
+TYPE 002: STATION INFORMATION
+-----------------------------
+
+STATION NAME          FLG          FROM                   TO         RECEIVER TYPE         RECEIVER SERIAL NBR   REC #   ANTENNA TYPE          ANTENNA SERIAL NBR    ANT #    NORTH      EAST      UP      DESCRIPTION             REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ********************  ********************  ******  ********************  ********************  ******  ***.****  ***.****  ***.****  **********************  ************************
+7501 30302M003        001  2000 05 01 00 00 00                       SLR                                         999999  SLR                                         999999   -0.0030   -0.0060    3.2280  Hartebeest MOBLAS-6     ecc_une.snx
+7604 10004M002        001  2004 09 01 00 00 00  2004 12 31 23 59 59  SLR                                         999999  SLR                                         999999    0.0000    0.0000    1.8455  Brest      FTLRS        ecc_une.snx
+7810 14001S001        001  1984 05 01 00 00 00  1995 04 30 23 59 59  SLR                                         999999  SLR                                         999999    0.0000    0.0000    0.0000  Zimmerwald SWI. FIXED   ecc_une.snx
+7810 14001S007        001  1995 10 01 00 00 00                       SLR                                         999999  SLR                                         999999    0.0000    0.0000    0.0000  Zimmerwald SWI2 FIXED   ecc_une.snx
+7840 13212S001        001  1983 01 01 00 00 00                       SLR                                         999999  SLR                                         999999    0.0000    0.0000    0.0000  Herstmonce RGO FIXED    ecc_une.snx
+8834 14201S018        001  1990 09 01 00 00 00                       SLR                                         999999  SLR                                         999999    0.0000    0.0000    0.0000  Wettzell   WLRS         ecc_une.snx
+
+
+TYPE 003: HANDLING OF STATION PROBLEMS
+--------------------------------------
+
+STATION NAME          FLG          FROM                   TO         REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ************************************************************
+
+
+TYPE 004: STATION COORDINATES AND VELOCITIES (ADDNEQ)
+-----------------------------------------------------
+                                            RELATIVE CONSTR. POSITION     RELATIVE CONSTR. VELOCITY
+STATION NAME 1        STATION NAME 2        NORTH     EAST      UP        NORTH     EAST      UP
+****************      ****************      **.*****  **.*****  **.*****  **.*****  **.*****  **.*****
+
+
+TYPE 005: HANDLING STATION TYPES
+--------------------------------
+
+STATION NAME          FLG  FROM                 TO                   MARKER TYPE           REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ********************  ************************
+
+
+
+

@@ -1,0 +1,327 @@
+<html>
+<body>
+
+<center>
+<b>MARK/DELETE OBSERVATIONS</b>
+<p>Program: SATMRK
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="DELETE_FILES"  default="AUXFIL"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The program SATMRK may edit Bernese observation files. It works in four modes:
+<ol>
+<li>apply editing requests from a Bernese edit file,
+<li>mark, unmark, or delete observations defined by user input,
+<li>synchronize corresponding code and phase observation files of a station,
+    or
+<li>re-initialize the resolved ambiguities in (baseline) phase observation
+    files.
+</ol>
+The actions which may be performed are:
+<ul>
+<li><b>Mark an observation:</b> Marked observations will not be used in the
+    processing but the observations remain in the file.
+<li><b>Reset an observation:</b> Remove the mark flag of an observation. The
+    observation will again be used in the processing.
+<li><b>Eliminate an observation:</b> The observations are physically removed
+     from the observation file. They can never be recovered without
+     recreating the entire observation file!
+<li><b>Apply a cycle slip:</b> If the size of a cycle slip is known from any
+    source it may be used to correct all phase observations following the
+    epoch of the cycle slip. (Only available via edit file)
+<li><b>Set/remove cycle slip flags</b> in the observation file. (Only
+    available via edit file).
+<li><b>Add/remove ambiguities</b> in the phase observation header file. (Only
+    available via edit file).
+<li><b>Re-initialize already resolved ambiguities</b>.
+</ul>
+Please be careful if you use these options. They may heavily affect your
+solution. Therefore, some of the options may only be used via an edit file
+which should be written by the Bernese GNSS Software and not modified
+manually.
+
+<p><hr>
+
+<b>SATMRK 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="WHATTODO" default="EDIT_FILE"></a>
+<p><b>OPTIONS</b>
+<p><b>Desired task:</b>
+Select here what to do in this program run. There are four possibilities:
+<ol>
+<li><b>EDIT FILE</b>: The entries of an edit file which has to be
+    specified below will be applied to the Bernese observation files.
+<li><b>MARK MANUAL</b>: Mark, reset, or eliminate observations
+    corresponding to the entries specified in the next panel.
+<li><b>SYNCHRONIZATION</b>: The observations in the corresponding code
+    and phase files (same filenames with proper extensions) will be
+    synchronized. If an observation
+    is available in one of the files only it will be removed.
+    If an observation is
+    marked in one file it will be marked in the other file, too. The result
+    are pairs of code and phase files which for a station contain the same
+    epochs and the same satellites. This may be important for processing
+    steps involving both observation types.
+    <br>
+    Because both file types are used you may specify either the code
+    or the phase files in the corresponding input fields.
+<li><b>INITIALIZE</b>: Ambiguities which are already resolved are
+    re-initialized.
+</ol>
+
+<p><i>Default value:</i> <tt>EDIT FILE</tt>
+
+<a name="RESAMB" default="ALL"></a>
+<a name="AMBSYS" default="ALL_GNSS"></a>
+<p><b>Re-initialize ambiguities:</b>
+In case of task <b>INITIALIZE</b> you have the possibility to choose which
+ambiguities should be re-initialized (<b>L1</b>, <b>L2</b>,
+<b>L1&amp;L2</b>, <b>L5</b>, or <b>ALL</b> ambiguities).
+
+<p><i>Default value:</i> <tt>ALL</tt>
+
+<p>In addition to the frequencies, you have to select for which satellite
+system (<b>ALL_GNSS</b>, <b>GPS</b>, <b>GLONASS</b>, <b>GALILEO</b>
+or <b>SBAS</b>) the ambiguities should be re-initialized.
+
+<p><i>Default value:</i> <tt>ALL GNSS</tt>
+
+<br><br>
+
+<a name="OBSTYPE" default="GNSS"</a>
+<p><b>OBSERVATION FILES</b>
+
+<p><b>Observation type:</b>
+Select whether microwave (<b>GNSS</b>) or SLR (<b>Range</b>) observation files should
+be considered.
+
+<p><i>Default value:</i> <tt>GNSS</tt>
+
+<a name="CZHFIL" default="????$S+0"></a>
+<p><b>Zero diff. code:</b>
+Select a list of code zero difference files to be used for the editing
+procedure. Leave this field empty if you don't want to
+edit observation files of this type.
+
+<p><i>Default value:</i> <tt>????$S+0</tt>
+
+<a name="PZHFIL" default=""></a>
+<p><b>Zero diff.</b> <b>phase:</b>
+Select a list of phase zero difference files to be used for the editing
+procedure. Leave this field empty if you don't want to
+edit observation files of this type.
+
+<a name="BOTHZERO" default="1"></a>
+<p><b>Zero diff.</b> <b>both:</b>
+Check this box if you have code and phase zero difference files with identical
+names that you like to edit. The selection lists from the code and phase files
+will be merged and the files for both types of observations will be edited.
+
+<p><i>Default value:</i> marked
+
+<a name="CSHFIL" default=""></a>
+<p><b>Single diff. code:</b>
+Select a list of code single difference files to be used for the editing
+procedure. Leave this field empty if you don't want to
+edit observation files of this type.
+
+<a name="PSHFIL" default=""></a>
+<p><b>Single diff.</b> <b>phase:</b>
+Select a list of phase single difference files to be used for the editing
+procedure. Leave this field empty if you don't want to
+edit observation files of this type.
+
+<a name="BOTHSING" default="0"></a>
+<p><b>Single diff.</b> <b>both:</b>
+Check this box if you have code and phase single difference files with
+identical names that you like to edit. The selection lists from the code and
+phase files will be merged and the files for both types of observations will
+be edited.
+
+<a name="RZHFIL" default=""></a>
+<p><b>Range:</b>
+Select a list of range observation files to be used for the editing procedure.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="SATMRK"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="TITLE" default="">
+<p><b>TITLE</b></a>
+<p>
+This title line will be printed as header comment into the program output.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<p><hr>
+
+<p><b>SATMRK 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">CONST.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">SATELLIT.I08</a>
+
+<br><br>
+
+<a name="AUXFIL" default="SATMRK$J"></a>
+<p><b>TEMPORARY FILES</b>
+<p><b>Scratch file:</b>
+Enter the name of the scratch file used by this program. The scratch file
+needs to be named differently for different programs running
+simultaneously. This may be achieved, e.g., by adding the job ID
+<tt>$J</tt> to the program name (define the job ID in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>).
+
+<p><i>Default value:</i> <tt>SATMRK$J</tt>
+
+<p><hr>
+
+<p><b>SATMRK 2: Manual and File Selection</b>
+
+<a name="EDITFILE" default=""></a>
+<p><b>FILE SELECTION</b>
+<p><b>Edit information file:</b>
+All actions listed at the beginning of this help file can be coded
+in an edit information file. Specify the name of an edit file containing
+editing actions for one or more selected Bernese observation files.
+The corresponding file is identified by its
+header information (station name(s), session, reference epoch, sampling
+interval, and measurement type) which have to be identical with the
+header information in the edit file.
+<br>
+In general you will use an edit file generated by the program
+<a href="PGMLST.HLP#RESRMS">RESRMS</a>. It is the result of the search
+for big residuals in a Bernese residual file generated by
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> and reports the outliers detected
+by RESRMS to be marked with program SATMRK.
+
+<p><i>Remark:</i>
+This input field is only active if you have selected <tt>EDIT_FILE</tt>
+in the input field "Desired task" above.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.EDT">Example</a>
+
+<br><br>
+
+<a name="TYPCHG" default="MARK"></a>
+<p><b>MANUAL SELECTION</b>
+<p><b>Type of change:</b>
+Mark (<b>MARK</b>), unmark (<b>RESET</b>) or completely remove
+(<b>ELIMINATE</b>) the observations. Please keep in mind that removed
+observations cannot be recovered!
+
+<p><i>Default value:</i> <tt>MARK</tt>
+
+<a name="FREQ" default="L1&L2"></a>
+<p><b>Frequency:</b>
+Select which observations you want to process (<b>L1</b>, <b>L2</b>, or
+<b>L1&amp;L2</b>).
+
+<p><i>Default value:</i> <tt>L1&L2</tt>
+
+<a name="SATNUM" default="ALL"></a>
+<a name="SATLST" default=""></a>
+<p><b>Satellite(s):</b>
+Select the satellite numbers (PRN) you want to process. Write <tt>ALL</tt> into the
+field if you want to process the observations of all satellites. A blank
+field is not allowed. Use the button to get a selection list of satellites.
+
+<p><i>Default value:</i> <tt>ALL</tt>
+
+<a name="RADIO_21" default="0"></a>
+<a name="NUMFROM" default=""></a>
+<a name="NUMTO" default=""></a>
+<p><b>From epoch</b> <b>to epoch:</b>
+You can specify an interval in which the observations are
+processed by specifying the first and last observation numbers. Please keep in
+mind that the epoch of the observations specified with an epoch number depends
+on the reference epoch (first epoch) of the observation file. So it is not
+recommended to use this option if you want to process more than one
+observation file.
+
+<p><i>Default value:</i> unmarked
+
+<a name="RADIO_22" default="1"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Observation window:</b>
+Specify date and time for the begin and the end of the observation window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: <tt>00&nbsp;00&nbsp;00</tt>, end date: <tt>$YMD_STR+0</tt>,
+end time: <tt>23&nbsp;59&nbsp;59</tt>
+
+<p><hr>
+
+</body>
+</html>

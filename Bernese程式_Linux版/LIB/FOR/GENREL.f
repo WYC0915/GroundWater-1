@@ -1,0 +1,70 @@
+      MODULE s_GENREL
+      CONTAINS
+
+C*
+      SUBROUTINE GENREL(XSAT,A)
+CC
+CC NAME       :  GENREL
+CC
+CC PURPOSE    : COMPUTE ACCELERATION DUE TO GENERAL RELATIVITY
+CC              USING IERS STANDARDS 1996
+CC
+CC PARAMETERS :
+CC        IN  : XSAT    : POSITION AND VELOCITY OF SATELLITE        R*8
+CC        OUT : A       : ACCELERATION (M/S**2)                     R*8
+CC
+CC REMARKS    :
+CC
+CC AUTHOR     :  G.BEUTLER
+CC
+CC VERSION    :  4.0  (JUNE 1996)
+CC
+CC CREATED    :  96/06/06
+CC
+CC CHANGES    :  16-JUN-05 : MM: COMCONST.INC REPLACED BY D_CONST
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               17-NOV-05 : AG: SIGN CHANGED
+CC
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1996     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE d_const, ONLY: C, GM
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IFIRST, K
+C
+      REAL*8    BETA  , C2    , GAMMA , R     , R2    , R3    , SKAL  ,
+     1          V2
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+      REAL*8 XSAT(*),A(*)
+      DATA IFIRST/1/
+C
+C CONSTANTS BETA AND GAMMA
+C ------------------------
+      IF(IFIRST.EQ.1)THEN
+        BETA =1.D0
+        GAMMA=1.D0
+        C2=C**2
+        IFIRST=0
+      END IF
+      R2=XSAT(1)**2+XSAT(2)**2+XSAT(3)**2
+      V2=XSAT(4)**2+XSAT(5)**2+XSAT(6)**2
+      R =DSQRT(R2)
+      R3=R*R2
+      SKAL=XSAT(1)*XSAT(4)+XSAT(2)*XSAT(5)+XSAT(3)*XSAT(6)
+      DO 10 K=1,3
+        A(K)=A(K)+GM/R3/C2*((2*(BETA+GAMMA)*GM/R-GAMMA*V2)*XSAT(K)+
+     1            2*(1.D0+GAMMA)*SKAL*XSAT(3+K))
+10    CONTINUE
+999   CONTINUE
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

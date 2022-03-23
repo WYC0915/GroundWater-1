@@ -1,0 +1,293 @@
+
+! --------------------------------------------------------------------------
+!  Bernese GPS Software Version 5.0
+!
+!  Input Panel: Convert SLR CRD files into RINEX observation files
+!
+!  Program:     CRD2RNXO
+!
+!  Created:     20-Jan-2009
+!
+!  Copyright:   Astronomical Institute
+!               University of Berne
+!               Switzerland
+! -------------------------------------------------------------------------
+! Environment Variables
+! ---------------------
+ENVIRONMENT 0
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! Some title information
+! ----------------------
+USR_INFO 1  "${USER}"
+  ## widget = comment
+
+SESSION_TABLE 1  "${P}/TCRD/STA/SESSIONS.SES"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO 1  "$Y+0"
+  ## widget = comment
+
+SES_INFO 1  "$S+0"
+  ## widget = comment
+
+! Active Campaign
+! ---------------
+CAMPAIGN 1  "TCRD"
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+! General Constants
+! -----------------
+! Show general files
+! ------------------
+SHOWGEN 1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+CONST 1  "CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_CONST 1  "General constants"
+
+! Difference of GPS-TIME - UTC-TIME
+! ---------------------------------
+GPSUTC 1  "GPSUTC."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_GPSUTC 1  "DIfference GPS-UTC"
+
+! Satellite Information
+! ---------------------
+SATELL 0
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  # 
+
+DESCR_SATELL 1  "Satellite information"
+
+! Station Name Abbreviations
+! --------------------------
+ABBREV 0
+  ## widget = selwin; path = DIR_ABB; ext = EXT_ABB; maxfiles = 1
+  # 
+
+DESCR_ABBREV 1  "Abbreviation Table"
+
+! STAINFO with information for the Bernese files
+! ----------------------------------------------
+STAINFO 0
+  ## widget = selwin; path = DIR_STA; ext = EXT_STA; maxfiles = 1
+  # 
+
+DESCR_STAINFO 1  "Station information"
+
+! List of QL Input Files
+! -------------------------
+QLFILE 0
+  ## widget = selwin; path = DIR_OXO; ext = NO_EXT; maxfiles = 999
+  # 
+
+MSG_QLFILE 1  "SLR quick look files"
+
+! Program Output File
+! -------------------
+SYSODEF 1  "0"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT 1  "CRD2RNXO"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG 1  "1"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR 0
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+  # ERROR
+
+DESCR_SYSERR 1  "Error message"
+
+! Scratch File
+! ------------
+AUXFIL 0
+  ## widget = lineedit; path = PTH_SCR; ext = EXT_SCR; emptyallowed = false
+  # CRD2RNXO 
+
+DESCR_AUXFIL 1  "Scratch file"
+
+DELETE_FILES 1  "AUXFIL"
+
+! Title
+! -----
+TITLE 1  "Convert SLR CRD Normal Points to RINEX Files"
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+! Session ID
+! ----------
+SESSID 1  "$Y+0"
+  ## widget = lineedit; check_strlen = 4
+
+MSG_SESSID 1  "Session ID used for RINEX observation file names"
+
+! Year ID
+! -------
+YEARID 1  "$Y"
+  ## widget = lineedit; check_strlen = 2
+
+MSG_YEARID 1  "Year    ID used for RINEX observation file names"
+
+! Observation Window
+! ------------------
+RADIO_0 1  "0"
+  ## widget = radiobutton; group = OBSWIN
+
+MSG_RADIO_0 1  "Take all observations"
+
+RADIO_1 1  "0"
+  ## widget = radiobutton; group = OBSWIN
+  ## radiokeys = SESSION_YEAR SESSION_STRG WINDOW
+
+MSG_RADIO_1 1  "Observation window defined by year and session number(s)"
+
+RADIO_2 1  "1"
+  ## widget = radiobutton; group = OBSWIN
+  ## radiokeys = STADAT STATIM ENDDAT ENDTIM
+
+MSG_RADIO_2 1  "Observation window defined by start and end time"
+
+SESSION_YEAR 1  "$Y+0"
+  ## widget = lineedit; multilineallowed = true; emptyallowed = false
+
+MSG_SESSION_YEAR 1  "Year for sessions def. the time window"
+
+SESSION_STRG 1  "$S+0"
+  ## widget = lineedit; multilineallowed = true; emptyallowed = false
+
+MSG_SESSION_STRG 1  "Sessions defining the time window"
+
+! List of satellites
+! ------------------
+SATLST 0
+  ## widget = lineedit
+
+MSG_SATLST 1  "LIST OF SATELLITES"
+
+! Use Obs. Window
+! ---------------
+STADAT 1  "$YMD_STR+0"
+  ## widget = lineedit; emptyallowed = false; check_type = date
+
+MSG_STADAT 1  "Start of time window (year month day)"
+
+STATIM 1  "00 00 00"
+  ## widget = lineedit; emptyallowed = false; check_type = time
+
+MSG_STATIM 1  "Start of time window (hour min. sec.)"
+
+ENDDAT 1  "$YMD_STR+0"
+  ## widget = lineedit; emptyallowed = false; check_type = date
+
+MSG_ENDDAT 1  "End of time window (year month day)"
+
+ENDTIM 1  "23 59 59"
+  ## widget = lineedit; emptyallowed = false; check_type = time
+
+MSG_ENDTIM 1  "End of time window (hour min. sec.)"
+
+! Path of the Output Files
+! ------------------------
+RXOFILE_PTH_COL_1 1  "${K}/DAILY/RAW/"
+  ## widget = initmenu; pointer = DIR_RXO
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# TRANSFER SLR QUICK LOOK FILES INTO RINEX OBS. FILES - CRD2RNXO 1: Filenames  #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files   > % <                                             # SHOWGEN
+#                                                                              #
+# INPUT FILES                                                                  #
+#   SLR quick look files     > %%%%%%%%%%%%%%%% <                              # QLFILE
+#   Station information      > %%%%%%%% <                                      # STAINFO
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output           > % < use CRD2RNXO.Lnn          or > %%%%%%%% <   # SYSODEF SYSOUT
+#   Error messages           > % < merged to program output  or > %%%%%%%% <   # ERRMRG SYSERR
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# CRD2RNXO 1.1: General Files                                                  #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants       > %%%%%%%%%%%% <                                   # CONST
+#   Satellite information   > %%%%%%%%%%%% <                                   # SATELL
+#   GPS-UTC seconds         > %%%%%%%%%%%% <                                   # GPSUTC
+#   Abbreviation table      > %%%%%%%% <                                       # ABBREV
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# TEMPORARY FILES                                                              #
+#   Scratch file            > %%%%%%%% <                                       # AUXFIL 
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CRD2RNXO 2: Input Options                                                    #
+#                                                                              #
+# TITLE   > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <  # TITLE
+#                                                                              #
+# CREATION OF RINEX OBSERVATION FILE NAMES                                     #
+#   Session ID used for RINEX observation file names  > %%%% <                 # SESSID
+#   Year    ID used for RINEX observation file names  > %% <                   # YEARID
+#                                                                              #
+# LIST OF SATELLITES (Satellite number according to satellite information file)#
+#   > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <       # SATLST
+#    (Satellite number according to satellite information file:                #
+#                        e.g.   5 ... GPS 35                                   # 
+#                               6 ... GPS 36                                   #
+#                             103 ... GLONASS 87                               #
+#                             105 ... GLONASS 88                               #
+#                             901 ... TOPEX/Poseidon                           #
+#                             906 ... CHAMP                                    #
+#                             908 ... Jason                                    #
+#                             909 ... Grace A                                  #
+#                             910 ... Grace B                                  #
+#                             951 ... LAGEOS-1                                 #
+#                             952 ... LAGEOS-2                                 #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CRD2RNXO 3: Observation Window                                               #
+#                                                                              #
+# OBSERVATION WINDOW                                                           #
+#                                                                              #
+#   > % < Take all observations                                                # RADIO_0
+#                                                                              #
+#   > % < Defined by year and session number(s)                                # RADIO_1
+#         Year  > %%%% <   Session > %%%% <                                    # SESSION_YEAR SESSION_STRG
+#                                                                              #
+#   > % < Defined by start and end time                                        # RADIO_2
+#                 yyyy mm dd     hh mm ss           yyyy mm dd     hh mm ss    #
+#         Start > %%%%%%%%%% < > %%%%%%%% <   End > %%%%%%%%%% < > %%%%%%%% <  # STADAT STATIM ENDDAT ENDTIM
+#                                                                              #
+# END_PANEL ####################################################################

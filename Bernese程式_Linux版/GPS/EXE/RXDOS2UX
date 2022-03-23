@@ -1,0 +1,46 @@
+#!/bin/sh
+# ==============================================================================
+#
+# PROGRAM   : RXDOS2UX
+#
+# PURPOSE   : REMOVE ^Z AND ^M FROM ASCII-FILE
+#
+# PARAM     : ---
+#
+# REMARKS   : THIS ROUTINE IS USEFULL IF YOU HAVE A SHARED
+#             CAMPAIGN DIRECTORY FOR Unix and DOS
+#             IF YOU CREATE RINEX FILES IN THIS DIRECTORY UNDER DOS
+#             THIS FILES STILL CONTAIN ^M AT THE END OF ALL LINES
+#             AND ^Z AT THE END OF THE FILE.
+#             YOU HAVE TO REMOVE THIS CHARACTERS BEFORE YOU USE THIS
+#             FILES FOR UNIX PROGRAMS.
+#
+#
+# AUTHOR    : H. FRIEDHOFF
+#
+# VERSION   : 3.3
+#
+# CREATED   : 17-OCT-91
+#
+# CHANGES   : __-___-__ : __:
+#
+# COPYRIGHT : ASTRONOMICAL INSTITUTE
+#      1991   UNIVERSITY OF BERN
+#             SWITZERLAND
+#
+# ==============================================================================
+
+# LOOP OVER ALL FILES
+# -------------------
+  ls $* >$HOME/RXDOS2UX.dir
+  for name in `cat $HOME/RXDOS2UX.dir`; do
+    export name
+    sed -e '1,$s///g' $name >$HOME/RXDOS2UX.tmp
+    sed -e '1,$s///g' $HOME/RXDOS2UX.tmp >$name
+  done
+
+# REMOVE AUXILLIARY FILES
+  rm $HOME/RXDOS2UX.tmp
+  rm $HOME/RXDOS2UX.dir
+
+# ==============================================================================

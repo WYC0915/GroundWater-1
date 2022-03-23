@@ -1,0 +1,147 @@
+      MODULE s_DSPMXI
+      CONTAINS
+
+C*
+      SUBROUTINE DSPMXI(ITITLE,ISUMRY,NFREQ,NMAXI,LSTMXI,IRC)
+CC
+CC NAME       :  DSPMXI
+CC
+CC PURPOSE    :  DISPLAY "MAX.INTERVAL EXCEEDED" OCCURRENCES
+CC
+CC PARAMETERS :
+CC         IN :  ITITLE : DISPLAY GENERAL TITLE               I*4
+CC                        =0: NO GENERAL TITLE
+CC                        =1: GENERAL TITLE DISPLAYED
+CC               ISUMRY : DISPLAY SUMMARY OF "MAX.INT.EXC"    I*4
+CC                        =0: NO SUMMARY
+CC                        =1: SHORT SUMMARY DISPLAYED
+CC               NFREQ  : NUMBER OF FREQUENCIES IN FILE       I*4
+CC               NMAXI  : NUMBER OF "MAX. INTERVAL EXCEEDED"  I*4
+CC               LSTMXI(K,I),K=1,..,5, I=1,2,..,NMAXI         I*4
+CC                        DEFINITION OF "MAX.INT.EXC" NUMBER I
+CC                        (1,I): EPOCH
+CC                        (2,I): SATELLITE
+CC                        (3,I): FREQUENCY (1=L1, 2=L2)
+CC                        (4,I): BREAK IN NUMBER OF EPOCHS
+CC                        (5,I): DETECTED BY
+CC                               =1: SINGLE FREQ. REJECTION
+CC                               =2: DUAL   FREQ. REJECTION
+CC               IRC    : RETURN CODE                         I*4
+CC                        =0 : AT LEAST ONE "MAX.INT.EXC."
+CC                             DISPLAYED
+CC                        =1 : NO "MAX.INT.EXC." DISPLAYED
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  89/08/10 16:09
+CC
+CC CHANGES    :  21-JUN-05 : MM: COMLFNUM.inc REMOVED, M_BERN INCLUDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1989     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE M_BERN
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IEPO  , IFRQ  , IINT  , IMXI  , IRC   , ISUMRY, ISVN  ,
+     1          ITITLE, ITYP  , NFREQ , NMAXI
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      CHARACTER*3  MXITXT(2)
+      CHARACTER*1  NEWTXT
+C
+      INTEGER*4    LSTMXI(5,*),NMXIFR(2)
+C
+C
+      DATA MXITXT/'SNG','DUA'/
+C
+C DISPLAY SUMMARY OF MARKED AREAS
+C -------------------------------
+      IF(ISUMRY.GE.1) THEN
+C
+C WRITE GENERAL TITLE
+        IF(ITITLE.EQ.1) THEN
+          WRITE(LFNPRT,1)
+1         FORMAT(//,1X,72('-'),
+     1            /,' SUMMARY OF MAXIMUM INTERVAL EXCEEDINGS',
+     2            /,1X,72('-'),/)
+        ENDIF
+C
+C INITIALIZATION
+        DO 30 IFRQ=1,NFREQ
+          NMXIFR(IFRQ)=0
+30      CONTINUE
+C
+C SUMMARY
+        DO 40 IMXI=1,NMAXI
+          IFRQ=LSTMXI(3,IMXI)
+          NMXIFR(IFRQ)=NMXIFR(IFRQ)+1
+40      CONTINUE
+C
+C DISPLAY SUMMARY
+        DO 50 IFRQ=1,NFREQ
+          WRITE(LFNPRT,41) IFRQ,NMXIFR(IFRQ)
+41        FORMAT(' NUMBER OF MAX.INTERVAL EXCEEDINGS IN L',
+     1           I1,':',I5)
+50      CONTINUE
+        IRC=0
+        GOTO 999
+      ENDIF
+C
+C DISPLAY LIST OF MAXIMUM INTERVAL EXCEEDINGS
+C -------------------------------------------
+C
+C WRITE GENERAL TITLE
+      IF(ITITLE.EQ.1) THEN
+        WRITE(LFNPRT,72)
+72      FORMAT(//,1X,72('-'),
+     1          /,' MAXIMUM INTERVAL EXCEEDINGS',
+     2          /,1X,72('-'))
+      ENDIF
+C
+      IF(NMAXI.EQ.0) THEN
+        WRITE(LFNPRT,73)
+73      FORMAT(/,' NO MAXIMUM INTERVAL EXCEEDINGS FOUND',/)
+        IRC=1
+        GOTO 999
+      ENDIF
+C
+C TITLE
+      WRITE(LFNPRT,74)
+74    FORMAT(/,1X,'NUMB   TYP N   EPOCH  SAT   FRQ   #EPOCHS',
+     1       /,1X,72('-'),/)
+C
+C LOOP OVER ALL EXCEEDINGS
+      DO 100 IMXI=1,NMAXI
+        IEPO=LSTMXI(1,IMXI)
+        ISVN=LSTMXI(2,IMXI)
+        IFRQ=LSTMXI(3,IMXI)
+        IINT=LSTMXI(4,IMXI)
+        ITYP=LSTMXI(5,IMXI)
+C
+C NEW OR CHANGED AREA INDICATOR
+        NEWTXT='*'
+C
+C DISPLAY MAXIMUM INTERVAL EXCEEDING
+        WRITE(LFNPRT,76) IMXI,MXITXT(ITYP),NEWTXT,IEPO,ISVN,IFRQ,IINT
+76      FORMAT(I5,3X,A3,1X,A1,I7,I6,I5,I9)
+100   CONTINUE
+      WRITE(LFNPRT,104)
+104   FORMAT(/,1X,72('-'))
+      IRC=0
+C
+C RETURN
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

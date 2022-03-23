@@ -1,0 +1,398 @@
+<html>
+<body>
+
+<center>
+<b>COORDINATE COMPARISON</b>
+<p>Program: COMPAR
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="DELETE_FILES"  default="AUXFIL"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The program COMPAR allows a comparison of two or more coordinate
+sets including:
+<ul>
+<li>the estimation of repeatability RMS values for each site.
+<li>the generation of a repeatability table for each station to detect
+    problems in one of the coordinate files.
+<li>the computation of a mean coordinate set and save the results in a new
+    coordinate file.
+<li>the computation of a combined solution considering the
+    corresponding covariance information (variance-covariance files).
+    <br>
+    We refer to the program <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a>
+    for more flexible combination procedures as, e.g., the change
+    of the geodetic datum of the solution, solving for site velocities, etc.
+<li>display baseline statistics in the north, east, and up component,
+    and in baseline length.
+</ul>
+
+<p><i>Remark:</i>
+The program issues a warning message if the epochs of the coordinate files
+are different. The user has to decide for which time interval the
+station coordinates are comparable without applying velocities. We refer to
+the program <a href="PGMLST.HLP#COOVEL">COOVEL</a> to transform the station
+coordinates to the same epoch by applying an existing velocity field, or specify
+an a priori velocity file as input (see below).
+
+<p><hr>
+
+<p><b>COMPAR 1: Input Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="COOFIL" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Coordinates:</b>
+Select the coordinate files to be compared.
+Please note that the coordinate files should refer to
+approximately the same epoch: a velocity model cannot be applied. Use the
+program <a href="PGMLST.HLP#COOVEL">COOVEL</a> to convert the coordinate sets
+to the same epochs by applying an existing velocity field before running this
+program, or specify an a priori velocity file as input (see below).
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="COVFIL" default=""></a>
+<a name="SAMENA" default="0"></a>
+<p><b>Covariances:</b>
+You may specify the variance-covariance file(s) belonging to
+the coordinate file(s) selected above, if you want to use the
+variance-covariance information for the comparison of coordinates.
+Such variance-covariance files
+may be saved in <a href="PGMLST.HLP#GPSEST">GPSEST</a>, or may
+have been produced by a previous run of the program COMPAR itself.
+<br>
+If the variance-covariance files have the same file names as the
+coordinate files already selected in the previous input field you
+can mark the checkbox <tt>same name as coordinate file(s)</tt>. The entry for
+the file name is not used in that case.
+<br>
+No variance-covariance information is used if the input field is empty
+and the checkbox is unmarked.
+
+<p><i>Caution:</i>
+In this case the individual solutions have to refer to the
+same geodetic datum definition! It is, e.g., not possible to
+combine coordinate sets in which different sites were fixed
+or heavily constrained. Use <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a>
+to compute combined solutions, when the constraints on site
+coordinates are supposed to be changed.
+<br>
+If no datum changes are necessary, the combined results are identical
+(the coordinates as well as the RMS estimates) to those obtained by the
+corresponding <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a> solution.
+
+<p><a href="/$X/DOC/EXAMPLE.COV">Example</a>
+
+<a name="COORD" default=""></a>
+<p><b>A priori coordinates:</b>
+When saving the resulting (mean) coordinates in a file you may specify
+an a priori coordinate file as a skeleton. The resulting coordinate
+file will then include all the coordinates estimated in this COMPAR run
+and, in addition, all the coordinates of the other sites that are listed in
+the a priori coordinate file to preserve the complete list of site
+coordinates.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="VELOS" default=""></a>
+<p><b>A priori velocities:</b>
+The a priori velocities are used to unify the epochs of the input
+coordinate sets before comparison, see option "REFERENCE EPOCH
+CORRECTION" for further details.
+
+<p><a href="/$X/DOC/EXAMPLE.VEL">Example</a>
+
+<a name="BASDEF" default=""></a>
+<p><b>Baseline definitions:</b>
+A baseline definition file can be specified to select baselines
+for the analysis of baseline repeatabilities in the north, east, and up
+components, or in geocentric X,Y,Z components, and in baseline length.
+<br>
+This option helps to reduce the output volume in the case you have a
+lot of stations involved. In the following panel the repeatability option
+"GEOCENTRIC" or "LOCAL" has to be selected.
+
+<p><a href="/$X/DOC/EXAMPLE.BSL">Example</a>
+
+<a name="PLOTSKL" default=""></a>
+<p><b>Plot skeleton:</b>
+A plot skeleton file may be specified containing two parts, a header
+section and a tail section. These sections will automatically be copied
+in front and after the plot values to be saved in the plot file.
+<br>
+This option is only of interest if a "Plot file of results" is
+specified in the corresponding input field under "OUTPUT FILES".
+If you don't want to use a plot skeleton file leave the input field blank.
+<br>
+An example of a plot skeleton file for SAS plots is given in
+<a href="/$X/SKL/COMPARPS.SKL">COMPARPS.SKL</a>. Other plot packages are
+currently not supported.
+
+<p><hr>
+
+<p><b>COMPAR 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates. It is used
+to apply antenna heights and for the printing of coordinates in the
+local system (north, east, up). You only have to modify this file
+when you want to introduce a new reference ellipsoid.
+
+<p><i>Caution:</i>
+This file has no effect on Cartesian coordinates.
+
+<p>Example: <a href="/$X/GEN/DATUM.">$X/GEN/DATUM.</a>
+
+<br><br>
+
+<a name="AUXFIL" default="COMPAR$J"></a>
+<p><b>TEMPORARY FILES</b>
+<p>
+Name of the scratch file used by this program. The scratch file need
+to be named differently for different programs running simultaneously. This
+may be achieved, e.g., by adding the job ID <tt>$J</tt> to the program name
+(define the job ID in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>).
+
+<p><i>Default value:</i> <tt>COMPAR$J</tt>
+
+<p><hr>
+
+<p><b>COMPAR 2: Output Files</b>
+
+<a name="COORDRS" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>Coordinate result:</b>
+To save the resulting mean/combined site coordinates enter a coordinate file
+name here. If the field is blank, coordinates are not saved.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="COVARRS" default=""></a>
+<p><b>Covariances of coordinates:</b>
+To save the resulting variance-covariance information of the coordinates
+enter a filename here. The variance-covariance matrix of the combined solution
+is only available if input variance-covariance files were specified.
+If a file is written without input variance-covariance information available,
+its content will be meaningless. If the
+field is blank, the variance-covariance information is not saved.
+
+<p><a href="/$X/DOC/EXAMPLE.COV">Example</a>
+
+<br><br>
+
+<a name="WKSSUM" default=""></a>
+<p><b>OUTPUT FILES</b>
+<p><b>Weekly summary file:</b>
+To save a short statistic (the available sites and a summary of the
+repeatabilities) enter a summary file name here.  This possibility may be
+used to create a summary file for the weekly report of a regional analysis
+center.
+<br>
+The summary file contains the list of stations, the number of coordinate
+files contributing to the mean solution, the coordinate flags from the
+first seven input files, and the repeatability for the north, east,
+up component in millimeter.
+
+<p>Output example:<!-- $S/RAP/IGSRAPID.11_323 -->
+<pre>
+ COMPARISON OF IGSRAPID (RQ) COORDINATE FILES           
+ -------------------------------------------------------------------------------
+ Total number of stations:   129
+ -------------------------------------------------------------------------------
+                       Weekday  Repeatability (mm)
+ Station        #Days  0123456     N     E     U
+ -------------------------------------------------------------------------------
+ ADIS 31502M001     7  AAAAAAA    1.63  2.01  4.04
+ ALIC 50137M001     6  WWWWWW     1.27  0.64  2.67
+ AMU2 66040M002     7  AAAAAAA    3.55  4.39  4.98
+ AREQ 42202M005     7  AAAAAAA    1.93  1.94  5.04
+ ARTU 12362M001     7  WWWWWWW    0.70  0.64  7.00
+ ASPA 50503S006     7  AAAAAAA    2.59  4.19 11.12
+ AUCK 50209M001     7  WWWWWWW    1.19  1.51  5.30
+ AZCO 49454M001     7  AAAAAAA    1.65  1.97  4.45
+ BADG 12338M002     7  AAAAAAA    1.27  1.17  1.18
+ BAKE 40152M001     7  WWWWWWW    1.39  0.68  3.53
+ BAKO 23101M002     7  AAAAAAA    2.87  1.89  6.53
+ BJCO 32701M001     7  AAAAAAA    2.30  0.92  4.44
+ BOGO 12207M002     2  AA         2.72  0.34  1.36
+ BRFT 41602M002     6   WWWWWW    1.57  3.36  2.25
+ BRMU 42501S004     7  WWWWWWW    1.38  1.76  2.62
+...
+ WTZZ 14201M014     5  AA AA A    0.89  0.85  8.19
+ XMIS 50183M001     7  AAAAAAA    1.66  1.77  3.35
+ YARR 50107M006     1    W        0.00  0.00  0.00
+ ZIM2 14001M008     7  AAAAAAA    1.09  0.56  2.48
+ ZIMM 14001M004     7  WWWWWWW    1.10  0.79  2.48
+ -------------------------------------------------------------------------------
+ # Coordinate estimates:   835    1.49  1.58  4.72
+</pre>
+
+<p><i>Remark:</i>
+If you specify more than 7 input coordinate files
+the flags of the stations in all files after the seventh file will not be
+displayed. The repeatability will, however, be computed from all
+contributing files.
+<br>
+If less than 7 input files are
+selected only as many columns of flags as selected files are reported in this
+summary.
+
+<a name="PLOTRS" default=""></a>
+<p><b>Plot file of results:</b>
+To save the residuals of the individual coordinate sets compared to the
+combined solution for each site enter a plot filename here.
+You may add a header and a footer part from the "Plot skeleton" file
+(see "INPUT FILES"). You may have to write your own plot skeleton file to
+obtain a plot file that may easily be plotted by your own plot tool.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT" default="COMPAR"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>COMPAR 3: Processing Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+and will be saved in all the result files to document the program run.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="BASREP" default="NO"></a>
+<p><b>REPEATABILITY OPTION</b>
+<p>
+Specify whether baseline statistics are computed or not.
+If no "Baseline definitions" file is given under "INPUT FILES" above, all
+baseline combinations (each station
+with each other) are analyzed. If a file is specified, only the
+baselines listed in this file are considered. Wildcards (<tt>*</tt>) are not
+allowed in the baseline definition file for the program COMPAR.
+<br>
+Valid options are:
+<ul>
+<li><b>NO</b>: no baseline statistics at all
+<li><b>LOCAL</b>: baseline residuals displayed in local north, east, up system
+<li><b>GEOCENTRIC</b>: baseline residuals displayed in geocentric x,y,z system
+</ul>
+
+<p><i>Default value:</i> <tt>NO</tt>
+
+<br><br>
+
+<a name="RMSVAL" default="GPS_DERIVED"></a>
+<p><b>SAVING SCALE FACTOR IN COVARIANCE MATRIX</b>
+<p><b>RMS value is taken from: </b>
+If you store the resulting variance-covariance matrix into a file (option
+"Covariances of coordinates" under "RESULT FILES") you may choose either
+<ul>
+<li><b>GPS_DERIVED:</b> GPS-derived RMS value, or
+<li><b>COORD_COMBO:</b> RMS value derived from coordinate repeatabilities.
+</ul>
+
+<p><i>Default value:</i> <tt>GPS_DERIVED</tt>
+
+<br><br>
+
+<a name="REFEPO" default="MEAN"></a>
+<a name="EPOCH" default=""></a>
+<p><b>REFERENCE EPOCH CORRECTION</b>
+<p>
+If an a priori velocity file was specified, the reference epochs of the
+input coordinate files may be specified. The epoch of comparison may be chosen
+between
+<ul>
+<li><b>AS_IT_IS:</b> no epoch corrections are applied.
+<li><b>FIRST:</b> all coordinates are corrected to the epoch of the first
+    coordinate input file.
+<li><b>LAST:</b> all coordinates are corrected to the epoch of the last
+    coordinate input file.
+<li><b>MEAN:</b> all coordinates are corrected to the mean epoch
+    between the first and last coordinate input file.
+<li><b>MANUAL:</b> all coordinates are corrected to the epoch
+    specified in the input field.
+</ul>
+
+<p><i>Default value:</i> <tt>MEAN</tt>
+
+<br><br>
+
+<a name="FLAG" default="NONBLANK"></a>
+<a name="FLAGSPEC" default=""></a>
+<p><b>COORDINATE FLAGS</b>
+<p><b>Special flags:</b>
+You have the possibility to specify the sites in the coordinate files
+which should be included in the comparisons:
+<ul>
+<li><b>NONBLANK</b>: use all sites with non-blank flags
+<li><b>ALL</b>: use all site coordinates, even if they were not processed
+    (no flag)
+    <br>
+    Because you cannot have variance-covariance information for the
+    non-processed sites no variance-covariance input files
+    are considered if you enter <tt>ALL</tt> here.
+<li><b>SPECIAL</b>: to specify a list of flags in a separate field
+</ul>
+
+<p><i>Default value:</i> <tt>NONBLANK</tt>
+
+<p><hr>
+
+</body>
+</html>

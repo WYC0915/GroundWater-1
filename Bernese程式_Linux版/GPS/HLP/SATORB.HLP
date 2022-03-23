@@ -1,0 +1,900 @@
+<html>
+<body>
+<center><big>
+<p><b>Program: SATORB</b></p>
+</big></center>
+
+<hr WIDTH="100%">
+Program SATORB generates satellite ephemerides or it determines the orbits of satellites using either tabular satellite positions (expressed in Cartesian coordinates) as pseudo-observations or astrometric positions as real observations. The following problems may be solved:
+<ul>
+<li>
+Generation of satellite ephemerides using a wide variety of models.</li>
+<li>
+Orbit determination using tabular positions or position differences as pseudo-observations. Two concrete problems may be solved:<br>
+(1) Orbit determination for GPS or GLONASS satellites using satellite positions in the SP3-format (or a special tabular format used in the Bernese GPS Software (see [58])) as pseudo-observations. No a priori information concerning the orbits other than the tabular positions is required to solve this task.<br>
+(2) Orbit improvement for Low Earth Orbiters (LEOs) using satellite positions (and possibly position differences) as
+pseudo-observations. The positions and position differences stem from program LEOKIN (see section II, 7.2).
+<li>
+Orbit determination using astrometric positions following the use of program ORBDET (option "satellites"). Approximate osculating elements referring to the initial epoch are required in addition to the astrometric positions. The information stems from the program ORBDET.</li>
+</ul>
+SATORB was used to illustrate Chapters II, 3 and I, 8. It is documented in Chapter II, 7. <br>
+The input data (observations and pseudo-observations) required by program SATORB were already described in the help panels accompanying the programs <a href="ORBDET.html"> Program ORBDET</a> and <a href="LEOKIN.html"> Program LEOKIN</a>.
+
+<p><b>Initial Parameter Settings</b></p>
+<em><b>Generation of Satellite Ephemerides "EPHEMERIS"&nbsp;.</b></em>
+When running program SATORB with the initial parameter definitions as provided on the CD, a "geostationary" satellite ephemeris with an eccentricity of e=0.001 is generated over the time interval of 1000 days (about 2.7 years). The geocentric longitude of the node was set to <em>62</em>&nbsp; degrees. The force field is defined in panel SATORB 4 (Earth potential complete up to terms of degree and order n=m=8, gravity from Sun and Moon included, Earth tides, general relativity, and a simple radiation pressure model included). The result may be inspected using the "Display Results" option of program SATORB (select the radio-button "Elements"): The semi-major axis <em>a</em>&nbsp; shows a long period perturbation (amplitude about 8.5 km, period about 760 days, mainly due to the term J<sub>22</sub>&nbsp; of the Earth's gravity field). These results are quite close to those presented in section II, 3.3. The differences are due to the differing initial values, but also due to the fact that not only the term J<sub>22</sub>, but many other perturbation terms are included.<br>
+When inspecting the inclination and the right ascension of the ascending node (with the "Display Results" option of program SATORB), the first 2.7 years of the long-term development of the orbital plane -- as documented by Figures II, 3.11 and II, 3.12 over much longer time intervals -- may be seen.
+
+<br>
+<em><b>Orbit Improvement using Astrometric Positions "ORBIT_DET(OBS)"</b>&nbsp;.</em>
+When changing the primary program switch from "EPHEMERIS" to "ORBIT_DET(OBS)", the first orbit based on astrometric positions (as determined by program "ORBDET" and saved in the file "97049B00.ELE") is improved using the more sophisticated force field (w.r.t. to that of program ORBDET) defined in panel SATORB 4. The six osculating elements and a scaling factor for the (simple) radiation pressure model were estimated. The rms of the observations is only 0.20 arcseconds (see output file) -- what is much smaller than what could be achieved with the modest force field available in program "ORBDET". The differences would be barely or not at all visible, if only observations from a short time interval (about one day) would be analyzed. The result of the program run based on the a priori settings may, e.g., be viewed in Figure I, 8.10.
+<br>
+
+<em><b>Orbit Improvement using GPS- and/or GLONASS-Positions "ORBIT_DET(PSEUDO_OBS)"</b>&nbsp;.</em>
+When selecting "ORBIT_DET(PSEUDO_OBS)" as primary input option, one week of GPS/GLONASS data (as produced by the CODE Analysis Center of the IGS) may be analyzed. A few input options have to be modified in order to launch a program run that makes sense:
+<ul>
+<li>The Rock IV model has to be activated in panel SATORB IV (the simple radiation pressure model is automatically deactivated in this program option).</li>
+<li>The scaling factor for the radiation pressure should be turned off (panel SATORB 7).</li>
+<li>The decomposition of the empirical forces has to be changed to ZYX in panel SATORB 7 (see also Figure II, 3.36).</li>
+<li>The constant and once-per-revolution biases should be estimated for the D-, Y-, and X-directions (panel SATORB 7).</li>
+</ul>
+The orbit improvement process thus represents one week of rectangular, Earth-fixed coordinates by 15 parameters (six osculating elements referring to the initial epoch, 3 constant, and 6 once-per-rev parameters). The resulting rms-error is about 3 centimeters. <br>
+The residuals of the orbit determination process may be visualized by the "Display Results" option of program SATORB. Some small systematics show up, in particular in the along-track direction. They might be absorbed to a great extent by introducing, e.g., one stochastic parameter in the along-track component per day.
+<br>
+<em><b>Orbit Improvement using LEO-Positions "ORBIT_DET(PSEUDO_OBS)"</b>&nbsp;.</em>
+The program LEOKIN has to be run before using this program option. The file "CH03208_C1.PPD", generated by program LEOKIN has to be available as input file, here. Also, the following input panels have to be modified before activating this program option:
+<ul>
+<li>SATORB 1: Last input line: Create the standard orbit file CH03208_C2(.STD) (File extension is automatically generated). Make sure that "LEO" is specified in panel 2b (see next item). </li>
+<li>SATORB 2b: "LEO" has to be selected as satellite type, "PPD" as the file type (alternatively "SP3" or "TAB" could be selected).</li>
+<li>SATORB 4: Select n=m=70 for the Earth's gravitational potential, select direct radiation pressure and drag force. </li>
+<li>SATORB 5: Set initial step size to 60 seconds.</li>
+<li>SATORB 6: Set fixed step size (variational equations) to 0.5 hours. Ask for observations to be screened after iteration step no 4.</li>
+<li>SATORB 7: Select force decomposition as RSW, ask for stochastic parameters to be solved for (bottom of panel). Use the definition as provided in panel SATORB 8 for the stochastic pulses. </li>
+</ul>
+156 parameters (6 osculating elements, nine empirical force terms (panel 7), and stochastic parameters) were set up in the orbit determination process. The resulting orbit (stored as CH03208_C2.std) represents the (accepted) pseudo-observations (rectangular coordinates in J2000.0) with an rms of about 77 cm. The residuals may be inspected using the "Display Results" option of program SATORB. Observe that the residuals in the radial direction are about a factor of 2-3 larger than those in the other two components. This is a well-known GPS-specific characteristic.
+<br>
+After having run program LEOKIN for the second time (with "CH03208_C2.STD" as a priori orbit), the orbit improvement process using SATORB may be repeated with the file "CH03208_P1.PPD", which contains the position differences in addition to the positions. Apart from changing the name of the input file, one also should improve the force field (panel SATORB 8) by setting up stochastic pulses not only every 30 minutes (as defined on the CD), but every 5 to 10 minutes.<br> Observe that not only the residuals of the positions, but also of the position differences may be visualized using the option "Display Results" of program SATORB (the name of the residuals file has to be adapted -- from SATORB.RES to SATPPD.RES, when using the proposed default names).
+
+<p>
+<a name="EPHORB"></a>
+<p><b>Program Options</b><br>
+The three basic program options are selected here:
+<ul>
+<li>"EPHEMERIS": Generate a satellite ephemeris in a well-defined force field. No observations or pseudo-observations are needed in this option. </li>
+<li>"ORBIT_DET(PSEUDO_OBS)": Determine an orbit of a satellite using tabular orbit files or a file containing positions and position differences. The file with pseudo-observations either stem from program LEOKIN (LEO-orbits) or from the internet (IGS orbits for GPS and/or GLONASS satellites in the SP3 format). </li>
+<li>"ORBIT_DET(OBS)": Improve an orbit based on astrometric observations and on an a priori orbit determined by program ORBDET (transferred to SATORB via file). </li>
+</ul>
+<p>
+<a name="CONST"></a>
+<p><b>General Constants</b><br>
+The file "CONST" contains constants like the speed of light. The file may be inspected in the GEN-subdirectory.
+CONST is the file used in the Bernese GPS-Software (see [58]).
+</p>
+<a name="DATUM"></a>
+<p><b>Geodetic Datum</b><br>
+Name of the files containing different geodetic datums. This information is only used to convert the rectangular coordinates in the file <a href="#COORD">"Coordinate File"</a> into ellipsoidal coordinates -- an option which is actually not used in this software release. The file looks as follows:
+<font face="Courier" size="2" color="blue">
+<pre>
+LOCAL GEODETIC DATA FOR BERNESE GPS SOFTWARE VERSION 4.3
+--------------------------------------------------------
+DATUM              ELLIPSOID          SHIFTS (M)         ROTATIONS (")
+
+ITRF97             AE = 6378137.000   DX =      0.0000   RX =    0.0000
+                   1/F= 298.2572221   DY =      0.0000   RY =    0.0000
+                   SC = 0.00000D+00   DZ =      0.0000   RZ =    0.0000
+
+WGS - 84           AE = 6378137.000   DX =      0.0000   RX =    0.0000
+                   1/F= 298.2572236   DY =      0.0000   RY =    0.0000
+                   SC = 0.00000D+00   DZ =      0.0000   RZ =    0.0000
+
+PZ - 90            AE = 6378137.000   DX =      0.0000   RX =    0.0000
+                   1/F= 298.2572236   DY =      0.0000   RY =    0.0000
+                   SC = 0.00000D+00   DZ =      0.0000   RZ =   -0.3345
+
+CH - 1903          AE = 6377397.200   DX =    679.0000   RX =    0.0000
+                   1/F= 299.1528000   DY =     -2.0000   RY =    0.0000
+                   SC = 0.00000D+00   DZ =    404.0000   RZ =    0.0000
+
+........           ................   ................   ..............
+</pre>
+</FONT>
+A geodetic datum is characterized by a reference ellipsoid (of rotation) (defined by the equatorial radius "AE" and the flattening "F" ), three offset parameters in the three coordinate directions w.r.t. the geocenter (Earth's center of mass), and three rotations w.r.t. a reference system. The first three datums are nominally geocentric. The first may be viewed as a reference, the second (World Geodetic System 1984) is the system underlying the Global Positioning System), the third is the one used by the Russian GLONASS system (which is rotated about the polar axis w.r.t. the other systems). The fourth datum is the Swiss datum, which is (for historical reasons) not geocentric.</p>
+</p>
+<a name="POLE"></a>
+<p><b>General Pole File</b><br>
+Name of the file containing the information about Earth rotation needed for analyzing the orbits of Earth satellites or of space debris. The most recent version for this file may be retrieved from the CODE Analysis Center of the IGS (www.aiub.unibe.ch). Details may be found under <a href="LEOKIN.html"> Download info from AIUB </a>. The file looks as follows:
+<font face="Courier" size="2" color="blue">
+<pre>
+BULLETIN A POLE                                                 01-JUN-03 18:35                                         
+------------------------------------------------------------------------------------------------------------------------
+NUTATION MODEL       : NO                       SUBDAILY POLE MODEL: RAY
+    DATE   TIME   X-POLE   Y-POLE   UT1-UTC GPS-UTC    RMS XP  RMS YP   RMS DT   DE-CPO   DP-CPO   RMS EP  RMS PS
+YYYY MM DD HH MM    (")      (")      (S)     (S) REM     (")     (")     (S)      (")     (")      (")      (")
+
+1992  5  1  0  0 -0.13310  0.23015 -0.438762   7. A    0.00032 0.00030 0.000013  0.00000  0.00000 0.00015 0.00069
+1992  5  2  0  0 -0.13503  0.23242 -0.441285   7. A    0.00030 0.00038 0.000012  0.00000  0.00000 0.00015 0.00064
+1992  5  3  0  0 -0.13712  0.23457 -0.443627   7. A    0.00029 0.00026 0.000012  0.00000  0.00000 0.00013 0.00041
+1992  5  4  0  0 -0.13923  0.23666 -0.445795   7. A    0.00029 0.00026 0.000010  0.00000  0.00000 0.00013 0.00039
+1992  5  5  0  0 -0.14119  0.23876 -0.447832   7. A    0.00028 0.00030 0.000012  0.00000  0.00000 0.00013 0.00035
+1992  5  6  0  0 -0.14285  0.24092 -0.449820   7. A    0.00028 0.00030 0.000012  0.00000  0.00000 0.00011 0.00035
+ ... .. .. .. .............................. .... .    ..........................................................
+</pre>
+</FONT>
+The content of the file is self-explanatory with the caption provided. Apart from the reference epoch, the polar motion, UT1-UTC, and GPS-UTC is required.
+</p>
+
+<a name="POTCOE"></a>
+<p><b>Earth Gravity Field</b><br>
+Name of the file containing the parameters and coefficients of the harmonic expansion of the Earth's potential. The JGM3 file is provided in the GEN-subdirectory. Other files might be used, as well, provided the format is the same. The file looks as follows (header plus a few lines):
+<font face="Courier" size="2" color="blue">
+<pre>
+  JGM-3
+ (2A10,2E20.10)                                              J2-DOT = -26x10-12
+JGM-3                   398600.44150E+09          6378136.30             1986.0
+ (A6,2I2,2D21.14,2D12.4,F4.0)
+RECOEF 2 1-0.18698764000000E-09 0.11952801000000E-08  0.0000E+00  0.0000E+00-1.
+GEOCOE 2 0-0.48416954845647E-03 0.00000000000000E+00  0.4660E-10  0.0000E+00-1.
+GEOCOE 3 0 0.95717059088800E-06 0.00000000000000E+00  0.3599E-10  0.0000E+00-1.
+GEOCOE 4 0 0.53977706835730E-06 0.00000000000000E+00  0.1339E-09  0.0000E+00-1.
+GEOCOE 5 0 0.68658987986543E-07 0.00000000000000E+00  0.8579E-10  0.0000E+00-1.
+GEOCOE 6 0-0.14967156178604E-06 0.00000000000000E+00  0.2428E-09  0.0000E+00-1.
+GEOCOE 7 0 0.90722941643232E-07 0.00000000000000E+00  0.2604E-09  0.0000E+00-1.
+GEOCOE 8 0 0.49118003174734E-07 0.00000000000000E+00  0.3996E-09  0.0000E+00-1.
+GEOCOE 9 0 0.27385060950085E-07 0.00000000000000E+00  0.3773E-09  0.0000E+00-1.
+GEOCOE10 0 0.54130445738812E-07 0.00000000000000E+00  0.5323E-09  0.0000E+00-1.
+GEOCOE11 0-0.50161314595688E-07 0.00000000000000E+00  0.6002E-09  0.0000E+00-1.
+...............................................................................
+GEOCOE69 0 0.13897490392781E-08 0.00000000000000E+00  0.8111E-09  0.0000E+00-1.
+GEOCOE70 0-0.10928228581520E-08 0.00000000000000E+00  0.7772E-09  0.0000E+00-1.
+GEOCOE 3 1 0.20301372055530E-05 0.24813079825561E-06  0.1153E-09  0.1152E-09-1.
+GEOCOE 4 1-0.53624355429851E-06-0.47377237061597E-06  0.8693E-10  0.8734E-10-1.
+GEOCOE 5 1-0.62727369697705E-07-0.94194632134383E-07  0.2466E-09  0.2465E-09-1.
+GEOCOE 6 1-0.76103580407274E-07 0.26899818932629E-07  0.2702E-09  0.2752E-09-1.
+...............................................................................
+</pre>
+</FONT>
+The defining constants are contained in the header (GM, ae). One record contains the cos- and sin-terms of a specific degree and order. Degree and order are contained in columns 2 and three, the corresponding sin- and cos-terms in columns 4 and 5. The following columns contain accuracy information.<br> </p>
+
+<a name="OTIDES"></a>
+<p><b>Ocean Tides</b><br>
+Parameters of the ocean tide model as determined by the University of Texas. The file format is the following:
+<font face="Courier" size="2" color="blue">
+<pre>
+ UTCSR OCEAN TIDE MODEL FROM SCHWIDERSKI AND INTERPOLATION/EXTRAPOLATION (PLUS TEG-2B)                    
+ 117 767  20  20
+ 0
+ 0.63781450000000E+07 0.10250000000000E+04 0.59742300000000E+25 0.43440000000000E+03-0.12300000000000E-02
+ 0.00000000000000E+00-0.30750000000000E+00-0.19500000000000E+00-0.13200000000000E+00-0.10320000000000E+00-0.89200000000000E-01
+-0.81400000000000E-01-0.75500000000000E-01-0.71400000000000E-01-0.68200000000000E-01-0.65100000000000E-01-0.62500000000000E-01
+-0.60300000000000E-01-0.58400000000000E-01-0.56700000000000E-01-0.55300000000000E-01-0.54000000000000E-01-0.52900000000000E-01
+-0.51200000000000E-01-0.49700000000000E-01
+  55.565LP    20     0.27930000000000E-01 0.14709399847621E-03 0.18000000000000E+03 0.29900000000000E+00
+  55.575LP A   9    -0.28000000000000E-03 0.29418799695241E-03 0.00000000000000E+00 0.29900000000000E+00
+  55.765LP B   1     0.40000000000000E-04 0.76600359860474E-03 0.18000000000000E+03 0.29900000000000E+00
+  56.544SA A   1    -0.40000000000000E-04 0.25906843923209E-02 0.00000000000000E+00 0.29900000000000E+00
+  56.554SA    11    -0.49200000000000E-02 0.27377783907971E-02 0.00000000000000E+00 0.29900000000000E+00
+  56.556SA B   2     0.26000000000000E-03 0.27380399907945E-02 0.18000000000000E+03 0.29900000000000E+00
+ ........            ...................  ...................  ...................   ...................
+</pre>
+</FONT>
+Please consult [71] for more details.</p>
+
+<a name="JPLEPH"></a>
+<p><b>JPL Ephemerides</b><br>
+The file contains JPL's planetary ephemerides DE-200 (see [106]). The file covers the time interval between 1981 and 2025. Other DE-files might be attached to the program to cover other time periods. We refer to [110] for more information. SATORB uses the JPL ephemerides uniquely to calculate the coordinates of Sun and Moon.
+</p>
+
+<a name="SATELL"></a>
+<p><b>Satellite Information File</b><br>
+Name of the file with satellite parameters. The file stems from the Bernese GPS software [58]. The file consists of three parts, namely "physical satellite parameters", "onboard sensors", and "remarks". In the second part one finds in particular the GPS antenna vectors relative to the satellite's center of mass (see, e.g., sensor "CHAM L06"). A list of LEOs currently active is provided in the satellite file (see <a href="LEOKIN.html#LEO_TYPE"> Leo Name </a>). If one wishes to process observations of a different (newer?) satellite, one has to define a name for it in this file and define its name under <a href="LEOKIN.html#LEO_NEW_NAME"> New Leo Name </a> and provide the offset vector of its GPS antenna w.r.t. the center of mass. Observe the definition of the coordinate vectors in PART 3: REMARKS.
+<font face="Courier" size="2" color="blue">
+<pre>
+SATELLITE-SPECIFIC DATA FOR GPS, GLONASS AND LEOS - VERSION 5.0        13-MAR-03
+--------------------------------------------------------------------------------
+PART 1: PHYSICAL SATELLITE PARAMETERS
+-------------------------------------
+
+RADIATION PRESSURE MODEL : T980301    (ROCK MODEL T, FLIEGEL ET AL, 1992)
+
+     BLOCK    COSPAR  ATTITUDE      START TIME           END TIME           MASS    AREA/MASS RAD.PRESS  DP0       P2         P3     RAD.PRESS AIR DRAG AIR DRAG  IFRQ
+PRN   NO.       ID      FLAG   YYYY MM DD HH MM SS  YYYY MM DD HH MM SS     (KG)    (M2/KG)   MODEL   (1.E-8)    (1.E-9)    (1.E-9)      C0     MODEL     C0
+
+  1    3   ****-****     0     1992 11 22 00 00 00  2099 12 31 23 59 59     975.0     0.0000     1    -0.1088     0.7458     0.0000     0.0000     0     0.0000     0
+  2    2                 0     1989 06 10 00 00 00  2099 12 31 23 59 59     880.0     0.0000     1    -0.0373     0.6362     0.0000     0.0000     0     0.0000     0
+...                            ....                                         .....                                 ......
+910    1                 0     2002 03 17 00 00 00  2099 12 31 23 59 59     800.0     0.0000     0     0.0000     0.0000     0.0000     0.0000     0     0.0000     0
+911    1                 0     2003 01 13 00 00 00  2099 12 31 23 59 59     800.0     0.0000     0     0.0000     0.0000     0.0000     0.0000     0     0.0000     0
+
+PART 2: ON-BOARD SENSORS
+------------------------
+                                    START TIME           END TIME                 SENSOR OFFSETS (M)       SENSOR BORESIGHT VECTOR (U) SENSOR AZIMUTH VECTOR (N)
+PRN   SATELLITE NAME______     YYYY MM DD HH MM SS  YYYY MM DD HH MM SS         DX        DY        DZ         X       Y       Z          X       Y       Z
+
+  1   GPS TRANSMITTER          1992 11 22 00 00 00  2099 12 31 23 59 59       0.2794    0.0000    1.0230     0.0000  0.0000  1.0000     1.0000  0.0000  0.0000
+  2   GPS TRANSMITTER          1989 06 10 00 00 00  2099 12 31 23 59 59       0.2794    0.0000    1.0230     0.0000  0.0000  1.0000     1.0000  0.0000  0.0000
+...   ...................      ....                                                                                                                           
+124   GLONASS TRANSMITTER      1996 01 01 00 00 00  1996 08 26 23 59 59       0.0000    0.0000    0.0000     0.0000  0.0000  1.0000     1.0000  0.0000  0.0000
+124   SLR REFLECTOR            1996 01 01 00 00 00  1996 08 26 23 59 59       0.0000    0.0000    1.5100     0.0000  0.0000  1.0000     1.0000  0.0000  0.0000
+124   GLONASS TRANSMITTER      2000 11 01 00 00 00  2099 12 31 23 59 59       0.0000    0.0000    0.0000     0.0000  0.0000  1.0000     1.0000  0.0000  0.0000
+124   SLR REFLECTOR            2000 11 01 00 00 00  2099 12 31 23 59 59       0.0000    0.0000    1.5100     0.0000  0.0000  1.0000     1.0000  0.0000  0.0000
+901   TOPX L01                 1992 08 15 00 00 00  2099 12 31 23 59 59       1.9485   -0.0405   -4.6316     0.0000  0.0000 -1.0000     1.0000  0.0000  0.0000
+902   GPS/MET                  1995 05 01 00 00 00  2099 12 31 23 59 59      -0.5075    0.0389   -0.1783     0.0000  0.0000  1.0000     1.0000  0.0000  0.0000
+906   CHAM L06                 2000 07 15 12 00 00  2099 12 31 23 59 59      -1.4880    0.0000   -0.3928     0.0000  0.0000 -1.0000     1.0000  0.0000  0.0000
+906   CHA1 L06 (OCC1)          2000 07 15 12 00 00  2099 12 31 23 59 59       0.0000    0.0000    0.0000     0.0000  0.0000  1.0000     1.0000  0.0000  0.0000
+906   CHA2 L06 (OCC2)          2000 07 15 12 00 00  2099 12 31 23 59 59       0.0000    0.0000    0.0000     0.0000  0.0000  1.0000     1.0000  0.0000  0.0000
+906   CHAM L06 (SLR)           2000 07 15 12 00 00  2099 12 31 23 59 59       0.0000    0.0000    0.0000     0.0000  0.0000  1.0000     1.0000  0.0000  0.0000
+907   SACC L07                 2000 11 23 00 00 00  2001 01 22 23 59 59      -0.3449   -0.0210   -0.9530     0.0000  0.0000 -1.0000     1.0000  0.0000  0.0000
+907   SACC L07                 2001 01 23 00 00 00  2099 12 31 23 59 59      -0.3449   -0.0294   -0.7730     0.0000  0.0000 -1.0000     1.0000  0.0000  0.0000
+908   JASO L08                 2001 12 07 00 00 00  2099 12 31 23 59 59       1.4335   -0.2164   -0.4721     0.0000  0.0000 -1.0000     1.0000  0.0000  0.0000
+909   GRCA L09                 2002 03 17 00 00 00  2099 12 31 23 59 59       0.0000    0.0000    0.0000     0.0000  0.0000  1.0000     1.0000  0.0000  0.0000
+910   GRCB L10                 2002 03 17 00 00 00  2099 12 31 23 59 59       0.0000    0.0000    0.0000     0.0000  0.0000  1.0000     1.0000  0.0000  0.0000
+911   ICESAT                   2003 01 13 00 00 00  2099 12 31 23 59 59       0.0000    0.0000    0.0000     0.0000  0.0000  1.0000     1.0000  0.0000  0.0000
+
+PART 3: REMARKS
+---------------
+
+ATTITUDE FLAG:
+      IF file with attitude rotation matrix does not exist THEN:
+      1: Use velocity vector for attitude control.
+      2: Use nominal Sun tracking attitude, with solar
+         panel axis Y perpendicular to Sun direction,
+         (yaw-steering, pitch = roll =0). GIPSY MODEL
+      3: Use nominal Sun tracking attitude, with solar
+         panel axis Y perpendicular to Sun direction,
+         (yaw-steering, pitch = roll =0). CNES MODEL
+
+SATELLITE FIXED BODY SYSTEM (XYZ) DEFINITION:
+      XYZ==RPY when roll=pitch=yaw=0:
+      X="+S"=(R)oll  (along track direction - roll axis,  defines right-handed orthogonal system: R=P x Y
+      Y="-W"=(P)itch (cross track direction - pitch axis, towards the negative orbit normal)
+      Z="-R"=(Y)aw   (nadir direction       - yaw axis,   towards geocenter)
+      roll, pitch and yaw angles were defind as right-handed rotations about their respective axes
+      (See Wertz,J.R. 1991: Spacecraft Attitude Determination and Control).
+
+SENSOR FIXED SYSTEM (NEW) DEFINITION:
+      N = sensor reference azimuth vector
+      E = defines left-handed orthogonal system: E=U x N
+      U = sensor boresight vector
+</pre>
+</FONT>
+The file is only needed, if LEO orbits are analyzed (GPS antenna offset w.r.t. LEO's center of mass needs to be known in SATORB).
+</p>
+
+<a name="SYSOUT"></a>
+<p><b>General Program Output</b><br>
+The general output file differs substantially for the three applications needed. The following example stems from determining as LEO orbit using a *.PPD file from LEOKIN:
+<font face="Courier" size="2" color="blue">
+<pre>
+ ORBIT DETERMINATION USING *.PPD-FILES FOR   1 SATELLITE(S)
+ **********************************************************
+ SATELLITE 906    ARC          =         1
+                  FROM (MJD)   = 52847.000
+                  TO (MJD)     = 52848.000
+                  # OBS-EPOCHS =     17156
+                  # ITERATIONS =         7
+ -----------------------------------------
+obstyp,t,res,rms= 2          28.1666667       0.0688
+obstyp,t,res,rms= 2          28.3333333       0.0917
+obstyp,t,res,rms= 2          28.5000000       0.0713
+obstyp,t,res,rms= 2          28.6666667       0.0787
+obstyp,t,res,rms= 2          30.0000000       0.0745
+obstyp,t,res,rms= 2          38.5000000       0.0694
+obstyp,t,res,rms= 1          41.8333333       4.6952
+...................          ..........       ......
+
+ OSCULATING ELEMENTS AND THEIR RMS ERRORS
+ ***************************************************
+ OSCULATION EPOCH = 52847.0000000 MJD
+ SEMIMAJOR AXIS   =   6759376.771 M   +-       0.278 M
+ REV. PERIOD U    =        92.176 MIN
+ ECCENTRICITY     =  0.0032663428 --- +-0.0000000354
+ INCLINATION      =    87.2669273 DEG +- 0.000000708
+ R.A. OF NODE     =    89.1474589 DEG +- 0.000000986
+ ARG OF PERIGEE   =    88.1291191 DEG +- 0.000451172
+ ARG OF LAT AT T0 =   271.4940046 DEG +- 0.000000698
+ ***************************************************
+
+ NUMBER OF DYNAMICAL PARAMETERS   :  9
+ DECOMPOSITION TYPE (1=RSW, 2=ZYX):  1
+ ********************************************************
+ PARAMETER = R0 VALUE =0.721287D-07 +-0.792038D-07 M/S**2
+ PARAMETER = RC VALUE =0.295066D-07 +-0.112852D-06 M/S**2
+ PARAMETER = RS VALUE =-.115437D-06 +-0.112797D-06 M/S**2
+ PARAMETER = S0 VALUE =0.280852D-05 +-0.743014D-07 M/S**2
+ PARAMETER = SC VALUE =0.635073D-06 +-0.105411D-06 M/S**2
+ PARAMETER = SS VALUE =0.113389D-05 +-0.105333D-06 M/S**2
+ PARAMETER = W0 VALUE =0.122948D-06 +-0.756760D-07 M/S**2
+ PARAMETER = WC VALUE =0.225279D-06 +-0.105007D-06 M/S**2
+ PARAMETER = WS VALUE =0.604656D-07 +-0.104872D-06 M/S**2
+ ********************************************************
+ NUMBER OF STOCHASTIC PULSES: 429
+ ********************************
+
+    EPOCH     TYPE     SIZE(M/S)    RMS(M/S)
+ -------------------------------------------
+ 52847.006944  R    -0.11805D-03 0.24988D-03
+ 52847.013889  R    -0.16013D-02 0.24999D-03
+ ............  .    ............ ...........
+ 52847.006944  S    -0.76652D-05 0.20631D-03
+ 52847.013889  S     0.56140D-04 0.19771D-03
+ ............  .    ............ ...........
+ 52847.006944  W    -0.46132D-03 0.20738D-03
+ 52847.013889  W     0.60858D-04 0.19697D-03
+ ............  .    ............ ...........
+ 
+ CORRELATION BETWEEN PARAMETERS
+ ******************************
+ .......
+
+ SAT 906 : RMS=   0.83 M # OBS =51078 # PARMS =444 BETA= -33.19 GRAD
+
+ NUMBER OF SHADOW PASSES = 15
+ ----------------------------
+       ENTRY           EXIT        DURATION (MIN)
+
+   52847.0406185   52847.0641584        33.897
+   52847.1048660   52847.1283974        33.885
+   .............   .............        ......
+
+ SUMMARY OF RUN
+ **************
+   SAT   ARC   NOBS   NPAR   RMS(CM)    BETA    NODE   SHAD
+   906     1  51372    444      61.2   -33.2    89.1      *
+</pre>
+</FONT>
+The output contains the essential statistical information, a list of observations which was left out due to screening, and the results. Three types of orbit parameters were estimated in this program run, namely (a) the osculating elements at the initial epoch, (b) empirical parameters (constant accelerations and once per revolution parameters in radial, along-track, and out-of-plane directions), and (c) pseudo-stochastic pulses in radial, along-track, and out-of-plane directions (one pulse per 10 minutes).<br>
+The correlation matrix of the determined parameters would be available as well. It is not reproduced here: in view of the fact that the number of parameters (444) is rather high, the correlation matrix is difficult to interpret.<br>
+The program run is concluded by a summary line. Observe that the RMS specified refers to the code observation (ionosphere-free linear combination of L1 and L2). The ratio "RMS(phase):RMS(code) = 1/50" has to be used to obtain the rms of the phase observation (resulting in about rms(phase)=1.2 cm).
+</p>
+
+<a name="SYSERR"></a>
+<p><b>Error Messages</b><br>
+The errors and/or warnings issued by SATORB may be written into a separate file, 
+the name of which may be specified here. If the name is left blank, the messages are
+written into the general output file.
+</p>
+
+<a name="RESIDU"></a>
+<p><b>File for Residuals</b><br>
+Name of the file containing the residuals of the positions. The residuals are given in the inertial, geocentric x-, y-, and z-directions, but also in the radial, along-track, and out-of-plane directions. The file has the following format:
+<font face="Courier" size="2" color="blue">
+<pre>
+           0.0000000 271.4940         -0.1565         -0.4935         -1.6205               1.5980         -0.5379         -0.2263
+           0.1666667 272.1407          0.0422         -0.5912          0.1989              -0.2182         -0.5827          0.0604
+           0.3333333 272.7874         -0.0481         -0.3331         -0.5550               0.5355         -0.3604         -0.0696
+           0.5000000 273.4341         -0.1127         -0.3911          0.7220              -0.7485         -0.3483         -0.0724
+           0.6666667 274.0808          0.2406         -0.2687          0.9632              -0.9669         -0.1965          0.2902
+           0.8333333 274.7276          0.0886         -0.2327         -1.0992               1.0795         -0.3217          0.0396
+           1.0000000 275.3743          0.2921         -0.1297         -1.0665               1.0628         -0.2261          0.2428
+           1.1666667 276.0210          0.0407         -0.7075          1.4951              -1.5569         -0.5461          0.1224
+</pre>
+</FONT>
+The first column contains the time argument, relative to the first epoch, in minutes, the second the argument of latitude. Columns 3-5 contain the residuals in x-, y-, and z-directions, measured in the inertial, geocentric system. Columns 6-8 contain the residuals in the radial (R), along-track (S), and out-of-plane (W) directions.<br> Using the "DISPLAY RESULTS" option of program SATORB, one may visualize the residuals in (R), (S), and (W). Here is an example (CHAMP, day 208, Positions): 
+<center><img src="code_res.png", width=400, height=250></center>
+</p>
+
+<a name="STDORB"></a>
+<p><b>Standard Orbit File</b><br>
+Name of the LEO standard orbit. The standard orbit represents the satellite coordinates piecewise by polyomials (definition by parameters <a href="#STD_ORDER"> Order of Taylor series (std orbit) </a>, <a href="#STD_LENGTH"> Subinterval length (std orbit) </a>). The standard orbit file is a binary file, allowing it to program LEOKIN to calculate LEO positions, velocities, etc. The orbit is generated here -- based on the pseudo-observations available. The option is only active, if an orbit determination is performed.
+</p>
+
+<a name="CREATE_STD"></a>
+<p><b>Create</b><br>
+The creation of the standard orbit can be avoided, if this option is not selected.
+</p>
+
+
+
+
+<a name="OBSFIL"></a>
+<p><b>Observation File</b><br>
+Processing of astrometric observations: Name of the file with observations (of satellites and space debris). The file format is that introduced in program ORBDET, see <a href="ORBDET.html#OBSFIL"> Astrometric Observations (sat.)</a>
+</p>
+
+<a name="COORD"></a>
+<p><b>Station Coordinates (SAT)</b><br>
+Processing of astrometric observations: Name of the file containing the station coordinates of the satellite tracking sites. The file format may be found under <a href="ORBDET.html#COORD"> Coordinates of Satellite Observatories</a>.
+</p>
+
+<a name="ELEAPR"></a>
+<p><b>A Priori Elements</b><br>
+Processing of astrometric observations: Name of the file containing the a priori elements of the orbit to be improved. The file was written by program ORBDET: <a href="ORBDET.html#ELEFIL"> A priori Elements </a>.
+</p>
+
+<a name="YEAR"></a>
+<p><b>Initial Epoch</b><br>
+Ephemeris generation: Year, month and day of initial epoch.
+</p>
+
+<a name="INT_LENGTH"></a>
+<p><b>Int. Length (Days)</b><br>
+Ephemeris generation: Interval length in days.
+</p>
+
+<a name="USE_REV"></a>
+<p><b>Use Revolution Period to define Semi-Major Axis</b><br>
+Ephemeris generation: Define the semi-major axis via the (two-body) revolution period, if option selected (otherwise semi-major axis directly defined in meters).
+</p>
+
+<a name="LONG_NODE"></a>
+<p><b>Define Geogr. Longitude (else: R.A.) of Node</b><br>
+Ephemeris generation: Define the geographical longitude of the node (in the Earth-fixed system) at the initial epoch, if option selected (otherwise the right ascension of the ascending node is defined).
+</p>
+
+<a name="REV_PER"></a>
+<p><b>Revolution Period</b><br>
+Ephemeris generation: Define revolution period in sidereal days. (active if <a href="#USE_REV"> Use rev.period to define axis </a> was selected).
+</p>
+
+<a name="SEMI_MAJOR"></a>
+<p><b>Semi-major Axis</b><br>
+Ephemeris generation: Define semi-major axis in meters. (Active if <a href="#USE_REV"> Use rev.period to define axis </a> was <em>not</em> selected).
+</p>
+
+<a name="ECCENTRICITY"></a>
+<p><b>Eccentricity</b><br>
+Ephemeris generation: Eccentricity of the orbit.
+</p>
+
+<a name="INCLINATION"></a>
+<p><b>Inclination</b><br>
+Ephemeris generation: Inclination of the orbit w.r.t. equator J2000.0.
+</p>
+
+<a name="NODE"></a>
+<p><b>R.A. or Long. of Node</b><br>
+Ephemeris generation: Define either geographical longitude or right ascension of node (depending on selection <a href="#LONG_NODE">Define Geogr. Longitude (else: R.A.) of Node</a>).
+</p>
+
+<a name="PERIHELION"></a>
+<p><b>Argument of Perigee</b><br>
+Ephemeris generation: Enter argument of perigee (degrees).
+</p>
+
+<a name="PERIHELION_PASSING"></a>
+<p><b>Perigee Passing Time</b><br>
+Ephemeris generation: Enter perigee passing time in seconds, relative to initial epoch.
+</p>
+
+
+
+
+<a name="TABPOS"></a>
+<p><b>Tabular Positions</b><br>
+Ephemeris generation: Name of the output file containing the tabular positions, position differences, and perturbing accelerations. The file looks as follows:
+<font face="Courier" size="2" color="blue">
+<pre>
+X, Y, Z (Earth-fixed), Diff. w.r.t. initial osc. orbit (rad,along, out) Perturbing acceleration  (rad,along, out)
+      MJD                 X                  Y                  Z                 d(rad)       d(along)         d(out)     da(rad)       da(along)       da(out)       arg.lat.
+*******************************************************************************************************************************************************************************
+
+ 52640.000000        -4443926.117       -24839176.252            6583.478          0.000          0.000          0.000   0.206260D+02   0.278546D+02  -0.491151D+01       0.000
+ 52640.000694        -4414495.880       -24843621.277          206748.086         -0.121          0.002         -0.002   0.208948D+02   0.276692D+02  -0.491151D+01       0.555
+ 52640.001389        -4384788.242       -24846581.603          406894.225         -0.484          0.010         -0.009   0.211617D+02   0.274815D+02  -0.491151D+01       1.110
+ 52640.002083        -4354792.313       -24848059.544          607004.015         -1.089          0.026         -0.024   0.214266D+02   0.272914D+02  -0.491151D+01       1.665
+ 52640.002778        -4324497.251       -24848057.641          807059.581         -1.936          0.050         -0.049   0.216896D+02   0.270990D+02  -0.491151D+01       2.219
+ 52640.003472        -4293892.262       -24846578.662         1007043.055         -3.023          0.084         -0.086   0.219506D+02   0.269044D+02  -0.491151D+01       2.774
+.............        ............       .............         ...........         ......          .....         ......   ............   ............  .............       .....                                     
+</pre>
+</FONT>
+The modified Julian date (MJD) is contained in the first column, the set of geocentric coordinates in the inertial system in columns 2-4 (in meters). The differences w.r.t. the initial osculating Keplerian orbit may be found in meters in columns 5 - 7 (in radial, along-track, and out-of-plane directions), the perturbing acceleration (in the same directions) in columns 8 - 10. The argument of latitude u is contained in column 11.
+</p>
+
+<a name="ELEFIL"></a>
+<p><b>Elements</b><br>
+Ephemeris generation: Name of the output file containing the osculating or mean orbital elements. The file looks as follows:
+<font face="Courier" size="2" color="blue">
+<pre>
+# MEAN/OSCULATING ELEMENTS                                      08-OCT-03  16:37
+#     MJD              A            E            INCL         NODE           PER          SIGMA0
+# ***********************************************************************************************
+#        AREF=    26000000.00 + 
+ 52640.000000      561655.65  0.050000000     55.000000      0.000000      0.000000      0.000000
+ 52640.000694      561656.30  0.050000019     54.999999      0.000000      0.001193     -0.001078
+ 52640.001389      561656.25  0.050000003     54.999997      0.000000      0.002384     -0.002155
+ 52640.002083      561655.49  0.049999953     54.999995      0.000000      0.003574     -0.003229
+ 52640.002778      561654.03  0.049999870     54.999993      0.000000      0.004760     -0.004301
+ 52640.003472      561651.87  0.049999752     54.999990      0.000000      0.005941     -0.005368
+ ............      .........  ...........     .........     .........      ........     .........
+</pre>
+</FONT>
+The modified Julian date (MJD) is contained in the first column, the differences of the orbital elements (semi-major axis a, eccentricity e, inclination i, right ascension of the ascending node, argument of perigee, mean anomaly at initial epoch) w.r.t. the osculating initial elements in columns 2-7. Units are meters for the semi-major axis, a dimensionless number for e, and degrees for the other elements. The orbital elements may be viewed by using the "DISPLAY RESULTS" option of program "SATORB".
+</p>
+
+<a name="TAB_INT"></a>
+<p><b>Tabular Interval (Min)</b><br>
+Ephemeris generation: The tabular interval for calculating the osculating (and as a mean value thereof the mean) elements. There should be (at least) about 100 of these epochs per revolution period (otherwise the mean elements might not be very accurate).
+</p>
+
+<a name="SAMP_TAB"></a>
+<p><b>Sampling for Tabular Positions</b><br>
+Ephemeris generation: In order to avoid long tabular orbit files <a href="#TABPOS"> Tabular orbit file </a> the output in this file may be sampled (a sampling of "5" means that only every 5th calculated tabular position is stored).
+</p>
+
+<a name="NUMBER_REV"></a>
+<p><b>Number of Revolutions (Mean Elements, 0: Osc. Ele)</b><br>
+Ephemeris generation: When calculating mean elements one may calculate them over an entire number of (unperturbed) revolution periods. Normally, a value of "1" is fine. When studying resonance problems, it may be advisable to use more revolutions (e.g., "2" for GPS satellites).
+</p>
+
+<a name="EOP_PA"></a>
+<p><b>Trafo Inertial to Earth-Fixed Correct or Approximate</b><br>
+Ephemeris generation: A correct transformation from the Earth-fixed into the inertial system (and vice-versa) requires the knowledge of polar motion and length of day. This information is contained in the file <a href="LEOKIN.html#POLE"> POLE file </a>. If one wishes to integrate over long time intervals into the future, this information is not available. For such tests one may not use the "CORRECT" option, but the "APPROX" option, which just takes into account precession and nutation (ignoring length-of-day). This may be sufficient for many purposes.
+</p>
+
+
+<a name="SATTYP"></a>
+<p><b>Satellite Type</b><br>
+Analyzing positions (and position differences): SATORB may either use positions (and possibly position differences) generated by program LEOKIN (option "LEO") or positions of GPS and GLONASS satellites in the SP3 precise orbit format (option "GPS/GLONASS"). The input files are expected in the LEOKIN subdirectory when using the "LEO" option, in the SATORB subdirectory, when using the "GPS/GLONASS" option.
+</p>
+
+<a name="TABSP3"></a>
+<p><b>Use *.TAB-, *.SP3-, *.PPD-Files</b><br>
+Analyzing positions (and position differences): SATORB accepts three formats for the satellite positions: The SP3-format (this is the correct format when analyzing GPS or GLONASS orbits, see <a href="LEOKIN.html#PREFIL"> Precise Ephemerides </a>), the tabular orbit format (see <a href="LEOKIN.html#TFILE"> Tabular file </a>), and PPD-format (see <a href="LEOKIN.html#RESULTC"> PPD-file </a>).
+</p>
+
+<a name="RMS_APRIORI"></a>
+<p><b>RMS A Priori of Observations</b><br>
+Analyzing positions (and position differences): Estimated RMS-error of satellite position (RMS a priori).
+</p>
+
+<a name="SATNUM"></a>
+<p><b>PRN of Satellite(s) to be used (blank = all satellites)</b><br>
+Analyzing positions (and position differences): The parameter is only active when processing GPS or GLONASS satellites: The SP3-files contain ephemerides for all GPS satellites. One may wish to analyze all satellites in the file, in which case one may leave the input file blank.<br>
+If one wishes to analyze only one satellite, its PRN (Pseudo Random Number) has to be provided here.
+</p>
+
+<a name="TABAUX"></a>
+<p><b>Auxiliary File</b><br>
+Analyzing positions (and position differences): SATORB needs an auxiliary file when analyzing satellite positions. If one does not like the name "TABAUX" one may change it (neither required nor recommended).
+</p>
+
+<a name="TABFIL"></a>
+<p><b>Input Tabular Orbits (GPS/GLONASS)</b><br>
+Analyzing positions: This input file is activated, if the "GPS/GLONASS" option (<a href="#SATTYP"> Satellite type </a>) and the "TAB" option (<a href="#TABSP3"> Input file type </a>) were selected. The files have to reside in the subdirectory "SATORB\ORB". One may select a list of tabular orbit files from consecutive days to fit a multi-day orbit to the positions.
+</p>
+
+<a name="TABFILL"></a>
+<p><b>Input Tabular Orbits (LEO)</b><br>
+Analyzing positions: This input file is activated, if the "LEO" option (<a href="#SATTYP"> Satellite type </a>) and the "TAB" option (<a href="#TABSP3"> Input file type </a>) were selected. The files have to reside in the subdirectory "LEOKIN\ORB". Only one file at the time may be analyzed.
+</p>
+
+<a name="PREFIL"></a>
+<p><b>Input Precise Orbits</b><br>
+Analyzing positions: This input file is activated, if the "SP3" option (<a href="#TABSP3"> Input file type </a>) was selected (either for "LEO" or "GPS/GLONASS"). The files have to reside in the subdirectory "LEOKIN\ORB". One may select a list of tabular orbit files from consecutive days to fit a multi-day orbit to the positions.
+</p>
+
+<a name="PPDFIL"></a>
+<p><b>Input Pos. and Pos. Diff. File</b><br>
+Analyzing position (and position differences): This input file is activated, if the "LEO" option (<a href="#SATTYP"> Satellite type </a>) and the "PPD" option (<a href="#TABSP3"> Input file type </a>) were selected. The files have to reside in the subdirectory "LEOKIN\OUT". Only one file at the time may be analyzed.
+</p>
+
+<a name="RESPPD"></a>
+<p><b>File for Position Difference Residuals</b><br>
+LEO Orbit Determination using positions and position differences: Name of the file with the residuals of the position differences. The file has the following format:
+<font face="Courier" size="2" color="blue">
+<pre>
+           0.0000000 310.6481          0.0011         -0.0023          0.0007              -0.0006          0.0001          0.0025
+           0.1666667 311.2873         -0.0001         -0.0019         -0.0059               0.0037         -0.0047          0.0013
+           0.3333333 311.9265         -0.0059         -0.0072          0.0303              -0.0283          0.0134          0.0043
+           0.5000000 312.5657          0.0073         -0.0067          0.0059              -0.0023          0.0054          0.0098
+           0.6666667 313.2049          0.0018          0.0001         -0.0010               0.0019          0.0005          0.0008
+           0.8333333 313.8440         -0.0048          0.0040          0.0049              -0.0050          0.0023         -0.0057
+           ......... ........         .......         .......         .......              .......         .......         ....... 
+</pre>
+</FONT>
+The time in minutes relative to the first epoch is contained in the first column. The second column contains the argument of latitude of the satellite in degrees. The residuals in the inertial equatorial system J2000.0 are contained in the columns 3-5. The residuals in the radial, along-track, and out-of-plane directions may be found in columns 6-8. All residuals are given in meters. The file may be plotted using the "Display Results" option of the program SATORB.
+</p>
+
+<a name="RMS_RATIO_1"></a>
+<p><b>RMS-Ratio Position:Pos.-Difference</b><br>
+LEO Orbit Determination using positions and position differences: The input file with the positions and position differences (see <a href="LEOKIN.html#RESULTC"> PPD-file </a>) contains the estimated mean errors of the satellite positions. These errors may be used to derive the observation weight. If one specifies "0" for the position rms and "0" for the rms error of the position difference, these file values are actually used. One may ignore these values by defining plausible rms values for the positions and the position differences. Values of 1 meter for the position (ionosphere-free linear combination) and 0.01-0.02 meters for the position differences are about the right orders of magnitude. If one wishes to give the phase-derived position differences more weight, one has to reduce the rms error for the phase. The rms error for the positions is defined here.
+
+</p>
+
+<a name="RMS_RATIO_2"></a>
+LEO Orbit Determination using positions and position differences: The input file with the positions and position differences (see <a href="LEOKIN.html#RESULTC"> PPD-file </a>) contains the estimated mean errors of the satellite positions. These errors may be used to derive the observation weight. If one specifies "0" for the position rms and "0" for the rms error of the position difference, these file values are actually used. One may ignore these values by defining plausible rms values for the positions and the position differences. Values of 1 meter for the position (ionosphere-free linear combination) and 0.01-0.02 meters for the position differences are about the right orders of magnitude. If the phase-derived position differences are to be given more weight, one has to reduce the rms error for the phase. The rms error for the position differences is defined here.
+
+</p>
+
+<a name="RMS_MIN_POS"></a>
+<p><b>Minimum RMS for Position</b><br>
+LEO Orbit Determination using positions and position differences: If one wishes to derive the weight from the rms errors in the observation file, this value may be replaced by a lower limit, if the rms errors in the file seem "very optimistic". The lower limit for the positions is defined here.
+</p>
+
+<a name="RMS_MIN_PPD"></a>
+<p><b>Minimum RMS for Position Difference</b><br>
+LEO Orbit Determination using positions and position differences: If one wishes to derive the weight from the rms errors in the observation file, this value may be replaced by a lower limit, if the rms errors in the file seem "very optimistic". The lower limit for the position differences is provided here.
+</p>
+
+
+
+<a name="TABOUT"></a>
+<a name="CREATE_TABOUT"></a>
+<p><b>Tabular File (Inertial)</b><br>
+Analyzing LEO orbits: Name of the tabular orbit (in inertial system), which shall be created.
+SATORB is primarily used to generate a dynamic or reduced-dynamics orbit of a LEO and to safe this orbit in the standard orbit file (in order to use it in program LEOKIN as an a priori orbit). One may have the wish to have the orbit available in tabular form in the inertial equatorial system. With the above input selection the decision is made to actually safe the orbit in tabular form (format see <a href="LEOKIN.html#TFILE"> Tabular file </a>).
+</p>
+
+<a name="EPHFILE"></a>
+<a name="CREATE_EPHFILE"></a>
+<p><b>Tabular File (Earth-fixed)</b><br>
+Analyzing LEO orbits: Name of the tabular orbit (in Earth-fixed system (ITRF)), which shall be created. Using program ORBCMP, one may compare several of these files (created either by LEOKIN or SATORB) through Helmert transformations. The files are stored in the subdirectory LEOKIN\ORB. SATORB is primarily used to generate a dynamic or reduced-dynamics orbit of a LEO and to safe this orbit in the standard orbit file (in order to use it in program LEOKIN as an a priori orbit). One may have the wish to have the orbit available in tabular form in the Earth-fixed equatorial system (ITRF). With the above input selection one may decide to actually safe the orbit in tabular form (format see <a href="LEOKIN.html#PREFIL"> SP3 file </a>).
+</p>
+
+<a name="STD_ORDER"></a>
+<p><b>Order of Approximating Polynomial</b><br>
+Analyzing LEO orbits: Order "q" of the approximating local Taylor series of the true solution. An order of "q=8" is about appropriate. The parameter is relevant, if the decision was taken to create a standard orbit (see <a href="#CREATE_STD"> Create standard orbit </a>).
+</p>
+
+<a name="STD_LENGTH"></a>
+<p><b>Partial Interval Length</b><br>
+Analyzing LEO orbits: The standard orbit subdivides the entire arc into subintervals of the same length. This length is defined here. One revolution period should be divided into about 20-50 subintervals. This translates into about 2 minutes (120 sec) for LEOs.
+</p>
+
+<a name="SPAC_SP3_TAB"></a>
+<p><b>Spacing between Epochs for Tabular and SP3-Files</b><br>
+Analyzing LEO orbits: The epochs in the tabular orbit files are equally spaced. The spacing is defined here. As the GPS positions are calculated usually at 10 second intervals, it makes sense to use a spacing of 10 seconds here, as well.
+</p>
+
+<a name="UPPER_N"></a>
+<p><b>Earth Potential, Upper Limits:         Degree n</b><br>
+Upper limit for the degree "n" of the development of the Earth's gravitational potential. In the model JGM3 this limit is n=70. "n" may be specified. In this case, the Earth's potential is that of a point mass of mass "M". This option may be used to make small perturbations visible.
+</p>
+
+<a name="UPPER_M"></a>
+<p><b>Order m</b><br>
+Upper limit for the order "m" of the development of the Earth's gravitational potential. In the model JGM3 this limit is m=70. Normally, one will select "n=m". If "m=0" is specified, one only includes the zonal harmonics C<sub>n0</sub> up to the degree "n" specified above.
+</p>
+
+<a name="SUNGRAV"></a>
+<p><b>Gravitational Attraction from Sun</b><br>
+Include the gravitational attraction by the Sun.
+</p>
+
+<a name="MOONGRAV"></a>
+<p><b>Gravitational Attraction from Moon</b><br>
+Include the gravitational attraction by the Moon.
+</p>
+
+<a name="TIDES"></a>
+<p><b>Earth Tides</b><br>
+Include the solid Earth tides caused by Sun and Moon.
+</p>
+
+<a name="GENREL"></a>
+<p><b>Corrections due to General Relativity</b><br>
+Use the PPN-approximation for main term of the Earth's gravitational potential.
+</p>
+
+<a name="RPR0"></a>
+<p><b>Direct Radiation Pressure (Simple Model)</b><br>
+Use the simple model (see section II, 3.7) to account for radiation pressure.
+</p>
+
+<a name="ROCKIV"></a>
+<p><b>Rock IV A Priori Model (GPS/Glonass)</b><br>
+Use the Rock-IV model [40] to account for radiation pressure (plus correction terms).
+</p>
+
+<a name="AIRDRAG"></a>
+<p><b>Air Drag using MSIS-E Model (LEO)</b><br>
+Include a simple model for air drag (only relevant for LEOs, see section II, 3.6.1).
+</p>
+
+<a name="ALBEDO"></a>
+<p><b>Albedo (LEO)</b><br>
+Use a simple model to account for the albedo radiation pressure due to the Sunlight reflected by the Earth (see section II, 3.7).
+</p>
+
+
+
+
+
+
+
+<a name="RPR_AM_RATIO"></a>
+<p><b>Area/Mass Ratio (Q/m)</b><br>
+Radiation pressure model: The area/mass ratio "Q/m" of a satellite has to be known/defined, if the simple radiation pressure model <a href="#RPR0"> Simple radiation pressure </a> was selected. "Q" is the area normal to the direction Sun-satellite. See Table II, 3.4 for plausible values.
+</p>
+
+<a name="RPR_COEFF_C"></a>
+<p><b>Coefficient C</b><br>
+Radiation pressure model: The factor "C" is needed in formula (II, 3.142). It depends on the satellite's shape and (to a lesser extent) on the reflective properties of its surface. For a spherical satellite the coefficient is "C=2". In general "C" will lie between 2 and 2.5. The value only has to be defined if the radiation pressure model  <a href="#RPR0"> Simple radiation pressure </a> was selected.
+</p>
+
+<a name="DRAG_AM_RATIO"></a>
+<p><b>Area/Mass Ratio (Q/m)</b><br>
+Drag: The area/mass ratio "Q/m" of a satellite has to be known/defined, if the simple drag model <a href="#AIRDRAG"> Drag model </a> was selected. "Q" is the area normal to the velocity vector (in the Earth-fixed system). See Table II, 3.4 for plausible values.
+</p>
+
+<a name="DRAG_COEFF_C"></a>
+<p><b>Coefficient C for Drag</b><br>
+Drag: The factor "C" is needed in formula (II, 3.118). It depends on the satellite's shape and (to a lesser extent) on the reflective properties of its surface. For a spherical satellite the coefficient is "C=2". In general "C" will lie between 2 and 2.5. The value needs to be known, if the simple drag model <a href="#AIRDRAG"> Drag model </a> was selected.
+</p>
+
+<a name="DRAG_SOLAR"></a>
+<p><b>Daily Solar Flux at 10.7 cm</b><br>
+Drag: The density of the upper atmosphere in general obeys an exponential law of type (II, 3.121) (barometric formula). The coefficients in this formula depend on daily solar flux (see Figure II, 3.20), which varies with the cycle of solar activities, etc. Typical values may be found in the mentioned figure. The value only has to be defined if the radiation pressure model <a href="#AIRDRAG"> Drag model </a> was selected.
+</p>
+
+<a name="DRAG_MAG"></a>
+<p><b>Planetary Magnetic Index Ap</b><br>
+Drag: The density of the upper atmosphere in general obeys an exponential law of type (II, 3.121) (barometric formula). The coefficients in this formula depend on the Earth's magnetic index (see Figure II, 3.21), which varies with the cycle of solar activities, etc. The value only has to be defined if the radiation pressure model  <a href="#AIRDRAG"> Drag model </a> was selected.
+</p>
+
+
+<a name="INTEGRATION_ORDER"></a>
+<p><b>Integration Order</b><br>
+The equations of motion are solved with a collocation method with automatic stepsize control as introduced in sections I, 7.4.1, I, 7.5 and I, 7.5.5. Except for special tests concerning numerical integration orders of "q="10" to "q="12" are recommended.
+</p>
+
+<a name="INITIAL_STEP"></a>
+<p><b>Initial Step Size</b><br>
+The equations of motion are solved with a collocation method with automatic stepsize control as introduced in sections I, 7.4.1, I, 7.5 and I, 7.5.5. The initial stepsize should not exceed about 10% of the revolution period. Program SATORB checks whether this is the case. If not, a warning is issued and the initial step size is reduced to 2% of the revolution period.<br>
+When analyzing LEO or GPS/GLONASS data, the initial stepsize is also used to select the right interval boundary to solve the boundary value problem (using the position vectors at the initial epoch and the right boundary epoch). At this point of processing, no orbital elements are available. This is why one more plausibility check is performed in the program: If, for LEOs, the initial stepsize exceeds 2 minutes, the value is reduced to 2 minutes and a warning is issued.
+</p>
+
+<a name="ITER_STEP"></a>
+<p><b>Number of Iterations per Step</b><br>
+The higher this number of iteration steps, the better the quality of the integration, but the longer the processing time. Except for special tests a value of "1" is recommended. For details see section I, 7.5.
+</p>
+
+<a name="MAXVEL"></a>
+<p><b>Max. Error per Velocity Component</b><br>
+Automatic stepsize control is performed with the method outlined in section I, 7.5.5. Typical velocities for LEOs are 7 km/sec, for GPS satellites about 4 km/sec. If one wishes to get an excellent performance from the integrator, a relative accuracy of about 10<sup>-14</sup>) in the velocity components should be asked for, which (in view of the typical velocities mentioned) translates into accuracies of around 10<sup>-10</sup> m/s.<br>
+SATORB performs plausibility checks: If the user-specified value translates into a relative velocity error larger than 10<sup>-10</sup>, the latter value is used instead. If, on the other hand, the user-specified value translates into an unreasonably small relative error, this value is replaced by a relative error which still makes sense in view of the rounding errors. The absolute error is set to v*16<sup>-13</sup>, where v is the velocity at the initial epoch.
+</p>
+
+<a name="INTEGRATION_ORDER_VAR"></a>
+<p><b>Integration Order</b><br>
+Orbit determination: One variational equation system (of dimension 3) has to be solved for each orbit parameter, which has to be determined. These equations are solved simultaneously with the primary equations (equations of motion) for the six initial osculating elements. The variational equations w.r.t. the stochastic parameters are linear combinations of the variational equations w.r.t. the six osculating elements (and therefore need not be considered). A very efficient procedure, based on numerical quadrature (see section I, 7.6), is used for solving the variational equations w.r.t. the so-called dynamical parameters (theory see section I, 5.2). <br>
+A high integration order, e.g., "q=30" may be used.
+</p>
+
+<a name="STEP_VAR"></a>
+<p><b>Fixed Step Size</b><br>
+Orbit determination: One variational equation system (of dimension 3) has to be solved for each orbit parameter, which has to be determined. These equations are solved simultaneously with the primary equations (equations of motion) for the six initial osculating elements. The variational equations w.r.t. the stochastic parameters are linear combinations of the variational equations w.r.t. the six osculating elements (and therefore need not be considered). <br> 
+A very efficient procedure, based on numerical quadrature (see section I, 7.6), is used for solving the variational equations w.r.t. the so-called dynamical parameters (theory see section I, 5.2). <br>
+A large stepsize, e.g., 0.5 to 1 revolution period of the satellite may (and should) be used (in order to actually exploit the efficiency of the solution method).
+</p>
+
+<a name="NUM_ITER_ODET"></a>
+<p><b>Number of Iterations of Orbit Improvement</b><br>
+Orbit determination: In SATORB orbit determination actually means orbit improvement based on an a priori known orbit.
+<ul>
+<li>When analyzing astrometric observations of satellites or space debris, the a priori orbit parameters are contained in the file <a href="#ELEAPR"> File with a priori elements </a>. About 4-5 iteration steps are sufficient in this case.</li>
+<li>When analyzing the positions of GPS and GLONASS satellites, the a priori orbit is derived as the solution of a boundary value problem using the first satellite position vector (at epoch t<sub>0</sub>) and the position vector closest to t<sub>0</sub>+h<sub>0</sub>, where h<sub>0</sub> is the initial stepsize defined under <a href="#INITIAL_STEP"> Initial stepsize </a>. About four iteration steps should be performed.</li>
+<li>When analyzing the positions of LEO satellites, the a priori orbit is derived as the solution of a boundary value problem using the first satellite position vector (at epoch t<sub>0</sub>) and the position vector closest to t<sub>0</sub>+h<sub>0</sub>, where h<sub>0</sub> is the initial stepsize defined under <a href="#INITIAL_STEP"> Initial stepsize </a>. As there will be probably many parameters and as one will probably search for and reject outliers, about seven to eight iteration steps are 
+recommended. </li>
+</ul>
+</p>
+
+<a name="NEW_ARC_AFTER"></a>
+<p><b>New Arc after</b><br>
+Orbit determination: When analyzing a long series of observations, one may wish to generate not one, but several arcs. One method to that would be to ask for setting up a new arc every "n" minutes. Only use this option for test purposes. Do not generate tabular output files  <a href="#TABOUT"> tabular orbit file (inertial) </a> or <a href="LEOKIN.html#PREFIL"> SP3 file </a>, when this option is activated.
+</p>
+
+<a name="NEW_ARC_GAP"></a>
+<p><b>New Arc after Data Gap of</b><br>
+Orbit determination: One may be forced to analyze a data set containing one or more long gaps. It may be advisable to set up a new arc after such a gap. Example: If a GPS-satellite was missing in one of the SP3 files, this may be due to a satellite manoeuvre on that particular day. The orbit parameters may have changed rather dramatically due to such an event. A new arc should be set up under such circumstances.
+</p>
+
+<a name="SCREEN_OBS"></a>
+<p><b>Screen Observations using 3*RMS-Criterion</b><br>
+Orbit determination: Depending on the application one may wish to screen the observations using the rms a posteriori to remove outliers (with residuals exceeding 3 times this rms). The option is activated here.
+</p>
+
+<a name="SCREEN_OBS_AFTER"></a>
+<p><b>Screen Observations after</b><br>
+Orbit determination: Depending on the application one may wish to screen the observations using the rms a posteriori to remove outliers (with residuals exceeding 3 times this rms). This should be done only after having available a good orbit, which is usually the case after 3-4 iteration steps. The iteration step, after which screening is enabled, is defined here.
+</p>
+
+
+
+
+<a name="RSW_ZYX"></a>
+<p><b>Use (R,S,W)- or (D,Y,X)-Decomposition</b><br>
+Empirical acceleration terms may be estimated when determining orbits. Two kinds of decompositions may be used:
+<ul>
+<li>Option "RSW": Decomposition into the radial "R", along track "S", and out-of-plane "W" directions. </li>
+<li>Option "ZYX": Decomposition into the direction Sun-Satellite "Z", solar panels axes "Y", and "X"-direction (orthogonal to "Z" and "Y").</li>
+</ul>
+The option "RSW" is recommended for LEOs, option "ZYX" for GPS and GLONASS satellites. When "ZYX" is selected, the acceleration is turned off in the Earth's shadow.</p>
+
+<a name="R_D"></a>
+<p><b>Estimate R- resp. Z-Bias</b><br>
+(De)Activate for a constant acceleration either in "R" or "Z" directions.
+</p>
+
+<a name="S_Y"></a>
+<p><b>Estimate S- resp. Y-Bias</b><br>
+(De)Activate for a constant acceleration either in "S" or "Y" directions.
+</p>
+
+<a name="W_X"></a>
+<p><b>Estimate W- resp. X-Bias</b><br>
+(De)Activate for a constant acceleration either in "W" or "X" directions.
+</p>
+
+<a name="R_D_SINCOS"></a>
+<p><b>Estimate R- resp. Z- Once-per-revolution Terms</b><br>
+(De)Activate for a once-per-rev acceleration either in "R" or "Z" directions. Terms proportions sin u and cos u are estimated (where u is the argument of latitude of the satellite).
+</p>
+
+<a name="S_Y_SINCOS"></a>
+<p><b>Estimate S- resp. Y- Once-per-revolution Terms</b><br>
+(De)Activate for a once-per-rev acceleration either in "S" or "Y" directions. Terms proportions sin u and cos u are estimated (where u is the argument of latitude of the satellite).
+</p>
+
+<a name="W_X_SINCOS"></a>
+<p><b>Estimate W- resp. X- Once-per-revolution Terms</b><br>
+(De)Activate for a once-per-rev acceleration either in "W" or "X" directions. Terms proportions sin u and cos u are estimated (where u is the argument of latitude of the satellite).
+</p>
+
+<a name="SC_DIRRAD"></a>
+<p><b>Estimate Scaling Factor for Direct Radiation Pressure</b><br>
+One may solve for a scaling factor of the direct radiation pressure. In this case the parameter <a href="#R_D"> Acceleration in "Z"-direction </a> has to be deactivated (linear dependencies of parameters might occur otherwise).
+</p>
+
+<a name="STOPUL"></a>
+<p><b>Setting up Stochastic Pulses?</b><br>
+Decide, whether stochastic pulses shall be set up and solved for.
+</p>
+
+<a name="STOCHP"></a>
+<p><b>Output File for Stochastic Pulses</b><br>
+Name of the file containing the estimated stochastic pulses. If the input field is left blank, no such file is generated. The file has the following content:
+<font face="Courier" size="2" color="blue">
+<pre>
+       52847.0208333      2.8141  -0.582192D-03     .              .         
+       52847.0416667    119.8154   0.189675D-02     .              .         
+       52847.0625000    236.4305  -0.928283D-03     .              .         
+       52847.0833333    353.0312  -0.652621D-03     .              .         
+       .............    ........  .............                              
+       52847.0208333      2.8141     .            0.852800D-03     .         
+       52847.0416667    119.8154     .           -0.677395D-03     .         
+       52847.0625000    236.4305     .           -0.620336D-03     .         
+       52847.0833333    353.0312     .           -0.356781D-03     .         
+       .............    ........                 .............               
+       52847.0208333      2.8141     .              .           -0.161651D-02
+       52847.0416667    119.8154     .              .            0.257293D-03
+       52847.0625000    236.4305     .              .            0.610382D-03
+       52847.0833333    353.0312     .              .           -0.896798D-03
+       52847.1041667    110.0324     .              .            0.292282D-03
+       .............    ........                                .............
+</pre>
+</FONT>
+Column 1 contains the time (modified Julian date, MJD), column 2 the argument of latitude, columns 4, 5, and 6 the pulses in "R"-, "S"-, and "W"-directions. The format is well suited for using the gnuplot graphics environment.</p>
+
+<a name="GAP_STOCH_R"></a>
+<p><b>Gap between Stochastic Pulses in R</b><br>
+Stochastic pulses are set up at evenly distributed epochs in the radial "R"-, along-track "S"- and in the out-of-plane "W" directions. The interval between subsequent epochs of pulses in the "R"-direction is defined here.
+</p>
+
+<a name="GAP_STOCH_S"></a>
+<p><b>Gap between Stochastic Pulses in S</b><br>
+Stochastic pulses are set up at evenly distributed epochs in the radial "R"-, along-track "S"- and in the out-of-plane "W" directions. The interval between subsequent epochs of pulses in the "S"-direction is defined here.
+</p>
+
+<a name="GAP_STOCH_W"></a>
+<p><b>Gap between Stochastic Pulses in W</b><br>
+Stochastic pulses are set up at evenly distributed epochs in the radial "R"-, along-track "S"- and in the out-of-plane "W" directions.  The interval between subsequent epochs of pulses in the "W"-direction is defined here.
+</p>
+
+<a name="RMS_STOCH_R"></a>
+<p><b>RMS of Velocity Change in R</b><br>
+Stochastic pulses may be constrained to "reasonable values" by introducing an artificial observation of the pulse (see section I, 8.5.4). Except in the case of manoeuvres the pulses should be constrained to a few mm/sec. A value of 20 mm/sec is sufficient. Reducing this value leads to a more deterministic, releasing it to a more stochastic orbit. All constraints in one direction have the same constraints. Here, the constraints are defined for the "R"-direction.
+</p>
+
+<a name="RMS_STOCH_S"></a>
+<p><b>RMS of Velocity Change in S</b><br>
+Stochastic pulses may be constrained to "reasonable values" by introducing an artificial observation of the pulse (see section I, 8.5.4). Except in the case of manoeuvres the pulses should be constraint to few centimeters. A value of 2 cm is sufficient. Reducing this value leads to a more deterministic, releasing it to a more stochastic orbit. All constraints in one direction have the same constraints. Here, the constraints are defined for the "S"-direction.
+</p>
+
+<a name="RMS_STOCH_W"></a>
+<p><b>RMS of Velocity Change in W</b><br>
+Stochastic pulses may be constrained to "reasonable values" by introducing an artificial observation of the pulse (see section I, 8.5.4). Except in the case of manoeuvres the pulses should be constraint to few centimeters. A value of 2 cm is sufficient. Reducing this value leads to a more deterministic, releasing it to a more stochastic orbit. All constraints in one direction have the same constraints. Here, the constraints are defined for the "W"-direction.
+</p>
+
+</html>
+</body>

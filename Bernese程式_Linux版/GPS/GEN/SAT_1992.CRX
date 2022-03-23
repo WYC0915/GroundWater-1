@@ -1,0 +1,32 @@
+SATELLITE PROBLEMS: MANEUVERS OR BAD OBSERVATION INTERVALS, BSW5.2              
+--------------------------------------------------------------------------------
+
+SATELLITE  PROBLEM    ACTION           FROM                  TO
+  ***         *         *       YYYY MM DD HH MM SS  YYYY MM DD HH MM SS
+
+   24         0         0       1992 05 08  5 10 00  
+   25         0         0       1992 07 15 15 25 00 
+   26         0         0       1992 10 13 20 26 00
+   26         3         1       1992 10 24 23 59 00  1992 10 26 01 00 00
+   16         0         1       1992 12 04 21 43 00   
+                                                                                
+
+                                                                                
+PROBLEM DESCRIPTION    PROBLEM          ACTION DESCRIPTION          ACTION      
+-------------------    -------          ------------------          ------      
+                                                                                
+SATELLITE MANEUVER        0             SET UP SAT. WITH SVN=SVN+50    0        
+SATELLITE MODELING        4             SPLIT UP ARCS IN ADDNEQ2       0        
+SATELLITE MODELING        4             ADD PULSES IN ORBGEN           4        
+SATELLITE MODELING        4             DELETE ALL PULSES IN ADDNEQ2   5        
+BAD PHASE DATA            1             MARK PHASE OBSERVATIONS        1        
+BAD PHASE DATA            1             REMOVE PHASE OBSERVATIONS      2        
+BAD CODE DATA             2             MARK CODE OBSERVATIONS         1        
+BAD CODE DATA             2             REMOVE CODE OBSERVATIONS       2        
+BAD PHASE AND CODE DATA   3             MARK BOTH OBSERVATION TYPES    1        
+BAD PHASE AND CODE DATA   3             REMOVE BOTH OBSERVATION TYPES  2        
+
+SIGNS ARE ONLY RELEVANT FOR LONGARC COMPUTATION USING ADDNEQ2:                  
++ SIGN: FORCE ADDNEQ2 TO PERFORM AN ARCSPLIT (=> NO LONGARC)                    
+- SIGN: PREVENT ADDNEQ2 FROM DOING AN ARCSPLIT (=> FORCE LONGARC)               
+                                                                                

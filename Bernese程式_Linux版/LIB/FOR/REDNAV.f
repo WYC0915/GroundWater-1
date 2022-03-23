@@ -1,0 +1,120 @@
+      MODULE s_REDNAV
+      CONTAINS
+
+C*
+      SUBROUTINE REDNAV(NPAR,NPARN,ANOR,BNOR,RMS,AII,A0I)
+CC
+CC NAME       :  REDNAV
+CC
+CC PURPOSE    :  PREELIMINATE NPAR-NPARN LAST PARAMETERS
+CC
+CC PARAMETERS :
+CC     IN     :  NPAR  : TOTAL NUMBER OF PARAMETERS NOT YET   I*4
+CC                       ELIMINATED
+CC               NPARN : NPAR-NAMB                            I*4
+CC               ANOR(I),=1,2,..,NPAR(*(NPAR+1)/2             R*8
+CC               BNOR(I),=1,2,..,NPAR                         R*8
+CC               RMS   : SUM OF RESIDUALS SQUARES             R*8
+CC               A0I   : AUXILIARY MATRIX OF DIMENSION        R*8
+CC                       NPARN*NSAT(PER SESSION)
+CC               AII   : AUXILIARY MATRIX OF DIMENSION        R*8
+CC                       NAMB*(NAMB+1)/2
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/10/28 08:37
+CC
+CC CHANGES    :  10-AUG-94 : MR: CALL EXITRC
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               10-JUL-12 : RD: USE SYMINVG INSTEAD OF SYMIN8
+CC               10-JUL-12 : RD: USE M_BERN WITH ONLY
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern,  ONLY: LFNERR
+      USE s_syminvg
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I    , IK   , IK1  , IK2  , IL   , ISING, K    , L    ,
+     1          LM   , M    , MK   , NDIM , NPAR , NPARN
+C
+      REAL*8    RMS
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+      REAL*8 ANOR(*),BNOR(*),A0I(*),AII(*),HS1(NPAR)
+C
+C
+C PREELIMINATE AMBIGUITIES OF CURRENT SESSION
+C -------------------------------------------
+C
+C GENERATE TWO AUXILIARY MATRICES
+      IK1=0
+      IK2=0
+      DO 20 K=1,NPAR-NPARN
+      DO 20 I=1,NPARN+K
+        IF(I.LE.NPARN+K)IK=(NPARN+K)*(NPARN+K-1)/2+I
+        IF(I.GT.NPARN+K)IK=I*(I-1)/2+NPARN+K
+        IF(I.LE.NPARN)THEN
+          IK1=IK1+1
+          A0I(IK1)=ANOR(IK)
+        ELSE
+          IK2=IK2+1
+          AII(IK2)=ANOR(IK)
+        END IF
+20    CONTINUE
+C
+C INVERT AII
+      NDIM=NPAR-NPARN
+      CALL SYMINVG(NDIM,AII,1,ISING)
+      IF(ISING.NE.0)THEN
+        WRITE(LFNERR,111)
+111     FORMAT(/,' *** SR REDNAV: MATRIX AII SINGULAR',/)
+        CALL EXITRC(2)
+      END IF
+C
+C REDUCE MATRICES ANOR, BNOR AND RES SQUARE SUM
+      DO 40 I=1,NDIM
+        HS1(I)=0.D0
+        DO 30 K=1,NDIM
+          IF(I.LE.K)IK=I+(K-1)*K/2
+          IF(I.GT.K)IK=K+(I-1)*I/2
+          HS1(I)=HS1(I)+AII(IK)*BNOR(NPARN+K)
+30      CONTINUE
+        RMS=RMS-BNOR(NPARN+I)*HS1(I)
+40    CONTINUE
+C
+C REDUCE BNOR FOR GENERAL (NON AMBIGUITY) PARAMETERS
+      DO 50 I=1,NPARN
+      DO 50 K=1,NDIM
+        IK=I+(K-1)*NPARN
+        BNOR(I)=BNOR(I)-A0I(IK)*HS1(K)
+50    CONTINUE
+C
+C REDUCE ANOR FOR GENERAL PARAMETERS
+      DO 60 K=1,NPARN
+      DO 60 I=1,K
+        IK=I+(K-1)*K/2
+        DO 60 L=1,NDIM
+        DO 60 M=1,NDIM
+          IL=I+(L-1)*NPARN
+          MK=K+(M-1)*NPARN
+          IF(L.LE.M)LM=L+(M-1)*M/2
+          IF(L.GT.M)LM=M+(L-1)*L/2
+          ANOR(IK)=ANOR(IK)-A0I(IL)*AII(LM)*A0I(MK)
+60    CONTINUE
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

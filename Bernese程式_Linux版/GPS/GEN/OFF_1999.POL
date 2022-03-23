@@ -1,0 +1,21 @@
+POLE OFFSET COEFFICIENTS IERS EOP SERIES -- IERS REFERENCE FRAMES     17-DEC-98
+-------------------------------------------------------------------------------
+REFERENCE TIME (YYYY MM DD HH.H): 1997 00 00 00.0
+
+      X    RMSX    Y    RMSY   UT1   RMSU  DPSI   RMS   DEPSI  RMS
+     MAS   MAS    MAS   MAS   0.1MS  0.1MS  MAS   MAS    MAS   MAS
+**  *****  ****  *****  ****  *****  ****  *****  ****  *****  ****
+A    0.00  0.00   0.00  0.00   0.00  0.00   0.00  0.00   0.00  0.00
+A'   0.00  0.00   0.00  0.00   0.00  0.00   0.00  0.00   0.00  0.00
+
+
+According to IGSMAIL 1502 no corrections are necessary for the Bulletin A pole
+
+Below are the "official" IERS values taken from TN 20 page 11.
+A   -0.05  0.28   0.76  0.29  -0.42  0.16  -0.01  0.07   0.00  0.03
+A'   0.12  0.07   0.11  0.07   0.04  0.05   0.00  0.00   0.00  0.00
+
+The IERS 1993 values taken from ....?
+A   -0.08  0.13   0.03  0.13   0.02  0.12  -0.01  0.08   0.01  0.03
+A'  -0.07  0.10   0.03  0.10   0.00  0.07   0.00  0.00   0.00  0.00
+

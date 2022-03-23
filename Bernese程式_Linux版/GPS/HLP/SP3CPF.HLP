@@ -1,0 +1,175 @@
+<html>
+<body>
+
+<center>
+<b>CONVERT PRECISE ORBITS TO CPF FILES</b>
+<p>Program: SP3CPF
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="EXT_CPF"       default="CPF"></a>
+<a name="DIR_CPF"       default=""></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program converts SP3 files into CPF files. The CPF file format is used
+for orbit prediction files at the ILRS (International Laser Ranging
+Service).
+
+<p><hr>
+
+<p><b>SP3CPF 1: Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="PREFIL" default=""></a>
+<p><b>INPUT FILE</b>
+<p><b>SP3 file:</b>
+Specify the SP3 file, which should be converted into the CPF format. The
+resulting CPF file will be named correspondingly.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="SP3CPF"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or to specify a separate file to which error messages are
+written.
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<p><hr>
+
+<p><b>SP3CPF 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates. It is used
+to apply antenna heights and for the printing of coordinates in the
+local system (north, east, up). You only have to modify this file
+when you want to introduce a new reference ellipsoid.
+
+<p><i>Caution:</i>
+This file has no effect on Cartesian coordinates.
+
+<p>Example: <a href="/$X/GEN/DATUM.">DATUM.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems concerning modeling.
+It is used for exclusion of misbehaving satellites
+(and for orbit arc splitting).
+It may also contain (mean) epochs of GPS repositioning events.
+
+<p><i>Note:</i>
+Corresponding year-specific files are maintained by AIUB/CODE.
+You can get the latest version of the current file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SAT_2011.CRX">$X/GEN/SAT_2011.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<a name="GPSUTC" default="GPSUTC."></a>
+<p><b>GPS-UTC seconds:</b>
+Specify the file with GPS-UTC values here. You have to update this file
+each time a leap second is introduced. The GPS-UTC values are needed for
+the conversion, because the time argument of the output CPF file is in UTC
+time and the time argument in the input SP3 file may be either in GPS or
+UTC time.
+
+<p>Example: <a href="/$X/GEN/GPSUTC.">GPSUTC.</a>
+
+<p><i>Default value:</i> <tt>GPSUTC.</tt>
+
+<p><hr>
+
+<p><b>SP3CPF 2: Input Options</b>
+
+<a name="SAMPLE" default=""></a>
+<p><b>Sampling interval for CPF file:</b>
+Specify the sampling interval for the output CPF file. If you leave the
+field blank or if you specify 0 the sampling interval from the SP3 file is
+used. If the specified sampling interval is smaller than that from the SP3
+file it will be set automatically to the sampling interval of the SP3 file
+(a corresponding warning message will appear).
+
+<p><i>Default value:</i> blank
+
+<a name="SATSTR" default="%% %% %% %% %%"></a>
+<p><b>Create CPF files for the following satellites:</b>
+Specify the list of satellites, which should be used for the conversion to
+CPF files.
+As an example the corresponding values for a GPS satellite equipped with a
+SLR reflector are given:
+<pre>
+  6  3636  23027  gps36  G06$YD+0
+</pre>
+
+<p><hr>
+
+</body>
+</html>

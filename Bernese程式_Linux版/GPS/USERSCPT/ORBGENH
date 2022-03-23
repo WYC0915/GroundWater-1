@@ -1,0 +1,55 @@
+package ORBGEN;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  ORBGEN
+#
+# Purpose :  Execute ORBGEN for daily or hourly processing
+#
+# Remark  :  Consider range of sessions for hourly processing
+#
+# PARAMs  :
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtMess isHourly setMinusPlus);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($ssss,$hourly) = $bpe->getKeys('$S+0','V_HOURLY');
+
+# Hourly processing
+# -----------------
+  if (isHourly($ssss)) {
+    setMinusPlus($bpe,-$hourly,0);
+
+    # Switch off the pulses if too few hours are processed
+    my $stc = $bpe->getKey("$ENV{U}/PAN/ORBGEN.INP","STOCH_NUMBER");
+    if ( $stc eq "ALL" || $stc eq "MANUAL" ) {
+      my @hms = split(" ",$bpe->getKey("$ENV{U}/PAN/ORBGEN.INP","STOCH_INTER"));
+      my $hlp = $hms[0] + $hms[1]/60 + $hms[2]/3600;
+      if ( $hourly < ($hms[0] + $hms[1]/60 + $hms[2]/3600) * 1.9 ) {
+        $bpe->putKey("$ENV{U}/PAN/ORBGEN.INP","STOCH_NUMBER","NONE");
+        prtMess($bpe,"Stochastic pulses switched off");
+      }
+    }
+  } else {
+    setMinusPlus($bpe,0,0);
+  }
+
+# Run program
+# -----------
+  my $PGMNAM = "ORBGEN";
+  $bpe->RUN_PGMS($PGMNAM);
+
+}

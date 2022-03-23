@@ -1,0 +1,226 @@
+<html>
+<body>
+
+<center>
+<b>EXTRACT MAUPRP PROGRAM OUTPUT</b>
+<p>Program: MPRXTR
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<!-- Hidden options: -->
+<a name="DPZH" default=""></a>
+<a name="EPZH" default=""></a>
+<a name="DPZO" default=""></a>
+<a name="EPZO" default=""></a>
+<a name="DPSH" default=""></a>
+<a name="EPSH" default=""></a>
+<a name="DPSO" default=""></a>
+<a name="EPSO" default=""></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program extracts the most important information from one or more
+<a href="PGMLST.HLP#MAUPRP">MAUPRP</a> program output files and writes a
+comprehensive summary file.
+
+<p><hr>
+
+<p><b>MPRXTR 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RADIO_1" default="1"></a>
+<a name="RADIO_2" default="0"></a>
+<a name="JOBOUT"  default="MAUPRP.L??"></a>
+<a name="OUTPUT"  default=""></a>
+<p><b>INPUT FILES</b>
+<p>
+Selection of <a href="PGMLST.HLP#MAUPRP">MAUPRP</a> output file(s) as
+input for the extraction program.
+
+<p><hr>
+
+<p><b>MPRXTR 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="ABBREV" default="ABBREV"></a>
+<p><b>Abbreviation table:</b>
+This file should contain the four- and two-character abbreviations for all
+used stations.
+
+<p><a href="/$X/DOC/EXAMPLE.ABB">Example</a>
+
+<p><hr>
+
+<p><b>MPRXTR 2: Output Files</b>
+
+<a name="SUMMARY" default=""></a>
+<p><b>OUTPUT FILES</b>
+<p><b>MAUPRP summary file:</b>
+The <a href="PGMLST.HLP#MAUPRP">MAUPRP</a> summary output contains one
+line for each baseline (resp. station in the zero difference case). Each
+MAUPRP program output file may include more than one baseline (station).
+<br>
+The summary lists the
+baseline length, number of observations, RMS and coordinate corrections for
+epoch difference solution of the baseline, number of cycle slips (<tt>#SL</tt>,
+max. of L1 and L2), number of marked areas (<tt>#DL</tt>, max. of L1 and L2),
+number of multiple ambiguities (<tt>#MA</tt>), maximum residual in L3
+(millimeters), and the size of the smallest cycle slip identified.
+
+<p>Output example:<!-- $S/RAP/OUT/IGSRAPID.11_323 -->
+<pre>
+ SUMMARY OF THE MAUPRP OUTPUT FILE 
+ *********************************
+
+ SESS FIL OK?  ST1  ST2 L(KM)   #OBS.    RMS    DX     DY     DZ    #SL   #DL   #MA  MAXL3      MIN. SLIP
+ --------------------------------------------------------------------------------------------------------
+ 3230   1 OK   HERT ZIM2  685   30275      7     27      4     13     0   473    29      0              0
+ 3230   2 OK   LHAZ NTUS 3365   18265      7   -147    485    -51     0   193    22      0              0
+ 3230   3 OK   LHAZ URUM 1597   24756      5     27    -45      1     0   393    33      0              0
+ 3230   4 OK   METZ ONSA  784   23585      7    176     26    223     0   572    43      0              0
+ 3230   5 OK   OHI3 REUN 8289    5375     14    213    152   -228     2   485     8     22             23
+ 3230   6 OK   OHI3 THTI 7774    7042     13   -354   -444   -412     3   462    32     15             42
+ 3230   7 OK   MDVJ NOVM 2812   22096      7    -12     -7    -22    23   522    64     35             11
+ 3230   8 OK   CONZ OHI3 3088   24294      9    -17    125    104     1   874    30     10            209
+ 3230   9 OK   CONZ LPGS 1376   13845      9     42    -21    -38     1   867     8      6       12330213
+ 3230  10 OK   IRKJ KHAJ 2196   23112      6     16     -8    -17    15   666    72     46             11
+ 3230  11 OK   IRKJ NOVM 1441   26421      6      1     -5    -26    14   464    84     49             11
+ 3230  12 OK   IRKJ WHIT 6147    9834      8     22    -28      8     9   462    87     12             13
+...
+ 3230 143 OK   ZIM2 ZIMM    0   16092      8     12      4     13     0   552    12      0              0
+ 3230 144 OK   GUUG KOKB 5725    6885     10    -65   -262    115     3   230     5     28             18
+ 3230 145 OK   GUUG PIMO 2548   11211     11     39     70     -4     8   274     6     20             18
+ 3230 146 OK   GUUG TOW2 3576   15534     11    274   -196   -128     1   754    28      2             76
+ 3230 147 OK   MIZU MTKA  408   14257      9    -51    134    130    14   662    23     50            143
+ 3230 148 OK   MIZU NRIL 4459    9555      6    377    -58   -121     0   219    16      0              0
+ 3230 149 OK   MIZU USUD  413   16326      7     55     43     41     0   128    21      0              0
+ --------------------------------------------------------------------------------------------------------
+ Tot: 149                2115   35034     14    907   -238    213   690  1769   114     50              0
+</pre>
+<br>
+The summary listing in the zero difference case contains the RMS and
+coordinate corrections from the epoch difference solution for each individual
+station. All other parameters are identical to the baseline case. If
+millisecond-jumps were detected in <a href="PGMLST.HLP#MAUPRP">MAUPRP</a> the
+events are summarized below the main table.
+
+<p>Output example:<!-- Missing reference! -->
+<pre>
+ SUMMARY OF THE MAUPRP OUTPUT FILE
+ *********************************
+
+ SESS FIL OK?  ST1  ST2 L(KM) #OBS.  RMS   DX    DY    DZ   #SL #DL #MA  MAXL3      MIN. SLIP
+ --------------------------------------------------------------------------------------------   
+ 1210   1 OK   ALBH         0 20676 0.006 0.000 0.008 0.013   0  88  26  0.000              0
+ 1210   2 OK   ALGO         0 19244 0.006 0.004 0.009 0.004   0  42  23  0.000              0
+ 1210   3 OK   ALIC         0 21499 0.006 0.005 0.000 0.008   0 714  39  0.000              0
+ ...
+ 1210  53 OK   ONSA         0 21652 0.012 0.015 0.013 0.027   0 200  43  0.000              0
+ 1210  54 OK   PERT         0 18197 0.008 0.001 0.007 0.003  84 315  33  0.000              0
+ ...
+ 1210  82 OK   ZAMB         0 17224 0.007 0.005 0.013 0.001   0 796  53  0.000              0
+ 1210  83 OK   ZECK         0 19437 0.008 0.039 0.085 0.131   0 714  43  0.000              0
+ -------------------------------------------------------------------------------
+ Tot:  83                   0 20445 0.008                     1 295  37
+
+ MS-JUMPS FOUND FOR STATIONS:       (NUMBER OF EVENTS)                          
+ -----------------------------
+
+ PERT 50133M001   (   3)                                                        
+
+</pre>
+
+<a name="DELFIL" default=""></a>
+<p><b>File deletion list:</b>
+If the epoch difference solutions for one or more baselines/stations was bad
+or any other serious problem was indicated in the
+<a href="PGMLST.HLP#MAUPRP">MAUPRP</a> run the corresponding
+phase observation file is listed with full path in this file.
+
+<a name="BSLFIL" default=""></a>
+<p><b>New baseline definition:</b>
+If the triple difference solutions for one or more baselines was bad
+or any other serious problem was indicated in the
+<a href="PGMLST.HLP#MAUPRP">MAUPRP</a> run, this file contains a list
+of baselines which should be created to obtain again a complete
+network.
+<br>
+This file can directly be introduced as <i>Predefined baselines</i> into
+the program <a href="PGMLST.HLP#SNGDIF">SNGDIF</a>. Of course, these
+new baselines have to be screened in another
+<a href="PGMLST.HLP#MAUPRP">MAUPRP</a> run.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="MPRXTR"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment in the program output.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="ISNGDF" default="BOTH"></a>
+<p><b>FILE DELETION OPTION</b>
+<p><b>Include in deletion file:</b>
+Option to specify whether only bad baselines (single-difference files)
+should be listed in the "File deletion list" (see above) or also bad stations
+(zero-difference files).
+
+<p><i>Default value:</i> <tt>BOTH</tt>
+
+<p><hr>
+
+</body>
+</html>

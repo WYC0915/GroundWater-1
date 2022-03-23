@@ -1,0 +1,88 @@
+<html>
+<body>
+
+<center>
+<b>CONVERT RESIDUAL FILES (BINARY TO ASCII)</b>
+<p>Program: RESFMT
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The program RESFMT converts binary residual files into formatted ASCII
+files. The program allows the conversion of a number of residual files in one
+run and is mainly used for residual file transfer between different computer
+systems using different binary formats: The files are first converted into
+ASCII using this program here, then transferred to the target computer,
+and finally reconverted from ASCII into binary using the program
+<a href="PGMLST.HLP#FMTRES">FMTRES</a>.
+<br>
+Another possibility is to use the formatted ASCII version of the Bernese
+binary residual files as input for graphic tools.
+
+<p><hr>
+
+<p><b>RESFMT 1: Input/Output Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+This program does not need general files. If you check this box, the currently
+active campaign, session and session table are displayed.
+
+<br><br>
+
+<a name="RESFILE" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Residual file(s):</b>
+Specify a list of binary residual files to be converted. The ASCII
+version will be written into files with the same names but with a
+different extension (default: FRS).
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="RESFMT"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output.
+The title should characterize the program run.
+
+<p><hr>
+
+</body>
+</html>

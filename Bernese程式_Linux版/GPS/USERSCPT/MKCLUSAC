@@ -1,0 +1,80 @@
+package MKCLUSAC;
+@ISA = ("RUNBPE");
+# ----------------------------------------------------------------------------
+#
+# Name    :  MKCLUSAC
+#
+# Purpose :  Prepare parallel GPSEST run using MKCLUS for clustering
+#            using only code measurements
+#
+# PARAMs  :
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ----------------------------------------------------------------------------
+
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(initPar_Fl);
+
+sub run {
+  my $bpe = shift;
+
+
+# Get variables
+# -------------
+  my ($yy,$ddd,$ssss,$yyssss,
+      $sol, $param2,
+      $clucod, $satsys,
+      $dirNeq,  $dirOut,  $dirRes,  $dirClk,  $dirClb, $dirDel,
+      $extNeq,  $extOut,  $extRes,  $extClk,  $extClb, $extDel ) =
+     $bpe->getKeys(
+      '$Y','$+0','$S+0','$YD+0',
+      "$$bpe{PARAM2}",'PARAM2',
+      'V_CLUCOD','V_SATSYS',
+      'DIR_NEQ','DIR_OUT','DIR_RES','DIR_RXC','DIR_CLB','DIR_DEL',
+      'EXT_NEQ','EXT_OUT','EXT_RES','EXT_RXC','EXT_CLB','EXT_DEL');
+
+  my $clbnam = "${yyssss}";
+
+# Remove old solution files
+# -------------------------
+  if ( $sol ne "" && $param2 =~ /^V_/ ) {
+    unlink glob("${dirNeq}${sol}${ssss}*.${extNeq}");
+    unlink glob("${dirOut}${sol}${ssss}*.${extOut}");
+    unlink glob("${dirRes}${sol}${ssss}*.${extRes}");
+    unlink glob("${dirClk}${sol}${ssss}*.${extClk}");
+
+    $clbnam = "${sol}${ssss}";
+  }
+
+  unlink glob("${dirClb}${clbnam}*.${extClb}");
+
+
+# Use MKCLUS to built the clusters
+# --------------------------------
+  $bpe->putKey("$ENV{U}/PAN/MKCLUS.INP","SELBSL","${clbnam}");
+
+
+# Adjust input options
+# --------------------
+  $bpe->putKey("$ENV{U}/PAN/MKCLUS.INP","NUMCLU_ZR","${clucod}");
+  if ($satsys eq "GPS" &&
+      $bpe->getKey("$ENV{U}/PAN/MKCLUS.INP","SATSYS_ZR") ne "GPS" ) {
+    $bpe->putKey("$ENV{U}/PAN/MKCLUS.INP","SATSYS_ZR","GPS");
+  }
+
+  my $PGMNAM = "MKCLUS";
+  $bpe->RUN_PGMS($PGMNAM);
+
+
+# Put the BPE cluster files into the list
+# ---------------------------------------
+  initPar_Fl($bpe,glob("${dirClb}${clbnam}*.${extClb}"));
+
+
+}

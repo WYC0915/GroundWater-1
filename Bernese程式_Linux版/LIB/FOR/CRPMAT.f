@@ -1,0 +1,182 @@
+      MODULE s_CRPMAT
+      CONTAINS
+
+C*
+      SUBROUTINE CRPMAT(COVHLP,SIGMA,NSTEST,STAEST,STAFLA,NSTAT,STANAM,
+     1                  STFLAG,NOBS,NUNK,XSTAT,COV)
+CC
+CC NAME       :  CRPMAT
+CC
+CC PURPOSE    :  CREATE P-MAT (WEIGHT MATRIX) OP COVHLP
+CC               AND SORT ACCORDING TO STANAM IN COV
+CC
+CC PARAMETERS :
+CC         IN :  COVHLP(I)(,I=1,3*NSTEST*(3*NSTEST+1)/2)
+CC                        VARIANCE MATRIX                     R*8
+CC               SIGMA  : SIGMA                               R*8
+CC               NSTEST : NUMBER OF ESTIM. STATIONS IN FILE   I*4
+CC               STAEST(I),I=1,..,NSTEST: EST. STATION NAMES  CH*16
+CC               STAFLA(I),I=1,..,NSTAT: STATION FLAGS        CH*1
+CC                         BLANK: VELOCITIES
+CC                         V: VELOCITIES
+CC               NSTAT  : NUMBER OF ESTIM. STATIONS IN FILE   I*4
+CC               STANAM(I),I=1,..,NSTAT: STATION NAMES        CH*16
+CC               STFLAG : I=1,NSTAT: STATION FLAG             CH*1
+CC               NOBS   : NUMBER OF OBSERVATIONS              I*4
+CC               NUNK   : NUMBER OF UNKNOWNS                  I*4
+CC               XSTAT(I,J),I=1,3,J=1,NSTA(IFIL)              R*8
+CC                        STATION COORDINATES
+CC        OUT :  COV(I)(,I=1,3*NSTAT*(3*NSTAT+1)/2)
+CC                        VARIANCE MATRIX                     R*8
+CC
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  E.BROCKMANN
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  01-MAR-93
+CC
+CC CHANGES    :  25-MAY-93 : ??: COVHLP IS NOT MULTIPLICATED WITH SIGMA !
+CC               25-JAN-93 : ??: FIX STATIONS ONLY WEIGHT OF 0.1MM TO CAUSE
+CC                               NO NUMERICAL PROBLEMS USING OLD 3.3 COV.
+CC                               FILES
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               11-OCT-94 : EB: REMOVE LAST PART IF STATION IS NOT
+CC                               FOUND
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               19-JAN-11 : RD: USE SYMINVG INSTEAD OF SYMIN8
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1993     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE f_ikf
+      USE s_syminvg
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IJ    , IND   , IND0  , IND1  , IND2  ,
+     1          IND3  , IPAR  , ISING , ISTAT , J     , KL    , KPAR  ,
+     2          NDIM  , NOBS  , NSTAT , NSTEST, NUNK
+C
+      REAL*8    SIGMA
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      REAL*8        COVHLP(*),COV(*)
+      REAL*8        XSTAT(3,*)
+C
+      CHARACTER*16  STANAM(*),STAEST(*)
+      CHARACTER*1   STFLAG(*),STAFLA(*)
+C
+C
+C INITIALISIZE COV-MATRIX
+C -----------------------
+      DO 2 IPAR=1,3*NSTAT
+        ISTAT=(IPAR-MOD(IPAR-1,3))/3+1
+        DO 3 KPAR=1,IPAR
+          IND=IKF(IPAR,KPAR)
+          IF (STFLAG(ISTAT).EQ.'F'.AND.IPAR.EQ.KPAR) THEN
+C           0.01 MM A-PRIORI ACCURACCY FOR FIXED STATIONS WHICH DOES
+C           NOT OCCURE IN THE COVARIANCE FILES
+CC            COV(IND)=1/(0.00001D0**2)/1.0D12
+C TO CAUSE NO NUMERICAL PROBLEMS IN RMS COMPUTATION WITH
+C VERSION 3.3 COVARIANCE FILES, 0.1 MM APRIORI WEIGHT TO BE NOT SINGULAR
+C (SAME SEE LATER: IF NO COVARIANCES ARE KNOWN: 1CM)
+            COV(IND)=1/(0.0001D0**2)
+          ELSE
+            COV(IND)=0.D0
+          ENDIF
+3       CONTINUE
+2     CONTINUE
+C
+C COMPUTE WEIGHT MATRIX
+C ---------------------
+C
+C SCALE WITH SIGMA
+CC      IMAX=3*NSTEST*(3*NSTEST+1)/2
+CC      DO 5 I=1,IMAX
+CC        COVHLP(I)=(SIGMA**2)*COVHLP(I)
+CC5     CONTINUE
+C
+C INVERT COVHLP TO GET FROM DISPERSION MATRIX THE WEIGHT MATRIX
+      NDIM=3*NSTEST
+      CALL SYMINVG(NDIM,COVHLP,0,ISING)
+      IF(ISING.NE.0)THEN
+        WRITE(LFNERR,1001)
+1001    FORMAT(/,' *** SR CRPMAT: COVARIANCE MATRIX SINGULAR',/)
+        CALL EXITRC(2)
+      END IF
+C
+C SORT "STAEST" ACCORDING TO "STANAM" IN COV MATRIX
+C -------------------------------------------------
+      DO 10 IND1=1,NSTEST
+        DO 20 IND0=1,NSTAT
+C
+C SET COVARIANCES OF ALL STATIONS, NOT OCCURING IN COORDINATE FILE
+C LIST,(SPECIAL FLAG STATIONS SHOULD ONLY BE IN THE COMPARISON) TO ZERO
+C
+C NO VELOCITIES AS INPUT
+          IF (STAFLA(IND1).EQ.'V') GOTO 10
+C
+          IF (STANAM(IND0).EQ.STAEST(IND1)
+     1        .AND.STFLAG(IND0).EQ.' ')GOTO 10
+C
+          IF (STANAM(IND0).EQ.STAEST(IND1)) GOTO 30
+20      CONTINUE
+C NEW STATION IN COVARIANCES !: DO NOT USE IT
+      WRITE(LFNERR,901)STAEST(IND1)
+901   FORMAT(/,' *** SR CRPMAT: NEW STATION OCCURED IN',
+     1         ' COVARIANCE MATRIX WITHOUT OCCURING IN',
+     2         ' COORDINATES',/,
+     3      16X,'STATION NAME:',A16,/)
+CC      CALL EXITRC(2)
+C  SORT COV
+30      DO 40 IND2=1,IND0
+          IF (STFLAG(IND2).EQ.' ')GOTO 40
+          DO 50 IND3=1,NSTEST
+            IF (STANAM(IND2).EQ.STAEST(IND3).AND.STAFLA(IND3).EQ.' ')
+     1      GOTO 60
+50        CONTINUE
+C
+60        DO 70 I=1,3
+            DO 70 J=1,3
+              IJ=IKF((IND0-1)*3+I,(IND2-1)*3+J)
+              KL=IKF((IND1-1)*3+I,(IND3-1)*3+J)
+              COV(IJ)=COVHLP(KL)
+70        CONTINUE
+40      CONTINUE
+C
+10    CONTINUE
+C
+C IF NOT FOUND: SET UNIT MATRIX
+C      DO 120 IND0=1,NSTAT
+C        DO 110 IND1=1,NSTEST
+C          IF (STANAM(IND0).EQ.STAEST(IND1).OR.STAFLA(IND1).EQ.'V')
+C     1    GOTO 120
+C110     CONTINUE
+C        DO 90 IND2=1,NSTAT
+C          DO 80 I=1,3
+C            DO 100 J=1,3
+C              IJ=IKF((IND0-1)*3+I,(IND2-1)*3+J)
+C              IF ((IND0-1)*3+I.EQ.(IND2-1)*3+J) THEN
+C                COV(IJ)=1.D0
+C              ELSE
+C                COV(IJ)=0.D0
+C              ENDIF
+C100         CONTINUE
+C80        CONTINUE
+C90      CONTINUE
+C120   CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

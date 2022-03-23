@@ -1,0 +1,47 @@
+package CHK_ORB;
+@ISA = ("RUNBPE");
+# ----------------------------------------------------------------------------
+#
+# Name:      CHK_ORB
+#
+# Purpose:   Check whether STD or PRE orbit is used
+#
+# PARAMs  :  PARAM1 - NEXTJOB
+#            PARAM2 - Jump forward to PID xxx if STD orbit is used
+#
+# Author  :  D. Thaller
+# Created :  08-Mar-2012
+#
+# Changes :
+#
+# ----------------------------------------------------------------------------
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtGoto);
+
+
+sub run{
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($orbExt) = $bpe->getKeys('V_ORBEXT');
+
+
+# GoTo if STD orbit is used
+# -------------------------
+  my $goto = $$bpe{PARAM2};
+
+
+# Check for orbit type
+# --------------------
+  if ( $orbExt eq "STD" ) {
+    print "\n STD orbit is used. \n";
+    prtGoto($bpe,$goto);
+  }
+  else {
+    print "\n PRE orbit is used => Generation of STD orbit needed. \n";
+  }
+
+}

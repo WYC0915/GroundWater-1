@@ -1,0 +1,50 @@
+<html>
+<body>
+
+<center>
+<b>CREATE/UPDATE STATION SELECTION LIST</b>
+<p>Editor: EDITFIX
+</center>
+<hr width="100%">
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+The station selection file contains a list of station names.
+The file can be used in a number of different contexts and the interpretation
+of the list of stations is defined by the program into which it is introduced.
+This input panel helps you to create or to edit this type of files.
+<br>
+To create a new station selection file specify a new filename in the file
+selection dialogue. In this case you will be asked to select an existing
+coordinate file. The station names will be read from this
+file to generate a station selection file template.
+
+<p><i>Remark:</i>
+The end of the station selection file is indicated by a blank line. Lines
+below the blank line are ignored. If you use this input mask to edit a
+station selection file these additional lines will be lost. If you want to
+keep them in the file you have to use an external text file editor.
+
+<p><a href="/$X/DOC/EXAMPLE.FIX">Example</a>
+
+<p><hr>
+
+<p><b>STATION SELECTION LIST</b>
+
+<a name="STALSTRS" default=""></a>
+<p><b>Filename:</b>
+The absolute path and the name of the station selection file is given here.
+
+<a name="TITLE" default=""></a>
+<p><b>Title:</b>
+This title line will be saved in the header of the file and should
+characterize the station selection file.
+
+<a name="STALIST" default="%%"</a>
+<p><b>Station name:</b>
+Enter the station names.
+
+<p><hr>
+
+</body>
+</html>

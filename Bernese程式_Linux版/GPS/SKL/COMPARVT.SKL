@@ -1,0 +1,39 @@
+)A
+/*                                                                            */
+/*   Skeleton file to display COMPAR results: one plot is generated for       */
+/*   each station containing the deviations from the mean value for           */
+/*   longitude, and height. Device VT340.                                     */
+/*                                                                            */
+goptions device=vt340
+         hsize=10.0 in vsize=7.0 in gunit=pct
+         ftext=complex htitle=6 htext=3.5 ctext=black cback=white;
+title1 height=5.0 '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%';
+legend label=none
+       shape=symbol(5,2.5)
+       value=(tick=1 height=3.5 color=red justify=left 'Latitude'
+              tick=2 height=3.5 color=green justify=left 'Longitude'
+              tick=3 height=3.5 color=blue justify=left 'Height')
+       frame;
+axis1 label=(height=3.5 'File Number');
+axis2 label=(height=3.5 angle=90 'Deviation from Mean in cm');
+symbol1 interpol=join value=triangle color=red height=2.5;
+symbol2 interpol=join value=diamond color=green height=2.5;
+symbol3 interpol=join value=star color=blue height=2.5;
+data residual;
+  length station $ 16;
+  INPUT station 1-16 file comp residu;
+  cards;
+)B
+;
+run;
+proc sort data=residual out= sorted;
+     by station file comp;
+PROC GPLOT data=sorted;
+LABEL station=STATION NAME;
+by station;
+PLOT residu*file=comp/
+        legend=legend1
+        haxis=axis1
+        vaxis=axis2
+        vref=0.0
+        frame;

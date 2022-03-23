@@ -1,0 +1,238 @@
+# ==============================================================================
+#
+# Name:       Makefile.template for Unix/Linux platforms
+#
+# Purpose:    Definition of C-compiler (CC) and librarian (AR) as well as the
+#             Fortran pre-processor (CPP), F77 compiler (F77), Fortran
+#             compiler (FC) and linking program (LD) with their respective
+#             options and flags.
+#
+# Authors:
+#
+# Created:    __-___-____
+#
+# Changes:    17-Jun-2009 SL/LO: F_DEBUG added to switch to debugging mode
+#             06-Jul-2009 SL: revision of the GNU & NAGF90 options
+#             08-Jul-2009 SL: -ftrace=full added to GNU speed opt. option list
+#             31-Jul-2009 SL: GNU changed to G95, GNU (gfortran) added
+#             27-Apr-2010 SL: OBJ changed to OBJ_$(F_VERS)
+#             19-May-2010 SL: $OS, $MEMSIZE, $JPLEPH added
+#             19-Jul-2010 SL: path to pgf90-modules changed
+#             12-Oct-2010 SL: options for GNU, PG_F90 and G95 (only DEBUG)
+#                             DEBUG-OBJ directories ending with c
+#             19-Oct-2010 SL: pre-processor for gfortran (GNU) re-added
+#             12-Sep-2011 SL: options for IFC added
+#             27-Sep-2011 SL: option 'assume byterecl' added to IFC
+#             12-Jan-2012 SL: OTHER added
+#             12-May-2012 RD: MEMSIZE removed from the source code
+#             22-May-2012 SL: IFC_V8 removed, use option -g in DEBUG mode
+#             23-May-2012 SL: -DGRP_$(CGROUP) added
+#             31-May-2012 RD: -DDIM_$(MEMSIZE) removed
+#
+# ==============================================================================
+
+# Default C-compiler
+# ------------------
+CC      = cc
+CFLAGS  = -c -O
+
+
+# Default librarian
+# -----------------
+AR      = ar
+ARFLAGS = r
+
+
+# OTHER Fortran compiler
+# ----------------------
+ifeq ($(F_VERS),OTHER)
+  # Pre-compiler
+  # ************
+  # CPP is copy (cp) if the preprocessor can be evoked by an option of the
+  # Fortran compiler. In this case CPPDEFS has to be empty.
+  # If there is a separate pre-compiler it has to be put to CPP together with
+  # its pre-compiler options. Then, the FPPDEFS options have to be moved to
+  # CPPDEFS.
+  CPP     = cp
+  CPPDEFS =
+  FPPDEFS = -DOS_UNIX -DEPH_$(JPLEPH) -DGRP_$(CGROUP)
+
+  # Fortran compiler for Fortran 77 source code
+  # *******************************************
+  F77    =
+  # Fortran compiler for Fortran 90 source code
+  # *******************************************
+  FC     =
+  # Begin of the command to get the version information for FC
+  # **********************************************************
+  FCVERS =
+
+  ifeq ($(F_DEBUG),YES)
+    # Debugging mode
+    # Options for F77 (put local vars to static memory!)
+    # **************************************************
+    FFLAGS  =  \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS)c -I$(I) $(FC_OPTIONS)
+    # Options for FC
+    # **************
+    FCFLAGS =  \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS)c -I$(I) $(FC_OPTIONS)
+  else
+    # Options for F77 (put local vars to static memory!)
+    # **************************************************
+    FFLAGS  =  \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS) -I$(I) $(FC_OPTIONS)
+    # Options for FC
+    # **************
+    FCFLAGS =  \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS) -I$(I) $(FC_OPTIONS)
+  endif
+
+  # Linker
+  # ******
+  LD      =
+  LDFLAGS =
+endif
+
+
+# G95
+# ---
+ifeq ($(F_VERS),G95)
+  CPP     = cp
+  CPPDEFS =
+  FPPDEFS = -DOS_UNIX -DCMP_G95 -DEPH_$(JPLEPH) -DGRP_$(CGROUP)
+
+  F77     = g95
+  FC      = g95
+  LD      = g95
+  FCVERS  = --version | head -n2
+
+  ifeq ($(F_DEBUG),YES)
+    FFLAGS  = -c -cpp -g -Wall -Wextra -Wno=163 -ftrace=full -fbounds-check \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS)c -I$(I) $(FC_OPTIONS) -fstatic
+    FCFLAGS = -c -cpp -g -Wall -Wextra -Wno=163 -ftrace=full -fbounds-check \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS)c -I$(I) $(FC_OPTIONS)
+    # no=163 : Disable warnings about missing intents on format arguments
+  else
+    FFLAGS  = -c -cpp -O -Wall -ftrace=full \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS) -I$(I) $(FC_OPTIONS) -fstatic
+    FCFLAGS = -c -cpp -O -Wall -ftrace=full \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS) -I$(I) $(FC_OPTIONS)
+  endif
+
+  LDFLAGS =
+endif
+
+
+# GNU Fortran (external preprocessor)
+# -----------
+ifeq ($(F_VERS),GNU)
+  CPP     = cpp -traditional-cpp
+  CPPDEFS = -DOS_UNIX -DCMP_GNU -DEPH_$(JPLEPH) -DGRP_$(CGROUP)
+  FPPDEFS =
+
+  F77     = gfortran
+  FC      = gfortran
+  LD      = gfortran
+  FCVERS  = --version | head -n2
+
+  ifeq ($(F_DEBUG),YES)
+    FFLAGS  = -c -g -Wall -Wextra -fbacktrace -fbounds-check \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS)c -I$(I) $(FC_OPTIONS) -fno-automatic
+    FCFLAGS = -c -g -Wall -Wextra -fbacktrace -fbounds-check \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS)c -I$(I) $(FC_OPTIONS)
+  else
+    FFLAGS  = -c -O -Wall -fbacktrace \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS) -I$(I) $(FC_OPTIONS) -fno-automatic
+    FCFLAGS = -c -O -Wall -fbacktrace \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS) -I$(I) $(FC_OPTIONS)
+  endif
+
+  LDFLAGS =
+endif
+
+
+# Intel Fortran Compiler
+# ----------------------
+ifeq ($(F_VERS),IFC)
+  CPP     = cp
+  CPPDEFS =
+  FPPDEFS = -DOS_UNIX -DCMP_IFC -DEPH_$(JPLEPH) -DGRP_$(CGROUP)
+
+  F77     = ifort
+  FC      = ifort
+  LD      = ifort
+  FCVERS  = --version | head -n2
+
+  ifeq ($(F_DEBUG),YES)
+    FFLAGS  = -c -cpp -g -warn -traceback -check bounds -assume byterecl \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS)c -I$(I) $(FC_OPTIONS) -save
+    FCFLAGS = -c -cpp -g -warn -traceback -check bounds -assume byterecl \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS)c -I$(I) $(FC_OPTIONS)
+  else
+    FFLAGS  = -c -cpp -O -traceback -assume byterecl \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS) -I$(I) $(FC_OPTIONS) -save
+    FCFLAGS = -c -cpp -O -traceback -assume byterecl \
+              -I. -I$(C)/LIB/OBJ_$(F_VERS) -I$(I) $(FC_OPTIONS)
+  endif
+
+  LDFLAGS =
+endif
+
+
+# Portland Compiler
+# -----------------
+ifeq ($(F_VERS),PG_F90)
+  CPP     = cp
+  CPPDEFS =
+  FPPDEFS = -DOS_UNIX -DCMP_PG_F90 -DEPH_$(JPLEPH) -DGRP_$(CGROUP)
+
+  F77     = pgf90
+  FC      = pgf90
+  LD      = pgf90
+  FCVERS  = --version | tail -n3
+
+  ifeq ($(F_DEBUG),YES)
+    FFLAGS  = -c -Mpreprocess -Minform=inform -Minfo=all -traceback -Mbounds \
+              -module . -I. -I$(I) -I$(C)/LIB/OBJ_$(F_VERS)c $(FC_OPTIONS) -Msave
+    FCFLAGS = -c -Mpreprocess -Minform=inform -Minfo=all -traceback -Mbounds \
+              -module . -I. -I$(I) -I$(C)/LIB/OBJ_$(F_VERS)c $(FC_OPTIONS)
+  else
+    FFLAGS  = -c -Mpreprocess -O -Minform=inform -traceback \
+              -module . -I. -I$(I) -I$(C)/LIB/OBJ_$(F_VERS) $(FC_OPTIONS) -Msave
+    FCFLAGS = -c -Mpreprocess -O -Minform=inform -traceback \
+              -module . -I. -I$(I) -I$(C)/LIB/OBJ_$(F_VERS) $(FC_OPTIONS)
+  endif
+
+  LDFLAGS =
+endif
+
+
+# Sun solarisstudio
+# -----------------
+ifeq ($(F_VERS),SUNF90)
+  CPP     = cp
+  CPPDEFS =
+  FPPDEFS = -DOS_UNIX -DEPH_$(JPLEPH) -DGRP_$(CGROUP)
+
+  F77     = f90
+  FC      = f90
+  LD      = f90
+  FCVERS  = -V
+
+  ifeq ($(F_DEBUG),YES)
+    FFLAGS  = -c -fpp -traceback -C -Usun \
+              -I. -I$(I) -I$(C)/LIB/OBJ_$(F_VERS)c $(FC_OPTIONS)
+    FCFLAGS = -c -fpp -traceback -C -Usun \
+              -I. -I$(I) -I$(C)/LIB/OBJ_$(F_VERS)c $(FC_OPTIONS)
+  else
+    FFLAGS  = -c -fpp -O -traceback -Usun \
+              -I. -I$(I) -I$(C)/LIB/OBJ_$(F_VERS) $(FC_OPTIONS)
+    FCFLAGS = -c -fpp -O -traceback -Usun \
+              -I. -I$(I) -I$(C)/LIB/OBJ_$(F_VERS) $(FC_OPTIONS)
+  endif
+
+  LDFLAGS =
+endif
+
+# ==============================================================================

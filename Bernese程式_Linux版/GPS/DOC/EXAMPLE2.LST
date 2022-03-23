@@ -1,0 +1,23 @@
+VERIFICATION OF FIX STATIONS FOR WEEK 1540                       15-JUL-09 10:29
+--------------------------------------------------------------------------------
+
+ Number of accepted stations :      52
+ Number of rejected stations :       7
+
+
+ List of rejected stations
+ -------------------------
+
+ Station                        Residuals (millimeters)
+                                 N         E         U
+ 
+ COCO 50127M001              -11.03     -1.35     17.04
+ GUAM 50501M002              -10.87     -5.34      8.79
+ HRAO 30302M004                3.65    -18.83      8.58
+ KERG 91201M002               -3.05    -15.17      2.35
+ LHAZ 21613M002               -3.50    -11.55     -8.31
+ PDEL 31906M004              -10.41      1.96     -0.92
+ TSKB 21730S005               -0.68    -15.71     10.21
+
+ RMS of accepted stations      3.31      3.16     11.83
+ 

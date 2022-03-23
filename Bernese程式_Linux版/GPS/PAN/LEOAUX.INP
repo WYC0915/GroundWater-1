@@ -1,0 +1,268 @@
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! Some title information
+! ----------------------
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+! Active Campaign
+! ---------------
+CAMPAIGN     0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+! -------------------------------------------------------------------------
+! General Constants
+! -----------------
+! Show general files
+! ------------------
+SHOWGEN     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+CONST     1  "CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_CONST 1  "General Constants"
+
+! Satellite Name
+! --------------
+SATNAM     1  "GOCE"
+  ## widget = combobox; cards = CHAMP GRACE GOCE; editable = false
+
+MSG_SATNAM 1  "Satellite Name"
+
+! Program Output File
+! -------------------
+SYSODEF     1  "1"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "LEOAUX"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG     1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR     1  "ERROR"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+
+DESCR_SYSERR 1  "Error message"
+
+! Title
+! -----
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+! Special Informations for LEOs
+! -----------------------------
+LEOAUX     0
+  ## widget = selwin; path = DIR_AUX; ext = EXT_AUX; maxfiles = 1
+  ## activeif = SATNAM /= GOCE
+
+DESCR_LEOAUX 1  "LEO auxiliary file"
+
+ATTIT     0
+  ## widget = lineedit; path = DIR_ATT; ext = EXT_ATT; maxfiles = 1
+  ## activeif = SATNAM /= GOCE
+
+DESCR_ATTIT 1  "Attitude file"
+
+ACCEL     0
+  ## widget = lineedit; path = DIR_ACC; ext = EXT_ACC; maxfiles = 1
+  ## activeif = SATNAM == CHAMP
+
+DESCR_ACCEL 1  "Acceleration file"
+
+MANEUV     0
+  ## widget = lineedit; path = DIR_MAN; ext = EXT_MAN; maxfiles = 1
+  ## activeif = SATNAM == CHAMP
+
+DESCR_MANEUV 1  "Maneuver file"
+
+! Concatenate STR_QUA or EGG_IAQ files
+! ------------------------------------
+CONAUX     0
+  ## widget = selwin; path = DIR_ATT; ext = EXT_ATT
+  ## activeif = SATNAM == GOCE
+
+DESCR_CONAUX 1  "Files to concatenate"
+
+STRQUA     1  "0"
+  ## widget = checkbox; activeif SATNAM = GOCE
+
+DESCR_STRQUA 1  "Star tracker quaternions"
+
+OUTAUX     0
+  ## widget = lineedit; path = DIR_ATT; ext = EXT_ATT; maxfiles = 1
+  ## activeif = SATNAM = GOCE
+
+DESCR_OUTAUX 1  "Concatenated GOCE attitude file"
+
+! Start and End Epoch
+! -------------------
+RADIO_0     1  "1"
+  ## widget = radiobutton; group = WINDOW
+
+MSG_RADIO_0 1  "Take all observations"
+
+RADIO_1     1  "0"
+  ## widget = radiobutton; group = WINDOW
+  ## radiokeys = SESSION_TABLE SESSION_YEAR SESSION_STRG
+
+MSG_RADIO_1 1  "Defined by year and session identifier"
+
+SESSION_YEAR     1  "$Y+0"
+  ## widget = lineedit; multilineallowed = true; emptyallowed = false
+
+MSG_SESSION_YEAR 1  "Year for sessions def. the time window"
+
+SESSION_STRG     1  "$S+0"
+  ## widget = lineedit; multilineallowed = true; emptyallowed = false
+
+MSG_SESSION_STRG 1  "Sessions defining the time window"
+
+RADIO_2     1  "0"
+  ## widget = radiobutton; group = WINDOW
+
+MSG_RADIO_2 1  "Defined by start and end times"
+
+STADAT     1  "$YMD_STR+0"
+  ## widget = lineedit; activeif = RADIO_2 = 1; check_type = date
+
+MSG_STADAT 1  "Start of time window (year month day)"
+
+STATIM     1  "00 00 00"
+  ## widget = lineedit; emptyallowed = false
+  ## activeif = RADIO_2 = 1 AND STADAT / _; check_type = time
+
+MSG_STATIM 1  "Start of time window (hour min. sec.)"
+
+ENDDAT     1  "$YMD_STR+0"
+  ## widget = lineedit; activeif = RADIO_2 = 1; check_type = date
+
+MSG_ENDDAT 1  "End of time window (year month day)"
+
+ENDTIM     1  "23 59 59"
+  ## widget = lineedit; emptyallowed = false
+  ## activeif = RADIO_2 = 1 AND ENDDAT / _; check_type = time
+
+MSG_ENDTIM 1  "End of time window (hour min. sec.)"
+
+! Data to be stored
+! -----------------
+TYP1     1  "1"
+  ## widget = checkbox; activeif = SATNAM == CHAMP
+
+MSG_TYP1 1  "Epoch, Accelerations, Attitude, Manoeuvres"
+
+! System to store the accelerations
+! ---------------------------------
+IXYZ     1  "RSW"
+  ## widget = combobox; cards = XYZ RSW; editable = false
+  ## activeif = SATNAM == CHAMP AND TYP1 == 1
+
+MSG_IXYZ 1  "System in which the accelerations are stored"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# PREPARE LEO AUXILIARY INFORMATION - LEOAUX 1: General files                  #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files         > % <                                       # SHOWGEN
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output        > % < use LEOAUX.Lnn            or > %%%%%%%% <      # SYSODEF SYSOUT
+#   Error messages        > % < merged to program output  or > %%%%%%%% <      # ERRMRG SYSERR
+#                                                                              #
+#   Title > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <             # TITLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# LEOAUX 1.1: General Files                                                    #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants       > %%%%%%%%%%%% <                                   # CONST
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SATNAM = GOCE ####################################################
+# LEOAUX 2.1: Specifications for GOCE                                          #
+#                                                                              #
+# INPUT FILES                                                                  #
+#  GOCE attitude files   > %%%%%%%%% <                                         # CONAUX
+#                                                                              #
+#  Star tracker quaternions       > % <                                        # STRQUA
+#                                                                              #
+# OUTPUT FILE                                                                  #
+#   Attitude file         > %%%%%%%%% <                                        # OUTAUX
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SATNAM = CHAMP OR SATNAM = GRACE #################################
+# LEOAUX 2.2: Specifications for CHAMP and GRACE                               #
+#                                                                              #
+# INPUT FILES                                                                  #
+#   LEO auxiliary file    > %%%%%%%%% <                                        # LEOAUX
+#                                                                              #
+#   Epoch, Accelerations, Attitude, Manoeuvres               > % <             # TYP1
+#   System in which the accelerations will be stored       > %%% <             # IXYZ
+#                                                                              #
+# OUTPUT FILES                                                                 #
+#   Attitude file         > %%%%%%%%% <                                        # ATTIT
+#   Acceleration file     > %%%%%%%%% <                                        # ACCEL
+#   Maneuver file         > %%%%%%%%% <                                        # MANEUV
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# LEOAUX 3: Observation Window                                                 #
+#                                                                              #
+# OBSERVATION WINDOW                                                           #
+#                                                                              #
+#   > % < Take all observations                                                # RADIO_0
+#                                                                              #
+#   > % < Defined by Year and Session identifier                               # RADIO_1
+#         Year  > %%%% <   Session > %%%% <                                    # SESSION_YEAR SESSION_STRG
+#                                                                              #
+#   > % < Defined by Start and End times                                       # RADIO_2
+#                 yyyy mm dd     hh mm ss           yyyy mm dd     hh mm ss    #
+#         Start > %%%%%%%%%% < > %%%%%%%% <   End > %%%%%%%%%% < > %%%%%%%% <  # STADAT STATIM ENDDAT ENDTIM
+#                                                                              #
+# END_PANEL ####################################################################

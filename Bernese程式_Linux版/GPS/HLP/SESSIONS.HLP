@@ -1,0 +1,233 @@
+<html>
+<body>
+
+<center>
+<b>EDIT SESSION TABLE</b>
+<p>Editor: SESSIONS
+</center>
+<hr width="100%">
+
+<a name="LIST_OF_SESSIONS" default="%???0% %% %00 00 00% %% %23 59 59%"></a>
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+A session is a time interval covering all observations which should
+be processed together. A campaign consists of one or more sessions that
+together cover the total observation interval. The session definition is
+independent for each campaign. Since the Bernese GNSS Software uses a
+session-wise processing strategy you <i>must</i> have a session table in
+each campaign defining at least one session.
+<br>
+The session definitions are used, e.g., to generate the names of
+observation files and to define time intervals in input panels. The session
+identifier is stored in the observation header file, too. This may
+become important because, e.g., the program
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> considers correlations
+between observations of the same session only.
+
+<p><hr>
+
+<p><b>SESSION TABLE</b>
+
+<p><b>SESSION IDENTIFIER:</b>
+The first column defines the <nobr>4-character</nobr> session identifier.
+The day of year (character 1 to 3) and a session character (character 4) are
+expected here.
+
+<p><b>START EPOCH OF THE SESSION:</b>
+These columns define start date and time of the sessions.
+
+<p><b>END EPOCH OF THE SESSION:</b>
+These columns define the end date and time of the sessions.
+
+<p><b>General Remarks:</b>
+<p>
+There are two different possibilities to define sessions:
+<ul>
+<li><b>Fixed session table</b>: Explicitly define each session to be processed
+    by one line in the session table.
+<li><b>Open session table</b>: Use wildcards to be automatically replaced
+    by the current day of year. The session table contains one line for each
+    session of a day.
+</ul>
+An open session table is preferable if you work with sessions which are
+defined similarly for different days.
+
+<p><i>Remark:</i>
+A mixture between both types of session table is <i>not permitted</i>.
+
+<p><b>Defining a fixed session table:</b>
+<p>
+Example for a fixed session table for a daily processing:
+<pre>
+ SESSION TABLE
+
+    SESSION                START EPOCH                  END EPOCH
+   IDENTIFIER         yyyy mm dd  hh mm ss        yyyy mm dd  hh mm ss
+      2420            2003 08 30  00 00 00        2003 08 30  23 59 59
+      2430            2003 08 31  00 00 00        2003 08 31  23 59 59
+      2440            2003 09 01  00 00 00        2003 09 01  23 59 59
+      2510            2003 09 08  00 00 00        2003 09 08  23 59 59
+      2520            2003 09 09  00 00 00        2003 09 09  23 59 59
+</pre>
+<br>
+In this example no data are to be analyzed within one week. Therefore no
+sessions are defined between September 2nd and September 7th.
+<br>
+Remarks to create and use a fixed session table:
+<ul>
+<li>For each session you want to process you have to put one line into the
+    session table containing a session identifier, a start date and time,
+    as well as an end date and time. It is recommended to order the session
+    entries with time.
+<li>The menu expects the following session naming convention:
+    Use the first three digits for
+    the day of year of the start time of the session and the
+    last digit to identify the session number/character within the day.
+<li>The set of sessions you define must cover the full time span of
+    your observation data.
+<li>You may use <a href="MENU_VAR.HLP#VAR_PLUS">time variables</a>
+    within the menu input field and in the BPE user scripts. A time
+    variable to point to the year and day of year of the next session
+    (<tt>$YD+1</tt>) will point to the next session in the session table -
+    and not to the next day!
+    <br>
+    Let us assume that we have selected '2440' as the current session
+    (<tt>$YD+0&nbsp;=&nbsp;03244</tt>). The next session in the table is
+    session '2510' (<tt>$YD+1&nbsp;=&nbsp;03251</tt>). As a consequence,
+    e.g., a time variable <tt>$YD+3</tt> is not defined for this
+    session table. The menu will return an empty session string.
+<li>Using the time variables in the menu you may also define ranges of
+    sessions. For a range of <tt>-1</tt> to <tt>+1</tt> and a current
+    session of '2430' the sessions '2420', '2430', and '2440' are selected.
+    If the current session is '2440' the sessions '2430', '2440', and '2510'
+    are selected corresponding to the listing in the session table. If the
+    current session is set to '2520' the sessions '2510' and '2520' are
+    selected because for session '2520' no next session is defined in the
+    session table.
+</ul>
+
+<p><b>Defining an open session table:</b>
+<p>
+Example&nbsp;1 for an open session table for a daily processing:
+<pre>
+ SESSION TABLE
+
+    SESSION                START EPOCH                  END EPOCH
+   IDENTIFIER         yyyy mm dd  hh mm ss        yyyy mm dd  hh mm ss
+      ???0                        00 00 00                    23 59 59
+</pre>
+<br>
+Example&nbsp;2 for an open session table for an hourly processing:
+<pre>
+ SESSION TABLE
+
+    SESSION                START EPOCH                  END EPOCH
+   IDENTIFIER         yyyy mm dd  hh mm ss        yyyy mm dd  hh mm ss
+      ???A                        00 00 00                    00 59 59
+      ???B                        01 00 00                    01 59 59
+      ???C                        02 00 00                    02 59 59
+      ...
+      ???W                        22 00 00                    22 59 59
+      ???X                        23 00 00                    23 59 59
+</pre>
+<br>
+Example&nbsp;3 for an open session table for an hourly processing
+with a sliding time window (of 8&nbsp;hours):
+<pre>
+ SESSION TABLE
+
+    SESSION                START EPOCH                  END EPOCH
+   IDENTIFIER         yyyy mm dd  hh mm ss        yyyy mm dd  hh mm ss
+      ???A                        -7 00 00                    00 59 59
+      ???B                        -6 00 00                    01 59 59
+      ???C                        -5 00 00                    02 59 59
+      ...
+      ???W                        15 00 00                    22 59 59
+      ???X                        16 00 00                    23 59 59
+</pre>
+<br>
+Example&nbsp;4 for an open session table for a daily processing:
+with a sliding time window (of 30&nbsp;hours):
+<pre>
+ SESSION TABLE
+
+    SESSION                START EPOCH                  END EPOCH
+   IDENTIFIER         yyyy mm dd  hh mm ss        yyyy mm dd  hh mm ss
+      ???0                        -3 00 00                    26 59 59
+</pre>
+<br>
+Remarks to create and use an open session table:
+<ul>
+<li>The session identifier for an open session table has wildcards for
+    the first three characters (<tt>???</tt>). They will be replaced
+    automatically by the day of year by the menu. The fourth character is a
+    digit (<tt>0</tt>...<tt>9</tt>) or a letter (<tt>A</tt>...<tt>Z</tt>).
+    <br>
+    It is widely accepted (RINEX file naming convention)
+    to use session characters <tt>A</tt> to
+    <tt>X</tt> to indicate hourly sessions (see example&nbsp;2 above)
+    whereas a session character <tt>0</tt> is used for daily sessions (see
+    example&nbsp;1 above).
+<li>In an open session table you only define the start and end time of the
+    sessions. Leave the start and end date blank. The set of sessions
+    you have defined are valid for any day of year.
+    <br>
+    If the session end time is smaller than the corresponding starting
+    time, the session will continue over midnight and end the next
+    day.
+    <br>
+    The session identifier contains no information about the year. For
+    an open session table it is taken either from the input panel or it can
+    be extracted from the data by a processing program.
+<li>If you use <a href="MENU_VAR.HLP#VAR_PLUS">time variables</a>
+    within the menu input fields or in the BPE user scripts they will refer to
+    sessions. The session after the session indicated by the last line in
+    the session table is the session referenced by the first line of the
+    session table but with the next day of year. There are, therefore, no
+    undefined sessions like for a fixed session table.
+    <br>
+    For the example&nbsp;1 this means that the sequence of sessions is
+    the same as the sequence of days. If the current session is set, e.g., to
+    '2440' (<tt>$YD+0&nbsp;=&nbsp;03244</tt>) the next session is
+    '2450' (<tt>$YD+1&nbsp;=&nbsp;03245</tt>), etc.
+    <br>
+    In the case of an hourly processing (example&nbsp;2) the
+    session counting becomes obvious: Let us assume that we have selected
+    '244W' as the current session (<tt>$YD+0&nbsp;=&nbsp;03244</tt>). The next
+    session in the table is session '244X'
+    (<tt>$YD+1&nbsp;=&nbsp;03244</tt>), whereas a time variable
+    <tt>$YD+3</tt> points to session '245B'
+    (<tt>$YD+3&nbsp;=&nbsp;03245</tt>).
+<li><i>Important generalization:</i> Finally, the session table of
+    example&nbsp;3 shows a case with a sliding, overlapping time window,
+    each shifted by one hour. Start and end time values may be negative or
+    even greater than 24&nbsp;hours (see example&nbsp;4). It is obvious
+    that the end time value must always be greater than the associated
+    start time value. Generally speaking, the specified values must be
+    interpreted as time differences relative to 0:00:00 of the selected day
+    of year (indicated with <tt>???</tt>). By shifting all time values by a common
+    constant, you are actually free to define the session naming according
+    to your wishes (in example&nbsp;3: the assigned session identifier
+    corresponds to that of the last hour). Another scenario with an
+    overlapping time window is shown in example&nbsp;4.
+<li>Using the time variables in the menu you may also define ranges of
+    sessions. For a range of <tt>-1</tt> to <tt>+1</tt> and a current
+    session of '2430' the sessions '2420', '2430', and '2440' are selected
+    for the session table in example&nbsp;1. Assuming the current session
+    '224W' for the example&nbsp;2 the sessions '243V', '243W', and '243X'
+    are selected. Incrementing the current session to '224X' the sessions
+    '243W', '243X', and '244A' are selected within the specified range.
+    <br>
+    These examples may demonstrate the principle: To get the range of
+    sessions, sessions (lines) in the session table starting from the current
+    session are counted. If the range exceeds the last line (first line) the
+    counting continues with the first line (last line) of the session table but
+    with the day of year increased (decreased) by one.
+</ul>
+
+<p><hr>
+
+</body>
+</html>
+

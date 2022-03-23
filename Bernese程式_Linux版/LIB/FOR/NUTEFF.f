@@ -1,0 +1,183 @@
+      MODULE s_NUTEFF
+      CONTAINS
+
+C*
+      SUBROUTINE NUTEFF(IORSYS,TABINT,T,NUTMAT,EQEQUI,BIAMAT)
+CC
+CC NAME       :  NUTEFF
+CC
+CC PURPOSE    :  EFFICIENT COMPUTATION OF NUTATION MATRIX
+CC               USING LINEAR INTERPOLATION
+CC
+CC PARAMETERS :
+CC         IN :  IORSYS : INERTIAL SYSTEM                     I*4
+CC                        =1: B1950.0
+CC                        =2: J2000.0
+CC               TABINT : TABULAR INTERVAL(IN HOURS)          R*8
+CC               T      : TIME OF REQUEST                     R*8
+CC        OUT :  NUTMAT(I,K),I=1,2,3, K=1,2,3: NUTATION       R*8
+CC               MATRIX
+CC
+CC REMARKS    :  *** NO CPO APPLIED (ICPO=0 IN CALL OF NUTMTX) ***
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.3
+CC
+CC CREATED    :  87/11/16 11:02
+CC
+CC CHANGES    :  31-MAY-92 : ??: OPTION J2000.0
+CC               19-APR-94 : MR: ALLOW FOR 1 MINUTE BEFORE AND AFTER
+CC                               CURRENT TIME INTERVAL. ADJUST BOUN-
+CC                               DARIES TO THE BEGINNING OF THE DAY
+CC               16-OCT-99 : HU: SHIFT TIME INTERVAL BY 1 MINUTE IN
+CC                               ORDER TO ALLOW FOR 1 MINUTE EXTRA-
+CC                               POLATION ALSO AT THE BEGINNING/END
+CC                               OF THE POLE FILE
+CC               07-JAN-03 : PS: CONSISTENCY CHECK FOR NUTATION
+CC                               MODEL
+CC               15-JAN-03 : PS: USE SR NUTMTX INSTEAD OF SR NUTN20
+CC               11-FEB-02 : PS: CORRECT INCONSISTENCY WARNING
+CC               08-MAR-03 : HU: INTERFACE FOR NUTMTX ADDED
+CC               11-JUN-03 : HU: INTERPOLATE EQUATION OF EQUINOX
+CC               18-AUG-03 : RD: CLOSE FILE
+CC               06-JAN-05 : HU: USE NOPOLFIL
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               04-JUL-05 : HU: ADD BIAS MATRIX TO PARAMETER LIST
+CC               16-SEP-05 : HU: UNIT BIAS MATRIX FOR IORSYS=1
+CC               21-JAN-06 : HU: CALL TO NUTMTX CHANGED
+CC               26-SEP-11 : SL/HB: DIMENSION OF TYPTMP SET TO 2
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE s_opnfil
+      USE s_nutmtx
+      USE s_opnerr
+      USE s_rdpolh
+      USE s_nutnew
+      USE s_litpol
+      USE s_gtflna
+      USE f_nopolfil
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IEND  , IFIRST, IFORM , IORSYS, IOSTAT, IRC   , K     ,
+     1          LEFT  , NTAB  , I
+C
+      REAL*8    DT1MIN, EQEQUI, T     , T0    , TABEFF, TABINT, TDAY0 ,
+     1          TFIRST, TREQ
+      INTEGER*4 TYPTMP(2)
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+
+      REAL*8 TABTIM(2),NUTMAT(3,3),NUTTAB(3,3,2),EQETAB(2)
+      REAL*8 BIAMAT(3,3),BIATAB(3,3,2)
+      REAL*8 mat_hlp(9), eqequi_hlp(1)
+      DATA IFIRST/1/
+
+C Variables for Consistency Check
+      CHARACTER*80 DUMMYC
+      CHARACTER*32 FILPOL
+      CHARACTER*16 NUTNAM, NUTNA2, SUBNAM
+
+C
+C INITIALIZATION
+      IF(IFIRST.EQ.1)THEN
+        IFIRST=0
+        TFIRST=T
+        DT1MIN=1.D0/1440.D0
+        TDAY0=DINT(T)
+        NTAB=IDINT((T-TDAY0)/(TABINT/24.D0))
+        T0=TDAY0+NTAB*TABINT
+        TABTIM(1)=0.D0
+        TABTIM(2)=-1.D0
+
+
+C CHECK IF NAME OF NUTATION MODEL IN ERP FILE IS CONSISTENT
+C WITH CHOICE IN INPUT PANEL, IF NOT => WARNING
+C ----------------------------------------------------------------
+
+C Nutation Model Name from NUT-File
+        CALL NUTMTX(0,-999.D0,NUTTAB(1,1,1),NUTNAM,EQETAB(1),
+     1                      BIATAB(1,1,1))
+C Nutation Model Name from ERP-file
+        CALL GTFLNA(1,'POLE   ',FILPOL,IRC)
+        IF (.NOT.nopolfil(FILPOL)) THEN
+          CALL OPNFIL(LFNLOC,FILPOL,'OLD',' ','READONLY',' ',IOSTAT)
+          CALL OPNERR(LFNERR,LFNLOC,IOSTAT,FILPOL,'NUTEFF')
+          CALL RDPOLH(LFNLOC,1,DUMMYC,TYPTMP,IFORM,IEND,NUTNA2,SUBNAM)
+          CLOSE(LFNLOC)
+
+          IF(NUTNAM.NE.NUTNA2) THEN
+            WRITE(LFNERR,375) NUTNA2,NUTNAM
+375           FORMAT(/,' ### SR NUTEFF: DIFFERENT NUTATION MODELS ',/,
+     1             16X,'ERP FILE     : ',A,/,
+     2             16X,'INPUT PANEL  : ',A,/)
+          ENDIF
+        ENDIF
+      ENDIF
+
+
+C
+C SHIFT TIME INTERVAL BY 1 MINUTE IN DIRECTION OF CURRENT TABTIM(1).
+C FOR IFIRST=1: SHIFT TOWARDS LARGER TIME ASSUMING THAT PROCESSING
+C               STARTS AT THE LOWER END OF THE TIME INTERVAL.
+      IF (T.LE.TFIRST+DT1MIN) THEN
+        TREQ=T+DT1MIN
+      ELSEIF (T.LE.TABTIM(1)) THEN
+        TREQ=T+DT1MIN
+      ELSE
+        TREQ=T-DT1MIN
+      ENDIF
+C
+C NEW TIME INTERVALL?
+      IF (TREQ.LT.TABTIM(1).OR.TREQ.GT.TABTIM(2)) THEN
+        TABEFF=TABINT
+        LEFT=DABS(TREQ-T0)/(TABEFF/24.D0)
+        IF (TREQ.LT.T0) LEFT=-LEFT-1
+        DO 10 K=1,2
+          TABTIM(K)=T0+(LEFT+K-1)*TABEFF/24.D0
+          IF (IORSYS.EQ.1) THEN
+            CALL NUTNEW(TABTIM(K),NUTTAB(1,1,K))
+            EQETAB(K)=NUTTAB(2,1,K)
+            BIATAB(1:3,1:3,K)=0D0
+            DO I=1,3
+              BIATAB(I,I,K)=1D0
+            ENDDO
+          ELSE
+            CALL NUTMTX(0,TABTIM(K),NUTTAB(1,1,K),NUTNAM,EQETAB(K),
+     1                                          BIATAB(1:3,1:3,K))
+          ENDIF
+10      CONTINUE
+      END IF
+C
+C ALLOW FOR 1 MINUTE AT BEGINNING AND END OF INTERVAL
+      TREQ=T
+C      IF (T.GE.TABTIM(1)-DT1MIN .AND. T.LT.TABTIM(1)) THEN
+C        TREQ=TABTIM(1)
+C      ENDIF
+C      IF (T.LE.TABTIM(2)+DT1MIN .AND. T.GT.TABTIM(2)) THEN
+C        TREQ=TABTIM(2)
+C      ENDIF
+C
+C COMPUTE RESULT BY LINEAR INTERPOLATION
+      CALL LITPOL(2,9,TABTIM,NUTTAB,TREQ,DT1MIN,mat_hlp)
+      nutmat = RESHAPE(SOURCE=mat_hlp, SHAPE=(/3,3/))
+
+      CALL LITPOL(2,1,TABTIM,EQETAB,TREQ,DT1MIN,EQEQUI_hlp)
+      eqequi = eqequi_hlp(1)
+
+      CALL LITPOL(2,9,TABTIM,BIATAB,TREQ,DT1MIN,mat_hlp)
+      biamat = RESHAPE(SOURCE=mat_hlp, SHAPE=(/3,3/))
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

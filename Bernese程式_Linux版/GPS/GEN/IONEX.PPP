@@ -1,0 +1,83 @@
+IONEX CONTROL FILE                                           06-MAR-2004
+------------------------------------------------------------------------
+(REMARK: YES=1,NO=0 ; 2 EMPTY LINES AFTER EVERY INPUT GROUP)
+
+SATELLITE SYSTEM:
+----------------
+      ********************
+--> : GPS
+
+
+AGENCY:
+------
+      ********************
+--> : My agency/institute
+
+
+MULTI-LINE DESCRIPTION (UP TO 30 LINES):
+---------------------------------------
+      ************************************************************
+--> : My description text
+
+
+OBSERVABLES USED:
+----------------
+      ************************************************************
+--> : Undifferenced carrier phase and code
+
+
+MULTI-LINE COMMENT (UP TO 30 LINES):
+-----------------------------------
+      ************************************************************
+--> : TEC/RMS values in 0.1 TECU; 9999, if no value available
+
+
+DCB COMMENT:
+-----------
+      ************************************************************
+--> : DCB values in ns; zero-mean condition wrt satellite values
+
+
+INFORMATION TO BE SAVED:
+-----------------------
+                                                           **
+TEC MAPS                                            --> :   1
+RMS MAPS                                            --> :   1
+
+DIFFERENTIAL CODE BIASES FOR SATELLITES             --> :   1
+DIFFERENTIAL CODE BIASES FOR RECEIVERS              --> :   1
+
+DEFAULT EXPONENT                                    --> :  -1 (99=AUTO)
+
+
+REQUESTED SNAPSHOTS:
+-------------------
+                                                           HH MM SS
+TIME OF FIRST MAP                                   --> :  00 00 00
+TIME OF LAST MAP                                    --> :  24 00 00
+                                                           ******
+INTERVAL                                            --> :    7200 SEC
+
+
+DATA GRID:
+---------
+                                                           ****.*
+FROM LATITUDE                                       --> :    65.0 DEG
+TO LATITUDE                                         --> :    35.0 DEG
+WITH INCREMENT                                      --> :    -1.0 DEG
+
+FROM LONGITUDE                                      --> :   -15.0 DEG
+TO LONGITUDE                                        --> :    30.0 DEG
+WITH INCREMENT                                      --> :     1.0 DEG
+
+
+ADDITIONAL OPTIONS:
+------------------
+                                                           ****.*
+MINIMUM TEC VALUE                                   --> :  -999.9 TECU
+MAXIMUM RMS VALUE                                   --> :   999.9 TECU
+
+SCALING FACTOR FOR RMS VALUES                       --> :    10.0
+
+
+

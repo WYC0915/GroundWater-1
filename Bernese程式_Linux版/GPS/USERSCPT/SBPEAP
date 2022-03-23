@@ -1,0 +1,40 @@
+package SBPEAP;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name:      SBPEAP
+#
+# Purpose:   Prepares a parallel running BPE (SUPERBPE)
+#
+# PARAMs  :  PARAM1 - temporary file for parallel processing
+#
+# Author:    R. Dach
+# Created:   27-May-2003
+#
+# Changes :
+#
+# ============================================================================
+
+use strict;
+
+sub run
+{
+  my $bpe = shift;
+
+# Get variable values
+# -------------------
+  my ( $param1, $dirTmp, $sbpeOpt ) =
+  $bpe->getKeys
+     ( 'PARAM1', 'T', 'SBPE_OPTIONS' );
+
+# Define the temp. file name
+# --------------------------
+  my $tmpFil = "${dirTmp}/AUTO_TMP/$param1";
+
+# Write SuperBPE options into the temp. file
+# ------------------------------------------
+  open (INP, "> $tmpFil");
+  print INP $sbpeOpt."\n";
+  close INP;
+
+}

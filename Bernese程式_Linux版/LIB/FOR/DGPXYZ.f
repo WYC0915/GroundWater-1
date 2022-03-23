@@ -1,0 +1,142 @@
+      MODULE s_DGPXYZ
+      CONTAINS
+
+C*
+      SUBROUTINE DGPXYZ(XGESAT,ITYP,DU1RLB,DU2RLB,DU1XYZ,DU2XYZ)
+CC
+CC NAME       :  DGPXYZ
+CC
+CC PURPOSE    :  TRANSFORMATION OF DERIVATIVES OF EARTHS POTENTIAL
+CC               FROM EARTH FIXED COORDINATES (R,L,B)
+CC               TO                           (X,Y,Z)
+CC
+CC PARAMETERS :
+CC         IN :  XGESAT(I):   COORDINATES OF SATELLITE (EARTH FIXED)
+CC                            I=1,2,3                              R*8
+CC               ITYP     :   ITYP=0: FIRST AND SECOND DERIVATIVES
+CC                            ITYP=1: ONLY FIRST DERIVATIVES
+CC                            ITYP=2: ONLY SECOND DERIVATIVES      I*4
+CC               DU1RLB(I):   DU/DR     DU/DL     DU/DB            R*8
+CC                            (RESULT FROM SUBR 'DGPRLB')
+CC               DU2RLB(I,K): D2U/DRDR  D2U/DRDL  D2U/DRDB         R*8
+CC                            D2U/DRDL  D2U/DLDL  D2U/DLDB
+CC                            D2U/DRDB  D2U/DLDB  D2U/DBDB
+CC                            (RESULT FROM SUBR 'DGPRLB')
+CC        OUT :  DU1XYZ(I):   DU/DX     DU/DY     DU/DZ            R*8
+CC               DU2XYZ(I,K): D2U/DXDX  D2U/DXDY  D2U/DXDZ         R*8
+CC                            D2U/DXDY  D2U/DYDY  D2U/DYDZ
+CC                            D2U/DXDZ  D2U/DYDZ  D2U/DZDZ
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/12/10 18:57
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , ITYP  , J     , K
+C
+      REAL*8    DU1RLB, DU1XYZ, DU2RLB, DU2XYZ, HILF1 , HILF2 , R     ,
+     1          R1XYZ , R2    , R2XYZ , R3    , RXY   , RXY2  , XGESAT
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+      DIMENSION XGESAT(3),DU1RLB(3),DU2RLB(3,3),DU1XYZ(3),DU2XYZ(3,3)
+      DIMENSION R1XYZ(3,3),R2XYZ(3,3,3),HILF1(3),HILF2(3,3)
+C
+      R2  =XGESAT(1)**2+XGESAT(2)**2+XGESAT(3)**2
+      R   =DSQRT(R2)
+      R3  =R2*R
+      RXY2=XGESAT(1)**2+XGESAT(2)**2
+      RXY =DSQRT(RXY2)
+C
+C  COMPUTATION OF FIRST DERIVATIVES DR/DX, DR/DY, DR/DZ
+      IF(ITYP.EQ.2) GOTO 140
+      DO 10 I=1,3
+        R1XYZ(I,1)= XGESAT(I)/R
+10    CONTINUE
+      R1XYZ(1,2)=-XGESAT(2)/RXY2
+      R1XYZ(1,3)=-XGESAT(1)*XGESAT(3)/R2/RXY
+      R1XYZ(2,2)= XGESAT(1)/RXY2
+      R1XYZ(2,3)=-XGESAT(2)*XGESAT(3)/R2/RXY
+      R1XYZ(3,2)=0.D0
+      R1XYZ(3,3)=RXY/R2
+C
+C  TRANSFORMATION OF FIRST DERIVATIVES DU/DR ETC TO DU/DX ETC
+      DO 20 I=1,3
+        DU1XYZ(I)=0.D0
+        DO 30 K=1,3
+          DU1XYZ(I)=DU1XYZ(I)+R1XYZ(I,K)*DU1RLB(K)
+30      CONTINUE
+20    CONTINUE
+C
+C COMPUTATION OF 2ND DERIVATIVES D2R/DXDX ETC
+140   IF(ITYP.EQ.1) GOTO 999
+      R2XYZ(1,1,1)=1/R-XGESAT(1)**2/R3
+      R2XYZ(1,2,1)=2*XGESAT(1)*XGESAT(2)/RXY2**2
+      R2XYZ(1,3,1)=XGESAT(3)/R2/RXY*(2*XGESAT(1)**2/R2
+     1                               -XGESAT(2)**2/RXY2)
+      R2XYZ(2,1,1)=-XGESAT(1)*XGESAT(2)/R3
+      R2XYZ(2,2,1)=(XGESAT(2)**2-XGESAT(1)**2)/RXY2**2
+      R2XYZ(2,3,1)=XGESAT(1)*XGESAT(2)*XGESAT(3)/R2/RXY*(2/R2+1/RXY2)
+      R2XYZ(3,1,1)=-XGESAT(1)*XGESAT(3)/R3
+      R2XYZ(3,2,1)=0.D0
+      R2XYZ(3,3,1)=XGESAT(1)/R2/RXY*(-1+2*XGESAT(3)**2/R2)
+      R2XYZ(2,1,2)=1/R-XGESAT(2)**2/R3
+      R2XYZ(2,2,2)=-R2XYZ(1,2,1)
+      R2XYZ(2,3,2)=XGESAT(3)/R2/RXY*(2*XGESAT(2)**2/R2
+     1                               -XGESAT(1)**2/RXY2)
+      R2XYZ(3,1,2)=-XGESAT(2)*XGESAT(3)/R3
+      R2XYZ(3,2,2)=0.D0
+      R2XYZ(3,3,2)=XGESAT(2)/R2/RXY*(-1+2*XGESAT(3)**2/R2)
+      R2XYZ(3,1,3)=1/R-XGESAT(3)**2/R3
+      R2XYZ(3,2,3)=0.D0
+      R2XYZ(3,3,3)=-2*XGESAT(3)*RXY/R3/R
+      DO 40 K=1,3
+        R2XYZ(1,K,2)=R2XYZ(2,K,1)
+        R2XYZ(1,K,3)=R2XYZ(3,K,1)
+        R2XYZ(2,K,3)=R2XYZ(3,K,2)
+40    CONTINUE
+C
+C  TRANSFORMATION OF 2ND DERIVATIVES D2U/DRDR ETC TO D2U/DXDX ETC
+      DO 50 I=1,3
+        DO 60 K=1,3
+          HILF2(I,K)=0.D0
+          DO 70 J=1,3
+            HILF2(I,K)=HILF2(I,K)+R1XYZ(I,J)*DU2RLB(J,K)
+70        CONTINUE
+60      CONTINUE
+50    CONTINUE
+      DO 80 I=1,3
+        DO 90 K=1,3
+          DU2XYZ(I,K)=0.D0
+          DO 100 J=1,3
+            DU2XYZ(I,K)=DU2XYZ(I,K)+HILF2(I,J)*R1XYZ(K,J)
+100       CONTINUE
+90      CONTINUE
+80    CONTINUE
+      DO 110 J=1,3
+        DO 120 I=1,3
+          HILF1(I)=0.D0
+          DO 130 K=1,3
+            HILF1(I)=HILF1(I)+R2XYZ(I,K,J)*DU1RLB(K)
+130       CONTINUE
+          DU2XYZ(I,J)=HILF1(I)+DU2XYZ(I,J)
+120     CONTINUE
+110   CONTINUE
+C
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

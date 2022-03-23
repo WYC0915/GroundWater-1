@@ -1,0 +1,50 @@
+Example for a station information file version 0.00              16-OCT-09 15:55
+--------------------------------------------------------------------------------
+
+TYPE 001: RENAMING OF STATIONS
+------------------------------
+
+STATION NAME          FLG          FROM                   TO         OLD STATION NAME      REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ********************  ************************
+ABMF 97103M001        001  2008 07 15 00 00 00                       ABMF*                 IGS.SNX
+QUI2 42003S003        003                                            U062 42003S003        NGA RENAMING                    
+WDC2 40451S005        003                       2006 07 16 23 59 59  U072 40451S005        NGA RENAMING                    
+WDC4 40451S008        003  2006 07 17 00 00 00                       U072 40451S005        NGA RENAMING                    
+BAHR 24901M002        001                                            BAHR*                 STN                     
+
+
+TYPE 002: STATION INFORMATION
+-----------------------------
+
+STATION NAME          FLG          FROM                   TO         RECEIVER TYPE         ANTENNA TYPE          REC #   ANT #    NORTH      EAST      UP      DESCRIPTION             REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ********************  ********************  ******  ******  ***.****  ***.****  ***.****  **********************  ************************
+ABMF 97103M001        001  2008 07 15 00 00 00  2009 10 15 19 59 59  ASHTECH UZ-12         AERAT2775_43    SPKE  999999  999999    0.0000    0.0000    0.0500  Les Abymes, FR          
+ABMF 97103M001        001  2009 10 15 20 00 00  2011 11 15 04 59 59  TRIMBLE NETR5         TRM55971.00     NONE  999999  999999    0.0000    0.0000    0.0000  Les Abymes, FR          IGSSTATION.3488
+ABMF 97103M001        001  2011 11 15 05 00 00                       TRIMBLE NETR9         TRM55971.00     NONE  999999  999999    0.0000    0.0000    0.0000  Les Abymes, FR          abmf_20111115.log
+BARH 49927S001        001                       2007 03 26 23 59 59  TRIMBLE 4000SSI       TRM29659.00     UNAV  999999  999999    0.0000    0.0000    0.0000  Bar Harbor, US          NEW
+BARH 49927S001        001  2007 03 27 00 00 00                       LEICA GRX1200GGPRO    LEIAX1202GG     NONE  999999  999999    0.0000    0.0000    0.0000  Bar Harbor, US          NEW
+ETAD 31503M001        001                                            TRIMBLE NETR5         TRM55971.00     NONE  999999  999999    0.0000    0.0000    0.0502  Addis Ababa, ET         NEW
+
+
+TYPE 003: HANDLING OF STATION PROBLEMS
+--------------------------------------
+
+STATION NAME          FLG          FROM                   TO         REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ************************************************************
+ZIMM 14001M004        001  2003 08 12 00 00 00  2003 08 12 23 59 59  IGSMAIL.4541            
+
+
+TYPE 004: STATION COORDINATES AND VELOCITIES (ADDNEQ)
+-----------------------------------------------------
+                                            RELATIVE CONSTR. POSITION     RELATIVE CONSTR. VELOCITY
+STATION NAME 1        STATION NAME 2        NORTH     EAST      UP        NORTH     EAST      UP
+****************      ****************      **.*****  **.*****  **.*****  **.*****  **.*****  **.*****
+ZIMM 14001M004        ZIMJ 14001M006        99.99999  99.99999  99.99999   0.00010   0.00010   0.00010  
+
+
+TYPE 005: HANDLING STATION TYPES
+--------------------------------
+
+STATION NAME          FLG  FROM                 TO                   MARKER TYPE           REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ********************  ************************
+

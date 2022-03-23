@@ -1,0 +1,224 @@
+! Environment Variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! SOME KEYWORDS FOR AUTOMATIC OUTPUT
+! ----------------------------------
+CAMPAIGN     0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+! -------------------------------------------------------------------------
+! Show general files
+! ------------------
+SHOWGEN     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+! -------------------------------------------------------------------------
+! General Constants
+! -----------------
+CONST     1  "CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_CONST 1  "General constants"
+
+! Satellite Information File
+! --------------------------
+SATELL     1  "SATELLIT.I08"
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_SATELL 1  "Satellite information"
+
+! Input Files
+! -----------
+CHOINP 1  "${K}/COSTA/ORB/CHA00857.CHO"
+  ## widget = selwin; path = DIR_CHO; ext = EXT_CHO; maxfiles = 999
+  ## emptyallowed = false
+  # CHA0$W+0
+
+CHOINP_TXT_COL_1 1  "CHAMP Orbit Files"
+
+MSG_CHOINP 1  "CHAMP orbit file"
+
+! Extensions of the Output Files
+! ------------------------------
+CHOINP_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_PRE
+
+CHOINP_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_PRE
+
+CHOINP_TXT_COL_2 1  "Precise Orbit Files"
+
+! List of Outut Files
+! -------------------
+PREOUT 1  "${K}/COSTA/ORB/NEW96165.PRE"
+  ## widget = lineedit; path = DIR_PRE; ext = EXT_PRE; emptyallowed = true
+  # NEW$YD+0
+
+DESCR_PREOUT 1  "Output file precise orbits"
+
+! Program Output File
+! -------------------
+SYSODEF     1  "1"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "CHOPRE"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG     1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR     1  "ERROR"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+
+DESCR_SYSERR 1  "Error message"
+
+! System Input (not used)
+! -----------------------
+SYSINP     0
+
+! Title
+! -----
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+! Options
+! -------
+SENSOR     0
+  ## widget = lineedit
+
+MSG_SENSOR 1  "Sensor on-board"
+
+TYPE     1  "SP3,POS+VEL+CLK"
+  ## widget = combobox; editable = false
+  ## cards = SV1,POS SV1,POS+VEL SP3,POS+CLK SP3,POS+VEL+CLK SP3C,POS+CLK SP3C,POS+VEL+CLK
+
+MSG_TYPE 1  "Format type"
+
+! Data description
+! ----------------
+DATADES     0
+  ## widget = lineedit
+
+MSG_DATADES 1  "Data description"
+
+! Orbit Type
+! ----------
+ORBTYP     0
+  ## widget = lineedit
+
+MSG_ORBTYP 1  "Orbit type"
+
+! Agency Generating Orbit
+! -----------------------
+AGENCY     0
+  ## widget = lineedit
+
+MSG_AGENCY 1  "Agency gen. orbit"
+
+! Specific Accuracy
+! -----------------
+ACCURA     0
+  ## widget = lineedit
+
+MSG_ACCURA 1  "LEO spec. accuracy"
+
+! Title Lines for Precise File
+! ----------------------------
+TIPRE1     0
+  ## widget = lineedit
+
+MSG_TIPRE1 1  "Title line 1"
+
+TIPRE2     0
+  ## widget = lineedit
+
+MSG_TIPRE2 1  "Title line 2"
+
+TIPRE3     0
+  ## widget = lineedit
+
+MSG_TIPRE3 1  "Title line 3"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CONVERT CHAMP ORBITS TO PRECISE ORBITS - CHOPRE 1: Filenames                 #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files     > % <                                           # SHOWGEN
+#                                                                              #
+# INPUT FILES                                                                  #
+#   CHAMP orbit files          > %%%%%%%% <                                    # CHOINP
+#                                                                              #
+# RESULT FILE (blank: same name as input file(s))                              #
+#   Output file precise orbits > %%%%%%%% <                                    # PREOUT
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output             > % < use CHOPRE.Lnn            or > %%%%%%%% < # SYSODEF SYSOUT
+#   Error messages             > % < merged to program output  or > %%%%%%%% < # ERRMRG SYSERR
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# CHOPRE 1.1: General Files                                                    #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants       > %%%%%%%%%%%% <                                   # CONST
+#   Satellite information   > %%%%%%%%%%%% <                                   # SATELL
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CHOPRE 2: Options                                                            #
+#                                                                              #
+#   Sensor on-board     > %%%%%%%%% <                                          # SENSOR
+#   Format type         > %%%%%%%%%%%%%%%% <                                   # TYPE
+#                                                                              #
+# SPECIAL INFORMATION FOR PRECISE ORBIT FILE HEADER                            #
+#   Data description    > %%%%% <                                              # DATADES
+#   Orbit type          > %%% <                                                # ORBTYP
+#   Agency gen. orbit   > %%%% <                                               # AGENCY
+#   LEO spec. accuracy  > %%%% <                                               # ACCURA
+#   Title lines                                                                #
+#   > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <              # TIPRE1
+#   > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <              # TIPRE2
+#   > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <              # TIPRE3
+#                                                                              #
+# END_PANEL ####################################################################

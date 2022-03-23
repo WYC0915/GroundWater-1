@@ -1,0 +1,155 @@
+<html>
+<body>
+
+<center>
+<b>DIFFERENCES BETWEEN POLE FILES</b>
+<p>Program: POLINT
+</center>
+<hr WIDTH="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+<font color="#FF0000">Text for GENERAL DESCRIPTION will be added soon.</font>
+
+<p><hr>
+
+<p><b>POLINT 1: Files</b>
+
+<p><b>GENERAL FILES</b>
+<p><a name="SHOWGEN" default="1"></a>
+<b>Show all general files:</b>
+Check this box to get the currently active campaign, session and session table.
+
+<br><br>
+<p><b>INPUT FILES</b>
+<p><a name="EPFIL" default=""></a>
+<b>Pole Files (IERS):</b>
+
+<font color="#FF0000">Text for key EPFIL will be added soon.</font>
+
+<p><a name="POLE" default=""></a>
+<b>A Priori Pole:</b>
+
+<font color="#FF0000">Text for key POLE will be added soon.</font>
+
+<p><a name="PLOTSKL" default=""></a>
+<b>Plot Skeleton File:</b>
+
+<font color="#FF0000">Text for key PLOTSKL will be added soon.</font>
+
+<br><br>
+<p><b>OUTPUT FILES</b>
+<p><a name="IERSPOL" default=""></a>
+<b>Pole IERS Format:</b>
+
+<font color="#FF0000">Text for key IERSPOL will be added soon.</font>
+
+<p><a name="PLOTRS" default=""></a>
+<b>Plot File:</b>
+
+<font color="#FF0000">Text for key PLOTRS will be added soon.</font>
+
+<br><br>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><a name="SYSODEF" default="1"></a>
+   <a name="SYSOUT"  default="POLINT"></a>
+<b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<p><a name="ERRMRG" default="0"></a>
+   <a name="SYSERR" default="ERROR"></a>
+<b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or to specify a separate file to which error messages are
+written.
+
+<p><a name="TITLE" default=""></a>
+<b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<p><hr>
+
+<p><b>POLINT 1.1: General Files</b>
+
+<p><b>GENERAL INPUT FILES</b>
+<p><a name="GPSUTC" default="GPSUTC."></a>
+<b>GPS-UTC seconds:</b>
+
+<font color="#FF0000">Text for key GPSUTC will be added soon.</font>
+
+<p><a name="CONST" default="CONST."></a>
+<b>General constants:</b>
+
+<font color="#FF0000">Text for key CONST will be added soon.</font>
+
+<p><a name="NUTMOD" default="IAU2000R06"></a>
+<b>Nutation model:</b>
+
+<font color="#FF0000">Text for key NUTMOD will be added soon.</font>
+
+<p><a name="SUBMOD" default="IERS2010XY"></a>
+<b>Subdaily pole model:</b>
+
+<font color="#FF0000">Text for key SUBMOD will be added soon.</font>
+
+<p><hr>
+
+<p><b>POLINT 2: Input Options</b>
+
+<p><b>CONTINUITY BETWEEN SETS</b>
+<p><a name="CONT" default="1"></a>
+<b>Continuity between sets in UT1-UTC, DEPS and DPSI:</b>
+
+<font color="#FF0000">Text for key CONT will be added soon.</font>
+
+<p><a name="RESTSUB" default="0"></a>
+<b>Restitute subdaily Pole Model:</b>
+
+<font color="#FF0000">Text for key RESTSUB will be added soon.</font>
+
+<p><a name="DBLEPO" default="1"></a>
+<b>Allow double epochs in result file(s):</b>
+
+<font color="#FF0000">Text for key DBLEPO will be added soon.</font>
+
+<br><br>
+<p><b>RECORD NUMBERS TO BE USED</b>
+<p><a name="ILINEA" default=""></a>
+   <a name="ILINEB" default=""></a>
+<b>Start</b> and <b>End record:</b>
+
+<font color="#FF0000">Text for key ILINE[AB] will be added soon.</font>
+
+<br><br>
+<p><a name="SAMPLING" default="1"></a>
+<b>Sampling:</b>
+
+<font color="#FF0000">Text for key SAMPLING will be added soon.</font>
+
+<p><hr>
+
+</body>
+</html>

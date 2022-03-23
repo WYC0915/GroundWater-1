@@ -1,0 +1,155 @@
+
+! SOME KEYWORDS FOR AUTOMATIC OUTPUT
+! ----------------------------------
+CAMPAIGN     0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+! General Constants
+! -----------------
+SHOWGEN     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+CONST     1  "CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_CONST 1  "General constants"
+
+! Receiver information
+! --------------------
+RECEIVR     1  "RECEIVER."
+  ## widget = selwin; path = PTH_GEN; maxfiles = 1
+
+DESCR_RECEIVR 1 "Receiver information"
+
+! Inputfiles N2A
+! --------------
+INPN2A     0
+  ## widget = selwin; path = DIR_NEQ; ext = EXT_NEQ; maxfiles = 999
+  ## emptyallowed = true
+
+MSG_INPN2A 1  "Binary files"
+
+INPN2A_TXT_COL_1 1  "Binary normal equation files"
+
+INPN2A_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_FN0
+
+INPN2A_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_FN0
+
+INPN2A_TXT_COL_2 1  "ASCII normal equation files"
+
+RADIO_1     1  "1"
+  ## widget = radiobutton; group = DIRECTION; radiokeys = INPN2A
+
+MSG_RADIO_1 1  "binary to ASCII"
+
+! Inputfiles A2N
+! --------------
+INPA2N     0
+  ## widget = selwin; path = DIR_FN0; ext = EXT_FN0; maxfiles = 999
+  ## emptyallowed = true
+
+MSG_INPA2N 1  "ASCII files"
+
+INPA2N_TXT_COL_1 1  "ASCII normal equation files"
+
+INPA2N_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_NEQ
+
+INPA2N_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_NEQ
+
+INPA2N_TXT_COL_2 1  "Binary normal equation files"
+
+RADIO_2     1  "0"
+  ## widget = radiobutton; group = DIRECTION; radiokeys = INPA2N
+
+MSG_RADIO_2 1  "ASCII  to binary"
+
+! Program Output File
+! -------------------
+SYSODEF     1  "1"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "NEQ2ASC"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG     1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR     1  "ERROR"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+
+DESCR_SYSERR 1  "Error message"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CONVERT NORMAL EQUATION FILES (BINARY/ASCII) - NEQ2ASC 1: Input/Output Files #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files  > % <                                              # SHOWGEN
+#                                                                              #
+# INPUT FILES                                                                  #
+#   Normal equation(s)                                                         #
+#    > % < binary to ASCII  > %%%%%%%% <                                       # RADIO_1 INPN2A
+#    > % < ASCII  to binary > %%%%%%%% <                                       # RADIO_2 INPA2N
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output          > % < use NEQ2ASC.Lnn           or    > %%%%%%%% < # SYSODEF SYSOUT
+#   Error messages          > % < merged to program output  or    > %%%%%%%% < # ERRMRG SYSERR
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1  #####################################################
+# NEQ2ASC 1.1: General Files                                                    #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants       > %%%%%%%%%%%% <                                   # CONST
+#   Receiver information    > %%%%%%%%%%%% <     to read NQ0 before vers. 4    # RECEIVR
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################

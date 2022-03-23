@@ -1,0 +1,137 @@
+      MODULE s_DCBADT
+      CONTAINS
+
+C*
+      SUBROUTINE DCBADT(NUMSAT,DCBID1,DCBVA1,NUMREC,DCBID2,DCBVA2,
+     1                  DCBSYS,DCBTXT,MAXADT,ADTLST)
+CC
+CC NAME       :  DCBADT
+CC
+CC PURPOSE    :  WRITE DCB INFO TO AUX DATA LIST "ADTLST"
+CC
+CC PARAMETERS :
+CC         IN :  NUMSAT : NUMBER OF SATELLITES                I*4
+CC               DCBID1 : SATELLITE NUMBERS                   I*4(*)
+CC               DCBVA1 : DCB VALUES AND RMS FOR SATELLITES   R*8(2,*)
+CC               NUMREC : NUMBER OF RECEIVERS                 I*4
+CC               DCBID2 : STATION NAMES                       CH*16(*)
+CC               DCBVA2 : DCB VALUES AND RMS FOR RECEIVERS    R*8(2,*)
+CC               DCBSYS : SYSTEM FLAG                         CH*1(*)
+CC                        ='G'/' ': GPS
+CC                        ='R': GLONASS
+CC               DCBTXT : DCB COMMENT                         CH*60
+CC               MAXADT : MAXIMUM NUMBER OF AUX DATA RECORDS  I*4
+CC        OUT :  ADTLST(I),I=1,..,MAXADT: LIST OF AUX DATA    CH*80(*)
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  S.SCHAER
+CC
+CC VERSION    :  4.1
+CC
+CC CREATED    :  25-JUN-98
+CC
+CC CHANGES    :  13-MAR-02 : SS: RECEIVER DCB INFORMATION
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               28-MAR-12 : RD: USE SVN2CHR AS MODULE NOW
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1998     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern,  ONLY: LFNERR
+      USE s_dimtst
+      USE s_svn2chr
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IADT  , IGPS  , IGPS1 , IGPS2 , IPRN  , IRC   , IREC  ,
+     1          ISAT  , MAXADT, NUMADT, NUMREC, NUMSAT
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      CHARACTER*80  ADTLST(*)
+      CHARACTER*60  DCBTXT
+      CHARACTER*20  INXREC(3),STASTR
+      CHARACTER*16  DCBID2(*)
+      CHARACTER*1   SYSSTR,DCBSYS(*)
+C
+      REAL*8        DCBVA1(2,*),DCBVA2(2,*)
+C
+      INTEGER*4     DCBID1(*)
+C
+C
+      DATA INXREC/'PRN / BIAS / RMS    ',
+     1            'STATION / BIAS / RMS',
+     2            'COMMENT             '/
+C
+C INITIALIZE "ADTLST"
+C -------------------
+      DO IADT=1,MAXADT
+        ADTLST(IADT)=' '
+      ENDDO
+C
+      NUMADT=NUMSAT+NUMREC+1
+      CALL DIMTST(1,1,2,'DCBADT','MAXADT','AUX DATA RECORDS',
+     1  ' ',NUMADT,MAXADT,IRC)
+C
+C CHECK TOTAL NUMBER OF VALUES
+C ----------------------------
+      IF (NUMSAT+NUMREC.EQ.0) THEN
+        WRITE(LFNERR,901)
+901     FORMAT(/,' *** SR DCBADT: NO DCB VALUES FOUND',/)
+        CALL EXITRC(2)
+      ENDIF
+C
+C CHECK WHETHER GPS-ONLY DCB INFORMATION AVAILABLE
+C ------------------------------------------------
+      IGPS1=1
+      DO ISAT=1,NUMSAT
+        IF (DCBID1(ISAT).GT.100) IGPS1=0
+      ENDDO
+C
+      IGPS2=1
+      DO IREC=1,NUMREC
+        IF (DCBSYS(IREC).NE.'G' .AND. DCBSYS(IREC).NE.' ') IGPS2=0
+      ENDDO
+C
+      IGPS=MIN0(IGPS1,IGPS2)
+C
+C WRITE PRN, BIAS, AND RMS
+C ------------------------
+      DO ISAT=1,NUMSAT
+        CALL SVN2CHR(DCBID1(ISAT),IPRN,SYSSTR)
+        IF (IGPS.EQ.1) SYSSTR=' '
+        IADT=ISAT
+        WRITE(ADTLST(IADT),911) SYSSTR,IPRN,
+     1    DCBVA1(1,ISAT),DCBVA1(2,ISAT),INXREC(1)
+911     FORMAT(3X,A1,I2.2,2F10.3,34X,A20)
+      ENDDO
+C
+C WRITE STATION, BIAS, AND RMS
+C ------------------------
+      DO IREC=1,NUMREC
+        SYSSTR=DCBSYS(IREC)
+        IF (IGPS.EQ.1) SYSSTR=' '
+        IADT=NUMSAT+IREC
+        STASTR=DCBID2(IREC)(1:14)
+        WRITE(ADTLST(IADT),912) SYSSTR,STASTR,
+     1    DCBVA2(1,IREC),DCBVA2(2,IREC),INXREC(2)
+912     FORMAT(3X,A1,2X,A20,2F10.3,14X,A20)
+      ENDDO
+C
+C WRITE DCB COMMENT
+C -----------------
+      IF (DCBTXT.NE.' ') THEN
+        WRITE(ADTLST(NUMADT),922) DCBTXT,INXREC(3)
+922     FORMAT(A60,A20)
+      ENDIF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

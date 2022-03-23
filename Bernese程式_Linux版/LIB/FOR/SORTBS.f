@@ -1,0 +1,372 @@
+      MODULE s_SORTBS
+      CONTAINS
+
+C*
+      SUBROUTINE SORTBS(MAXFIL,NFIL,STANAM,ICOMBI,CRITER,MINOBS,
+     1                  IMLT,DISMIN,DISWIN,BONMAX,BONLEN,CRTBAS,
+     2                  NSATFL,SATFIL,SATCRT,FLAGBS,FLMLBS)
+CC
+CC NAME       :  SORTBS
+CC
+CC PURPOSE    :  PREPARE A SORTING INDEX FOR ARRAY "ICOMBI" FOR
+CC               THE SUBROUTINE BASSEL ACCORDING TO PREDEFINED
+CC               BASELINES AND CRITERION "CRITER"
+CC
+CC
+CC PARAMETERS :
+CC         IN :  MAXFIL: MAX. NUMBER OF FILES                   I*4
+CC               NFIL ... NUMBER OF SINGLE DIFF. FILES          I*4
+CC               STANAM(I,IFIL) ... STATION NAME              CH*16
+CC                   I=1 ... THE FIRST STATION
+CC                   I=2 ... THE SECOND STATION
+CC               ICOMBI(I,IFIL) ... LIST FILES                  I*4
+CC                   I=1 ... THE FIRST ZERO DIFF. FILE
+CC                   I=2 ... THE SECOND ZERO DIFF. FILE
+CC               CRITER(IFIL) ... CRITERION FOR THE OPTIMAL     I*4
+CC                                SELECTION
+CC               MINOBS ... MINIMAL NUMBER OF OBSERVATIONS      I*4
+CC               IMLT ... REDUNDANT BASELINES (0/1)             I*4
+CC               DISMIN ... MINUMUM LENGTH OF A RED. BASELINE   R*8
+CC               DISWIN ... MINUMUM IMPROVEMENT IN THE          R*8
+CC                          SHORTEST WAY BETWEEN TWO BASELINES
+CC               BONMAX ... BONUS DEPENDING ON BASELINE LENGTH  R*8
+CC                          (0: NO)
+CC               BONLEN ... MAXIMUM BASELINE LENGTHS            R*8(3)
+CC               CRTBAS ... MAXIMUM NUMBER OF ADDITIONAL BSL    I*4
+CC               NSATFL ... NUMBER OF ELEMENTS IN SATFIL        I*4
+CC               SATFIL ... LIST OF SAT MARGNINALLY OBSERVED    I*4(2,*)
+CC                          1: SATELLITE NUMBER
+CC                          2: NUMBER OF STATIONS OBSERVED THIS SATELLITE
+CC               SATCRT ... LIST OF MARGINALLY OBS. SATELLITES  I*4(*)
+CC        OUT :  FLAGBS(IBAS)=.TRUE. ... THE BASELINE IS IN     LOG
+CC                                     THE OPTIMAL SELECTION
+CC               FLMLBS(IBAS)=.TRUE. ... REDUNDANT BASELINE     LOG
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  L.MERVART
+CC
+CC VERSION    :  3.4
+CC
+CC CREATED    :  01-JUL-92
+CC
+CC CHANGES    :  02-APR-93 : ??: REDUNDANT BASELINES
+CC               14-APR-93 : ??: CORRECT DIMENSIONS
+CC               26-MAY-94 : LM: INITIALIZATION OF STNAME(1)
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               11-OCT-94 : LM: IMPLICIT REAL*8 (PC PROBLEM)
+CC               17-OCT-94 : LM: RESTORE 2 DELETED LINES
+CC               28-OCT-94 : EB: CORR. IN CASE OF PREDEFINED BASELINES
+CC               19-SEP-95 : JJ: MAXFIL TO 200 FROM 100
+CC               20-NOV-01 : MM: PREDEFINED BASELINES NOW HANDLED IN SNGDIF
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               16-MAR-07 : SS: ADD EXTRA REDUNDANT BASELINES FOR R15 POD
+CC               19-JUL-07 : SS: ADD BONUS DEPENDING ON BASELINE LENGTH
+CC               09-JUL-08 : RD: GET MAXFIL FROM THE MAIN PROGRAM
+CC               14-FEB-11 : RD: REMOVE MAXSTA-COMMON (NOT NEEDED)
+CC               15-FEB-11 : RD: GETSTA IS USED AS A MODULE NOW
+CC               25-FEB-11 : RD: HANDLE MARGINALLY OBSERV. SATELLITES
+CC               19-JAN-12 : RD: INIT VARIABLE "FLGMLT"
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+C DECLARATIONS
+C ------------
+      USE m_bern
+      USE f_ikf
+      USE s_iordup
+      USE s_dordup
+      USE s_maxtst
+      USE s_bassel
+      USE s_getsta
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IBAS  , IFIL  , IMLT  , INAM  , IRC   , ISAT  ,
+     1          ISTA  , ISTA1 , ISTA2 , JSTA  , MAXFIL, MINOBS, MXCFIL,
+     2          NBAS  , NCENTR, NFIL  , NNAM  , NSTMAX, CRTBAS, NSATFL
+C
+      REAL*8    AELL  , BELL  , DISMIN, DISTAL, DISWIN, SCELL ,
+     1          XLEN  , XBONUS, BONMAX
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+C      PARAMETER (MAXFIL=200)
+C
+      INTEGER*4    ICOMBI(2,*),INDEX(MAXFIL*(MAXFIL-1)/2)
+      INTEGER*4    BASLIS(2,MAXFIL*(MAXFIL-1)/2),CRITER(*)
+      INTEGER*4    ICENTR(MAXFIL),STANUM(MAXFIL)
+      INTEGER*4    SATFIL(2,*),SATCRT(*)
+      CHARACTER*6  MXNFIL
+      CHARACTER*16 STANAM(2,*),BASSTA(2)
+      CHARACTER*16 DATUM,STNAME(MAXFIL)
+      CHARACTER*32 BASNAM
+      REAL*8       XSTAT(3,MAXFIL),XSTELL(3,MAXFIL),XSTECC(3,MAXFIL)
+      REAL*8       DXELL(3),DRELL(3),BASLEN(MAXFIL*(MAXFIL-1)/2)
+      REAL*8       DIST(MAXFIL*(MAXFIL+1)/2),BONLEN(3)
+      LOGICAL*4    FLAGBS(*),FLAG(MAXFIL*(MAXFIL-1)/2)
+      LOGICAL*4    FLMLBS(*),FLGMLT(MAXFIL*(MAXFIL-1)/2),IEXTRA(2)
+C
+      COMMON/MCMFIL/MXCFIL,MXNFIL
+C
+C CHECK MAXIMAL LOCAL DIMENSIONS
+C ------------------------------
+      CALL MAXTST(1,'SORTBS',MXNFIL,MAXFIL,MXCFIL,IRC)
+      IF (IRC.NE.0) CALL EXITRC(2)
+C
+C GET COORDINATES OF ALL STATIONS
+C -------------------------------
+C LIST OF STATIONS
+      NNAM = 0
+      STNAME(1)=' '
+      DO 50 IFIL=1,NFIL
+        DO 60 I=1,2
+          DO 70 INAM=1,NNAM
+            IF (STANAM(I,IFIL).EQ.STNAME(INAM)) GO TO 60
+70        CONTINUE
+          NNAM=NNAM+1
+          STNAME(NNAM) = STANAM(I,IFIL)
+60      CONTINUE
+50    CONTINUE
+C
+C GET THE COORDINATES
+      CALL GETSTA(NNAM,STNAME,STANUM,NCENTR,ICENTR,
+     1            XSTAT,XSTELL,XSTECC,
+     2            DATUM,AELL,BELL,DXELL,DRELL,SCELL)
+C
+C  USE EXISTING DEFINITIONS
+C  ------------------------
+CC      CALL GTFLNA(0,'BASDEF ',BASNAM,IRC)
+CC      IF(IRC.EQ.0) THEN
+CC        IUSEDF=1
+CC      ELSE
+CC        IUSEDF=0
+CC      ENDIF
+C
+CC      IF(IUSEDF.EQ.1) THEN
+CC        CALL  OPNFIL(LFNLOC,BASNAM,'OLD',' ','READONLY',' ',IOSTAT)
+CC        IF(IOSTAT.NE.0) THEN
+CC         WRITE(LFNERR,1001)BASNAM
+CC1001      FORMAT(/,' *** SORTBS: BASELINE DEFINITION FILE NOT ',
+CC     1             'FOUND: ',A,/)
+CC          CALL EXITRC(2)
+CC        END IF
+CC        DO 100 I=1,MAXFIL
+CC          READ(LFNLOC,1002,END=130) BASSTA(1),BASSTA(2)
+CC1002      FORMAT(A16,1X,A16)
+CC          DO 110 IFIL=1,NFIL
+CC            IF((BASSTA(1).EQ.STANAM(1,IFIL) .AND.
+CC     1          BASSTA(2).EQ.STANAM(2,IFIL)) .OR.
+CC     2         (BASSTA(1).EQ.STANAM(2,IFIL) .AND.
+CC     3          BASSTA(2).EQ.STANAM(1,IFIL))) GOTO 120
+CC110       CONTINUE
+CC120       IF (CRITER(IFIL).GT.MINOBS) CRITER(IFIL)=99999.D0
+CC100     CONTINUE
+CC        CLOSE(UNIT=LFNLOC)
+CC      END IF
+C
+C ADD BONUS DEPENDING ON BASELINE LENGTH
+C --------------------------------------
+      IF (BONMAX.GT.0.D0) THEN
+        DO IFIL=1,NFIL
+          DO ISTA=1,NNAM
+            IF (STNAME(ISTA).EQ.STANAM(1,IFIL)) THEN
+              ISTA1=ISTA
+            ELSEIF (STNAME(ISTA).EQ.STANAM(2,IFIL)) THEN
+              ISTA2=ISTA
+            ENDIF
+          ENDDO
+          XLEN=0.D0
+          DO I=1,3
+            XLEN=XLEN+(XSTAT(I,ISTA1)-XSTAT(I,ISTA2))**2
+          ENDDO
+          XLEN=DSQRT(XLEN)
+C
+          XBONUS=1.D0
+          DO I=1,3
+            IF (BONLEN(I).GT.0.D0 .AND. XLEN.LT.BONLEN(I))
+     1        XBONUS=XBONUS*(1.D0+BONMAX/2.D0+
+     2               BONMAX/2.D0*((BONLEN(I)-XLEN)/BONLEN(I))**2)
+          ENDDO
+          CRITER(IFIL)=CRITER(IFIL)*XBONUS
+        ENDDO
+      ENDIF
+C
+C SORT THE BASELINES ACCORDING TO CRITERION
+130   CALL IORDUP(CRITER,NFIL,INDEX)
+C
+C CHECK THE BASELINES ACCORDING TO "MINOBS" AND COMPUTE BASELINE LENGTHS
+      NBAS=0
+      NSTMAX=0
+      DO 200 IFIL=NFIL,1,-1
+        IF (CRITER(INDEX(IFIL)).GT.MINOBS) THEN
+          NBAS=NBAS+1
+          BASLIS(1,NBAS)=ICOMBI(1,INDEX(IFIL))
+          BASLIS(2,NBAS)=ICOMBI(2,INDEX(IFIL))
+C
+C LARGEST FILE (STATION) NUMBER
+          NSTMAX=MAX0(NSTMAX,ICOMBI(1,INDEX(IFIL)),
+     1                       ICOMBI(2,INDEX(IFIL)))
+C
+C BASELINE LENGTHS
+          DO 410 ISTA=1,NNAM
+            IF (STNAME(ISTA).EQ.STANAM(1,INDEX(IFIL))) THEN
+              ISTA1=ISTA
+            ELSE IF (STNAME(ISTA).EQ.STANAM(2,INDEX(IFIL))) THEN
+              ISTA2=ISTA
+            END IF
+410       CONTINUE
+          BASLEN(NBAS) = 0.D0
+          DO 420 I=1,3
+            BASLEN(NBAS) = BASLEN(NBAS) +
+     1                     (XSTAT(I,ISTA1)-XSTAT(I,ISTA2))**2
+420       CONTINUE
+          BASLEN(NBAS) = DSQRT(BASLEN(NBAS))
+        END IF
+200   CONTINUE
+C
+C SELECT LINEAR INDEPENDENT SUBSET OF BASELINES
+C ---------------------------------------------
+      CALL BASSEL(MAXFIL,NSTMAX,NBAS,BASLIS,BASLEN,DIST,FLAG)
+C
+C USE MULTIPLE BASELINES
+C ----------------------
+      IF (IMLT.NE.1) THEN
+        FLGMLT=.FALSE.
+      ELSE
+        DO 500 IBAS=1,NBAS
+          FLGMLT(IBAS)=.FALSE.
+          IF (FLAG(IBAS)) GO TO 500
+          ISTA1 = BASLIS(1,IBAS)
+          ISTA2 = BASLIS(2,IBAS)
+          IF (DIST(IKF(ISTA1,ISTA2)) .GT. DISMIN  .AND.
+     1        DIST(IKF(ISTA1,ISTA2))-BASLEN(IBAS) .GT. DISWIN) THEN
+            FLAG(IBAS) = .TRUE.
+            FLGMLT(IBAS) = .TRUE.
+            DIST(IKF(ISTA1,ISTA2))=BASLEN(IBAS)
+            DO 600 ISTA=1,NSTMAX
+              DO 700 JSTA=ISTA+1,NSTMAX
+                DISTAL = DMIN1(DIST(IKF(ISTA,ISTA1))  +
+     1                         DIST(IKF(ISTA1,ISTA2)) +
+     2                         DIST(IKF(JSTA,ISTA2))  ,
+     3                         DIST(IKF(ISTA,ISTA2))  +
+     4                         DIST(IKF(ISTA1,ISTA2)) +
+     5                         DIST(IKF(JSTA,ISTA1)))
+                IF (DIST(IKF(ISTA,JSTA)).GT.DISTAL)
+     1            DIST(IKF(ISTA,JSTA)) = DISTAL
+700           CONTINUE
+600         CONTINUE
+          END IF
+C
+500     CONTINUE
+      END IF
+C
+C SET THE RESULTING FLAGS
+C -----------------------
+      DO 300 IFIL=1,NFIL
+        FLAGBS(IFIL) = .FALSE.
+        FLMLBS(IFIL) = .FALSE.
+        IF (CRITER(IFIL).EQ.99999.D0) THEN
+          FLAGBS(IFIL) = .TRUE.
+          GOTO 300
+        ENDIF
+        DO 310 IBAS=1,NBAS
+          IF((BASLIS(1,IBAS).EQ.ICOMBI(1,IFIL)) .AND.
+     1       (BASLIS(2,IBAS).EQ.ICOMBI(2,IFIL))) THEN
+            IF (FLAG(IBAS)) FLAGBS(IFIL)=.TRUE.
+            IF (FLGMLT(IBAS)) FLMLBS(IFIL)=.TRUE.
+            GO TO 300
+          END IF
+310     CONTINUE
+300   CONTINUE
+C
+C CHECK NUMBER OF SPECIAL BASELINES PER SATELLITE
+C -----------------------------------------------
+      IF (NSATFL.GT.0) THEN
+        WRITE(LFNPRT,'(1X,A,/,1X,79("-"))')
+     1  'ADD REDUNDANT BASELINES FOR MARGINALLY OBSERVED SATELLITES'
+      ENDIF
+      DO ISAT=1,NSATFL
+        IF (SATFIL(2,ISAT).GT.CRTBAS) THEN
+          NBAS=0
+          BASLIS(:,:)=0
+          BASLEN(:)=0D0
+          DO IFIL=1,NFIL
+            IF (FLAGBS(IFIL)) CYCLE
+            IF (SATCRT(IFIL).NE.ISAT) CYCLE
+            WRITE(lfnprt,'(1X,2A,1X,2A,I4)')
+     1            'Baseline ',STANAM(1,IFIL),STANAM(2,IFIL),
+     2            ' may be added for sat.',SATFIL(1,ISAT)
+            ISTA1=0
+            ISTA2=0
+            DO ISTA=1,NNAM
+              IF (STNAME(ISTA).EQ.STANAM(1,IFIL)) ISTA1=ISTA
+              IF (STNAME(ISTA).EQ.STANAM(2,IFIL)) ISTA2=ISTA
+            ENDDO
+            IF (ISTA1*ISTA2.NE.0) THEN
+              XLEN=0.D0
+              DO I=1,3
+                XLEN=XLEN+(XSTAT(I,ISTA1)-XSTAT(I,ISTA2))**2
+              ENDDO
+              NBAS=NBAS+1
+              BASLIS(1,NBAS)=IFIL
+              BASLEN(NBAS)=DSQRT(XLEN)
+            ENDIF
+          ENDDO
+          SATFIL(2,ISAT)=NBAS
+          IF (NBAS.LE.CRTBAS) CYCLE
+C
+          CALL DORDUP(BASLEN,NBAS,INDEX)
+C
+          I=0
+          DO
+            I=I+1
+            SATCRT(BASLIS(1,INDEX(NBAS+1-I))) = 0
+            SATFIL(2,ISAT)=SATFIL(2,ISAT)-1
+            IF (SATFIL(2,ISAT).EQ.CRTBAS) EXIT
+            SATCRT(BASLIS(1,INDEX(I))) = 0
+            SATFIL(2,ISAT)=SATFIL(2,ISAT)-1
+            IF (SATFIL(2,ISAT).EQ.CRTBAS) EXIT
+          ENDDO
+        ENDIF
+      ENDDO
+C
+C ADD EXTRA REDUNDANT BASELINES FOR R15 POD
+C -----------------------------------------
+      IF (IMLT.EQ.1) THEN
+        DO IFIL=1,NFIL
+C          DO I=1,2
+C            IEXTRA(I)=.FALSE.
+CC R15 OBSERVED BY GANP, UNB3, ZIM2:
+C            IF (STANAM(I,IFIL)(1:4) .EQ. 'GANP' .OR.
+C     1          STANAM(I,IFIL)(1:4) .EQ. 'UNB3' .OR.
+C     2          STANAM(I,IFIL)(1:4) .EQ. 'ZIM2') IEXTRA(I)=.TRUE.
+C          ENDDO
+C          IF (IEXTRA(1) .AND. IEXTRA(2) .AND. .NOT.FLAGBS(IFIL) .AND.
+C     1        CRITER(IFIL) .GT. 0) THEN
+C            FLAGBS(IFIL)=.TRUE.
+C            FLMLBS(IFIL)=.TRUE.
+C          ENDIF
+          IF (SATCRT(IFIL).NE.0 .AND. .NOT.FLAGBS(IFIL) .AND.
+     1        CRITER(IFIL) .GT. 0) THEN
+            FLAGBS(IFIL)=.TRUE.
+            FLMLBS(IFIL)=.TRUE.
+            WRITE(lfnprt,'(1X,2A,1X,2A,I4)')
+     1            'Baseline ',STANAM(1,IFIL),STANAM(2,IFIL),
+     2            ' added for sat.',SATFIL(1,SATCRT(IFIL))
+          ENDIF
+        ENDDO
+      ENDIF
+      IF (NSATFL.GT.0) THEN
+        WRITE(LFNPRT,'(/)')
+      ENDIF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

@@ -1,0 +1,320 @@
+<html>
+<body>
+
+<center>
+<b>CONCATENATE/MERGE PRECISE ORBIT FILES</b>
+<p>Program: CCPREORB
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="DELETE_FILES"  default="AUXFIL"></a>
+<a name="DEVOUT"        default=""></a>
+<a name="EXTOUT"        default="PRE"></a>
+
+<!-- Hidden options -->
+<a name="SHOWILRS" default="0"></a>
+<a name="BENCH"    default="0"></a>
+<a name="ORBILRS"  default=""></a>
+
+<p><b>GENERAL DESCRIPTION</b></p>
+<p>
+The main purpose of this program is to concatenate several
+precise ephemeris files into one file only or to merge two precise orbit
+files containing different satellites (e.g., GPS and GLONASS).
+<br>
+The program also allows to cut a precise file to a specific time
+interval or session selecting the option "Concatenate files" and specifying a
+single input precise file.
+<br>
+Satellite numbers in the output precise file are always stored in
+ascending order. By selecting the option "Concatenate files" and specifying a
+single input file it is thus possible to reorder the satellite entries.
+
+<p><hr>
+
+<p><b>CCPREORB 1: Input Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RADIO_C" default="1"></a>
+<a name="CONCAT"  default=""></a>
+<p><b>INPUT FILES</b>
+<p>
+The program may be run in two different modes:
+<ul>
+<li><b>Concatenate files:</b>
+    <p><b>Input precise orbit files:</b>
+    Select the precise orbit files to concatenate. If precise files overlap
+    in time the file with earliest start epoch has precedence.
+
+<li><a name="RADIO_M" default="0"></a>
+    <a name="MERGE1"  default=""></a>
+    <a name="MERGE2" default=""></a>
+    <b>Merge files:</b>
+    <p><b>First file:</b>
+    Name of the primary precise orbit file.
+    <p><b>Second file:</b>
+    Name of one precise orbit file to be merged with the file selected in "First
+    file". In case of merging orbit files exactly one file must be selected
+    in option "First file" and in option "Second file". All satellites
+    found in the first file are written into the new orbit file. If the second
+    file contains further satellites (e.g., GLONASS satellites), they are added
+    to the new orbit file. Additional options
+    (see section "MERGE OPTIONS") allow to modify the merging
+    priorities, e.g., based on accuracy codes.
+</ul>
+
+<p><hr>
+
+<p><b>CCPREORB 1.1: General Files</b>
+
+<a name="GPSUTC" default="GPSUTC."></a>
+<p><b>GPS-UTC time difference:</b>
+Select the file with GPS-UTC values here. You have to update this file each
+time a leap second is introduced.
+
+<p>Example: <a href="/$X/GEN/GPSUTC.">$X/GEN/GPSUTC.</a>
+
+<br><br>
+
+<a name="AUXFIL" default="CCPREORB$J"></a>
+<p><b>TEMPORARY FILES</b>
+<p><b>Scratch file:</b>
+Enter the name of the scratch file used by this program. The scratch file needs
+to be named differently for different programs running simultaneously. This
+may be achieved, e.g., by adding the job ID
+<tt>$J</tt> to the program name (define the job ID in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>).
+
+<p><i>Default values:</i> <tt>CCPREORB$J</tt>
+
+<p><hr>
+
+<p><b>CCPREORB 2: Output Files</b>
+
+<a name="CHAR4" default=""></a>
+<p><b>OUTPUT FILES</b>
+<p><b>First four characters:</b>
+The four-characters code <tt>cccc</tt> is used for the name of the concatenated precise
+orbit file. Menu variables can be used in this field.
+
+<a name="REFEPO" default=""></a>
+<p><b>Reference epoch:</b>
+If the field for the reference epoch is left empty the session is generated
+according to the day of year of the first orbit epoch contained in the
+result file and the session character. If you would like to have another
+session written into the filename (e.g., you have 30 hours in your session,
+from 21:00 of the previous day to 3:00 of the following day) you have to
+specify a reference epoch from which the session is generated.
+
+<a name="FILSEQ" default="0"></a>
+<p><b>Session character:</b>
+To change the session character use the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute date</a>.
+<br>
+File naming scheme:
+<pre>
+   ccccddds.ext  with  cccc = four-characters code
+                        ddd = day of the year of first orbit
+                          s = session character
+                        ext = extension
+</pre>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="CCPREORB"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>CCPREORB 3: Options and Comments</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output.
+The title should characterize the program run by, e.g., giving the most
+important options and the session.
+
+<br><br>
+
+<a name="USEWIN" default="0"></a>
+<p><b>GENERAL OPTIONS</b>
+<p><b>Use time window:</b>
+Mark this checkbox to enter a time window for the ephemeris to be processed.
+
+<p><i>Default value:</i> unmarked
+
+<a name="SAMPL" default="900"></a>
+<p><b>Sampling rate (seconds):</b>
+<p>
+The interval between subsequent satellite positions in the output file.
+Within the IGS the sampling interval was agreed to be 15 minutes (900 sec).
+
+<p><i>Default value:</i> <tt>900</tt>
+
+<a name="FORMAT" default="SP3C"</a>
+<p><b>Output format:</b>
+<ul>
+<li><b>ASIS:</b> The format of the resulting precise orbit file remains as
+    it is in the input precise orbit file(s). If you merge two files the
+    format of the first file is used.
+<li><b>SP3:</b> The format of the resulting precise orbit file is
+    <a href="LINKS.HLP#SP3">SP3</a>.
+<li><b>SP3C:</b> The format of the resulting precise orbit file is
+    <a href="LINKS.HLP#SP3c">SP3c</a>.
+</ul>
+
+<p><i>Default value:</i> <tt>SP3C</tt>
+
+<a name="POSVEL" default="-VEL"></a>
+<p><b>Writing of velocity:</b>
+The SP3 and SP3c formats allow to include satellite velocities. Usually this
+information is not provided in precise orbit files, however.
+<ul>
+<li><b>ASIS:</b> If velocities are available in the input precise orbit file(s)
+                 then they are written to the resulting precise orbit file.
+<li><b>-VEL:</b> Write the resulting precise orbit file without velocities.
+<li><b>+VEL:</b> Write the resulting precise orbit file with velocities.
+</ul>
+
+<p><i>Default value:</i> <tt>-VEL</tt>
+
+<br><br>
+
+<a name="PREDPRIO" default="0"></a>
+<p><b>MERGE OPTIONS</b>
+<p><b>Consider prediction flags:</b>
+Activating this option causes the program to select the satellite
+position/clock from the second file if the position/clock prediction flag
+for the specific epoch is active in the first file but not in the second.
+Prediction flags are only available for the SP3C format.
+
+<p><i>Caution:</i>
+The prediction flag is checked on an epoch-by-epoch
+basis which may result in 'mixed' output precise files where part of the
+epochs/clocks for a satellite stem from the first file while others stem
+from the second file.
+
+<p><i>Default value:</i> unmarked
+
+<a name="ACCPRIO" default="0"></a>
+<p><b>Satellite with good accuracy code has priority:</b> With this option
+activated the satellite positions and clock values are selected from that of
+the two files which specifies the lower accuracy code in the header. If for
+a satellite the accuracy code is the same in the two files, the
+positions/clocks are taken from the first file.
+
+<p><i>Default value:</i> unmarked
+
+<a name="ACZERO" default="0"></a>
+<p><b>Indicate sat merged into first file with accuracy code zero:</b>
+Satellites missing in the first file and taken from the second file obtain
+an accuracy code of zero (unknown) in the header of the output precise
+file. This option deactivates the option "Satellite with good accuracy
+code has priority".
+
+<p><i>Default value:</i> unmarked
+
+<br><br>
+
+<a name="COMMENT1" default="LINE 1"></a>
+<a name="COMMENT2" default="LINE 2"></a>
+<a name="COMMENT3" default="LINE 3"></a>
+<a name="COMMENT4" default="LINE 4"></a>
+<p><b>COMMENTS</b>
+<p><b>Comments:</b>
+Specify up to four lines of comments that will be included into the
+resulting precise orbit file header and the generated program output.
+Comment lines of the original first precise orbit file may be copied to the
+output precise orbit file, if you enter <i>LINE n</i> into any of the 4 input
+comment lines, where n is the comment line number of the first original
+precise orbit file (n=1,...,4).
+
+<p><i>Default value:</i> LINE n
+
+<p><hr>
+
+<p><b>CCPREORB 4: Observation Window</b>
+
+<a name="RADIO_1" default="1"></a>
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>OBSERVATION WINDOW</b>
+<p>
+This panel allows to specify a time window. Only ephemeris
+within this time window will be included in the output precise file.
+<br>
+You may define the time window either by using session definitions, or by
+explicitly specifying start and end times.
+
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the observation window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the observation window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: 00&nbsp;00&nbsp;00, end date: <tt>$YMD_STR+0</tt>,
+end time: 23&nbsp;59&nbsp;59
+
+<p><hr>
+
+</body>
+</html>

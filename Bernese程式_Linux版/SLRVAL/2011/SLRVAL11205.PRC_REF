@@ -1,0 +1,277 @@
+================================================================================
+SLRVAL BPE PROCESSING SUMMARY FOR YEAR-SESSION 11-205
+================================================================================
+
+
+Summary file generated at 18-Jul-2013 11:32:50 by SLR_SUM
+
+General files:
+   Antenna phase center eccentricity file:   PCV.I08
+   Satellite information file:               SATELLIT.I08
+   Satellite problem file:                   SAT_2011.CRX
+
+Orbits to be validated:
+   Orbit and ERP products used from:         ${D}/COD
+   Type of orbit used:                       PRE
+
+Observation selection:
+   Normal point file copied from:            ${D}/SLR_NP/gnss
+   Normal point file:                        gnss.$Y$M$D
+   Satellite selection file:                 STA/SATSEL.FIX
+
+Reference frame and station related files:
+   Station related files used from:          ${D}/REF52/
+   Station coordinates / velocities:         EX52_SLR
+   Station information file:                 STA/EX52_SLR.STA
+   Ocean tidal loading table:                STA/EX52_SLR.BLQ
+
+Other options from PCF:
+   Processing LEO satellites activated:      NO
+
+Storing the results:
+   Protocol file saved to:                   ${S}/SLRVAL/2011/
+
+
+================================================================================
+PART 1: SLR OBSERVATION IMPORT (QL)
+================================================================================
+
+
+ ===================================================================================================================================
+ Bernese GNSS Software, Version 5.2
+ -----------------------------------------------------------------------------------------------------------------------------------
+ Program        : QLRINEXO
+ Purpose        : Convert SLR quick-look files to RINEX
+ -----------------------------------------------------------------------------------------------------------------------------------
+ Campaign       : ${P}/EXAMPLE
+ Default session: 2050 year 2011
+ Date           : 18-Jul-2013 11:32:21
+ User name      : l_bern52
+ ===================================================================================================================================
+
+
+ SLRVAL_112050: Conversion of SLR quicklook data into RINEX
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ INPUT AND OUTPUT FILENAMES
+ --------------------------
+
+ -----------------------------------------------------------------------------------------------------------------------------------
+ General constants               : ${X}/GEN/CONST.
+ Difference GPS-UTC              : ${X}/GEN/GPSUTC.
+ Satellite information           : ${X}/GEN/SATELLIT.I08
+ Abbreviation table              : ${P}/EXAMPLE/STA/EX52_SLR.ABB
+ Station information             : ${P}/EXAMPLE/STA/EX52_SLR.STA
+ Program output                  : ${P}/EXAMPLE/OUT/QRX11205.OUT
+ Error message                   : ${U}/WORK/ERROR.MSG
+ Scratch file                    : ${U}/WORK/QLRINEXO.SCR
+ Session table                   : ${P}/EXAMPLE/STA/SESSIONS.SES
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ File  SLR quick look files (normal point format)
+ ------------------------------------------------
+    1  ${P}/EXAMPLE/ORX/gnss.110724
+
+
+ LIST OF SATELLITES
+ ------------------
+
+ PRN  COSPAR-ID  ILRS-ID
+ -----------------------
+   5  2009-043A  0904301
+   6  1994-016A  9401601
+ 101  2009-070A  0907001
+ 102  2008-067C  0806703
+ 103  2006-062C  0606203
+ 104  2011-009A  1100901
+ 105  2009-070C  0907003
+ 106  2009-070B  0907002
+ 107  2004-053B  0405302
+ 108  2008-067B  0806702
+ 109  2010-041C  1004103
+ 110  2006-062B  0606202
+ 111  2007-065C  0706503
+ 112  2010-041B  1004102
+ 113  2007-065A  0706501
+ 114  2007-065B  0706502
+ 115  2006-062A  0606201
+ 116  2010-041A  1004101
+ 117  2005-050A  0505001
+ 118  2008-046A  0804601
+ 119  2007-052A  0705201
+ 120  2007-052B  0705202
+ 121  2008-046B  0804602
+ 122  2010-007A  1000701
+ 123  2010-007C  1000703
+ 124  2010-007B  1000702
+ 909  2002-012A  0201201
+ 910  2002-012B  0201202
+
+
+ OBSERVATION WINDOW
+ ------------------
+
+ Start                End                
+ ----------------------------------------
+ 2011-07-24 00:00:00  2011-07-24 23:59:59
+
+
+ OUTPUT FILENAMES
+ ----------------
+
+ File  RINEX observation file            RINEX meteo file
+ ---------------------------------------------------------------------
+    1  ${P}/EXAMPLE/RAW/79412050.11O     ${P}/EXAMPLE/RAW/79412050.11M   
+    2  ${P}/EXAMPLE/RAW/18682050.11O     ${P}/EXAMPLE/RAW/18682050.11M   
+    3  ${P}/EXAMPLE/RAW/74062050.11O     ${P}/EXAMPLE/RAW/74062050.11M   
+    4  ${P}/EXAMPLE/RAW/78102050.11O     ${P}/EXAMPLE/RAW/78102050.11M   
+    5  ${P}/EXAMPLE/RAW/78402050.11O     ${P}/EXAMPLE/RAW/78402050.11M   
+    6  ${P}/EXAMPLE/RAW/70902050.11O     ${P}/EXAMPLE/RAW/70902050.11M   
+
+
+-----------------------------------------------------------------
+>>> CPU/Real time for pgm "QLRINEXO": 0:00:00.029 / 0:00:00.033
+>>> Program finished successfully
+
+
+
+================================================================================
+PART 2: SLR RESIDUAL STATISTICS SUMMARY
+================================================================================
+
+
+ ===============================================================================
+ Bernese GNSS Software, Version 5.2
+ -------------------------------------------------------------------------------
+ Program        : QLRSUM
+ Purpose        : Create SLR quick-look residual statistics
+ -------------------------------------------------------------------------------
+ Campaign       : ${P}/EXAMPLE
+ Default session: 2050 year 2011
+ Date           : 18-Jul-2013 11:32:49
+ User name      : l_bern52
+ ===============================================================================
+
+
+ SLRVAL_112050: Statistics for SLR residuals
+ -------------------------------------------------------------------------------
+
+
+ INPUT AND OUTPUT FILENAMES
+ --------------------------
+
+ -----------------------------------------------------------------------------------------------------------------------------------
+ General constants               : ${X}/GEN/CONST.
+ GPS-UTC seconds                 : ${X}/GEN/GPSUTC.
+ Satellite information           : ${X}/GEN/SATELLIT.I08
+ Nutation model                  : ${X}/GEN/IAU2000R06.NUT
+ Subdaily pole model             : ${X}/GEN/IERS2010XY.SUB
+ A priori pole file              : ${P}/EXAMPLE/ORB/COD16460.ERP
+ Abbreviation table              : ${P}/EXAMPLE/STA/EX52_SLR.ABB
+ Station information file        : ${P}/EXAMPLE/STA/EX52_SLR.STA
+ Skeleton file for slrmail       :  ---
+ Detailed residual output        : ${P}/EXAMPLE/OUT/S1_11205.SUM
+ Edit file (shadow)              : ${P}/EXAMPLE/OUT/S1_11205.EDT
+ Edit file (outlier)             :  ---
+ Summary file for slrmail        :  ---
+ Residuals for graphic tools     : ${P}/EXAMPLE/OUT/S1_11205.PLT
+ Program output                  : ${P}/EXAMPLE/OUT/S1_11205.OUT
+ Error messages                  : ${U}/WORK/ERROR.MSG
+ Session table                   : ${P}/EXAMPLE/STA/SESSIONS.SES
+ -----------------------------------------------------------------------------------------------------------------------------------
+
+
+ -------------------------------------------------------------------------------
+ File  Residual files                   
+ -------------------------------------------------------------------------------
+    1  ${P}/EXAMPLE/OUT/R1_11205.RES    
+ -------------------------------------------------------------------------------
+
+
+ -------------------------------------------------------------------------------
+ File  Standard orbit files             
+ -------------------------------------------------------------------------------
+    1  ${P}/EXAMPLE/ORB/COD16460.STD    
+ -------------------------------------------------------------------------------
+
+
+ -------------------------------------------------------------------------------
+ File  Station coordinates file         
+ -------------------------------------------------------------------------------
+    1  ${P}/EXAMPLE/STA/APR11205.CRD    
+ -------------------------------------------------------------------------------
+
+
+ Input options
+ -------------
+
+ Absolute maximum of the o-c residuals:            1.00 m
+ Maximum overall sigma:                         1000.00 mm
+ Multiplication factor for overall sigma:           5.0
+
+ List of satellites:    5    6  101  102  103  104  105  106  107  108  109  110  111  112  113  114  115  116  117  118  119  120  121  122  123  124  909  910
+
+ No check for minimum number of observations
+
+
+
+ Residual Statistics
+ -------------------
+
+ SAT  STATION         #OBS       MEAN(mm)        RMS(mm)      SIGMA(mm)
+ ------------------------------------------------------------------------------
+ R18 1868 12341S001      4           21.8           32.7           28.2
+
+ R09 7090 50107M001      2          -41.7           41.8            1.7
+ R10 7090 50107M001      1            4.9            0.0            0.0
+ R11 7090 50107M001      4          -89.9           89.9            2.4
+ R22 7090 50107M001      4           -9.0           14.0           12.4
+ R04 7090 50107M001      3          -27.0           27.0            0.3
+ R21 7090 50107M001      1            0.2            0.0            0.0
+
+ R11 7406 41508S003     23          -51.8           76.0           56.9
+ R15 7406 41508S003     22          -21.5           30.1           21.6
+ R08 7406 41508S003      9          -73.5           73.9            8.9
+
+ R09 7810 14001S007      8         -335.3          894.6          886.6
+ R15 7810 14001S007      3          -48.7           49.0            6.4
+ R08 7810 14001S007      1          -55.3            0.0            0.0
+ R03 7810 14001S007      1          -43.0            0.0            0.0
+ R05 7810 14001S007      2          -30.6           30.7            4.1
+ R06 7810 14001S007      1          -27.9            0.0            0.0
+ R16 7810 14001S007      1          -17.7            0.0            0.0
+
+ R18 7840 13212S001      2          -19.1           19.1            0.9
+ R17 7840 13212S001      4           29.6           34.0           19.4
+ R02 7840 13212S001      4          -44.2           44.4            5.4
+
+ R18 7941 12734S008     11          -16.9           26.9           22.0
+ R11 7941 12734S008      2           -4.7            6.6            6.5
+ R08 7941 12734S008      9          -36.9           37.1            4.8
+ R05 7941 12734S008      8          -39.4           40.6           10.7
+
+ ------------------------------------------------------------------------------
+ Total                 129          -32.8           49.1           36.7
+
+
+
+
+-----------------------------------------------------------------
+>>> CPU/Real time for pgm "QLRSUM": 0:00:00.184 / 0:00:00.186
+>>> Program finished successfully
+
+
+
+
+
+
+
+
+================================================================================
+SLRVAL running for orbit COD
+================================================================================
+
+
+

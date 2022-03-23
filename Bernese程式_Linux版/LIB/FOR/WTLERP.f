@@ -1,0 +1,116 @@
+      MODULE s_WTLERP
+      CONTAINS
+
+C*
+      SUBROUTINE WTLERP(LFN   ,IINTER,TSAV  ,T0    ,XXX   ,QNOR  ,
+     1                  NPAR  ,LOCQ  ,RMS   ,TPOL  )
+CC
+CC NAME       :  WTLERP
+CC
+CC PURPOSE    :  PREPARE THE POLE INFORMATION FOR THE TIME TSAVE AND
+CC               WRITE ONE PARAMETER SET (=ONE LINE) INTO THE POLE FILE.
+CC
+CC PARAMETERS :
+CC         IN :  LFN    : LOGICAL FILE NUMBER OF OUTPUT FILE    I*4
+CC               IINTER : USE ERP-SET NR IINTER TO COMPUTE THE  I*4
+CC                        CORRECTION
+CC               TSAV   : FOR TSAV INFORMATION WILL BE STORED   R*8
+CC               T0     : POLYNOM DEVELOPMENT TIME              R*8
+CC               XXX    : SOLUTION VECTOR                       R*8(*)
+CC               QNOR   : UPPER TRIANGULAR PART OF COVARI-      R*8(*)
+CC                        ANCE MATRIX
+CC               NPAR   : NUMBER OF PARAMETERS                  I*4
+CC               LOCQ(K,I),K=1,..,MAXLCQ,I=1,2,...              I*4
+CC                        CHARACTERIZATION OF PARAMETERS
+CC               RMS    : MEAN ERROR OF OBSERVATION             R*8
+CC               TPOL   : INTERVAL BOUNDARIES FOR ERP MODELS    R*8(2,*)
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  S.FANKHAUSER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  09-JUL-92
+CC
+CC CHANGES    :  20-MAR-93 : ??: CHANGES DUE TO CONTINUITY OF POLYNOMIALS
+CC                                WITH DEGREE > 0
+CC               19-APR-94 : RW: CPO-MODEL INCLUDED
+CC               22-JUN-94 : SF: NEW PARAMETER IN LCERPS CALL
+CC               04-JUN-96 : TS: ADDED SUBDAILY POLE MODEL
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               28-FEB-07 : AG: USE 206264... FROM DEFCON
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1992     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE d_const, ONLY: ars
+      USE s_lcerps
+      USE s_poldef
+      USE s_cpodef
+      USE s_wtpoli
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IC    , IINTER, LFN   , MXCLCQ, NPAR
+C
+      REAL*8    GPSUTC, RMS   , T0    , TSAV
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+C GLOBAL DECLARATION
+C ------------------
+C
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+C
+      CHARACTER*6  MXNLCQ
+C
+      REAL*8       XXX(*),QNOR(*),TPOL(2,*)
+C
+      INTEGER*4    LOCQ(MXCLCQ,*)
+C
+C INTERNAL DECLARATION
+C --------------------
+      CHARACTER*3  REM
+C
+      REAL*8       POLCOR(5),CORR(5),ERR(5),RSIG(5),CORREL(10)
+C
+C GET THE APRIORI ERP-INFORMATION FROM POLE FILE (")
+C ----------------------------------------------
+      CALL POLDEF(TSAV,0,POLCOR(1),POLCOR(2),POLCOR(3),GPSUTC)
+      POLCOR(1)=POLCOR(1)*ars
+      POLCOR(2)=POLCOR(2)*ars
+      POLCOR(3)=POLCOR(3)*86400.D0
+      GPSUTC=DNINT(GPSUTC*86400.D0)
+C
+C GET THE APRIORI CPO-INFORMATION FROM POLE FILE (")
+C ----------------------------------------------
+      CALL CPODEF(TSAV,POLCOR(4),POLCOR(5))
+      POLCOR(4)=POLCOR(4)*ars
+      POLCOR(5)=POLCOR(5)*ars
+C
+C POLYNOMIAL VALUE AND ASSOCIATED ERROR
+C -------------------------------------
+      CALL LCERPS(IINTER,NPAR,LOCQ,XXX,QNOR,
+     1            RMS,TPOL,TSAV,CORR,ERR,RSIG,CORREL)
+C
+C CORRECT THE APRIORI INFORMATION
+C -------------------------------
+      DO 40 IC=1,5
+        POLCOR(IC)=POLCOR(IC)+CORR(IC)
+40    CONTINUE
+C
+C WRITE ONE SET OF POLE COORDINATES TO THE FILE
+C ---------------------------------------------
+      REM='GPS'
+      CALL WTPOLI(LFN,TSAV,POLCOR,GPSUTC,REM,ERR)
+C
+C RETURN CODES
+C
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

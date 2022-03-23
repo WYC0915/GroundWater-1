@@ -1,0 +1,64 @@
+package PPP_TRP;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  PPP_TRP
+#
+# Purpose :  Initialize or skip high-rate troposphere estiamtion
+#
+# PARAMs  :  PARAM2 - goto PID if V_I undefined
+#
+# Author  :  R. Dach
+# Created :  11-Sep-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtGoto);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($param2, $ssss, $yyssss, $clu, $i,
+      $dirNeq, $dirOut, $dirCrd, $dirTrp, $dirTro, $dirSum,
+      $extNeq, $extOut, $extCrd, $extTrp, $extTro, $extSum) =
+  $bpe->getKeys
+     ('PARAM2', '$S+0', '$+YSS+0', 'V_CLU', 'V_I',
+      'DIR_NEQ', 'DIR_OUT', 'DIR_CRD', 'DIR_TRP', 'DIR_TRO', 'DIR_SUM',
+      'EXT_NEQ', 'EXT_OUT', 'EXT_CRD', 'EXT_TRP', 'EXT_TRO', 'EXT_SUM');
+
+# Check whether V_I is defined
+# ----------------------------
+  unless (defined ($$bpe{V_I})) {
+    die "TRP-solution identifier V_I is expected as PCF variable\n";
+  }
+
+# Delete old files (NEQ, OUT, CRD, TRP, TRO, SUM)
+# -----------------------------------------------
+  my $cluster = $clu ne "" ? "${ssss}???" : "${ssss}????";
+
+  if ("$i" ne "") {
+    unlink glob("${dirNeq}${i}${cluster}.${extNeq}");
+    unlink glob("${dirOut}${i}${cluster}.${extOut}");
+    unlink glob("${dirCrd}${i}${cluster}.${extCrd}");
+    unlink glob("${dirTrp}${i}${cluster}.${extTrp}");
+    unlink glob("${dirTro}${i}${cluster}.${extTro}");
+    unlink glob("${dirSum}${i}${ssss}OUT.${extSum}");
+
+    unlink glob("${dirOut}${i}${yyssss}.${extOut}");
+    unlink glob("${dirCrd}${i}${yyssss}.${extCrd}");
+    unlink glob("${dirTrp}${i}${yyssss}.${extTrp}");
+    unlink glob("${dirTro}${i}${yyssss}.${extTro}");
+    unlink glob("${dirSum}${i}${yyssss}.${extSum}");
+  }
+
+# Skip high-rate traoposphere estiamtion if V_I undefined
+# -------------------------------------------------------
+  prtGoto($bpe,$param2) if "$i" eq "";
+
+}

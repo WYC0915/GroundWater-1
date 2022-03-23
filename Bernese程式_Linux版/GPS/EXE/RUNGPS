@@ -1,0 +1,75 @@
+#!/usr/bin/perl -w
+# -------------------------------------------------------------------------
+# Bernese GPS Software Version 5.0
+# -------------------------------------------------------------------------
+#
+# Script:     RUNGPS
+#
+# Purpose:    Run a Fortran Program using the new Menu
+#
+# Author:     M.Meindl
+#
+# Created:    09-Feb-2005
+#
+# Changes:    __-___-____ __:
+#
+#
+# Copyright:  Astronomical Institute
+#             University of Bern
+#             Switzerland
+# -------------------------------------------------------------------------
+use strict;
+
+# Get parameters
+# --------------
+my ($pgmNam,$cmdPth) = (uc $ARGV[0],$ARGV[1]);
+
+if (@ARGV==0) { die "Usage: RUNGPS pgmNam\n".
+                    "or     RUNGPS pgmNam cmdPath\n" }
+
+# Define some filenames
+# ---------------------
+my $scrFilNam = "$ENV{U}/WORK/RUNGPS.SCR";
+my $menFilNam = "$ENV{U}/PAN/MENU.INP";
+my $inpFilNam = -f "$pgmNam.INP" ? "$pgmNam.INP"
+                                 : "$ENV{U}/PAN/$pgmNam.INP";
+die "$inpFilNam not found!\n" unless -f $inpFilNam;
+die "$menFilNam not found!\n" unless -f $menFilNam;
+
+
+# Invert colors
+# -------------
+my $colLin = `grep "MAIN_PALETTE 1" $menFilNam`;
+#$colLin =~ /" *(\d+) +(\d+) +(\d+) +(\d+) +(\d+) +(\d+) *"/;
+#$colLin = sprintf("MAIN_PALETTE 1  \"%3i %3i %3i %3i %3i %3i\"",
+#                             $4*.8,$5*.8,$6*.8,$1*.8,$2*.8,$3*.8);
+
+
+# Write scratch file
+# ------------------
+open(SCR,">$scrFilNam") || die "Cannot open $scrFilNam!\n";
+print SCR "MODUS         1 INTERACTIVE\n\n";
+print SCR "INP_FILE_NAME 1 $inpFilNam\n\n";
+print SCR "$colLin\n\n";
+
+# Special path desired
+if (defined $cmdPth) {
+  print SCR "SPECIAL_PATH 2\n";
+  print SCR "  \"$pgmNam\" \"$cmdPth\"\n";
+  if (-s "$cmdPth/MENUAUX") {
+    print SCR "  \"MENUAUX\" \"$cmdPth\"\n\n";
+    print "$cmdPth/MENUAUX used\n";
+  } else {
+    print SCR "  \"_unused_\" \"_unused_\"\n\n"
+  }
+}
+close SCR;
+
+
+# Run menu
+# --------
+if ( -x "$ENV{XQ}/menu.sh") { 
+  system("$ENV{XQ}/menu.sh $ENV{U}/PAN/MENU.INP $scrFilNam");
+} else {
+  system("$ENV{XQ}/menu    $ENV{U}/PAN/MENU.INP $scrFilNam");
+}

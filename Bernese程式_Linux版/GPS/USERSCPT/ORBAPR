@@ -1,0 +1,47 @@
+package ORBAPR;
+@ISA = ("RUNBPE");
+# ----------------------------------------------------------------------------
+#
+# Name    :  ORBAPR
+#
+# Purpose :  Execute ORBGEN with a special ERP file
+#            Generate first a priori orbit for LEO from code-derived kinematic
+#            positions
+#
+# PARAMs  :
+#
+# Authors :  H. Bock
+# Created :  31-Jan-2012
+#
+# Changes :
+#
+# ----------------------------------------------------------------------------
+use strict;
+
+use File::Copy;
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyssss,
+      $A, $B,
+      $dirErp,
+      $extErp) =
+  $bpe->getKeys(
+      '$YSS+0',
+      'V_A','V_B',
+      'DIR_ERP',
+      'EXT_ERP');
+
+  copy("${dirErp}${B}${yyssss}.${extErp}","${dirErp}${A}${yyssss}.${extErp}");
+
+# Execute ORBGEN
+# --------------
+  my $PGMNAM="ORBGEN";
+  $bpe->RUN_PGMS($PGMNAM);
+
+  unlink("${dirErp}${A}${yyssss}.${dirErp}");
+
+}

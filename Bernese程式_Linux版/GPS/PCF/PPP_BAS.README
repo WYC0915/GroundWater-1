@@ -1,0 +1,583 @@
+======================================================================
+Bernese GNSS Software, Version 5.2              Last mod.: 13-Feb-2013
+----------------------------------------------------------------------
+PPP_BAS.PCF README
+======================================================================
+
+
+----------------------------------------------------------------------
+Purpose:
+----------------------------------------------------------------------
+
+PRECISE POINT POSITIONING (PPP) - basic version
+- computes coordinates, troposphere and receiver clocks
+- updates the coordinate/velocity files
+
+
+----------------------------------------------------------------------
+Description:
+----------------------------------------------------------------------
+
+This BPE performs an efficient station-wise processing
+(Precise Point Positioning, PPP).
+
+The following results are obtained:
+- computation of station coordinates (on the cm-level
+  accuracy), to get, e.g., corresponding a priori information
+  for interferometric analysis (see RNX2SNX PCF),
+- estimation of station-specific troposphere parameters,
+- determination of phase-consistent receiver clock offsets
+  typically at 5-minute intervals (for time transfer).
+
+It includes an update procedure to prepare files for
+new stations (enabled by setting V_UPD='Y'):
+- update of station name abbreviation (ABB) files,
+- computation of a priori velocities from NUVEL1A-model,
+- propagation of station coordinate results to a
+  predefined epoch,
+- generation of a merged coordinate (CRD/VEL) file.
+
+If the corresponding files are available:
+- detection of missing station entries in ocean and
+  atmospheric tidal loading correction tables (BLQ, ATL).
+
+
+----------------------------------------------------------------------
+Remarks:
+----------------------------------------------------------------------
+
+Depending on the session table in the campaign, either
+daily or hourly files are processed. In the latter case
+several hourly observation files are concatenated in a
+sliding window scheme.
+
+If you want to process several sessions you may either
+analyze them sequentially or in separate campaigns for each
+session (see panel BPE 1.1: Multi Session Processing Options
+when launching the BPE with the menu > BPE > Start BPE
+process). PLEASE NOTE THAT THE BPE IS NOT DESIGNED TO PROCESS
+MORE THAN ONE SESSION IN THE SAME CAMPAIGN AREA AT THE SAME
+TIME.
+
+
+----------------------------------------------------------------------
+Quality control:
+----------------------------------------------------------------------
+
+The processing is summarized in a so-called protocol file.
+It is compiled in the BPE user script PPP_SUM and exists first
+in the OUT directory of the campaign. Depending on the settings
+for the BPE server variables (see following section) the protocol
+is copied by the PPP_SAV script (if V_SAV == 'Y') to
+   -->> ${S}/{V_RESULT}/yyyy/OUT/PPPyyssss.PRC
+and is removed from the campaign area by the script PPP_DEL
+(if V_DEL == 'Y').
+
+This protocol file is divided into sections related to the
+different tasks/features of this BPE:
+
+PART 0: BLQ/ATL COMPLETENESS CHECK
+   If a file ${D}/{V_REFDIR}/{V_CRDINF}.BLQ and/or
+   ${D}/{V_REFDIR}/{V_CRDINF}.ATL are available, the
+   ocean and/or atmospheric tidal corrections are considered
+   for the processing. These files contain tables of
+   coefficients for individual stations. Stations used
+   in this BPE which are not listed in these tables are
+   listed here.
+
+PART 1: RINEX PSEUDO-GRAPHICS
+   The content of the RINEX observation files is summarized
+   here (summary file output from program RNXGRA). Here you
+   may detect stations with problems in the data (e.g.,
+   reduced tracking performance of a station).
+
+PART 2: ORBIT GENERATION SUMMARY
+   Summary file from ORBGEN reports the RMS of the fit of the
+   satellite position given in the precise orbit file
+   ${D}/{V_B}/{V_B}wwwwd.PRE with the orbit model from
+   ORBGEN. It is expected that the RMS is on the few
+   millimeters level (for ORBGEN pseudo-stochastic pulses are
+   setup every twelve hours to compensate for different orbit
+   models in ORBGEN and the external orbit program). If the
+   RMS is bigger, you should check the consistency of the
+   Earth rotation files ${D}/{V_B}/{V_B}wwww7.ERP. It might
+   also be possible to split the orbital arc into two or three
+   arcs (Number of arcs within the time window in the last
+   panel of the ORBGEN input file). It is essential that the
+   RMS of the orbit fit can be reduced to the few millimeters
+   level since the satellite clock corrections for the PPP
+   refer to the original positions of the satellite in the
+   given precise orbit file.
+
+PART3: SINGLE-POINT-POSITIONING SUMMARY
+   The output from program CODXTR gives an overview on the
+   performance of CODSPP synchronizing the receiver clocks
+   to GPS system time using pseudorange measurements. It
+   is expected that the RMS is below 0.50 meter. No additional
+   exclusion periods should be reported in this part.
+   If this is the case, they may be caused by serious data
+   problems in a specific station (please have a closer look
+   to its results later in the protocol) or there are some
+   problems/inconsistency with the introduced satellite clock
+   file (if all stations are listed for a specific interval).
+   If you have a rather high number of bad observations
+   indicated in the protocol file but the output does not
+   contain other indications for problems, it might have a
+   very simple explanation: you have imported GPS and GLONASS
+   observations from the RINEX files (V_SATSYS == 'GPS/GLO')
+   but your satellite clock file does not provide any
+   GLONASS clock information. In consequence you will produce
+   a GPS-only PPP.
+
+PART 4: DATA SCREENING SUMMARY
+   This section contains the output and summary files from the
+   program RESCHK and RESRMS. They provide some statistics on the
+   residual screening (RMS before and after screening, number
+   of removed measurements). The tables are useful to detect
+   whether a certain problem is related to a station or a
+   satellite. The RMS after the screening should be in the
+   order of 1 mm or slightly below. It should also be verified
+   that not more than 3% of the data are removed. Otherwise
+   you have to find out whether there are some consistency
+   problems between your orbit and satellite clocks or whether
+   one or a few stations have introduced the problem (e.g., due
+   to tracking problems of the receiver).
+
+PART 5: PPP SOLUTIONS STATISTICS
+   The output summary from the GPSEST after the residual
+   screening is provided for each station. Two observation files
+   (code and phase measurements) should contribute (apart from
+   the case you have selected a specific observation type via
+   the BPE server variable V_OBSTYP). The RMS is expected to be
+   1 millimeter or slightly below.
+   You may check the number of observations per stations. If
+   one of the stations contains significantly less measurements
+   you should check first the data availability in PART 1.
+   If this cannot explain the deviation you should check the
+   residual screening procedure for this station carefully.
+   The second table in this section informs about the
+   improvement of the estimated coordinates (columns DH, DN, DE)
+   with respect to the a priori values from CODSPP (code-only
+   solution) due to the PPP processing.
+
+PART 6: VERIFICATION OF RECEIVER TRACKING TECHNOLOGY
+   For each station the receiver tracking technology is
+   verified by estimating P1-C1_MULTIPLIERS. These are the
+   factors needed to apply the Differential Code Biases (DCB)
+   for the tracking technology of the receiver. The estimated
+   factors are compared with the theoretically expected ones
+   according to the entries for the receiver in the
+   ${X}/GEN/RECEIVER. file. This section can be used to verify
+   the entries in the RECEIVER. file for new receiver types
+   where the tracking technology is not clear yet.
+   Note: this section is only available if you have
+   included code measurements (V_OBSTYP == 'CODE' or 'BOTH').
+
+PART 7: COMPILATION OF STATION INFORMATION
+   In this section you find the station equipment information
+   extracted from the resulting SINEX file. It can be used
+   to verify whether you have used the correct receiver and
+   antenna type (eventually serial number) and antenna height.
+
+PART 8: STATION COORDINATE RESULTS
+   In this section, the estimated coordinates from the PPP
+   at the epoch of the observations are given (content of the
+   file {V_C}yyssss.CRD; V_C is defined as a BPE server
+   variable, see section below).
+   The second part is the comparison between the PPP
+   coordinate solution and a priori values given in the file
+   {CRDINF}.CRD. It is useful to check the deviation of the
+   current PPP solution from the expected coordinates, e.g.,
+   obtained from PPP of previous days or from external sources,
+   e.g., ITRF.
+   IF the BPE server variable V_UPD == 'Y', the coordinates
+   from the PPP are propagated to the epoch given in
+   {REFINF}.CRD using the velocities in the file below.
+
+PART 9: STATION CLOCK ESTIMATION
+   This section contains the overview on the performance of the
+   receiver clocks as provided by the statistics part of the
+   CCRNXC program output.
+   The first clock in the list was selected as reference clock
+   (best performing clock in the series). If you have more
+   external high performance clocks driving the GNSS receivers,
+   you should find small numbers for the RMS of poly. fit with
+   n=1 (linear clock model). For H-Maser clocks an RMS below
+   0.05 ns for Caesium clocks below 0.10 ns is expected. Do not
+   care about big or even huge RMS values for quartz or other
+   low quality (internal) clocks in the receivers.
+
+
+----------------------------------------------------------------------
+BPE server variables:
+----------------------------------------------------------------------
+
+There are several variables, assigned with a default value
+here in the PCF (last section of this file). When starting
+a BPE manually they may be modified in the fourth panel
+'BPE 4: Server Variables Sent to Client'.
+
+The following group of BPE server variables are used as
+solution identifiers, consequently used for file naming
+within the BPE processing:
+V_B (default: COD)
+   Name of the external product for GNSS-orbit, ERP and
+   satellite clock information.
+   It is expected that the products are available in the
+   ${D} (datapool) area in a specific subdirectory V_B; the
+   filenames must also contain this label: {V_B}wwwwd
+   (see input file section for more details)
+V_A (default: APR)
+   Station coordinates, improving with each processing step
+V_C (default: PPP)
+   Label of the program output and result files from the
+   PPP process (CRD, TRP, TRO, SNX, CLK, NQ0).
+   It is used for the solution files from each individual
+   station as well as for the combined files for each session.
+V_F (default: RED)
+   Label of the program output and result files from a reduced
+   version of the combined PPP normal equation file of the
+   current session containing only station coordinates
+   (troposphere and clock parameters are pre-eliminated).
+V_E (default: REF)
+   When updating a given set of coordinates, the PPP results
+   for the station coordinates are transferred to the same
+   epoch. This coordinate set has the label defined in V_E.
+
+The next group of BPE server variables manages the directories
+of the input data and the location of the result files in the
+product database:
+V_RNXDIR (default: RINEX)
+   Directory in the ${D} (datapool) area where the RINEX files
+   are expected. The selection of stations for processing is
+   managed by the V_OBSSEL variable, see below.
+V_REFDIR (default: REF52)
+   Directory in the ${D} (datapool) area where the basic Bernese
+   files for the processing are located, the detailed list of
+   files is given in the section on Input files.
+V_CRDINF (default: EXAMPLE)
+   The basename of the files used as basic Bernese input files
+   for this PPP procedure. Copying these files is managed
+   in the BPE user script PPP_COP.
+V_STAINF (default: EXAMPLE)
+   Usually the header information in the RINEX observation
+   files are compared with the expected equipment information
+   provided in the station information file. The basename of
+   this file is given in this variable. It will be copied from
+   ${D}/REF52/${V_STAINF}.CRX into your campaign by script
+   PPP_COP.
+   For a 'quick-look' PPP this variable may be empty to skip
+   the check of the RINEX header information. In this case,
+   the station names in the resulting coordinate files or
+   in a potentially created abbreviation table may be
+   different than in a later processing when using this file.
+   It may also happen that the receiver or antenna name is
+   misspelled in the RINEX observation file header and for
+   that reason no entry in the antenna phase center offset
+   or receiver information file is found.
+V_CRXINF (default: empty)
+   Inconsistencies between the RINEX observation file headers
+   and the station information file can be recorded in a file
+   with 'Accepted station information' inconsistencies in
+   program RXOBV3. If you need such a file for your processing,
+   you can specify its name here. It will be copied from
+   ${D}/REF52/${V_CRXINF}.CRX
+V_BLQINF (default: EXAMPLE)
+   The basename of the file containing the ocean tidal
+   loading corrections for the stations. The file has also
+   to contain the center-of-mass corrections (CMC) connected
+   to ocean tidal loading. These corrections are needed for
+   orbit generation.
+   If the variable is empty, no displacement corrections to
+   the stations or CMC for the orbit generation are applied.
+   The file ${D}/REF52/${V_BLQINF}.BLQ is copied by the
+   script PPP_COP into the campaign.
+V_ATLINF (default: EXAMPLE)
+   The basename of the file containing the atmosphere tidal
+   loading corrections for the stations. The file has also
+   to contain the center-of-mass corrections (CMC) connected
+   to atmosphere tidal loading. These corrections are needed
+   for orbit generation.
+   If the variable is empty, no displacement corrections to
+   the stations or CMC for the orbit generation are applied.
+   The file ${D}/REF52/${V_ATLINF}.ATL is copied by the
+   script PPP_COP into the campaign.
+V_HOIFIL (default: HOI$YSS+0)
+   Specify the filename used for the ionosphere model within
+   your campaign area that is used to compute the higher-
+   order ionosphere (HOI) corrections. The ionosphere model is
+   copied from ${D}/REF52/CODwwwwd.ION into the ATM-directory
+   of the campaign using the given filename.
+   No value for this variable disables the HOI corrections.
+V_RESULT (default: PPP)
+   Directory in the ${S} (savedisk) area where the result files
+   from the PPP processing are collected in yearly directories
+   (saving of the result files is managed by the BPE user
+   script PPP_SAV).
+V_REFINF (default: IGB08)
+   Reference frame files, used as master files when updating
+   coordinate and velocity files (V_UPD == 'Y', see below).
+   The corresponding files are expected as
+      ${D}/{V_REFDIR}/{V_REFINF}_R.CRD
+      ${D}/{V_REFDIR}/{V_REFINF}_R.VEL
+V_REFEPO (default: 2005 01 01)
+   The epoch of the coordinates in the reference frame
+   coordinate file (see above) needs to be specified here.
+   In case of IGSb08 it is '2005 01 01'.
+
+The following variables are responsible for the data selection:
+V_OBSSEL (default: blank)
+   This variable may contain a filename for a cluster file or
+   a file with the RINEX station abbreviations (see section
+   'Observations' below).
+V_SATSYS (default: GPS)
+   Select the system(s) (usually GPS or GPS/GLO) to be used
+   for the PPP processing.
+   The value of this variable is directly introduced in the
+   option 'Satellite system to be considered' in panel
+   'RXOBV3 2: Input Options 1' (user script RXOBV3_P).
+   Note: whether all selected systems are really used for the
+   processing depends also on the availability of satellite
+   orbits and clock corrections as well as the contents of the
+   RINEX observation file. This option acts only as a filter
+   to remove non-selected systems from the observation files.
+   As a matter of fact the default value is just GPS becaue
+   of the lack of GLONASS satellite clock corrections.
+V_SAMPL (default: 300)
+   Sampling interval for introducing the observations from
+   RINEX to Bernese observation file format.
+   The value of this variable is directly introduced as the
+   option 'Sampling interval' in panel 'RXOBV3 2:
+   Input Options 1' (user script RXOBV3_P).
+   Note: ultimately, only epochs for which satellite clock
+   corrections are available can be processed in the PPP
+   procedure.
+V_OBSTYP (default: BOTH)
+   You may select whether only the CODE, only the PHASE, or
+   BOTH measurement types together shall be used for the PPP
+   procedure.
+V_HOURLY (default: 8)
+   In case of hourly session definition, a number of hours can
+   be specified that are prepended to stabilize the estimation
+   of ambiguity parameters. It should not be much shorter than
+   the length of a satellite path, e.g., 6 hours.
+   It is obsolete if daily session definition is given.
+
+Model selection related BPE variables:
+V_PCV (default: I08)
+   Selection of the antenna phase center model identifier.
+V_SATINF (default: SATELLIT)
+   Basename of the satellite information file.
+   The resulting filename is ${X}/GEN/{V_SATINF}.{V_PCV}.
+V_PCVINF (default: PCV)
+   Basename of the antenna phase center correction file.
+   The resulting filename is ${X}/GEN/{V_PCVINF}.{V_PCV}.
+   If you create your own antenna phase center correction
+   file considering your own station information file using
+   the program ATX2PCV (menu > Conversion > ANTEX to Bernese
+   format) we recommend to change the filename to indicate
+   which station information file was used (e.g., PCV_EXAMPLE).
+V_SATCRX (default: SAT_$Y+0)
+   Name of the satellite problem file.
+V_MYATX (default: empty)
+   Filename (including extension) for an ANTEX file containing
+   receiver and possibly satellite antenna phase center
+   corrections. The file is used to update the Bernese phase
+   center file in ${X}/GEN/{V_PCVINF}.{V_PCV}, e.g., in case
+   of new antennas in the network.
+   It is expected that the file is available in ${X}/GEN/.
+   Note: if you plan to use a file containing individually
+   calibrated antennas you need to change the settings for
+   'Set number of generic receiver antennas to 999999' in
+   panel ATX2PCV 2: ANTEX Conversion (Script 002 ATX2PCV):
+     - checkbox unmarked: type specific calibrations
+     - checkbox marked:   antenna specific calibrations
+   Please remind that calibration values for all antennas
+   with number different from 999999 in the station information
+   file must be available with individually calibrations.
+
+The last group is related to the file handling in the
+campaign
+V_UPD (default: Y)
+   Update the files in the ${D}/{V_REFDIR} area with the
+   results from the PPP process. The corresponding section
+   in the BPE is enabled by the script PPP_UPD. The copy
+   itself is done by PPP_SAV.
+V_SAV (default: Y)
+   Save result files into the ${S}/{V_RESULT} area
+   if V_SAV == 'Y'. This variable is managed by the BPE user
+   script PPP_SAV.
+V_DEL (default: Y)
+   Delete all files from the currently processed session from
+   the campaign if V_DEL == 'Y'; managed in PPP_DEL user script.
+   Usually the deletion should be enabled to keep the campaign
+   clean. For debugging purposes and to identify sources for
+   errors in the processing it may be useful to keep all files.
+ATTENTION: This logic implies that you will see no results in
+   case of Y_SAV == 'N' and V_DEL == 'Y' (clean up the campaign
+   but do not store the results).
+
+
+----------------------------------------------------------------------
+Input files:
+----------------------------------------------------------------------
+
+The input files are copied from the datapool area into
+campaign area in the BPE user script 'PPP_COP':
+
+- External products files (mandatory):
+  -->>  ${D}/{V_B}/{V_B}wwwwd.PRE
+  -->>  ${D}/{V_B}/{V_B}wwwwd.CLK
+  -->>  ${D}/{V_B}/{V_B}wwww7.ERP
+  The variable V_B is defined above in the 'BPE server
+  variables' section and defines the product series to be
+  considered for the PPP (e.g., COD or IGS), where wwwwd
+  stands for the GPS week and the day of week to be
+  processed.
+  Note: orbit, ERP and satellite clock corrections
+  need to be fully consistent for a PPP!!!
+
+- Bernese formatted products files (mandatory):
+  -->>  ${D}/BSW52/P1C1yymm.DCB
+  -->>  ${D}/BSW52/CODwwwwd.ION
+  The DCB corrections are necessary to unify the reference
+  for the different receiver tracking techniques to the
+  'P3'-reference, as the IGS satellite clocks are provided
+  (yymm is related to the months of the processing session).
+  The ionosphere file is needed to correct for the higher
+  order ionosphere terms.
+  Both files can be downloaded from
+       ftp://ftp.unibe.ch/aiub/CODE
+
+- Reference frame files (mandatory if V_UPD == 'Y')
+  If the reference frame files shall be updated (BPE server
+  variable V_UPD == 'Y', see above), the reference frame
+  coordinate and velocity files are needed:
+  -->>  ${D}/{V_REFDIR}/{V_REFINF}_R.CRD
+  -->>  ${D}/{V_REFDIR}/{V_REFINF}_R.VEL
+
+- Files to be updated/created on request (V_UPD == 'Y')
+  -->>  ${D}/{V_REFDIR}/{V_CRDINF}.CRD
+  -->>  ${D}/{V_REFDIR}/{V_CRDINF}.VEL
+  If these files are available, they are copied into the
+  campaign area. They are updated during the BPE with the
+  PPP results (CRD) and considering the NUVEL-1A velocity.
+  For that purpose, the assignment to a tectonic plate is
+  required from the corresponding file (mandatory
+  if V_UPD == 'Y')
+  -->>  ${D}/{V_REFDIR}/{V_CRDINF}.PLD
+  Note: the BPE runs only through this section if the
+  BPE server variable V_UPD is set to 'Y' (switch in BPE
+  user script PPP_UPD).
+
+  The station abbreviation table is automatically updated
+  for the stations processed in this PPP run if it already
+  exists (otherwise it is created from scratch)
+  -->>  ${D}/{V_REFDIR}/{V_CRDINF}.ABB
+
+- Station naming/equipment checking (optional)
+  If the station information file or a RINEX inconsistency
+  file
+  -->>  ${D}/{V_REFDIR}/{V_CRDINF}.STA
+  -->>  ${D}/{V_REFDIR}/{V_CRXINF}.CRX
+  are available, they are considered for the PPP and a warning
+  in the PPP protocol file is issued in the case of an
+  inconsistency.
+
+- Tidal loading corrections (optional)
+  Ocean and atmospheric tidal loading may be corrected
+  during the PPP procedure if the corresponding corrections
+  are provided in the files.
+  Note: these files have also to contain corresponding
+  CMC (center-of-mass correction) values for the translation
+  of the orbit positions from the Earth fixed system in
+  the center-of-mass system for the orbit integration.
+  -->>  ${D}/{V_REFDIR}/{V_BLQINF}.BLQ
+  -->>  ${D}/{V_REFDIR}/{V_ATLINF}.ATL
+  If this is the case the PPP protocol file will also contain
+  a list of stations that are still missing in the two tables
+  of corrections.
+
+
+----------------------------------------------------------------------
+Observations:
+----------------------------------------------------------------------
+
+The observation files are expected in RINEX format (Hatanaka
+compressed is allowed if the decompression program is available
+in ${X}/EXE/CRX2RNX -- see variable $c2rPgm definition
+in ${BPE}/bpe_util.pm) in the directory
+  -->>  ${D}/{V_RNXDIR}/
+The station/observation file selection is realized in the
+BPE user script RNX_COP.
+
+Three opportunities to select stations for processing are
+implemented (considered in the following order):
+1) A file {CAMPAIGN}/STA/{V_OBSSEL}.CLU exists.
+   In the current campaign a cluster file with the name
+   V_OBSSEL (see 'BPE server variables' section above)
+   does exist. The station names from this file are translated
+   into the four-character-IDs using the abbreviation table
+   {CAMPAIGN}/STA/{V_CRDINF}.ABB. These four-character-IDs
+   are used to copy the corresponding RINEX files from the
+   source directory in the data base.
+2) A file {CAMPAIGN}/{V_OBSSEL} contains the RINEX abbreviations
+   of the files to be processed. They have to be separated
+   by blank characters or may start with a new line.
+3) If V_OBSSEL is empty all RINEX files of the specified
+   session(s) are processed.
+
+Usually only the RINEX files of the current session are
+processed. If you are going to process hourly sessions
+(session identifier must end with 'A'..'X' -- see method
+'isHourly' in ${BPE}/bpe_util.pm), all hours defined
+by the range of the last V_HOURS (given by the BPE variables
+in the lower part of this file) are concatenated and processed
+together under the label of the current session (of course
+the corresponding input files are copied, too).
+
+
+----------------------------------------------------------------------
+Result files:
+----------------------------------------------------------------------
+
+The most important result files are copied in the BPE
+user script PPP_SAV into the ${S}/{V_RESULT} area
+(V_RESULT is defined below in the BPE server variables area)
+if the BPE server variable V_SAV == 'Y'. The files are
+located in yearly subdirectories (yyyy). These files are:
+
+-->> ${S}/{V_RESULT}/yyyy/OUT/PPPyyssss.PRC
+Main protocol file containing the summary of the processing
+steps (more details are provided in the 'Quality control'
+section).
+
+-->> ${S}/{V_RESULT}/yyyy/STA/{V_C}yyssss.CRD
+Resulting station coordinates for the stations from the PPP
+processing (epoch of the processed data).
+
+-->> ${S}/{V_RESULT}/yyyy/ATM/{V_C}yyssss.TRP
+-->> ${S}/{V_RESULT}/yyyy/ATM/{V_C}yyssss.TRO
+Troposphere estimates (Bernese troposphere format and
+troposphere SINEX format) as obtained from the PPP processing.
+
+-->> ${S}/{V_RESULT}/yyyy/OUT/{V_C}yyssss.CLK.Z
+Clock RINEX file (UNIX compressed) with the receiver clock
+corrections for the stations from the PPP processing together
+with the used satellite clock corrections.
+
+-->> ${S}/{V_RESULT}/yyyy/SOL/{V_C}yyssss.NQ0.gz
+Normal equation file (gnu-compressed) with the coordinate
+and troposphere parameters of all stations of the
+PPP processing.
+
+-->> ${S}/{V_RESULT}/yyyy/SOL/{V_F}yyssss.NQ0.gz
+-->> ${S}/{V_RESULT}/yyyy/SOL/{V_F}yyssss.SNX.gz
+Reduced version of the normal equation with pre-eliminated
+troposphere parameters containing, e.g., only the coordinate
+parameters.
+
+Note: the BPE server variables V_C and V_F are defined per
+default by the identifiers 'PPP' and 'RED', see below.
+
+======================================================================

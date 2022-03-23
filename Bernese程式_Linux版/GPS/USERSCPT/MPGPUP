@@ -1,0 +1,117 @@
+package MPGPUP;
+@ISA = ("RUNBPE");
+# ----------------------------------------------------------------------------
+#
+# Name    :  MPGPUP
+#
+# Purpose :  Loop with MAUPRP,GPSEST and ORBGEN for LEO screening
+#
+# PARAMs  :
+#
+# Authors :  H. Bock
+# Created :  02-Feb-2012
+#
+# Changes :
+#
+# ----------------------------------------------------------------------------
+use strict;
+
+use File::Copy;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtMess);
+
+# overloaded 'run' method.
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyssss,
+      $A,   $MINEL,
+      $dirObs,  $dirStd,
+      $extObs,  $extStd ) =
+    $bpe->getKeys(
+      '$YSS+0',
+      'V_A','V_MINEL',
+      'DIR_PZH','DIR_STD',
+      'EXT_PZH','EXT_STD');
+
+# Loop: ntry
+# ----------
+  my $nTry = 3;
+
+  for (my $iTry=1;$iTry<=$nTry;$iTry++){
+
+    my $F1=$iTry-1;
+    my $F2=$iTry;
+
+    prtMess($bpe,"SCREENING LOOP $iTry :$F1 $F2");
+
+    if ($iTry == 1){
+      $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","SIGWGS1","0.008");
+      $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","SIGWGS2","0.008");
+      $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","SIGWGS3","0.008");
+      $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","SIGL12_1","0.008");
+      $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","SIGL12_2","0.008");
+                    }
+    elsif ($iTry >= 2){
+      $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","LEOSTD","$A${F1}${yyssss}");
+      if ($iTry == 2){
+         $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","SIGWGS1","0.001");
+         $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","SIGWGS2","0.001");
+         $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","SIGWGS3","0.001");
+         $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","SIGL12_1","0.002");
+         $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","SIGL12_2","0.002");
+      }
+      elsif ($iTry >= 3){
+         $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","KINSTA","0");
+         $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","SIGWGS1","0");
+         $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","SIGWGS2","0");
+         $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","SIGWGS3","0");
+         $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","SIGL12_1","0.002");
+         $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","SIGL12_2","0.002");
+      }
+    }
+
+    $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","MINELEO","${MINEL}");
+    $bpe->putKey("$ENV{U}/PAN/MAUPRP.INP","SYSOUT","M${A}${F1}${yyssss}");
+
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","LEOSTD","${A}${yyssss}");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","LEORPR","${A}${yyssss}");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","LEORBRS","$A${F2}${yyssss}");
+    $bpe->putKey("$ENV{U}/PAN/GPSEST.INP","SYSOUT","$A${F2}${yyssss}");
+
+    $bpe->putKey("$ENV{U}/PAN/GPSXTR.INP","OUTPUT","$A${F2}${yyssss}");
+    $bpe->putKey("$ENV{U}/PAN/GPSXTR.INP","GPSOUT","$A${F2}${yyssss}");
+
+    $bpe->putKey("$ENV{U}/PAN/ORBGEN.INP","IMPORB","$A${F2}${yyssss}");
+    $bpe->putKey("$ENV{U}/PAN/ORBGEN.INP","STDOUT","$A${F2}${yyssss}");
+    $bpe->putKey("$ENV{U}/PAN/ORBGEN.INP","SYSOUT","U$A${F2}${yyssss}");
+
+# Run program MAUPRP
+# ------------------
+    my $PGMNAM="MAUPRP";
+    $bpe->RUN_PGMS($PGMNAM);
+
+# Run program GPSEST
+# ------------------
+    $PGMNAM = "GPSEST";
+    $bpe->RUN_PGMS($PGMNAM);
+
+# Run program GPSXTR
+# ------------------
+    $PGMNAM = "GPSXTR";
+    $bpe->RUN_PGMS($PGMNAM);
+
+# Run program ORBGEN
+# ------------------
+    $PGMNAM = "ORBGEN";
+    $bpe->RUN_PGMS($PGMNAM);
+
+    my $NAM="COP";
+    copy("$dirStd$A${F2}${yyssss}.${extStd}","$dirStd$A${NAM}${yyssss}.${extStd}");
+
+  }
+
+}

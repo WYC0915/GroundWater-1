@@ -1,0 +1,102 @@
+$$ Ocean loading displacement
+$$
+$$ Calculated on froste using olfg/olmpp of H.-G. Scherneck
+$$
+$$ COLUMN ORDER:  M2  S2  N2  K2  K1  O1  P1  Q1  MF  MM SSA
+$$
+$$ ROW ORDER:
+$$ AMPLITUDES (m)
+$$   RADIAL
+$$   TANGENTL    EW
+$$   TANGENTL    NS
+$$ PHASES (degrees)
+$$   RADIAL
+$$   TANGENTL    EW
+$$   TANGENTL    NS
+$$
+$$ Displacement is defined positive in upwards, South and West direction.
+$$ The phase lag is relative to Greenwich and lags positive. The 
+$$ Gutenberg-Bullen Greens function is used. In the ocean tide model the 
+$$ deficit of tidal water mass has been corrected by subtracting a uniform 
+$$ layer of water with a certain phase lag globally.
+$$
+$$ Complete <model name> : No interpolation of ocean model was necessary
+$$ <model name>_PP       : Ocean model has been interpolated near the station 
+$$                         (PP = Post-Processing)
+$$ 
+$$ CMC:  NO   (corr.tide centre of mass)
+$$
+$$ Ocean tide model: FES2004
+$$
+$$ CMC start : center of mass coefficient file content
+$$ CMC format: (a,1p,t42,3(2x,2e12.4))
+$$ CMC frequ : M2   NCDF_FES2004                           -1.2661E-03 -1.4298E-03   -1.3724E-03  8.2077E-04    1.1479E-03  2.3005E-04
+$$ CMC frequ : S2   NCDF_FES2004                           -1.7763E-04 -5.7273E-04   -5.3350E-04 -3.1591E-04   -5.1370E-05  2.8184E-04
+$$ CMC frequ : N2   NCDF_FES2004                           -3.2372E-04 -2.8986E-04   -2.7121E-04  1.9849E-04    2.6018E-04 -1.4302E-04
+$$ CMC frequ : K2   NCDF_FES2004                           -1.1814E-04 -1.5250E-04   -1.1223E-04 -1.0889E-05   -1.5751E-05  1.2367E-04
+$$ CMC frequ : K1   NCDF_FES2004                           -1.1370E-03  4.4839E-03   -1.8539E-03 -8.6426E-04   -9.1022E-04 -1.7823E-03
+$$ CMC frequ : O1   NCDF_FES2004                           -1.6802E-04  2.9702E-03   -1.3985E-03 -2.2975E-04   -8.8858E-04 -6.4989E-04
+$$ CMC frequ : P1   NCDF_FES2004                           -3.6495E-04  1.4941E-03   -6.1436E-04 -2.9129E-04   -2.9261E-04 -5.7461E-04
+$$ CMC frequ : Q1   NCDF_FES2004                            3.0709E-05  4.5472E-04   -2.7831E-04 -2.9313E-05   -2.1734E-04 -4.1637E-05
+$$ CMC frequ : Mf   NCDF_FES2004                           -5.0643E-04 -7.3040E-05   -2.2065E-04  4.1472E-04   -1.0212E-04  8.2276E-05
+$$ CMC frequ : Mm   NCDF_FES2004                           -2.7885E-04  2.0596E-05    4.6882E-05  1.8399E-04   -7.4897E-06  1.3209E-05
+$$ CMC frequ : Ssa  NCDF_FES2004                           -1.4899E-04  2.6146E-06    1.3687E-04  3.5475E-05   -2.4093E-05  3.1666E-07
+$$ CMC end   :
+$$
+$$ END HEADER
+$$
+  FAIR      
+$$ Complete FES2004
+$$ Computed by OLFG, H.-G. Scherneck, Onsala Space Observatory 2011-Aug- 5
+$$ FAIR,                      RADI TANG lon/lat:  212.5008   64.9780  318.98
+  .00918 .00347 .00165 .00094 .00537 .00373 .00180 .00066 .00107 .00064 .00056
+  .00063 .00017 .00020 .00006 .00098 .00078 .00033 .00015 .00007 .00003 .00002
+  .00336 .00119 .00064 .00030 .00235 .00144 .00077 .00026 .00017 .00006 .00003
+   100.5  134.9   83.9  128.1   97.9   88.8   97.8   82.7   16.9   11.3    2.2
+    68.9  -51.1   36.0  -57.2   -8.2  -39.3   -8.3  -56.7  166.1  167.6  174.0
+   -84.3  -48.5 -104.0  -52.1 -103.4 -115.2 -103.5 -119.4  125.9   93.3   20.0
+$$
+  WTZR      
+$$ Complete FES2004
+$$ Computed by OLFG, H.-G. Scherneck, Onsala Space Observatory 2011-Aug- 5
+$$ WTZR,                      RADI TANG lon/lat:   12.8789   49.1442  666.03
+  .00504 .00174 .00109 .00044 .00199 .00097 .00066 .00009 .00051 .00028 .00023
+  .00196 .00049 .00044 .00013 .00038 .00028 .00013 .00005 .00005 .00003 .00003
+  .00031 .00015 .00004 .00004 .00033 .00009 .00011 .00001 .00001 .00001 .00000
+   -71.6  -39.9  -91.5  -50.3  -60.1  -98.8  -60.9 -146.3    9.0    6.2    1.2
+    79.9  115.4   56.1  105.1  102.3   37.5  100.4  -12.9 -172.9 -168.6 -177.5
+   -34.2   -3.7  -31.6  -20.2   42.4   -5.9   42.3  162.3 -170.9  160.2   -8.6
+$$
+  AUCK      
+$$ FES2004_PP ID: 2011-08-05 13:25:56
+$$ Computed by OLMPP by H G Scherneck, Onsala Space Observatory, 2011
+$$ AUCK,                                lon/lat:  174.8344  -36.6028    0.00
+  .02474 .00514 .00425 .00143 .00409 .00068 .00135 .00030 .00028 .00014 .00009
+  .00836 .00106 .00192 .00031 .00074 .00061 .00025 .00018 .00001 .00000 .00000
+  .00580 .00125 .00141 .00032 .00152 .00117 .00050 .00025 .00018 .00011 .00009
+    59.2  127.9   32.8  123.8 -173.5  122.4 -173.4   67.8    7.3    2.7   -1.4
+   -23.5    3.5  -44.8  -20.1  -25.8  -68.3  -26.3  -90.6  -79.6 -153.3 -173.1
+    22.3   40.0   -0.3   29.0 -151.8 -171.8 -152.2 -179.6 -163.3 -170.7 -177.9
+$$
+  OHIG      
+$$ FES2004_PP ID: 2011-08-05 13:26:01
+$$ Computed by OLMPP by H G Scherneck, Onsala Space Observatory, 2011
+$$ OHIG,                                lon/lat:  302.0997  -63.3207    0.00
+  .02238 .01056 .00346 .00264 .01387 .01630 .00460 .00372 .00174 .00094 .00078
+  .00229 .00250 .00061 .00069 .00140 .00118 .00046 .00027 .00008 .00003 .00001
+  .00196 .00171 .00041 .00043 .00075 .00050 .00025 .00007 .00003 .00001 .00001
+    86.7  127.4   64.1  121.6 -118.9 -137.4 -119.2 -150.9   14.7    7.5    1.9
+   101.0  101.2  110.3  101.6  136.4  148.7  136.4  149.3  138.1  113.8  124.4
+  -171.0 -116.4  164.2 -114.4    6.3  -30.6    5.1  -50.4 -122.3 -178.8 -175.3
+$$
+  THU1      
+$$ FES2004_PP ID: 2011-08-05 13:26:07
+$$ Computed by OLMPP by H G Scherneck, Onsala Space Observatory, 2011
+$$ THU1,                                lon/lat:  291.2120   76.5373    0.00
+  .00783 .00327 .00192 .00084 .00602 .00243 .00193 .00007 .00153 .00094 .00087
+  .00184 .00077 .00040 .00020 .00137 .00081 .00045 .00013 .00006 .00003 .00003
+  .00065 .00023 .00016 .00006 .00073 .00035 .00023 .00007 .00005 .00001 .00000
+   -73.7  -35.5 -100.1  -35.1   74.6   20.3   71.1   -7.3   25.2   15.7    3.1
+   154.8 -175.0  133.4 -179.9  -71.6 -125.8  -73.5 -163.8  177.0  176.5  179.3
+    23.3   53.0    0.9   41.8 -117.1  142.2 -126.0   46.9  137.4  112.7   27.6
+$$ END TABLE

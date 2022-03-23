@@ -1,0 +1,235 @@
+      MODULE s_EEPSUB
+      CONTAINS
+
+C*
+      SUBROUTINE EEPSUB(REFEPO,SUMPER,NPAR,PARNAM,PARTIM,RMS,
+     1                  XXXAPR,XXX,ANOR)
+CC
+CC NAME       :  EEPSUB
+CC
+CC PURPOSE    :  PRINT SUBDAILY AMPLITUDE STATISTICS
+CC
+CC PARAMETERS :
+CC        IN  :  REFEPO(I),I=1,2: REFERENCE EPOCHS               R*8
+CC                        (1): REFERENCE EPOCH FOR DRIFT
+CC                             PARAMETERS, FIRST EPOCH PROCESSED
+CC                        (2): LAST EPOCH PROCESSED
+CC               SUMPER : MAXIMUM PERIOD FOR STATISTICS          R*8
+CC               NPAR   : MAXIMUM NUMBER OF PARAMETERS ALLOWED   I*4
+CC               PARNAM(I),I=1,..,NPAR: PARAMETER NAMES         CH*20
+CC               PARTIM(2,I),I=1,..,NPAR: PARAMETER WINDOWS      R*8
+CC                          FROM,TO IN MJD
+CC               RMS    : SUM OF O-C**2                          R*8
+CC               XXXAPR(I),I=1,..,NPAR: A PRIORI VALUES OF PARA. R*8
+CC               XXX(I),I=1,..,NPAR: SOLUTION VECTOR             R*8
+CC               ANOR(I),I=1,..,NPAR*(NPAR+1)/2: NORMAL EQUATION R*8
+CC                        MATRIX
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  4.1
+CC
+CC CREATED    :  26-MAR-98
+CC
+CC CHANGES    :  16-JUN-05 : MM: UNUSED COMCONST.inc REMOVED
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1998     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE f_ikf
+      USE s_subval
+      USE s_rdsubm
+      USE s_gtflna
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IFIRST, II    , IPAR  , IRCSUB, ITRM  , ITYP  ,
+     1          MAXPER, NPAR  , NSUB
+C
+      REAL*8    AMPRMS, ARG   , ARGR  , PERIOD, RMS   , SUMPER
+C
+CCC       IMPLICIT REAL*8(A-H,O-Z)
+C
+      PARAMETER (MAXPER=1000)
+C
+      CHARACTER*80 TITLE
+      CHARACTER*32 FILSUB
+      CHARACTER*20 PARNAM(*),PTXTTT(2),PARTXT(2,4)
+      CHARACTER*16 SUBNAM
+      CHARACTER*5  UNITS(2)
+C
+      REAL*8       PARTIM(2,*),XXXAPR(*),XXX(*),ANOR(*)
+      REAL*8       SUBFAR(6,6),SUBPER(MAXPER),SUBCOE(4,MAXPER)
+      REAL*8       REFEPO(2)
+      REAL*8       RMSDIF(2,4),RMSWGT(2,4),RMSDTT(2),RMSWTT(2)
+      REAL*8       MEADIF(2,4),MEADTT(2),SUMWGT(2,4),SUMWTT(2)
+C
+      INTEGER*4    SUBMLT(6,MAXPER),IFDARG(6),NTERM(2,4),NTERMT(2)
+C
+C
+      DATA IFIRST/1/
+      DATA UNITS/'MAS  ','MS   '/
+      DATA PTXTTT/'PM TOTAL            ','UT TOTAL            '/
+      DATA PARTXT/'PM DIURNAL PROGRADE ','UT DIURNAL PROGRADE ',
+     1            'PM DIURNAL RETROGR. ','UT DIURNAL RETROGR. ',
+     2            'PM SEMI-D. PROGRADE ','UT SEMI-D. PROGRADE ',
+     3            'PM SEMI-D. RETROGR. ','UT SEMI-D. RETROGR. '/
+C
+C GET REFERENCE SUBDAILY MODEL
+C ----------------------------
+      IF (IFIRST.EQ.1) THEN
+        CALL GTFLNA(0,'SUBREF ',FILSUB,IRCSUB)
+        IF (IRCSUB.EQ.0) THEN
+          CALL RDSUBM(MAXPER,FILSUB,TITLE ,SUBNAM,SUBFAR,NSUB  ,
+     1                SUBPER,SUBMLT,SUBCOE)
+        ELSE
+          NSUB=0
+        ENDIF
+C
+      ENDIF
+C
+C INITIALIZE RMS OF DIFFERENCES BETWEEN REFERENCE MODEL AND ESTIMATION
+C --------------------------------------------------------------------
+      DO ITYP=1,2
+        DO ITRM=1,4
+          NTERM(ITYP,ITRM)=0
+          MEADIF(ITYP,ITRM)=0.D0
+          RMSDIF(ITYP,ITRM)=0.D0
+          RMSWGT(ITYP,ITRM)=0.D0
+          SUMWGT(ITYP,ITRM)=0.D0
+        ENDDO
+      ENDDO
+C
+C LOOP OVER ALL FREQUENCIES
+C -------------------------
+      DO IPAR=1,NPAR
+C
+        IF (PARNAM(IPAR)(1:2).EQ.'SS' .OR.
+     1      PARNAM(IPAR)(1:2).EQ.'SC' .OR.
+     2      PARNAM(IPAR)(1:2).EQ.'US' .OR.
+     3      PARNAM(IPAR)(1:2).EQ.'UC') THEN
+C
+C POLAR MOTION OR UT
+          IF (PARNAM(IPAR)(1:1).EQ.'S') THEN
+            ITYP=1
+          ELSE
+            ITYP=2
+          ENDIF
+C
+C DIURNAL OR SEMI-DIURNAL, PROGRADE OR RETROGRADE
+          READ(PARNAM(IPAR)(3:20),'(6I3)') (IFDARG(II),II=1,6)
+C
+          IF (IFDARG(6).EQ. 1) THEN
+            ITRM=1
+          ELSEIF (IFDARG(6).EQ.-1) THEN
+            ITRM=2
+          ELSEIF (IFDARG(6).EQ. 2) THEN
+            ITRM=3
+          ELSE
+            ITRM=4
+          ENDIF
+C
+C GET PERIOD OF TERM
+          IF (IRCSUB.EQ.0) THEN
+            CALL SUBVAL(REFEPO(1),SUBFAR,IFDARG,ARG,ARGR,PERIOD)
+          ELSE
+            PERIOD=0.D0
+          ENDIF
+C
+C SUM UP DIFFERENCES BETWEEN ESTIMATION AND REFERENCE MODEL
+          IF (PERIOD.LE.SUMPER) THEN
+            NTERM(ITYP,ITRM)=NTERM(ITYP,ITRM)+1
+            AMPRMS=RMS*DSQRT(ANOR(IKF(IPAR,IPAR)))
+            MEADIF(ITYP,ITRM)=MEADIF(ITYP,ITRM)+DABS(XXX(IPAR))
+            RMSDIF(ITYP,ITRM)=RMSDIF(ITYP,ITRM)+XXX(IPAR)**2
+            RMSWGT(ITYP,ITRM)=RMSWGT(ITYP,ITRM)+(XXX(IPAR)/AMPRMS)**2
+            SUMWGT(ITYP,ITRM)=SUMWGT(ITYP,ITRM)+1.D0/AMPRMS**2
+          ENDIF
+        ENDIF
+      ENDDO
+C
+C WRITE RMS OF DIFFERENCES BETWEEN ESTIMATION AND REFERENCE MODEL
+C ---------------------------------------------------------------
+      DO ITYP=1,2
+        NTERMT(ITYP)=0
+        MEADTT(ITYP)=0.D0
+        RMSDTT(ITYP)=0.D0
+        RMSWTT(ITYP)=0.D0
+        SUMWTT(ITYP)=0.D0
+        DO ITRM=1,4
+          NTERMT(ITYP)=NTERMT(ITYP)+NTERM(ITYP,ITRM)
+          MEADTT(ITYP)=MEADTT(ITYP)+MEADIF(ITYP,ITRM)
+          RMSDTT(ITYP)=RMSDTT(ITYP)+RMSDIF(ITYP,ITRM)
+          RMSWTT(ITYP)=RMSWTT(ITYP)+RMSWGT(ITYP,ITRM)
+          SUMWTT(ITYP)=SUMWTT(ITYP)+SUMWGT(ITYP,ITRM)
+        ENDDO
+      ENDDO
+C
+      DO ITYP=1,2
+        IF (NTERMT(ITYP).NE.0) THEN
+          MEADTT(ITYP)=MEADTT(ITYP)/NTERMT(ITYP)
+          RMSDTT(ITYP)=DSQRT(RMSDTT(ITYP)/NTERMT(ITYP))
+          RMSWTT(ITYP)=DSQRT(RMSWTT(ITYP)/SUMWTT(ITYP))
+CCC          RMSWTT(ITYP)=DSQRT(RMSWTT(ITYP)/NTERMT(ITYP))
+        ENDIF
+C
+        DO ITRM=1,4
+          IF (NTERM(ITYP,ITRM).NE.0) THEN
+            MEADIF(ITYP,ITRM)=MEADIF(ITYP,ITRM)/NTERM(ITYP,ITRM)
+            RMSDIF(ITYP,ITRM)=DSQRT(RMSDIF(ITYP,ITRM)/NTERM(ITYP,ITRM))
+            RMSWGT(ITYP,ITRM)=
+     1          DSQRT(RMSWGT(ITYP,ITRM)/SUMWGT(ITYP,ITRM))
+CCC            RMSWGT(ITYP,ITRM)=
+CCC     1        DSQRT(RMSWGT(ITYP,ITRM)/NTERM(ITYP,ITRM))
+          ENDIF
+        ENDDO
+      ENDDO
+C
+C PRINT STATISTICS
+C ----------------
+      IF (NTERMT(1)+NTERMT(2).NE.0) THEN
+        WRITE(LFNPRT,1004) SUMPER*24.D0,NTERMT(1)+NTERMT(2)
+1004    FORMAT(1X,'RMS OF DIFFERENCES "EST-APR":',/,1X,28('-'),//,
+     1         1X,'LONGEST PERIOD CONSIDERED:',F10.3,' HOURS',/,
+     2         1X,'NUMBER OF FREQUENCIES    :',I10,//,
+     3         1X,'PARAMETERS           #FREQ   UNITS     MEAN ABS',
+     4            '     UNWEIGHTED     WEIGHTED',/)
+      ENDIF
+C
+C TOTALS
+      DO ITYP=1,2
+        IF (NTERMT(ITYP).NE.0) THEN
+          WRITE(LFNPRT,1005) PTXTTT(ITYP),NTERMT(ITYP),UNITS(ITYP),
+     1                       MEADTT(ITYP),RMSDTT(ITYP),RMSWTT(ITYP)
+1005      FORMAT(1X,A20,I5,5X,A5,F12.5,2F14.5)
+        ENDIF
+      ENDDO
+C
+      WRITE(LFNPRT,'( )')
+C
+C INDIVIDUAL BANDS
+      DO ITYP=1,2
+        DO ITRM=1,4
+          IF (NTERM(ITYP,ITRM).NE.0) THEN
+            WRITE(LFNPRT,1005) PARTXT(ITYP,ITRM),NTERM(ITYP,ITRM),
+     1                         UNITS(ITYP),MEADIF(ITYP,ITRM),
+     2                         RMSDIF(ITYP,ITRM),RMSWGT(ITYP,ITRM)
+          ENDIF
+        ENDDO
+      ENDDO
+C
+      WRITE(LFNPRT,'(/)')
+C
+C END
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

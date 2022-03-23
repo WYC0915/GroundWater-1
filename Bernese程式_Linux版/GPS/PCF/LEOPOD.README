@@ -1,0 +1,352 @@
+======================================================================
+Bernese GNSS Software, Version 5.2              Last mod.: 01-Nov-2012
+----------------------------------------------------------------------
+LEOPOD.PCF README
+======================================================================
+
+
+------------------------------------------------------------
+Purpose:
+------------------------------------------------------------
+
+PRECISE ORBIT DETERMINATION FOR LOW EARTH ORBITER
+- reduced-dynamic and kinematic orbits
+
+
+------------------------------------------------------------
+Description:
+------------------------------------------------------------
+
+This BPE performs reduced-dynamic and kinematic orbit
+determinations for one LEO.
+
+The following results are obtained:
+- screened carrier phase observation files
+- reduced-dynamic orbit solution with piece-wise constant
+  accelerations as empirical parameters
+- kinematic orbit solution
+- orbit comparison between both orbit solutions
+
+
+------------------------------------------------------------
+Quality control:
+------------------------------------------------------------
+
+The processing is summarized in a so-called protocol file.
+It is compiled in the BPE user script LEO_SUM and exists first
+in the OUT directory of the campaign. Depending on the settings
+for the BPE server variables at the end this protocol file is
+copied by the LEO_SAV script (if V_SAV == 'Y')
+-->> ${S}/{V_RESULT}/yyyy/OUT/${V_LEO}${V_F}yyssss.PRC
+and is removed from the campaign area by the script LEO_DEL
+(if V_DEL == 'Y')
+
+This protocol file is divided into sections related to the
+different tasks/features of the BPE:
+
+PART 0: GNSS ORBIT GENERATION SUMMARY
+   Summary file from ORBGEN reports the RMS of the fit of the
+   satellite position given in the precise orbit file
+   ${D}/{V_B}/(V_B}wwwwd.PRE with the orbit model from
+   ORBGEN. It is expected that the RMS is on the few
+   millimeters level. If the RMS is bigger, you should check
+   the consistency of the Earth rotation files
+   ${D}/{V_B}/(V_B}wwww7.ERP. It might also be necessary
+   to split the orbital arc into two or three arcs (number
+   of arcs within the time window in the last panel of the
+   ORBGEN input file). It is essential that the RMS of the
+   orbit fit can be reduced to the few millimeters level since
+   the satellite clock corrections for the PPP (in this case
+   the special application on LEO POD) refer to the original
+   position of the satellite in the given precise orbit file.
+PART 1: RINEX CONSISTENCY CHECK
+   Inconsistencies between the RINEX file from the LEO and the
+   station information file are listed here. Unfortunately, this
+   list is quite long for most of the LEOs. The reason is that
+   no convention exists on how the LEO receivers and antennas
+   should be named. Additionally, in most cases, the
+   MARKER TYPE entry SPACEBORNE is missing. This description is,
+   however, mandatory for the LEO processing in the Bernese
+   GNSS Software.
+PART 2: ${V_LEO} A PRIORI ORBIT GENERATION SUMMARY
+   Summary file from ORBGEN reports the RMS of the fit of the
+   satellite position given in the precise orbit file
+   {V_A}yyssss.PRE with the orbit model from ORBGEN.
+   The positions in the precise orbit file are kinematic
+   positions derived from code observations of the LEO.
+   It is expected that the RMS is on the few meters level. This
+   depends on the code observation quality and whether the
+   orbit can be fitted well without any empirical accelerations.
+PART 3: DATA SCREENING SUMMARY (A PRIORI ORBIT IMPROVEMENT WITH
+        GPSEST)
+   The data screening is done iteratively, because the first a
+   priori orbit is not yet good enough for a reliable screening
+   result in MAUPRP. Therefore, an orbit improvement step
+   including GPSEST and ORBGEN is done. This loop is iterated
+   three times to be sure that the result is sufficient. In the
+   PRC file the GPSEST summaries are listed from these three
+   iterations.
+PART 4: ${V_LEO} A PRIORI ORBIT SUMMARY BEFORE FINAL ORBIT
+        DETERMINATION
+   Summary file from ORBGEN reports the RMS of the fit of the
+   satellite position given in the precise orbit file
+   {V_A}_yyssss.PRE with the orbit model from ORBGEN.
+   The positions in the precise orbit file are converted from
+   the STD file, which was derived from the iterative data
+   screening plus orbit improvement step. This STD file contains
+   epoch-wise accelerations (pseudo-stochastic pulses) every
+   15 minutes. The final reduced-dynamic orbit will be generated
+   with piece-wise constant accelerations every 6 minutes. Due
+   to the mixture of empirical parameters and the different
+   sampling you have to generate a new STD file without pulses
+   with ORBGEN.
+   It is expected that the RMS is on the meter level. This
+   depends on how well the orbit of ${V_LEO} can be fitted
+   without setting up any stochastic pulses.
+PART 5: REDUCED-DYNAMIC ORBIT DETERMINATION
+   Part of the GPSEST output is listed in the PRC file. In
+   addition, an RESRMS summary of the reduced-dynamic orbit
+   generation is listed to validate the quality of the
+   observations. One may detect GPS satellites with problems
+   here.
+PART 6: KINEMATIC ORBIT DETERMINATION
+   Part of the GPSEST output is listed in the PRC file. In
+   addition, an RESRMS summary of the kinematic orbit
+   generation is listed to validate the quality of the
+   observations. One may detect GPS satellites with problems
+   here.
+PART 7: ORBIT COMPARISON
+   The reduced-dynamic and kinematic orbit may be compared by
+   the program ORBCMP. The comparison is done for the
+   radial, along-track and out-of-plane directions. The
+   summary of this comparison in terms of RMS, mean, minimum
+   and maximum values is listed in the PRC file. Normally, this
+   comparison shows values in the range of a few centimeters.
+
+
+------------------------------------------------------------
+BPE server variables:
+------------------------------------------------------------
+
+There are several variables, assigned with a default value
+here in the PCF (last section of this file). When starting
+a BPE manually they may be modified in the fourth panel
+'BPE 4: Server Variables Sent to Client'.
+
+The following group of BPE server variables are used as
+solution identifiers, consequently used for file naming
+within the BPE processing:
+V_LEO (default: GRCA)
+   Name (4-character ID) of the LEO to be processed. The RINEX
+   and attitude files must have this 4-character ID at the
+   beginning of the name. This name is also used for naming
+   the directory on the savedisk as well as the PRC file of
+   the BPE run. The BPE is prepared for GRCA and GRCB.
+V_A (default: A)
+   Identifier for the a priori orbit and data screening files.
+V_F (default: AF)
+   Identifier for the final orbit solution of the LEO. The
+   result files of the reduced-dynamic and kinematic orbit
+   generation use this identifier.
+V_B (default: COD)
+   Name of the external product for GNSS orbit, ERP and
+   satellite clock information.
+   It is expected that the products are available in the
+   ${D} (datapool) area in a specific subdirectory V_B; the
+   filenames must also contain this label: {V_B}wwwwd
+   (see input file section for more details)
+V_SAMPL (default: 30)
+   Sampling of the LEO GPS observations. Many LEO missions
+   provide a higher sampling than 30 sec. If you would like
+   to use a higher sampling, e.g., 10 sec, you should have
+   GPS clock corrections available with this sampling. You
+   may also interpolate the clock corrections (corresponding
+   option in CODSPP, MAUPRP, and GPSEST), but the gain in
+   the number of observations then does not help, because
+   due to the interpolation of the clocks the observation
+   noise grows significantly.
+V_MINEL (default: 5)
+   Elevation cut-off angle for observations. Many LEO
+   missions provide observations down to 0 degree elevation,
+   but you have to be sure that these observations are not
+   of degraded quality. You should only use the observations
+   down to the elevation angle where PCV corrections are
+   available (if you have any) for the LEO antenna.
+V_BLQINF (default: EXAMPLE)
+   ${V_BLQINF}.BLQ file, which contains center-of-mass
+   corrections (CMC) connected to ocean tidal loading.
+   These corrections are needed for the orbit generation.
+V_ATLINF (default: EXAMPLE)
+   ${V_ATLINF}.ATL file, which contains CMC connected to
+   atmospheric tidal loading. These corrections are needed
+   for the orbit generation.
+
+V_REFDIR (default: REF52)
+   Directory in the ${D} (datapool) area where the basic Bernese
+   files for the processing are located. The detailed list of
+   files is given in the section on Input files.
+V_LEODIR (default: LEO)
+   Directory with LEO data files in the ${D} (datapool) area.
+   The detailed list of necessary files is given in the section
+   'Input files' below. Copying these files is managed in the
+   BPE user script LEO_RNX.
+V_CRDINF (default: EXP_LEO)
+   The basename of the files used as basic Bernese input files
+   (CRD, ABB, CRX and STA) for this LEO POD procedure.
+   Copying these files is managed in the BPE user script LEO_COP.
+
+Model selection related BPE variables:
+V_RESULT (default: LEOPOD)
+   Directory in the ${S} (savedisk) area where the result files
+   from the LEO-POD processing are collected in yearly
+   subdirectories. It is recommended to include the name of the
+   processed LEO in the archive name.
+   (saving of the result files is managed by the BPE user
+   script LEO_SAV).
+V_PCV (default: I08)
+   Selection of the antenna phase center model identifier
+V_SATINF (default: SATELLIT)
+   Basename of the satellite information file
+   The resulting filename is ${X}/GEN/{V_SATINF}.{V_PCV}
+V_PCVINF (default: PCV)
+   Basename of the antenna phase center correction file
+   The resulting filename is ${X}/GEN/{V_PCVINF}.{V_PCV}
+   If you create your own antenna phase center correction
+   file considering your own station information file using
+   the program ATX2PCV (menu > Conversion > ANTEX to Bernese
+   format) we recommend to change the filename to indicate
+   which station information file was used (e.g., PCV_EXAMPLE).
+V_SATCRX (default: SAT_$Y+0)
+   Name of the satellite problem file
+V_SAV (default: Y)
+   Save result file into the ${S}/{V_RESULT}-area
+   if V_SAV == 'Y'. This variable is managed by the BPE user
+   script PPP_SAV.
+V_DEL (default: Y)
+   Delete all files from the currently processed session from
+   the campaign if V_DEL == 'Y'; managed in PPP_DEL user script.
+   Usually the deletion should be enabled to keep the campaign
+   clean. For debugging purposes and to identify sources for
+   errors in the processing it may be useful to keep all files.
+ATTENTION: This logic implies that you will see no results in
+   case of Y_SAV == 'N' and V_DEL == 'Y' (clean up the campaign
+   but do not store the results).
+
+
+------------------------------------------------------------
+Input files:
+------------------------------------------------------------
+
+The input files are copied from the DATAPOOL area into
+  campaign area by the BPE user script 'LEO_COP':
+
+- External products files (mandatory):
+  -->>  ${D}/{V_B}/(V_B}wwwwd.PRE
+  -->>  ${D}/{V_B}/(V_B}wwwwd.CLK
+  -->>  ${D}/{V_B}/(V_B}wwww7.ERP
+  The variable V_B is defined above in the 'BPE server
+  variables' section and defines the product series to be
+  considered for the PPP (e.g., COD or IGS), where wwwwd
+  stands for the GPS week and the day of week to be
+  processed.
+  Note: orbit, ERP and satellite clock corrections
+  need to be fully consistent for a PPP!!!
+
+- Bernese formatted products files (mandatory):
+  -->>  ${D}/BSW52/P1C1yymm.DCB
+  The DCB corrections are necessary to unify the reference
+  for the different receiver tracking techniques to the
+  'P3'-reference as the IGS satellite clocks are provided
+  (yymm is related to the months of the processing session).
+  The file can be downloaded from
+       ftp://ftp.unibe.ch/aiub/CODE
+
+- General files, which are necessary for the processing
+  -->>  ${D}/{V_REFDIR}/(V_CRDINF}.CRD
+  -->>  ${D}/{V_REFDIR}/(V_CRDINF}.ABB
+
+- Station naming/equipment checking (mandatory)
+  The station information file
+  -->>  ${D}/{V_REFDIR}/(V_CRDINF}.STA
+  is mandatory for LEO processing, because the entry for the
+  MARKER TYPE in section TYPE 005: HANDLING STATION TYPES is
+  needed for the processing programs.
+
+- Tidal loading corrections (optional)
+  Ocean and atmospheric tidal loading files contain
+  corresponding CMC (center-of-mass correction) values for the
+  translation of the orbit positions from the Earth fixed
+  system in the center-of-mass system for the orbit
+  integration.
+  -->>  ${D}/{V_REFDIR}/(V_BLQINF}.BLQ
+  -->>  ${D}/{V_REFDIR}/(V_ATLINF}.ATL
+
+
+------------------------------------------------------------
+Observations:
+------------------------------------------------------------
+
+The GPS observation files are expected in RINEX format (Hatanaka
+compressed is allowed if the decompression program is available
+in ${X}/EXE/CRX2RNX -- see variable $c2rPgm definition
+in ${BPE}/bpe_util.pm) in the directory
+  -->>  ${D}/RINEX/
+The RINEX observation files of the LEO are stored in the
+directory
+  -->>  ${D}/${V_LEODIR}/RINEX/
+The corresponding attitude files of the LEO are stored in the
+directory
+  -->>  ${D}/${V_LEODIR}/ATTIT/
+The attitude files are named as follows ${V_LEO}<yyssss>.ATT.
+The BPE is designed in the way that the attitude file is
+mandatory. If you do not have an attitude file available you
+have to modify it in the corresponding program input panels
+(MAUPRP, GPSEST, and CODSPP)
+
+
+------------------------------------------------------------
+Result files:
+------------------------------------------------------------
+
+The most important result files are copied by the BPE
+user script LEO_SAV into the ${S}/{V_LEODIR}/{V_LEO}
+area (V_LEODIR and V_LEO are defined above in the 'BPE server
+variables' section) if the BPE server variable V_SAV == 'Y'. The
+files are located in yearly subdirectories (yyyy). These files
+are:
+
+-->> ${S}/{V_LEODIR}/{V_LEO}/yyyy/OUT/{V_LEO}{V_F}yyssss.PRC
+Main protocol file containing the summary of the processing
+steps (more details are provided in the 'Quality control'
+section).
+
+-->> ${S}/{V_LEODIR}/{V_LEO}/yyyy/OUT/RD{V_F}yyssss.RES
+-->> ${S}/{V_LEODIR}/{V_LEO}/yyyy/OUT/KN{V_F}yyssss.RES
+Phase observation residuals from the reduced-dynamic (RD) and
+kinematic (KN) orbit determination.
+
+-->> ${S}/{V_LEODIR}/{V_LEO}/yyyy/OUT/KN{V_F}yyssss.CLK.gz
+Clock RINEX file (gzip compressed) with the receiver clock
+corrections for the LEO from the kinematic positioning
+together with the used satellite clock corrections.
+
+-->> ${S}/{V_LEODIR}/{V_LEO}/yyyy/STA/KN{V_F}yyssss.KIN
+Resulting kinematic positions of the LEO.
+
+-->> ${S}/{V_LEODIR}/{V_LEO}/yyyy/ORB/RD{V_F}yyssss.PRE
+-->> ${S}/{V_LEODIR}/{V_LEO}/yyyy/ORB/RD{V_F}yyssss.ELE
+-->> ${S}/{V_LEODIR}/{V_LEO}/yyyy/ORB/RD{V_F}yyssss.STD
+Result files of the reduced-dynamic orbit determination, PRE
+file with Earth-fixed positions and velocities (sp3c format),
+ELE file with orbital elements and values of the empirical
+parameters, STD file with orbit in inertial system (binary file)
+
+-->> ${S}/{V_LEODIR}/{V_LEO}/yyyy/ORB/KN{V_F}yyssss.PRE
+Result file of the kinematic orbit determination, PRE file
+with Earth-fixed positions (sp3c format)
+
+Note: the BPE server variable V_LEODIR is defined per
+default by the identifier 'LEO', because the input files for
+the LEO processing are stored in this directory in the datapool.
+
+======================================================================

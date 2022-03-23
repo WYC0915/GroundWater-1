@@ -1,0 +1,45 @@
+package CCRINEXN;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  CCRINEXN
+#
+# Purpose :  Copy all GPS navigation files for the session
+#            from RAW to ORX and execute CCRINEXN
+#
+# PARAMs  :
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use File::Copy;
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($ssss,
+      $dirRxn,  $dirOrx,
+      $extRxn,  $extOrx) =
+  $bpe->getKeys
+     ('$S+0',
+      'DIR_RXN','DIR_OXN',
+      'EXT_RXN','EXT_RXN');
+
+# Move the input files from RAW to ORX
+# ------------------------------------
+  unlink glob "${dirOrx}????${ssss}.$extOrx";
+  map { move($_, $dirOrx) } glob "${dirRxn}????${ssss}.$extRxn";
+
+# Run program
+# -----------
+  my $PGMNAM = "CCRINEXN";
+  $bpe->RUN_PGMS($PGMNAM);
+
+}

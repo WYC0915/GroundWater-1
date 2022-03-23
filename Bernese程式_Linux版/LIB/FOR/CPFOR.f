@@ -1,0 +1,73 @@
+      MODULE s_CPFOR
+      CONTAINS
+
+C*
+      SUBROUTINE CPFOR(CPFROM,CPTO)
+CC
+CC NAME       :  CPFOR
+CC
+CC PURPOSE    :  USE A SYSTEM COMMAND TO COPY A FILE
+CC               (BPE)
+CC
+CC PARAMETERS :
+CC
+CC         IN : CPFROM: FILE TO COPY FROM       CH*(*)
+CC            : CPTO  : FILE TO COPY TO         CH*(*)
+CC      IN/OUT: ------
+CC        OUT : ------
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  C. ROCKEN
+CC               J. JOHNSON
+CC
+CC VERSION    :  3.6  (AUG 94)
+CC
+CC CREATED    :  22-AUG-94
+CC
+CC CHANGES    :  10-SEP-95 : LM: KEEP_LOWER_ON
+CC               01-OCT-96 : MR: REMOVE TRAILING BACKSLASH FOR DOS
+CC               13-MAY-97 : MR: "CPTO2" DECLARATION ONLY FOR LAHEY
+CC               08-SEP-98 : MR: USE "SYSCMD"
+CC               17-FEB-03 : LM: USE PREPROCESSOR COMMANDS
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               29-OCT-12 : RD: REMOVE #ifdef OS_VMS
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1991     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE f_lengt0
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 ILF   , ILT
+C
+      CHARACTER*(*) CPFROM,CPTO
+      CHARACTER*255 COMMAND
+
+#ifdef OS_WIN32
+      CHARACTER*255 CPTO2
+#endif
+
+      ILF=LENGT0(CPFROM)
+      ILT=LENGT0(CPTO)
+
+#ifdef OS_UNIX
+      COMMAND = 'cp '//CPFROM(1:ILF)//' '//CPTO(1:ILT)
+      CALL SYSCMD(COMMAND,LEN(COMMAND))
+#endif
+
+#ifdef OS_WIN32
+      CPTO2=CPTO
+      IF (CPTO2(ILT:ILT).EQ.'\') CPTO2(ILT:ILT)=' '
+      COMMAND = 'copy '//CPFROM(1:ILF)//' '//CPTO2(1:ILT)
+      CALL SYSCMD(COMMAND,LEN(COMMAND))
+#endif
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

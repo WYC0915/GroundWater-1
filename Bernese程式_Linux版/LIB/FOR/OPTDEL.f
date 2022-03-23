@@ -1,0 +1,406 @@
+      MODULE s_OPTDEL
+      CONTAINS
+
+C*
+      SUBROUTINE OPTDEL(IOPT,NFREQ,NSATEL,NUMSAT,NDEL,LSTDEL)
+CC
+CC NAME       :  OPTDEL
+CC
+CC PURPOSE    :  DISPLAY, ADD AND RESET AREAS OF MARKED OBSERVATIONS
+CC
+CC PARAMETERS :
+CC         IN :  IOPT   : OPTION                              I*4
+CC                        =1: DISPLAY MARKED AREAS
+CC                        =2: ADD     MARKED AREAS
+CC                        =3: RESET   MARKED AREAS
+CC               NFREQ  : NUMBER OF FREQUENCIES IN FILE       I*4
+CC               NSATEL : TOTAL NUMBER OF SATELLITES          I*4
+CC               NUMSAT(I),I=1,..,NSATEL: SATELLITE NUMBERS   I*4
+CC     IN/OUT :  NDEL   : NUMBER OF AREAS OF MARKED OBS.      I*4
+CC               LSTDEL(K,I),K=1,..,5, I=1,2,..,NDEL          I*4
+CC                        DEFINITION OF MARK REQUEST NUMBER I
+CC                        (1,I): SV-NUMBER
+CC                        (2,I): FIRST EPOCH OF MARKED AREA I
+CC                        (3,I): LAST  EPOCH OF MARKED AREA I
+CC                        (4,I): FREQUENCY (1=L1, 2=L2)
+CC                        (5,I): MARKED BY
+CC                               =1: SINGLE FREQ. REJECTION
+CC                               =2: DUAL   FREQ. REJECTION
+CC                               =3: UNPAIRED L1/L2 OBSERVATIONS
+CC                               =4: USER
+CC                               =5: SMALL ELEVATION
+CC                               =6: SMALL PIECES
+CC                               =7: BAD OBSERVED-COMPUTED
+CC                               ALL AREAS MARKED OR CHANGED IN THE
+CC                               LATEST RUN HAVE A NEGATIVE SIGN
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER, L.MERVART
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  89/08/04 22:21
+CC
+CC CHANGES    :  05-JUN-92 : ??: CHANGES FOR THE NEW MAUPRP VERSION
+CC               31-MAR-93 : ??: ADD CHECK FOR TIME INTERVAL
+CC               13-JAN-94 : SF:INTERNAL READ WITH FORMAT "*" REPLACED
+CC                              BY INPCI4
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               24-APR-95 : MR: ADD MARKING TYPE "O-C"
+CC               28-JUL-98 : MR: MODIFICATIONS FOR GLONASS
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               03-JUL-09 : SL: INPCI4(.,1,...) CALLS CORRECTED
+CC               27-MAR-12 : RD: USE PROMP1 AS MODULE NOW
+CC               28-MAR-12 : RD: USE INPCI4 AS MODULE NOW
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1989     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern,  ONLY: LFNKBD, LFNPRT, LFNERR
+      USE s_promp1
+      USE s_dspdel
+      USE s_exitrc
+      USE s_upperc
+      USE f_inpci4
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IDEFRQ, IDEL  , IDEL1 , IDEL2 , IDELF1, IDELS1, IDESVN,
+     1          IDETY1, IDETYP, IEPO1 , IEPO2 , IFIRST, IFRDE1,
+     2          IFRDEL, IFRQ  , IFRQ1 , IFRQ2 , IHFRQ , IHSVN , IHTIT ,
+     3          INEW  , IOPT  , IRC   , IRCODE, ISATEL, ISUMRY,
+     4          ITITLE, ITYPA , IVAL  , MAXDLT, MXCDEL, NDEL  , NFREQ ,
+     5          NSATEL
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      PARAMETER (MAXDLT=7)
+C
+      CHARACTER*80 STRING(4)
+      CHARACTER*72 INPUT
+      CHARACTER*6  MXNDEL
+      CHARACTER*3  DELSVN
+      CHARACTER*1  DELTYP,DELFRQ,CDUMMY
+C
+      INTEGER*4    NUMSAT(*),LSTDEL(5,*),IEP(2),IDE(2),IDUMMY(1)
+C
+      COMMON/MCMDEL/MXCDEL,MXNDEL
+C
+      DATA IFIRST/1/
+      STRING(1)=' '
+C
+C INITIALIZATION OF DEFAULTS
+C --------------------------
+      IF(IFIRST.EQ.1) THEN
+        IFIRST=0
+        DELSVN='A'
+        IDESVN=0
+        DELTYP='A'
+        IDETYP=0
+        DELFRQ='A'
+        IDEFRQ=0
+        IFRDEL=3
+      ENDIF
+      IF(DELTYP.EQ.'S') DELTYP='A'
+C
+C BRANCH ACCORDING TO OPTION
+C --------------------------
+      GOTO (100,200,300) IOPT
+C
+C OPTION 21: DISPLAY MARKED OBSERVATION AREAS
+C -------------------------------------------
+C
+C ENTER TYPE OF MARKED AREA TO BE DISPLAYED
+100   STRING(2)='TYPE OF MARKED AREA TO BE DISPLAYED'
+      STRING(3)='(SINGLE FRQ.=1,DUAL FRQ.=2,UNPAIRED=3,USER=4,'//
+     1          'ELEV.=5,PIECES=6,O-C=7,'
+      WRITE(STRING(4),101) DELTYP
+101   FORMAT('SUMMARY=S,ALL=A,END=E,DF:',A1,')')
+      CALL PROMP1(4,STRING)
+      READ(LFNKBD,102) INPUT
+102   FORMAT(A)
+      IF(INPUT.NE.' ') THEN
+        CALL UPPERC(INPUT)
+        IF(INPUT.EQ.'E') GOTO 999
+        IF(INPUT.EQ.'S') THEN
+          ISUMRY=2
+        ELSE IF(INPUT.EQ.'A') THEN
+          DELTYP='A'
+          IDETYP=0
+          ISUMRY=0
+        ELSE
+          IVAL=INPCI4(-72,1,0,INPUT,(/IDETY1/),CDUMMY,IDUMMY,IRCODE)
+          IF (IRCODE.NE.0) GOTO 100
+          IF(IDETY1.LT.1.OR.IDETY1.GT.MAXDLT) THEN
+            WRITE(LFNPRT,103) IDETY1
+103         FORMAT(/,' INVALID TYPE SELECTION:',I3)
+            GOTO 100
+          ENDIF
+          IDETYP=IDETY1
+          WRITE(DELTYP,104) IDETYP
+104       FORMAT(I1)
+          ISUMRY=0
+        ENDIF
+      ENDIF
+C
+C DISPLAY MARKED OBSERVATION AREAS
+      IHTIT=1
+      INEW =0
+      IHFRQ=0
+      IHSVN=0
+      CALL DSPDEL(IHTIT,ISUMRY,INEW,IDETYP,IHFRQ,IHSVN,
+     1            NFREQ,NSATEL,NUMSAT,
+     2            NDEL,LSTDEL,IRC)
+      GOTO 100
+C
+C OPTION 22: ADD MARKED AREA
+C --------------------------
+C
+C ENTER FREQUENCY
+200   IF(NFREQ.EQ.1) THEN
+        IFRDEL=1
+      ELSE
+        WRITE(STRING(2),201) IFRDEL
+201     FORMAT('FREQUENCY TO BE MARKED (1,2,BOTH=3,END=E,DF:',I1,')')
+        CALL PROMP1(2,STRING)
+        READ(LFNKBD,102) INPUT
+        CALL UPPERC(INPUT)
+        IF(INPUT.EQ.'E') GOTO 999
+        IF(INPUT.NE.' ') THEN
+          IVAL=INPCI4(-72,1,0,INPUT,(/IFRDE1/),CDUMMY,IDUMMY,IRCODE)
+          IF (IRCODE.NE.0) GOTO 200
+          IF(IFRDE1.LT.1.OR.IFRDE1.GT.3) THEN
+            WRITE(LFNPRT,202) IFRDE1
+202         FORMAT(/,' INVALID FREQUENCY SELECTION:',I3)
+            GOTO 200
+          ENDIF
+          IFRDEL=IFRDE1
+        ENDIF
+      ENDIF
+C
+C ENTER SATELLITE
+210   WRITE(STRING(2),211) DELSVN
+211   FORMAT('SATELLITE (ALL=A,END=E,DF:',A3,')')
+      CALL PROMP1(2,STRING)
+      READ(LFNKBD,102) INPUT
+      CALL UPPERC(INPUT)
+      IF(INPUT.EQ.'E'.AND.NFREQ.EQ.1) GOTO 999
+      IF(INPUT.EQ.'E'.AND.NFREQ.EQ.2) GOTO 200
+      IF(INPUT.NE.' ') THEN
+        IF(INPUT.EQ.'A') THEN
+          DELSVN='A  '
+          IDESVN=0
+        ELSE
+          IVAL=INPCI4(-72,1,0,INPUT,(/IDELS1/),CDUMMY,IDUMMY,IRCODE)
+          IF (IRCODE.NE.0) GOTO 200
+          DO 215 ISATEL=1,NSATEL
+            IF(NUMSAT(ISATEL).EQ.IDELS1) GOTO 218
+215       CONTINUE
+          WRITE(LFNPRT,216) IDELS1
+216       FORMAT(/,' SATELLITE NOT FOUND:',I3)
+          GOTO 210
+218       IDESVN=IDELS1
+          WRITE(DELSVN,219) IDESVN
+219       FORMAT(I3)
+        ENDIF
+      ENDIF
+C
+C ENTER FROM TO
+220   WRITE(STRING(2),221)
+221   FORMAT('EPOCH NUMBERS (FROM,TO)')
+      CALL PROMP1(2,STRING)
+      READ(LFNKBD,102) INPUT
+      IVAL=INPCI4(-72,2,0,INPUT,IEP,CDUMMY,IDUMMY,IRCODE)
+      IEPO1=IEP(1)
+      IEPO2=IEP(2)
+      IF (IRCODE.EQ.8)THEN
+        IEPO2=IEPO1
+      ELSE IF (IRCODE.NE.0) THEN
+        GOTO 220
+      ENDIF
+      IF (IEPO1.GT.IEPO2) THEN
+        WRITE(LFNPRT,223) IEPO1,IEPO2
+223     FORMAT(/,' INVALID TIME INTERVAL: START EPOCH (=',I5,') LARGER',
+     1         /,' THAN END EPOCH (=',I5,')')
+        GOTO 220
+      ENDIF
+C
+C DEFINE NEW MARKED AREA(S)
+      IF(IFRDEL.EQ.3) THEN
+        IFRQ1=1
+        IFRQ2=2
+      ELSE
+        IFRQ1=IFRDEL
+        IFRQ2=IFRDEL
+      ENDIF
+      DO 240 IFRQ=IFRQ1,IFRQ2
+        IF(DELSVN.EQ.'A') THEN
+          DO 230 ISATEL=1,NSATEL
+            NDEL=NDEL+1
+            IF(NDEL.GT.MXCDEL) THEN
+              WRITE(LFNERR,901) NDEL,MXCDEL
+901           FORMAT(/,' *** SR OPTDEL: MAX. NUMBER OF ',
+     1                                 'DELETIONS EXCEEDED',
+     2                      /,16X,'NUMBER OF DELETIONS >=',I6,/,
+     3                        16X,'MAX. NUMBER OF DEL.  :',I6,/)
+              CALL EXITRC(2)
+            ENDIF
+            LSTDEL(1,NDEL)=NUMSAT(ISATEL)
+            LSTDEL(2,NDEL)=IEPO1
+            LSTDEL(3,NDEL)=IEPO2
+            LSTDEL(4,NDEL)=IFRQ
+            LSTDEL(5,NDEL)=-4
+230       CONTINUE
+        ELSE
+          NDEL=NDEL+1
+          IF(NDEL.GT.MXCDEL) THEN
+            WRITE(LFNERR,901) NDEL,MXCDEL
+            CALL EXITRC(2)
+          ENDIF
+          LSTDEL(1,NDEL)=IDESVN
+          LSTDEL(2,NDEL)=IEPO1
+          LSTDEL(3,NDEL)=IEPO2
+          LSTDEL(4,NDEL)=IFRQ
+          LSTDEL(5,NDEL)=-4
+        ENDIF
+240   CONTINUE
+      GOTO 210
+C
+C OPTION 23: RESET MARKED AREA
+C ----------------------------
+C
+C ENTER DELETION TYPE
+300   STRING(2)='TYPE OF MARKED AREA TO BE RESET'
+      STRING(3)='(SINGLE FRQ.=1,DUAL FRQ.=2,UNPAIRED=3,USER=4,'//
+     1          'ELEV.=5,PIECES=6,O-C=7,'
+      WRITE(STRING(4),301) DELTYP
+301   FORMAT('ALL=A,END=E,DF:',A1,')')
+      CALL PROMP1(4,STRING)
+      READ(LFNKBD,102) INPUT
+      IF(INPUT.NE.' ') THEN
+        CALL UPPERC(INPUT)
+        IF(INPUT.EQ.'E') GOTO 999
+        IF(INPUT.EQ.'A') THEN
+          DELTYP='A'
+          IDETYP=0
+        ELSE
+          IVAL=INPCI4(-72,1,0,INPUT,(/IDETY1/),CDUMMY,IDUMMY,IRCODE)
+          IF (IRCODE.NE.0) GOTO 300
+          IF(IDETY1.LT.1.OR.IDETY1.GT.MAXDLT) THEN
+            WRITE(LFNPRT,103) IDETY1
+            GOTO 300
+          ENDIF
+          IDETYP=IDETY1
+          WRITE(DELTYP,104) IDETYP
+        ENDIF
+      ENDIF
+C
+C ENTER FREQUENCY TO BE RESET
+310   IF(NFREQ.EQ.1) THEN
+        DELFRQ='1'
+        IDEFRQ=1
+      ELSE
+        WRITE(STRING(2),311) DELFRQ
+311     FORMAT('FREQUENCY TYPES TO BE RESET ',
+     1           '(1,2,ALL=A,DF:',A1,')')
+        CALL PROMP1(2,STRING)
+        READ(LFNKBD,102) INPUT
+        IF(INPUT.NE.' ') THEN
+          CALL UPPERC(INPUT)
+          IF(INPUT.EQ.'A') THEN
+            DELFRQ='A'
+            IDEFRQ=0
+          ELSE
+            IVAL=INPCI4(-72,1,0,INPUT,(/IDELF1/),CDUMMY,IDUMMY,IRCODE)
+            IF (IRCODE.NE.0) GOTO 310
+            IF(IDELF1.LT.1.OR.IDELF1.GT.2) THEN
+              WRITE(LFNPRT,202) IDELF1
+              GOTO 310
+            ENDIF
+            IDEFRQ=IDELF1
+            WRITE(DELFRQ,104) IDEFRQ
+          ENDIF
+        ENDIF
+      ENDIF
+C
+C ENTER SATELLITE
+320   WRITE(STRING(2),321) DELSVN
+321   FORMAT('SATELLITE (ALL=A,DF:',A3,')')
+      CALL PROMP1(2,STRING)
+      READ(LFNKBD,102) INPUT
+      CALL UPPERC(INPUT)
+      IF(INPUT.NE.' ') THEN
+        IF(INPUT.EQ.'A') THEN
+          DELSVN='A  '
+          IDESVN=0
+        ELSE
+          IVAL=INPCI4(-72,1,0,INPUT,(/IDELS1/),CDUMMY,IDUMMY,IRCODE)
+          IF (IRCODE.NE.0) GOTO 320
+          DO 325 ISATEL=1,NSATEL
+            IF(NUMSAT(ISATEL).EQ.IDELS1) GOTO 330
+325       CONTINUE
+          WRITE(LFNPRT,216) IDELS1
+          GOTO 320
+330       IDESVN=IDELS1
+          WRITE(DELSVN,219) IDESVN
+        ENDIF
+      ENDIF
+C
+C PRINT ALL SETS WITH THE ENTERED SPECIFICATIONS
+340   WRITE(LFNPRT,341)
+341   FORMAT(//,1X,72('-'),
+     1       /,' LIST OF MARKED AREAS WITH ENTERED SPECIFICATIONS',
+     2       /,1X,72('-'))
+      ITITLE=0
+      ISUMRY=0
+      INEW  =0
+      CALL DSPDEL(ITITLE,ISUMRY,INEW,IDETYP,IDEFRQ,IDESVN,
+     1            NFREQ,NSATEL,NUMSAT,
+     2            NDEL,LSTDEL,IRC)
+      IF(IRC.EQ.1) GOTO 300
+C
+C RESET WHAT MARKED AREA NUMBERS
+350   WRITE(STRING(2),351)
+351   FORMAT('ENTER NUMBERS TO BE RESET (FROM,TO,ALL=A,END=E,DF:A)')
+      CALL PROMP1(2,STRING)
+      READ(LFNKBD,102) INPUT
+      CALL UPPERC(INPUT)
+      IF(INPUT.EQ.'E') GOTO 300
+      IF(INPUT.EQ.' '.OR.INPUT.EQ.'A') THEN
+        IDEL1=1
+        IDEL2=NDEL
+      ELSE
+        IVAL=INPCI4(-72,2,0,INPUT,IDE,CDUMMY,IDUMMY,IRCODE)
+        IDEL1=IDE(1)
+        IDEL2=IDE(2)
+        IF (IRCODE.EQ.8)THEN
+          IDEL2=IDEL1
+        ELSE IF (IRCODE.NE.0) THEN
+          GOTO 350
+        ENDIF
+355     CONTINUE
+      ENDIF
+C
+C SET ABSOLUTE VALUE OF LSTDEL(5,*) TO LSTDEL(5,*)+MAXDLT = RESET
+      DO 360 IDEL=1,NDEL
+        ITYPA=IABS(LSTDEL(5,IDEL))
+        IF(DELTYP.NE.'A'.AND.ITYPA         .NE.IDETYP) GOTO 360
+        IF(DELFRQ.NE.'A'.AND.LSTDEL(4,IDEL).NE.IDEFRQ) GOTO 360
+        IF(DELSVN.NE.'A'.AND.LSTDEL(1,IDEL).NE.IDESVN) GOTO 360
+        IF(IDEL.LT.IDEL1.OR.IDEL.GT.IDEL2)             GOTO 360
+        IF(ITYPA.GT.MAXDLT)                            GOTO 360
+        LSTDEL(5,IDEL)=LSTDEL(5,IDEL)+ISIGN(MAXDLT,LSTDEL(5,IDEL))
+360   CONTINUE
+      GOTO 340
+C
+C RETURN
+C ------
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

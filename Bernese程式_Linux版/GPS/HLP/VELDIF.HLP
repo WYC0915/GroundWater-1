@@ -1,0 +1,176 @@
+<html>
+<body>
+
+<center>
+<b>VELOCITY COMPARISON</b>
+<p>Program: VELDIF
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+Differences between two sets of station velocities are computed.
+Alternatively, the velocities can be expressed with respect to one station
+or by specifying a reference velocity vector.
+<p>
+
+<p><hr>
+
+<p><b>VELDIF 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get the currently active campaign, session and session table.
+
+<br><br>
+
+<a name="VELINP" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Input velocity file:</b>
+Select the file containing the reference velocity set.
+
+<p><a href="/$X/DOC/EXAMPLE.VEL">Example</a>
+
+<a name="COORD" default=""></a>
+<p><b>A priori coordinate file:</b>
+Select the file containing the station coordinates for all stations contained
+in the velocity file.
+The station coordinates are needed for transforming the velocity differences
+into a local system.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<br><br>
+
+<a name="VELREF" default="FILE"></a>
+<p><b>REFERENCE VELOCITY</b>
+<p><b>Type of reference:</b>
+You can choose between three types of differential velocities:
+<ul>
+<li><b>FILE</b>: The differences between two files containing station velocities
+          are computed. This option is useful for comparing different
+          reference frames (e.g., ITRF2005 and ITRF2008).
+<li><b>STATION</b>: One station is considered as reference with zero velocity,
+             i.e., the velocity of the reference station contained in the
+             input velocity file is subtracted from the velocities of all
+             other stations.
+<li><b>VELOCITY</b>: You can specify one velocity vector that will be subtracted
+              from all station velocities contained in the input velocity
+              file. This is not necessarily the velocity of one specific
+              station.
+</ul>
+
+<a name="VELOCI" default=""></a>
+<p><b>Velocity file:</b>
+If you selected <b>FILE</b> for the type of velocity reference, you specify
+here the file containing the velocity set to be subtracted from the
+input velocity file.
+
+<p><a href="/$X/DOC/EXAMPLE.VEL">Example</a>
+
+<br><br>
+
+<a name="REFNAM" default=""></a>
+<p><b>Station:</b>
+If you selected <b>STATION</b> for the type of velocity reference, you specify
+here the name of that station to be considered as reference (i.e., with
+zero velocity).
+The station name must be identical to that given in the input velocity
+file.
+
+<br><br>
+
+<a name="REFVX"  default=""></a>
+<a name="REFVY"  default=""></a>
+<a name="REFVZ"  default=""></a>
+<p><b>Velocity vector:</b>
+If you selected <b>VELOCITY</b> for the type of velocity reference, you specify
+here the velocity vector to be subtracted from the velocities of all
+stations given in the "Input velocity file".
+The velocity vector should be given in the same Cartesian reference frame as
+specified in the "Input velocity file" with units meter/year.
+
+<br><br>
+
+<a name="VELOUT" default=""></a>
+<p><b>RESULT FILE</b>
+<p><b>Output velocity file:</b>
+Specify a file name for the resulting velocity differences.
+
+<p><a href="/$X/DOC/EXAMPLE.VEL">Example</a>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="VELDIF"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or to specify a separate file to which error messages are
+written.
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<p><hr>
+
+<p><b>VELDIF 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates and to transform
+coordinates in the local system (north, east, up).
+You only have to modify this file when you want to introduce a new
+reference ellipsoid.
+
+<p><i>Caution:</i>
+This file has no effect on Cartesian coordinates.
+
+<p>Example: <a href="/$X/GEN/DATUM.">$X/GEN/DATUM.</a>
+
+<!-- Hidden options: -->
+<a name="TYPDIF" default="3-DIMENSIONAL"></a>
+
+<p><hr>
+
+</body>
+</html>

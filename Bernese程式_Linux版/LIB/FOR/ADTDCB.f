@@ -1,0 +1,125 @@
+      MODULE s_ADTDCB
+      CONTAINS
+
+C*
+      SUBROUTINE ADTDCB(NUMADT,ADTLST,NUMSAT,DCBID1,DCBVA1,NUMREC,
+     1                  DCBID2,DCBVA2,DCBSYS)
+CC
+CC NAME       :  ADTDCB
+CC
+CC PURPOSE    :  READ DCB INFO FROM AUX DATA LIST "ADTLST"
+CC
+CC PARAMETERS :
+CC         IN :  NUMADT : NUMBER OF AUX DATA RECORDS          I*4
+CC               ADTLST(I),I=1,..,NUMADT: LIST OF AUX DATA    CH*80(*)
+CC        OUT :  NUMSAT : NUMBER OF SATELLITES                I*4
+CC               DCBID1 : SATELLITE NUMBERS                   I*4(*)
+CC               DCBVA1 : DCB VALUES AND RMS FOR SATELLITES   R*8(2,*)
+CC               NUMREC : NUMBER OF RECEIVERS                 I*4
+CC               DCBID2 : STATION NAMES                       CH*16(*)
+CC               DCBVA2 : DCB VALUES AND RMS FOR RECEIVERS    R*8(2,*)
+CC               DCBSYS : SYSTEM FLAG                         CH*1(*)
+CC                        ='G'/' ': GPS
+CC                        ='R': GLONASS
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  S.SCHAER
+CC
+CC VERSION    :  4.1
+CC
+CC CREATED    :  25-JUN-98
+CC
+CC CHANGES    :  13-MAR-02 : SS: RECEIVER DCB INFORMATION
+CC               17-FEB-03 : LM: USE M_MAXDIM
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1998     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE m_maxdim, ONLY: MAXSAT, MAXREC
+      USE s_dimtst
+      USE s_chr2svn
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IADT  , IPRN  , IRC   , NUMADT, NUMREC, NUMSAT
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+C
+      CHARACTER*80  ADTLST(*)
+      CHARACTER*20  INXREC(2),STASTR
+      CHARACTER*16  DCBID2(*)
+      CHARACTER*1   SYSSTR,DCBSYS(*)
+C
+      REAL*8        DCBVA1(2,*),DCBVA2(2,*)
+C
+      INTEGER*4     DCBID1(*)
+C
+C
+      DATA INXREC/'PRN / BIAS / RMS    ',
+     1            'STATION / BIAS / RMS'/
+C
+C READ SATELLITE AND RECEIVER DCB INFORMATION
+C -------------------------------------------
+      NUMSAT=0
+      NUMREC=0
+      DO IADT=1,NUMADT
+        IF (ADTLST(IADT).EQ.' ') GOTO 100
+C
+        IF (ADTLST(IADT)(61:80).EQ.INXREC(1)) THEN
+          NUMSAT=NUMSAT+1
+          CALL DIMTST(1,2,2,'ADTDCB','MAXSAT','SATELLITES',
+     1      'INCLUDE FILE USED',NUMSAT,MAXSAT,IRC)
+C
+          READ(ADTLST(IADT),911,ERR=200) SYSSTR,IPRN,
+     1      (DCBVA1(I,NUMSAT),I=1,2)
+911       FORMAT(3X,A1,I2,2F10.3)
+          CALL CHR2SVN(IPRN,SYSSTR,DCBID1(NUMSAT))
+C
+          IF (IPRN.EQ.0) THEN
+            WRITE(LFNERR,901)
+901         FORMAT(/,' ### SR ADTDCB: PRN-0 ENTRY IGNORED',/)
+            NUMSAT=NUMSAT-1
+          ENDIF
+        ELSEIF (ADTLST(IADT)(61:80).EQ.INXREC(2)) THEN
+          NUMREC=NUMREC+1
+          CALL DIMTST(1,2,2,'ADTDCB','MAXREC','RECEIVERS',
+     1      'INCLUDE FILE USED',NUMREC,MAXREC,IRC)
+C
+          READ(ADTLST(IADT),912,ERR=200) SYSSTR,STASTR,
+     1      (DCBVA2(I,NUMREC),I=1,2)
+912       FORMAT(3X,A1,2X,A20,2F10.3)
+          IF (SYSSTR.EQ.' ') SYSSTR='G'
+          DCBSYS(NUMREC)=SYSSTR
+          DCBID2(NUMREC)=STASTR(1:16)
+        ENDIF
+      ENDDO
+      GOTO 100
+C
+C WRITE ERROR MESSAGE
+C -------------------
+200   WRITE(LFNERR,921) ADTLST(IADT)(1:60)
+921   FORMAT(/,' *** SR ADTDCB: ERROR READING DCB INFO',
+     1  /,16X,'RECORD: ',A60,/)
+      CALL EXITRC(2)
+C
+C CHECK NUMBER OF DCB VALUES FOUND
+C --------------------------------
+100   IF (NUMSAT+NUMREC.EQ.0) THEN
+        WRITE(LFNERR,922)
+922     FORMAT(/,' *** SR ADTDCB: NO DCB VALUES FOUND',/)
+        CALL EXITRC(2)
+      ENDIF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

@@ -1,0 +1,26 @@
+#!/usr/bin/perl -w
+# -------------------------------------------------------------------------
+# Bernese GPS Software Version 5.0
+# -------------------------------------------------------------------------
+#
+# Script:     RBPE
+#
+# Purpose:    Run a BPE Script that resides in ${BPE} Directory
+#
+# Author:     L.Mervart
+#
+# Created:    12-FEB-2002
+#
+# Changes:    __-___-____ __:
+#
+# Copyright:  Astronomical Institute
+#             University of Bern
+#             Switzerland
+# -------------------------------------------------------------------------
+
+use strict;
+use lib "$ENV{BPE}";
+use RUNBPE;
+
+RUNBPE::RBPE(@ARGV);
+

@@ -1,0 +1,464 @@
+<html>
+<body>
+
+<center>
+<b>HELMERT TRANSFORMATION</b>
+<p>Program: HELMR1
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="DELETE_FILES"  default="AUXFIL"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program compares two coordinate files by determining Helmert
+parameters (translations, rotations and/or scale) for the transformation
+between both coordinate sets.
+The program output contains:
+<ul>
+<li>the transformation parameters and
+<li>the residuals in the local N,E,U system (north, east, up).
+</ul>
+The program allows to automatically remove stations with residuals exceeding a
+user-specified threshold from the estimation of the Helmert parameters. An
+input list of stations may be updated correspondingly which allows for an
+automatic elimination of badly performing stations from the list of fiducial
+sites.
+
+<br><br>
+
+<p><i>Mathematical Model of the Transformation</i>
+<br>
+Let's assume to have
+<ul>
+<li>a number of sites  with a set <tt>U</tt> of coordinates (first file),
+<li>the same sites but with a set <tt>W</tt> of coordinates (second file).
+</ul>
+
+<br><br>
+
+Option <b>GEOCENTRIC</b> (X,Y,Z)
+<br>
+Compute up to 7&nbsp;transformation parameters:
+<table>
+<tr><td valign=top><tt>R1(a1)</tt></td>
+    <td>is the rotation matrix around the 1st axis&nbsp;<tt>(x)</tt>
+        for an angle of <tt>a1</tt>,</td></tr>
+<tr><td valign=top><tt>R2(a2)</tt></td>
+    <td>is the rotation matrix around the 2nd axis&nbsp;<tt>(y)</tt>
+        for an angle of <tt>a2</tt>,</td></tr>
+<tr><td valign=top><tt>R3(a3)</tt></td>
+    <td>is the rotation matrix around the 3rd axis&nbsp;<tt>(z)</tt>
+        for an angle of <tt>a3</tt>,</td></tr>
+<tr><td valign=top><tt>U0</tt></td>
+    <td>is the vector of the three small translations along the
+        three axes <tt>x,y,z</tt>, and</td></tr>
+<tr><td valign=top><tt>scale</tt></td>
+    <td>is the scaling factor between the two coordinate sets
+         (in the output <tt>scale-1</tt> is given).</td></tr>
+</table>
+<br>
+The transformation is based on the formula:
+<pre>
+ W' = (scale) * R3(a3) * R2(a2) * R1(a1) * (U - U0)
+</pre>
+<br>
+Transformation parameters are determined such that the sum of all
+<tt>(W - W')<sup>2</sup></tt> is minimized.
+<br>
+If no translation parameters are estimated the two sets of coordinates
+are first reduced to their respective barycenters.
+
+<br><br>
+
+Option <b>LOCAL</b> (N,E,U)
+<br>
+The local transformation is computed in three steps:
+<ol>
+<li>Both sets of coordinates are first reduced by the barycenter <tt>B</tt>
+    of the second set <tt>W</tt> of coordinates:
+<pre>
+ U(red) = U - B
+ W(red) = W - B
+</pre>
+    with the barycenter computed as
+<pre>
+ B = (sum of W) / n
+</pre>
+    where <tt>n</tt> is the number of those sites actually used for the
+    parameter estimation.
+<li>Both sets are then rotated into (N,E,U) coordinates using the
+    barycenter of the coordinate set <tt>W</tt> as new origin
+    (phi: latitude, lambda: longitude of barycenter <tt>B</tt>)
+<pre>
+ U(rot) =  K * R2(phi-90) * R3(lambda-180) * U(red)
+ W(rot) =  K * R2(phi-90) * R3(lambda-180) * W(red)
+</pre>
+    The matrix <tt>K</tt> is used to convert the coordinate system into a
+    left-handed system (N,E,U):
+<pre>
+     | 1  0  0 |
+ K = | 0 -1  0 |
+     | 0  0  1 |
+
+</pre>
+<li>The transformation parameters are computed from
+<pre>
+ W'(rot) = (scale) * R3(a3) * R2(a2) * R1(a1) * (U(rot) - U0)
+</pre>
+</ol>
+
+<p><hr>
+
+<p><b>HELMR1 1: Input/Output Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<a name="COORD1" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>First coordinate file:</b>
+Select a coordinate file. It can be looked at as a reference
+coordinate file. Only one file can be selected.
+
+<p><i>Remark:</i>
+All sites with no flag in the coordinate file are skipped by the program.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="VELAPR" default=""></a>
+<p><b>Velocities for first file:</b>
+If the reference coordinate set is referring to a different
+reference epoch than the "Second coordinate file", one can propagate the
+coordinates of the first file with a velocity field to the epoch
+of the second coordinate file.
+
+<p><i>Example:</i>
+ITRF2000 ("First coordinate file") given at
+epoch&nbsp;1997.0 and ITRF2000 ("Velocities for first file") are
+necessary to compare the ITRF coordinates with a "Second coordinate
+file" given at an arbitrary observation epoch.
+
+<p><a href="/$X/DOC/EXAMPLE.VEL">Example</a>
+
+<a name="COORD2" default=""></a>
+<p><b>Second coordinate file:</b>
+Select the second coordinate set for comparison. Only one file can be
+selected.
+
+<p><i>Remark:</i>
+All sites with no flag in the coordinate file
+are skipped by the program. As a consequence, only those sites are taken
+into account by the program which have non-blank flags in both
+coordinate files.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="USESTA" default=""></a>
+<a name="OTHSTA" default="MARK"></a>
+<p><b>File with list of stations:</b>
+A station selection file may be specified to select the sites to be used for
+the estimation of the Helmert parameters without further interaction
+("Automatic station selection" in section "STATION SELECTION"). All
+other sites with non-blank flags in both input coordinate files may be marked
+or excluded:
+<ul>
+<li>MARK: Stations are listed in the program output file with their
+          residuals only. They will not contribute to the transformation
+          parameters.
+<li>EXCLUDE: Sites do not contribute to the transformation parameters and
+          are not listed in the program output.
+</ul>
+This pre-selection of stations is used to generate a default list for the
+"Manual station selection" in the section "STATION SELECTION".
+
+<p><a href="/$X/DOC/EXAMPLE.FIX">Example</a>
+
+<br><br>
+
+<a name="COORDRS" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>Coordinates:</b>
+You have the possibility to save the coordinates of second coordinate input
+file transformed into the system of first coordinate file using the
+estimated transformation parameters. This option is only available if the
+system of transformation in the section "HELMERT TRANSFORMATION" is
+set to GEOCENTRIC.
+<br>
+A file is only written if a filename is specified here.
+The output coordinate file has the following properties:
+<ul>
+<li>Helmert transformation of this file with the
+    second coordinate input file shows zero residuals.
+<li>Helmert transformation of this file with first coordinate
+    input file shows the same residuals as the transformation of
+    second coordinate input file and first coordinate input file, but the
+    transformation parameters are equal to zero.
+</ul>
+
+<a name="OKSTA" default=""></a>
+<p><b>File with list of stations:</b>
+You may specify the name of a output station selection file which will
+contain the names of those stations which were used to compute the Helmert
+parameters. These are the site with non-blank flags in both input coordinate
+files which are neither flagged by MARK (M) or EXCLUDE (E) in the automatic
+or manual station selection and which have passed the "OUTLIER REJECTION"
+criterion. The option may, e.g., be used to automatically update a list
+of fiducial sites.
+<br>
+No file will be created if the input field remains empty.
+
+<p><a href="/$X/DOC/EXAMPLE.FIX">Example</a>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="HELMR1"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>HELMR1 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates. It is used
+to apply antenna heights and for the printing of coordinates in the
+local system (north, east, up). You only have to modify this file
+when you want to introduce a new reference ellipsoid.
+
+<p><i>Caution:</i>
+This file has no effect on Cartesian coordinates.
+
+<p>Example: <a href="/$X/GEN/DATUM.">$X/GEN/DATUM.</a>
+
+<br><br>
+
+<a name="AUXFIL"  default="HELMR1$J"></a>
+<p><b>TEMPORARY FILES</b>
+<p>
+Enter the name of the scratch file used by this program. The scratch files need
+to be named differently for different programs running simultaneously. This
+may be achieved, e.g., by adding the job ID
+<tt>$J</tt> to the program name (define the job ID in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>).
+
+<p><i>Default value:</i> <tt>HELMR1$J</tt>
+
+<p><hr>
+
+<p><b>HELMR1 2: Options for Helmert Transformation</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<br><br>
+
+<a name="RADIO_1" default="0"></a>
+<p><b>STATION SELECTION</b>
+<p><b>Automatic station selection:</b>
+As a first step a station list is created containing all stations with
+flags in both coordinate input files. If a "File with list of stations" is
+specified in section "INPUT FILES" the subset of stations specified in this
+file is used to compute the transformation parameters. The residuals
+for the remaining stations of this list are displayed or not depending on
+whether option MARK or EXCLUDE is selected.
+In the automatic station selection no further interaction is
+possible; this option is mainly for automatic use.
+
+<a name="RADIO_2" default="1"></a>
+<p><b>Manual station selection:</b>
+You will get the same list of stations with the same settings as for the
+automatic station selection as default. In the next panel you may modify
+these settings, see section "MANUAL STATION SELECTION".
+
+<p><hr>
+
+<a name="RESIDTYPE" default="XYZ"></a>
+<p><b>HELMERT TRANSFORMATION</b>
+<p><b>System of transformation, LOCAL (N,E,U) or GEOCENTRIC (X,Y,Z):</b>
+This option specifies the coordinate system the transformation
+parameters refer to. For a detailed description we refer to the
+"GENERAL DESCRIPTION" of this program.
+<br>
+The residuals in the program output file are given in (N,E,U) in any case:
+<ul>
+<li>GEOCENTRIC transformation: Residuals are given in the local (N,E,U)
+    system of each site.
+<li>LOCAL transformation: Residuals are given in the local (N,E,U) system
+    of the barycenter of the second coordinate set. For large networks
+    (&gt;30&nbsp;km) these residuals will differ from the residuals computed
+    using the local system of each site.
+</ul>
+If the local system is specified the program output file will contain the
+coordinates (latitude, longitude, height) of the barycenter of the stations
+used for the comparison. If the network is large the barycenter may be deep
+below the ellipsoid. For very large or global networks the local system is not
+well defined and the determination of the orientation of the system may fail.
+
+<a name="RESIDUNIT" default="MM"></a>
+<p><b>Unit of residuals (meter or millimeter):</b>
+Select the unit of the residuals in the program output file: either
+meter (M) or millimeter (MM).
+
+<a name="HLM_1" default="1"></a>
+<a name="HLM_2" default="1"></a>
+<a name="HLM_3" default="1"></a>
+<a name="HLM_4" default="1"></a>
+<a name="HLM_5" default="1"></a>
+<a name="HLM_6" default="1"></a>
+<a name="HLM_7" default="1"></a>
+<p><b>Parameters to be computed:</b>
+Select the components of the Helmert transformation to be estimated. Up to
+3&nbsp;translations, 3&nbsp;rotations, and a scale may be specified. The
+meaning of the transformation parameters depends on the selected system
+of the transformation (see section 'Mathematical model of the Transformation'
+for more details):
+<table>
+<tr><td align=center valign=bottom>Parameter</td>
+    <td align=center valign=bottom>Geocentric transformation</td>
+    <td align=center valign=bottom>Local transformation</td></tr>
+<tr><td align=center><tt>shift 1</tt></td>
+    <td align=center><tt>shift_x</tt></td>
+    <td align=center><tt>shift_n</tt></td></tr>
+<tr><td align=center><tt>shift 2</tt></td>
+    <td align=center><tt>shift_y</tt></td>
+    <td align=center><tt>shift_e</tt></td></tr>
+<tr><td align=center><tt>shift 3</tt></td>
+    <td align=center><tt>shift_z</tt></td>
+    <td align=center><tt>shift_u</tt></td></tr>
+<tr><td align=center><tt>rot 1</tt></td>
+    <td align=center><tt>rot_x</tt></td>
+    <td align=center><tt>rot_n</tt></td></tr>
+<tr><td align=center><tt>rot 2</tt></td>
+    <td align=center><tt>rot_y</tt></td>
+    <td align=center><tt>rot_e</tt></td></tr>
+<tr><td align=center><tt>rot 3</tt></td>
+    <td align=center><tt>rot_z</tt></td>
+    <td align=center><tt>rot_u</tt></td></tr>
+</table>
+If no parameters are selected plain residuals between the two coordinate
+sets are computed.
+
+<p><hr>
+
+<p><b>HELMR1 2.1: Manual Station Selection</b>
+
+<a name="STASELHLP" default="%% %% %% %%"></a>
+<a name="STASELECT" default="%% %% %% %%"></a>
+<p><b>MANUAL STATION SELECTION</b>
+<p>
+The list displayed here gives the names of the sites together with the flags
+in both of the coordinate files. For each site you may individually specify
+<ul>
+<li>blank: to use a site for the computation of the transformation
+    parameters and display residuals in the program output file,
+<li>M: to mark a site (i.e., its coordinates are not contributing to the
+    estimation of the transformation parameters, but the residuals are
+    still available for comparison), or
+<li>E: to exclude a site (it will not appear in the program output).
+</ul>
+Marked stations will be listed with a flag 'M' in the program output file.
+<br>
+By default you will get the station selection corresponding to the
+automatic station selection. Sites that are missing in the station list
+are not used.
+
+<p><i>Remark:</i>
+The default list of stations is generated once from
+both coordinate input files and the "File with list of stations". As long as
+this default list remains identical your last manual station selection
+will be presented. If you select other coordinate input files the
+manual station selection will be reset to the default.
+
+<p><hr>
+
+<p><b>HELMR1 3: Outlier Rejection</b>
+
+<a name="REJECT" default="0"></a>
+<p><b>OUTLIER REJECTION</b>
+<p><b>Enable outlier rejection:</b>
+Mark this box if you want to eliminate outliers based on large residuals.
+
+<a name="NLIMIT" default=""></a>
+<a name="ELIMIT" default=""></a>
+<a name="ULIMIT" default=""></a>
+<p><b>Outlier criteria:</b>
+Specify here the thresholds for the rejection of outliers in millimeters for
+all three components north, east, and up individually. Sites with residuals
+where at least one component is larger than the specified values are not
+used to estimate the Helmert parameters. These stations are marked with
+an asterisk (<tt>*</tt>) in the program output file and are listed in the
+footer of the file.
+<br>
+If you specified a filename in option "List of rejected stations"
+you will get a separate summary of outliers. The file specified in option
+"File with list of stations" in section "RESULT FILES" will not contain
+sites identified as outliers.
+
+<p><i>Remark:</i>
+An empty field or a value of zero is treated as infinite and
+no outlier rejection takes place.
+
+<a name="LISTFIL" default=""></a>
+<p><b>List of rejected stations:</b>
+This file will contain the list of stations rejected as outliers. A file is
+only written if outliers were detected.
+<br>
+In an automatic processing the existence of the file (if not already
+existing before executing the program) may thus be used as a trigger for
+actions necessary if bad stations are identified.
+<br>
+No file will be created if the input field remains empty.
+
+<p><a href="/$X/DOC/EXAMPLE2.LST">Example</a>
+
+<p><hr>
+
+</body>
+</html>

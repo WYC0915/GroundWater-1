@@ -1,0 +1,75 @@
+<html>
+<body>
+
+<center>
+<b>CONVERT BERNESE TROPOSPHERE FILES (LINEAR TO CONSTANT)</b>
+<p>Program: TRPL2C
+</center>
+<hr WIDTH="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+<font color="#FF0000">Text for GENERAL DESCRIPTION will be added soon.</font>
+
+<p><hr>
+
+<p><b>TRPL2C 1</b>
+
+<p><b>INPUT FILE</b>
+<p><a name="TROPEST" default=""></a>
+<b>Troposphere estimates:</b>
+
+<font color="#FF0000">Text for key TROPEST will be added soon.</font>
+
+<br><br>
+<p><b>OUTPUT FILE</b>
+<p><a name="TROPRS" default=""></a>
+<b>Troposphere estimates:</b>
+
+<font color="#FF0000">Text for key TROPRS will be added soon.</font>
+
+<br><br>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><a name="SYSODEF" default="1"></a>
+   <a name="SYSOUT"  default="TRPL2C"></a>
+<b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<p><a name="ERRMRG" default="0"></a>
+   <a name="SYSERR" default="ERROR"></a>
+<b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or to specify a separate file to which error messages are
+written.
+
+<p><a name="TITLE" default=""></a>
+<b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<p><hr>
+
+</body>
+</html>

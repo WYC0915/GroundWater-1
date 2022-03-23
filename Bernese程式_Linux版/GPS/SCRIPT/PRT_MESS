@@ -1,0 +1,28 @@
+#!/usr/bin/perl -w
+
+# -------------------------------------------------------------------------
+# Bernese GPS Software Version 5.0
+# -------------------------------------------------------------------------
+#
+# Script:     PRT_MESS
+#
+# Purpose:    Print messages to protocol
+#
+# Author:     R. Dach
+#
+# Created:    23-Aug-2002
+#
+# Changes:
+#
+# Copyright:  Astronomical Institute
+#              University of Berne
+#                  Switzerland
+# -------------------------------------------------------------------------
+
+use strict;
+use lib "$ENV{BPE}";
+use RUNBPE;
+
+if ($#ARGV != 3) {die "*** PRT_MESS: Usage \$X/SCRIPT/PRT_MESS PRT_FILE MSG_TYP SCRIPT_NAME MESSAGE\n" }
+
+RUNBPE::PRT_MESS (@ARGV);

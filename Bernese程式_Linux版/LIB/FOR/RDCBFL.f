@@ -1,0 +1,295 @@
+      MODULE s_RDCBFL
+      CONTAINS
+
+C*
+      SUBROUTINE RDCBFL(DCBFIL,MAXSAT,MAXREC,MAXIFB,ICBTYP,NUMSAT,
+     1                  NUMREC,NUMIFB,DCBID1,DCBVA1,DCBID2,DCBVA2,
+     2                  DCBSYS,DCBID3,DCBVA3)
+CC
+CC NAME       :  RDCBFL
+CC
+CC PURPOSE    :  READ CODE BIAS FILE
+CC
+CC PARAMETERS :
+CC         IN :  DCBFIL : EXTERNAL CODE BIAS FILE NAME        CH*32
+CC               MAXSAT : MAXIMUM NUMBER OF SATELLITES        I*4
+CC                        =0: NOT REQUESTED
+CC               MAXREC : MAXIMUM NUMBER OF RECEIVERS         I*4
+CC                        =0: NOT REQUESTED
+CC    IN/OUT :   ICBTYP : CODE BIAS TYPE REQUESTED/FOUND      I*4
+CC                        =-1: FIRST SET
+CC                        = 0: NOT FOUND
+CC                        = 1: P1-P2
+CC                        = 2: P1-C1
+CC                        = 3: LC
+CC                        = 4: P2-C2
+CC                        = 5: INTER-FREQ.
+CC        OUT :  NUMSAT : NUMBER OF SATELLITES                I*4
+CC               NUMREC : NUMBER OF RECEIVERS                 I*4
+CC               NUMIFB : NUMBER OF INTER-FREQ. BIASES        I*4
+CC               DCBID1 : SATELLITE NUMBERS                   I*4(*)
+CC                        =0: UNDEFINED
+CC               DCBVA1 : DCB VALUES AND RMS FOR SATELLITES   R*8(2,*)
+CC               DCBID2 : STATION NAMES                       CH*16(*)
+CC                        =' ': UNDEFINED
+CC               DCBVA2 : DCB VALUES AND RMS FOR RECEIVERS    R*8(2,*)
+CC               DCBSYS : SYSTEM FLAG                         CH*1(*)
+CC                        ='G'/' ': GPS
+CC                        ='R': GLONASS
+CC                        ='E': GALILEO
+CC                        ='S': GEO/SBAS
+CC                        ='C': COMPASS/BEIDOU
+CC                        ='J': QZSS
+CC                        ADD_GNSS_HERE
+CC               DCBID3 : SATELLITES/STATION NAMES            CH*16(2,*)
+CC                        =' ': UNDEFINED
+CC               DCBVA3 : IFCB VALUES AND RMS FOR RECEIVERS   R*8(4,*)
+CC                        RESP. THE VALIDITY INTERVAL
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  S.SCHAER
+CC
+CC VERSION    :  4.1
+CC
+CC CREATED    :  20-OCT-97
+CC
+CC CHANGES    :  14-NOV-97 : SS: RETURN REQUESTED INFO ONLY
+CC               19-JAN-98 : SS: BUG IN CALL OF SR OPNERR
+CC               12-FEB-98 : SS: 0.001-NS RESOLUTION
+CC               21-DEC-98 : SS: GPS/GLONASS DCBS FOR RECEIVERS
+CC               07-APR-00 : SS: HANDLE (P1-C1) CODE BIAS INFORMATION
+CC               21-AUG-02 : SS: ALLOW MORE THAN ONE DCB SET IN FILE
+CC               03-SEP-02 : SS: READ FIRST DCB SET IF ICBTYP=-1
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               09-MAY-09 : RD: ADD INTER-FREQ CODE BIASES
+CC               29-JUL-09 : SS: HANDLE P2-C2 DCB VALUES
+CC               21-SEP-10 : RD: ST2TIM CAN BE USED AS A MODULE NOW
+CC               02-SEP-11 : HB/LP: READ SYS FLAG CORRECTLY FOR GALILEO
+CC               13-JAN-12 : SS: DISCARD VALUES IN CASE OF ZERO PRN (00)
+CC               07-JUN-12 : LP: READ SYS FLAG FOR 'S','C','J' ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1997     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE s_opnfil
+      USE s_opnerr
+      USE s_findln
+      USE s_exitrc
+      USE s_st2tim
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , ICBTYP, IERR  , IOSTAT, IREC  , ISAT  , ISET  ,
+     1          ITYP  , MAXREC, MAXSAT, MAXIFB, NUMREC, NUMSAT, NUMIFB
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      CHARACTER*132 LINE,LOOK
+      CHARACTER*32  DCBFIL
+      CHARACTER*16  DCBID2(*),DCBID3(2,*)
+      CHARACTER*5   TYPSTR
+      CHARACTER*1   DCBSYS(*),FLAG
+C
+      REAL*8        DCBVA1(2,*),DCBVA2(2,*),DCBVA3(4,*)
+C
+      INTEGER*4     DCBID1(*)
+C
+C
+C INITITALIZE SOME VARIABLES
+C --------------------------
+      NUMSAT=0
+      DO ISAT=1,MAXSAT
+        DCBID1(ISAT)=0
+        DCBVA1(1,ISAT)=0.D0
+        DCBVA1(2,ISAT)=0.D0
+      ENDDO
+C
+      NUMREC=0
+      DO IREC=1,MAXREC
+        DCBID2(IREC)=' '
+        DCBVA2(1,IREC)=0.D0
+        DCBVA2(2,IREC)=0.D0
+        DCBSYS(IREC)=' '
+      ENDDO
+C
+      NUMIFB=0
+      IF (MAXIFB.GT.0) THEN
+        DCBID3(1:2,1:MAXIFB)=' '
+        DCBVA3(1:4,1:MAXIFB)=0.D0
+      ENDIF
+C
+C OPEN CODE BIAS INPUT FILE
+C -------------------------
+      CALL OPNFIL(LFNLOC,DCBFIL,'OLD','FORMATTED',
+     1  'READONLY',' ',IOSTAT)
+      CALL OPNERR(LFNERR,LFNLOC,IOSTAT,DCBFIL,'RDCBFL')
+C
+C SEARCH FOR KEY STRINGS
+C ----------------------
+      LOOK='DIFFERENTIAL ('
+      ISET=0
+C
+110   CONTINUE
+      IF (ISET.EQ.0) THEN
+        CALL FINDLN(LFNLOC,1,0,'RDCBFL',DCBFIL,LOOK,1,LINE,IERR)
+      ELSE
+        CALL FINDLN(LFNLOC,0,0,'RDCBFL',DCBFIL,LOOK,1,LINE,IERR)
+        IF (IERR.EQ.1) THEN
+          ICBTYP=0
+          CLOSE (UNIT=LFNLOC)
+          RETURN
+        ENDIF
+      ENDIF
+      ISET=ISET+1
+C
+      TYPSTR=LINE(15:19)
+      IF (TYPSTR.EQ.'P1-P2' .OR. TYPSTR.EQ.'L1-L2') THEN
+        ITYP=1
+      ELSEIF (TYPSTR.EQ.'P1-C1') THEN
+        ITYP=2
+      ELSEIF (TYPSTR(1:2).EQ.'LC') THEN
+        ITYP=3
+      ELSEIF (TYPSTR.EQ.'P2-C2') THEN
+        ITYP=4
+      ELSEIF (TYPSTR.EQ.'INTER') THEN
+        ITYP=5
+      ELSE
+        WRITE(LFNERR,930)
+930     FORMAT(/,' *** SR RDCBFL: ILLEGAL CODE BIAS TYPE',/)
+        CALL EXITRC(2)
+      ENDIF
+C
+      IF (ICBTYP.EQ.-1) ICBTYP=ITYP
+C
+      IF (ITYP.NE.ICBTYP) THEN
+        IF (ISET.EQ.5) THEN
+          ICBTYP=0
+          CLOSE (UNIT=LFNLOC)
+          RETURN
+        ELSE
+          GOTO 110
+        ENDIF
+      ENDIF
+C
+      LOOK='***   ****************'
+      CALL FINDLN(LFNLOC,1,0,'RDCBFL',DCBFIL,LOOK,1,LINE,IERR)
+C
+C READ CODE BIAS INFO
+C -------------------
+210   CONTINUE
+      READ(LFNLOC,910,END=411) LINE
+910   FORMAT(A132)
+C
+C INTER-FREQUENCY BIASES
+      IF (LINE(2:3).NE.' ' .AND. LINE(7:22).NE.' ') THEN
+CC      IF (ITYP==5) THEN
+CC        IF (LINE(2:3).EQ.' ' .AND. LINE(7:22).EQ.' ') GOTO 310
+        NUMIFB=NUMIFB+1
+        IF (MAXIFB.EQ.0) GOTO 210
+C
+        IF (NUMIFB.GT.MAXIFB) THEN
+          WRITE(LFNERR,933) MAXIFB
+933       FORMAT(/,' *** SR RDCBFL: MORE THAN ',I4,' INTER-FREQUENCY',
+     1      ' CODE BIASES FOUND',/)
+          CALL EXITRC(2)
+        ENDIF
+C
+        READ(LINE,'(A3,3X,A16,4X,F9.3,3X,F9.3)',ERR=412)
+     1            DCBID3(1:2,NUMIFB),DCBVA3(1:2,NUMIFB)
+        CALL ST2TIM(1,2,LINE(52:91),DCBVA3(3:4,NUMIFB))
+C
+      ELSE IF (LINE(2:3).NE.' ') THEN
+C
+C READ SATELLITE-SPECIFIC INFO
+        IF (LINE(2:3).EQ.'00') GOTO 210
+C
+        NUMSAT=NUMSAT+1
+        IF (MAXSAT.EQ.0) GOTO 210
+C
+        IF (NUMSAT.GT.MAXSAT) THEN
+          WRITE(LFNERR,931) MAXSAT
+931       FORMAT(/,' *** SR RDCBFL: MORE THAN ',I4,' SATELLITE-',
+     1      'SPECIFIC CODE BIASES FOUND',/)
+          CALL EXITRC(2)
+        ENDIF
+C
+        READ(LINE,921,ERR=412) FLAG,DCBID1(NUMSAT),
+     1    (DCBVA1(I,NUMSAT),I=1,2)
+921     FORMAT(A1,I2,23X,F9.3,3X,F9.3)
+CC921     FORMAT(A1,I2,20X,F12.3,F12.3)
+C
+        IF (FLAG.EQ.'R' .OR. FLAG.EQ.'1') THEN
+          DCBID1(NUMSAT)=DCBID1(NUMSAT)+100
+        ELSEIF (FLAG.EQ.'E' .OR. FLAG.EQ.'2') THEN
+          DCBID1(NUMSAT)=DCBID1(NUMSAT)+200
+        ELSEIF (FLAG.EQ.'S' .OR. FLAG.EQ.'3') THEN
+          DCBID1(NUMSAT)=DCBID1(NUMSAT)+300
+        ELSEIF (FLAG.EQ.'C' .OR. FLAG.EQ.'4') THEN
+          DCBID1(NUMSAT)=DCBID1(NUMSAT)+400
+        ELSEIF (FLAG.EQ.'J' .OR. FLAG.EQ.'5') THEN
+          DCBID1(NUMSAT)=DCBID1(NUMSAT)+500
+C       ADD_GNSS_HERE
+        ENDIF
+      ELSEIF (LINE(7:22).NE.' ') THEN
+C
+C READ RECEIVER-SPECIFIC INFO
+        NUMREC=NUMREC+1
+        IF (MAXREC.EQ.0) GOTO 210
+C
+        IF (NUMREC.GT.MAXREC) THEN
+          WRITE(LFNERR,932) MAXREC
+932       FORMAT(/,' *** SR RDCBFL: MORE THAN ',I4,' RECEIVER-',
+     1      'SPECIFIC CODE BIASES FOUND',/)
+          CALL EXITRC(2)
+        ENDIF
+C
+        READ(LINE,922,ERR=412) DCBSYS(NUMREC),DCBID2(NUMREC),
+     1    (DCBVA2(I,NUMREC),I=1,2)
+922     FORMAT(A1,5X,A16,4X,F9.3,3X,F9.3)
+CC922     FORMAT(A1,5X,A16,1X,F12.3,F12.3)
+C
+        IF (DCBSYS(NUMREC).EQ.' ') DCBSYS(NUMREC)='G'
+      ELSE
+C
+C BLANK LINE FOUND
+        GOTO 310
+      ENDIF
+C
+C GOTO NEXT LINE
+C --------------
+      GOTO 210
+C
+C WRITE CORRESPONDING ERROR MESSAGE
+C ---------------------------------
+411   CONTINUE
+      WRITE(LFNERR,941)
+941   FORMAT(/,' *** SR RDCBFL: END OF CODE BIAS FILE REACHED',/)
+      CALL EXITRC(2)
+C
+412   CONTINUE
+      WRITE(LFNERR,942)
+942   FORMAT(/,' *** SR RDCBFL: ERROR READING CODE BIAS FILE',/)
+      CALL EXITRC(2)
+C
+C CLOSE CODE BIAS INPUT FILE
+C --------------------------
+310   CONTINUE
+      CLOSE (UNIT=LFNLOC)
+C
+C WRITE WARNING, IF NO DCB VALUES FOUND
+C -------------------------------------
+      IF (NUMSAT+NUMREC.EQ.0) THEN
+        WRITE(LFNERR,950)
+950     FORMAT(/,' ### SR RDCBFL: NO DCB VALUES FOUND',/)
+      ENDIF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

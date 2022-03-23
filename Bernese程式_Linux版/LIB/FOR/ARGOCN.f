@@ -1,0 +1,154 @@
+      MODULE s_ARGOCN
+      CONTAINS
+
+C*
+      SUBROUTINE ARGOCN(DMJD,ANGLE)
+CC
+CC NAME       :  ARGOCN
+CC
+CC PURPOSE    :  COMPUTES THE ANGULAR ARGUMENT WHICH DEPENDS ON TIME FOR 11
+CC               TIDAL ARGUMENT CALCULATIONS
+CC
+CC               ORDER OF THE 11 ANGULAR QUANTITIES IN VECTOR ANGLE:
+CC                  01-M2
+CC                  02-S2
+CC                  03-N2
+CC                  04-K2
+CC                  05-K1
+CC                  06-O1
+CC                  07-P1
+CC                  08-Q1
+CC                  09-Mf
+CC                  10-Mm
+CC                  11-Ssa
+CC
+CC                TAKEN FROM 'TABLE 1 CONSTANTS OF MAJOR TIDAL MODES'
+CC                      WHICH DR. SCHWIDERSKI SENDS ALONG WITH HIS TAPE OF
+CC                      TIDAL AMPLITUDES AND PHASES
+CC
+CC PARAMETERS :
+CC         IN :  DMJD :  MODIFIED JULIAN DAY                     R*8
+CC         OUT:  ANGLE:  ANGULAR ARGUMENT FOR SCHWIDERSKI        R*8(11)
+CC                       COMPUTATION
+CC
+CC REMARKS    :  CAUTION:
+CC
+CC               OCEAN LOADING PHASES COMPUTED FROM SCHWIDERSKI'S MODELS
+CC               REFER TO THE PHASE OF THE ASSOCIATED SOLID EARTH TIDE
+CC               GENERATING POTENTIAL AT THE ZERO MERIDIAN ACCORDING TO
+CC
+CC                   OL_DR = OL_AMP ' COS (SE_PHASE" - OL_PHASE)
+CC
+CC               WHERE OL = OCEAN LOADING TIDE,
+CC                     SE = SOLID EARTH TIDE GENERATING POTENTIAL.
+CC
+CC               IF THE HARMONIC TIDE DEVELOPMENT OF CARTWRIGHT, ET AL.
+CC               ( = CTE) (1971, 1973) IS USED, MAKE SURE THAT SE_PHASE"
+CC               TAKES INTO ACCOUNT
+CC
+CC               (1) THE SIGN OF SE_AMP IN THE TABLES OF CARTWRIGHT ET AL.
+CC
+CC               (2) THAT CTE'S SE_PHASE REFERS TO A SINE RATHER THAN A
+CC                   COSINE FUNCTION IF (N+M) = (DEGREE + ORDER) OF THE
+CC                   TIDE SPHERICAL HARMONIC IS ODD.
+CC
+CC               I.E. SE_PHASE" = TAU(T) ' N1 + S(T) ' N2 + H(T) ' N3
+CC                              + P(T) ' N4 + N'(T) ' N5 + PS(T) ' N6
+CC                              + PI   IF CTE'S AMPLITUDE COEFFICIENT < 0
+CC                              + PI/2 IF (DEGREE + N1) IS ODD
+CC
+CC               WHERE TAU ... PS = ASTRONOMICAL ARGUMENTS,
+CC                      N1 ... N6 = CTE'S ARGUMENT NUMBERS.
+CC
+CC               MOST TIDE GENERATING SOFTWARE COMPUTE SE_PHASE" (FOR
+CC               USE WITH COSINES).
+CC
+CC               THIS SUBROUTINE IS VALID ONLY AFTER 1973.
+CC
+CC AUTHOR     :  IERS CHAPTER 7.1
+CC
+CC VERSION    :  1.0
+CC
+CC CREATED    :  10-MAR-98
+CC
+CC CHANGES    :  10-MAR-98 : TS: ADDOPTED FOR BERNESE SOFTWARE
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               04-MAY-12 : RD: USE DMOD FROM MODULE
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1997     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE l_basfun, ONLY: dmod
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 ICAPD, ID   , K
+C
+      REAL*8    CAPT , DMJD , DTR  , FDAY , H0   , P0   , S0   , TWOPI
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      REAL*8 ANGFAC(4,11)
+C
+      REAL*8 ANGLE(11),SPEED(11)
+C
+C  SPEED OF ALL TERMS IN RADIANS PER SEC
+C
+      DATA SPEED/1.40519D-4, 1.45444D-4, 1.37880D-4, 1.45842D-4,
+     1           0.72921D-4, 0.67598D-4, 0.72523D-4, 0.64959D-4,
+     2           0.053234D-4, 0.026392D-4, 0.003982D-4 /
+      DATA ANGFAC/2.D0, -2.D0,  0.D0,  0.D0,
+     1            0.D0,  0.D0,  0.D0,  0.D0,
+     2            2.D0, -3.D0,  1.D0,  0.D0,
+     3            2.D0,  0.D0,  0.D0,  0.D0,
+     4            1.D0,  0.D0,  0.D0,  0.25D0,
+     5            1.D0, -2.D0,  0.D0, -0.25D0,
+     6           -1.D0,  0.D0,  0.D0, -0.25D0,
+     7            1.D0, -3.D0,  1.D0, -0.25D0,
+     8            0.D0,  2.D0,  0.D0,  0.D0,
+     9            0.D0,  1.D0, -1.D0,  0.D0,
+     .            2.D0,  0.D0,  0.D0,  0.D0 /
+c
+      DATA TWOPI/6.28318530718D0/
+      DATA DTR/.174532925199D-1/
+C
+C  FRACTIONAL PART OF DAY IN SECONDS
+C
+      ID=DMJD
+      FDAY=(DMJD-ID)*86400.D0
+C
+C  DAYS SINCE 01-JAN-1975
+C
+      ICAPD=ID-42412
+      CAPT=(27392.500528D0+1.000000035D0*ICAPD)/36525.D0
+C
+C MEAN LONGITUDE OF SUN AT BEGINNING OF DAY
+C
+      H0=(279.69668D0+(36000.768930485D0+3.03D-4*CAPT)*CAPT)*DTR
+C
+C MEAN LONGITUDE OF MOON AT BEGINNING OF DAY
+C
+      S0=(((1.9D-6*CAPT-.001133D0)*CAPT+481267.88314137D0)*CAPT
+     1   +270.434358D0)*DTR
+C
+C MEAN LONGITUDE OF LUNAR PERIGEE AT BEGINNING OF DAY
+C
+      P0=(((-1.2D-5*CAPT-.010325D0)*CAPT+4069.0340329577D0)*CAPT
+     1   +334.329653D0)*DTR
+C
+      DO 500 K=1,11
+        ANGLE(K)=SPEED(K)*FDAY+ANGFAC(1,K)*H0
+     1                        +ANGFAC(2,K)*S0
+     2                        +ANGFAC(3,K)*P0
+     3                        +ANGFAC(4,K)*TWOPI
+        ANGLE(K)=DMOD(ANGLE(K),TWOPI)
+        IF(ANGLE(K).LT.0.D0)ANGLE(K)=ANGLE(K)+TWOPI
+500   CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

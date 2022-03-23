@@ -1,0 +1,12 @@
+Example for a plate definition file                              18-OCT-09 13:07
+--------------------------------------------------------------------------------
+LOCAL GEODETIC DATUM:                 
+
+NUM  STATION NAME           VX (M/Y)       VY (M/Y)       VZ (M/Y)  FLAG   PLATE
+
+  1  AUCK 50209M001                                                        AUST
+  2  FAIR 40408M001                                                        NOAM
+  3  OHIG 66008M001                                                        ANTA
+  4  THU1 43001M001                                                        NOAM
+  5  WTZR 14201M010                                                        EURA
+

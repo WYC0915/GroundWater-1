@@ -1,0 +1,628 @@
+<html>
+<body>
+
+<center>
+<b>CREATE SINGLE-DIFFERENCE/BASELINE FILES</b>
+<p>Program: SNGDIF
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<a name="EXT_CSH" default=""></a>
+<a name="EXT_CSO" default=""></a>
+<a name="EXT_PSH" default=""></a>
+<a name="EXT_PSO" default=""></a>
+<a name="DIR_CSH" default=""></a>
+<a name="DIR_CSO" default=""></a>
+<a name="DIR_PSH" default=""></a>
+<a name="DIR_PSO" default=""></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program is used to create single-difference observation files
+(baselines) from zero-difference phase or code observation files. Only
+observations of satellites observed at equal epochs at both stations
+can be written to the baseline file.
+If you plan to perform a network solution all stations should be
+connected by a non-redundant set of baselines.
+<br>
+The ambiguities from both zero-difference phase observation files are
+merged when forming the single-difference observation files. This may be
+of interest if your zero-difference observation files are already
+cleaned by the program <a href="PGMLST.HLP#MAUPRP">MAUPRP</a> in the
+zero-difference mode or by <a href="PGMLST.HLP#RNXSMT">RNXSMT</a>. Usually the
+ambiguities are redefined when the single-difference phase observation files
+are screened with program MAUPRP.
+<br>
+Filenames of the single difference files are generated automatically
+(except in the manual mode). They obtain the form <tt>aabbssss.ext</tt> where
+<tt>aa</tt> and <tt>bb</tt> are the <nobr>2-character</nobr> abbreviations of
+the two stations of the baseline as specified in the abbreviation table,
+<tt>ssss</tt> represents the session, and <tt>ext</tt> is the data type
+specific extension.
+
+<p><i>Remark:</i>
+You must have saved the receiver clock corrections in the zero-difference
+observation files with program <a href="PGMLST.HLP#CODSPP">CODSPP</a>
+previously.
+
+<p><hr>
+
+<p><b>SNGDIF 1: Input File Selection</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="MEATYP" default="PHASE"></a>
+<p><b>GENERAL OPTIONS</b>
+<p><b>Measurement type:</b>
+Either <b>PHASE</b> or <b>CODE</b> single-difference files may be created.
+Usually there is no reason to use code observations in subsequent processing
+steps.
+<br>
+An exception may be the Melbourne-Wuebbena ambiguity resolution
+strategy. In this case you will need to have the same baselines for the
+code observations as for the phase observations. This is
+achieved by saving the "Listing of formed baselines" in a baseline
+definition file (section "RESULT FILES") when forming the phase
+single-difference files. This information may then be introduced as
+"Predefined baselines" in section "INPUT FILES" for forming the same
+baselines using the code observation files.
+
+<p><i>Default value:</i> <tt>PHASE</tt>
+
+<a name="STRATEGY" default="OBS-MAX"></a>
+<p><b>Processing strategy:</b>
+Here you may select the strategy used for selecting the baselines to create
+the single-difference observation files for your network solution. In the
+automatic modes baselines will be formed in a way that all stations will be
+connected by a non-redundant set of baselines.
+<br>
+In general the option <b>OBS-MAX</b> guarantees the best performance for the
+processing of a network using correct correlations. In special cases a
+different option may be selected in order to optimize the number of
+observations for a station of special interest.
+<ul>
+<li><b>OBS-MAX:</b> The baselines are created taking into account the number of
+    common observations for the associated stations. From all possible
+    combinations, a set of baselines with maximum common observations is
+    chosen.
+    <br>
+    The number of observations are scaled to a sampling rate of one
+    minute and to one frequency when the set of baselines is selected.
+    In this way zero-difference files with different sampling rates are
+    handled in a similar way.
+    <p><i>Remark:</i>
+    This strategy guarantees that a maximum number of
+    observations from the network can be used in the double-difference
+    processing. The procedure is, however, time consuming because the
+    zero-difference observation files have to be analyzed several times.
+<li><b>SHORTEST</b> The non-redundant set of shortest baselines is created
+    irrespective of the observation scenario of the stations. The strategy can
+    only be used if the observations from all stations cover the same time
+    interval.
+<li><b>STAR:</b> The baselines are built by connecting one reference station
+    with all remaining stations.
+    You may select the reference station manually. Otherwise the reference
+    station will be selected automatically in a way that the sum of the length
+    of all baselines is minimized.
+<li><b>DEFINED:</b> Only the "Predefined baselines" from a baseline definition
+    file (see section "INPUT FILES") are created.
+<li><b>MANUAL:</b> Only one baseline is created. You have to select two
+    zero-difference observation files and you may specify a name for
+    the resulted single-difference observation file.
+</ul>
+
+<p><i>Remark:</i>
+For the strategies <b>OBS-MAX</b> and <b>SHORTEST</b> you have
+the possibility to specify "Predefined baselines" from a baseline
+definition file in the section "INPUT FILES". The predefined baselines
+are created in any case. Additional baselines are built using the
+selected strategy to complete the set of baselines.
+
+<p><i>Default value:</i> <tt>OBS-MAX</tt>
+
+<a name="SATSYS" default="GPS"></a>
+<p><b>Stations must contain observ. from:</b>
+a certain GNSS to be considered for the baseline creation. It is checked
+whether the zero-difference input files contain at least one valid
+measurement from this system. This option does <it>not</it> act as a filter
+for observations of a specific GNSS.
+<br>
+It is recommended to have at least <b>GPS</b> selected there since this
+system is used as reference for inter-system biases in program
+<a href="PGMLST.HLP#GPSEST">GPSEST</a>. In this way, e.g., observation files
+containing only GLONASS can be filtered out.
+<br>
+Another application of this
+option is to create all baselines with Galileo data first (selection
+<b>GPS&amp;GAL</b>). Because of the limited number of Galileo-tracking stations
+and Galileo satellites at the moment it is in a general baseline-creation
+process not guaranteed that the baselines between these stations are formed
+to keep the Galileo measurements from the stations also in the baseline files.
+In a second run the remaining baselines may be added when the "Listing of
+formed baselines" from the first run is introduced as "Predefined baselines"
+in the second run (see "RESULT FILES" and "INPUT FILES" section in panel
+"SNGDIF 2: Filenames").
+
+<p><i>Default value:</i> <tt>GPS</tt>
+
+<br><br>
+
+<a name="PHASEZERO" default="????$S+0"></a>
+<a name="CODEZERO" default="????$S+0"></a>
+<p><b>AUTOMATED BASELINE CREATION</b>
+<p><b>Zero-difference observation files:</b>
+Here you can select the phase or code zero-difference observation files
+you want to use for creating the set of baselines by applying any strategy
+except of <b>MANUAL</b>.
+
+<p><i>Default value:</i> <tt>????$S+0</tt>
+
+<a name="CODEREF" default=""></a>
+<a name="PHASEREF" default=""></a>
+<p><b>Reference station for STAR strategy:</b>
+This field is used for strategy <b>STAR</b> only. You can select one 
+zero-difference
+observation file from the list above which is used as reference station.
+From this reference station baselines are created to all other stations.
+<br>
+If you leave this field empty the reference station is chosen automatically
+in such a way that the sum of the length of all baselines is minimized.
+
+<br><br>
+
+<a name="PHASEZERO1" default=""></a>
+<a name="CODEZERO1" default=""></a>
+<p><b>MANUAL BASELINE CREATION</b>
+<p><b>First zero-difference input file:</b>
+Select the first phase or code zero-difference observation file for the
+<b>MANUAL</b> baseline creation.
+
+<a name="PHASEZERO2" default=""></a>
+<a name="CODEZERO2" default=""></a>
+<p><b>Second zero-difference input file:</b>
+Select the second phase or code zero-difference observation file for the
+<b>MANUAL</b> baseline creation.
+
+<a name="PHASESNG" default=""></a>
+<a name="CODESNG" default=""></a>
+<p><b>Single-difference output file:</b>
+When using strategy <b>MANUAL</b> you may specify the name of the resulting
+single-difference observation file here. If the input field remains blank
+the filename is generated automatically using the abbreviation table.
+
+<p><i>Default value:</i> blank
+
+<p><hr>
+
+<p><b>SNGDIF 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">CONST.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">SATELLIT.I08</a>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates. It is used
+to apply antenna heights and for the printing of coordinates in the
+local system (north, east, up). You only have to modify this file
+when you want to introduce a new reference ellipsoid.
+
+<p><i>Caution:</i>
+This file has no effect on Cartesian coordinates.
+
+<p>Example: <a href="/$X/GEN/DATUM.">DATUM.</a>
+
+<a name="ABBREV" default="ABBREV"></a>
+<p><b>Abbreviation table:</b>
+This file contains a station name abbreviation table containing
+<nobr>4-character</nobr> and <nobr>2-character</nobr> abbreviations for a list
+of station names.
+The <nobr>2-character</nobr> station name abbreviations are used to generate
+the names of the single-difference observation files.
+
+<p><i>Remark:</i>
+The names of the observation files in Bernese format are
+generated automatically. Therefore, please take care, that all stations
+you want to process have different <nobr>2-character</nobr> abbreviations.
+Otherwise the observation files may be overwritten.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.ABB"> Example</a>
+
+<p><hr>
+
+<p><b>SNGDIF 2: Filenames</b>
+
+<a name="COORD" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>Station coordinates:</b>
+The station coordinates have to be specified here. This is
+not necessary if the strategy is <b>MANUAL</b>, <b>STAR</b> with selected
+reference station, and <b>DEFINED</b>.
+
+<p><i>Remark:</i>
+The coordinates are used only to compute the length of
+baselines. Therefore, approximate coordinates are sufficient here.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="ECCENT" default=""></a>
+<p><b>Site eccentricities:</b>
+If you have selected a strategy where you need to specify "Station
+coordinates", optionally, a site coordinate eccentricity file may
+be specified containing local ties between markers.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.ECC">Example</a>
+
+<a name="BASDEF" default=""></a>
+<p><b>Predefined baselines:</b>
+Using the strategies <b>OBS-MAX</b>, <b>SHORT</b>, or <b>DEFINED</b> you might
+want to force the program to generate some specific baselines. These
+predefined baselines are specified in this file.
+<br>
+For strategy <b>DEFINED</b>, the specification of a baseline file is presupposed.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.BSL">Example</a>
+
+<a name="REPLACE" default="0"></a>
+<!-- Option not in panel, may be reasonable only in very special cases
+<p><u>Replace missing stations:</u>
+It is possible that some of the stations contained in the file of
+"Predefined baselines" are not available (or you don't want to use them
+for any reason). If you select this option, the program tries to replace
+a missing station by another station from the selected zero-difference
+observation files.
+<br>
+All stations which are not already contained in the file of
+"Predefined baselines" are checked. The station which is located close
+to the missing station is used for replacement.
+
+<p><i>Remark:</i>
+It may happen, that a station cannot be replaced at all.
+In this case the baseline is not created.
+
+<p><i>Caution:</i>
+There is no limit for the distance between the missing
+and the replacing station.
+
+<p><i>Default value:</i> unmarked
+-->
+
+<a name="CLUINP" default=""></a>
+<p><b>Cluster definition:</b>
+The so-called cluster definition file is used to assign a cluster number
+to a list of stations. Specifying such a file in this field allows it to
+group baselines into clusters. Each of the formed baseline is assigned to
+the cluster with the cluster number of the first station in the baseline.
+<br>
+An application is to group all baselines into regional clusters. Each
+regional cluster may be processed in one separate network solution with
+an optimum benefit from correct correlation modeling in program
+<a href="PGMLST.HLP#GPSEST">GPSEST</a>.
+
+<p><a href="/$X/DOC/EXAMPLE.CLU">Example</a>
+
+<br><br>
+
+<a name="BASPRT" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>Listing of formed baselines:</b>
+It is possible to save the list of the created baselines in a file.
+This file may be introduced as "Predefined baselines" in the section
+"INPUT FILES" if you want to create exactly the same set of baselines,
+e.g., for another session etc.
+<br>
+For the Melbourne-Wuebbena ambiguity resolution
+strategy you can generate this file when you create the baselines for
+your phase measurements. To get the corresponding baselines for the code
+measurements you have to introduce this file as "Predefined baselines" in
+the section "INPUT FILES".
+
+<p><a href="/$X/DOC/EXAMPLE.BSL">Example</a>
+
+<a name="CLUOUT" default="">
+<p><b>Cluster/baseline assignment:</b></a>
+If you have specified a "Cluster definition" file you should specify a filename
+here, too. In this case you will get for each cluster a list of
+single-difference observation files belonging to this cluster.
+The clustering is done according to the
+"Cluster definition" specified in the section "INPUT FILES".
+<br>
+If N clusters are present, N cluster/baseline assignment files will
+be generated with the generic names <tt>xxxxxx01</tt>, <tt>xxxxxx02</tt>,
+etc., where <tt>xxxxxx</tt> is the cluster output filename given in this
+field. If redundant baselines are requested ("Add redundant baselines", for
+strategy <b>OBS-MAX</b> only) they will be listed in the file <tt>xxxxxx00</tt>.
+<br>
+These cluster/baseline assignment files may be used to select the
+baselines of each cluster for a  <a href="PGMLST.HLP#GPSEST">GPSEST</a>
+program run in the automated processing, e.g., with the BPE.
+
+<p><a href="/$X/DOC/EXAMPLE.CLB">Example</a>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="SNGDIF"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>SNGDIF 3: Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<br><br>
+
+<a name="SIMDT" default="1.0"></a>
+<p><b>SIMULTANEOUS OBSERVATIONS</b>
+<p><b>Tolerance to identify observations of one epoch:</b>
+This option is important if you combine two different receiver types and the
+measurement epochs do not coincide (note: under selective availability
+conditions it is mandatory to use simultaneous observations). This option tells
+the program in which cases the two measurement epochs may be identified as
+simultaneous.
+<br>
+If you have <nobr>1-second</nobr> data you should specify a value smaller than
+1&nbsp;second (e.g., 0.5&nbsp;sec).
+
+<p><i>Default value:</i> <tt>1.0&nbsp;seconds</tt>
+
+<br><br>
+
+<a name="AMBMRG" default="0"></a>
+<p><b>SETTING OF NEW AMBIGUITIES</b>
+<p><b>Merge ambiguities from input files:</b>
+If you create single-difference observation files from cleaned
+zero-difference phase observation files (e.g., from program
+<a href="PGMLST.HLP#MAUPRP">MAUPRP</a> in the zero-difference
+mode or from the program <a href="PGMLST.HLP#RNXSMT">RNXSMT</a>)
+the ambiguities should be already correctly set in the input
+observation files. The ambiguities from both input files are merged
+and no additional ambiguities have to be set up. Check the box to
+enable this feature.
+
+<p><i>Default value:</i> unmarked
+
+<a name="AMBDT" default="20"></a>
+<p><b>After a gap in the observations larger than:</b>
+It is possible to set up a new ambiguity parameter after a break in the
+observations to one satellite. Here you specify the length of the break.
+An initial ambiguity is set up for each satellite for the first epoch in
+any case.
+<br>
+This option is not very important if the single-difference observation
+files will pass the screening program <a href="PGMLST.HLP#MAUPRP">MAUPRP</a>
+where the ambiguities are redefined.
+
+<p><i>Default value:</i> <tt>20&nbsp;minutes</tt>
+
+<a name="AMBSLP" default="0"></a>
+<p><b>If a cycle slip flag in one of the input files:</b>
+If this option is selected, a new ambiguity parameter is set up if a cycle slip
+flag is found in one of the zero-difference observation files.
+<br>
+This is usually not necessary because the phase observation screening
+program <a href="PGMLST.HLP#MAUPRP">MAUPRP</a> is able to repair most
+of the cycle slips and will redefine the list of ambiguities in the baseline
+files.
+<br>
+If you create single-difference observation file from cleaned
+zero-difference phase observation files (e.g., from program MAUPRP in the
+zero-difference mode or from the program <a href="PGMLST.HLP#RNXSMT">RNXSMT</a>)
+the ambiguities should be already correctly set in the input
+observation files. The ambiguities from both input files are merged in any
+case and no additional ambiguities have to be set up.
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+<p><b>SNGDIF 3.1: Options for Strategy OBS-MAX</b>
+
+<a name="OPTMIN" default="600"></a>
+<p><b>SPEED UP BASELINE SELECTION ALGORITHM</b>
+<p><b>Minimum number of observations requested:</b>
+Baselines which contain less than the specified number of observations
+will not be created. The number of observations are scaled to a sampling
+rate of one minute and to one frequency before they are compared with this
+value.
+
+<p><i>Remark:</i>
+Stations may disappear from your network due to this criterion.
+
+<p><i>Default value:</i> <tt>600</tt>
+
+<a name="OPTFOC" default="1000">
+<p><b>Maximum distance for fast observation count:</b></a>
+This is an option to speed up the process of baseline building. Normally the
+program will read over all files to count all possible single-differences.
+For short baselines this is not really necessary since both stations will
+probably see the same satellites. Therefore, instead of reading the whole file
+only the header is read and an estimate is made of the number of
+single-difference observations.
+<br>
+This will speed up the process but you might loose some data.
+
+<p><i>Default value:</i> <tt>1000&nbsp;km</tt>
+
+<a name="OPTMAX" default="9000"></a>
+<p><b>Maximum baseline length considered:</b>
+Here you can define the maximum length of the baselines to be formed.
+No baseline longer than this value will be created no matter how many
+observations this baseline would contain.
+
+<p><i>Default value:</i> <tt>9000&nbsp;km</tt>
+
+<br><br>
+
+<a name="REDBAS" default="0"></a>
+<p><b>ALLOW REDUNDANT BASELINES</b>
+<p><b>Add redundant baselines:</b>
+With this option you permit the program to generate redundant baselines.
+You should use this option with care because the program
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> will give an error message
+when forcing the correct correlation strategy and processing redundant
+(i.e., linearly dependent) baselines.
+<br>
+The use of redundant baselines makes sense for global networks only.
+
+<p><i>Default value:</i> unmarked
+
+<br><br>
+
+<a name="BONMAX" default="10"></a>
+<p><b>ADD BONUS DEPENDING ON BASELINE LENGTH</b>
+<p>
+Consideration of the baseline length for optimum baseline selection is
+recommended in particular in case of dense local or regional GNSS receiver
+networks.
+
+<p><b>Maximum bonus for number of observations:</b>
+You may activate the bonus option by entering a non-zero value here. This
+value gives the maximum bonus in percent of the number of observations
+originally counted for a specific baseline length range.
+Enter <tt>0</tt> (zero) for deactivation.
+
+<p><i>Default value:</i> <tt>10 percent</tt>
+
+<a name="BONLEN1" default="20"></a>
+<p><b>Direct L1/L2: Baseline length from 0 to:</b>
+Maximum baseline length to privilege shortest baselines that are potential
+candidates for direct L1/L2 ambiguity resolution.
+
+<p><i>Default value:</i> <tt>20&nbsp;km</tt>
+
+<a name="BONLEN2" default="200"></a>
+<p><b>Wide-/Narrowlane: Baseline length from 0 to:</b>
+Maximum baseline length to privilege relatively short baselines that are
+potential candidates for phase-based widelane/narrowlane ambiguity resolution.
+
+<p><i>Default value:</i> <tt>200&nbsp;km</tt>
+
+<a name="BONLEN3" default="0"></a>
+<p><b>Other: Baseline length from 0 to:</b>
+Maximum baseline length to privilege baselines up to a certain length that
+are potential candidates for any other specific ambiguity resolution strategy
+subsequently performed.
+
+<p><i>Default value:</i> <tt>0&nbsp;km</tt>
+
+<p><hr>
+
+<p><b>SNGDIF 3.2: Options for redundant Baselines</b>
+
+<a name="REDMIN" default="6000"></a>
+<p><b>FORMING OF REDUNDANT BASELINES</b>
+<p><b>Minimum path length between two stations:</b>
+If the actual path (i.e., the sum of the length of all baselines connecting
+two stations) is shorter than this value, no redundant baseline is formed
+between these stations.
+
+<p><i>Default value:</i> <tt>6000&nbsp;km</tt>
+
+<a name="REDIMP" default="9000"></a>
+<p><b>Minimum improvement in path length:</b>
+A redundant baseline between two stations is formed, if the baseline path
+length between these two sites can be reduced by the number of kilometers
+specified here.
+
+<p><i>Default value:</i> <tt>9000&nbsp;km</tt>
+
+<br><br>
+
+<a name="CRTSAT" default="25"></a>
+<p><b>ADDITIONAL BASELINES FOR MARGINALLY OBSERVED SATELLITES</b>
+<p>
+Additional baselines are added to the redundant cluster to support satellites
+observed only by a limited number of stations. This option is in particular
+useful to improve the orbit determination of such satellites. Typically these
+are unhealthy satellites where the network consists only of a limited number
+of stations with all-in-view tracking.
+
+<p><b>A satellite was only tracked by less than</b>
+...&nbsp;<b>percent of the sta.:</b>
+Gives the percentage of stations providing measurements of a specific satellite.
+If less stations did track this satellite the support of marginally observed
+satellites is enabled for this particular satellite.
+<br>
+Note, that with this option the stations are counted individual for each GNSS -
+otherwise all satellites of a specific system may easily be defined as weakly
+observed only because of the network constellation.
+
+<p><i>Default value:</i> <tt>25&nbsp;percent</tt>
+
+<a name="CRTBAS" default="10"></a>
+<p><b>Maximum number of additional baselines</b>
+The maximum number of additional baselines to support marginally observed
+satellites is defined. If more baselines can be built all baselines are
+ordered by their length and the longest and shortest baselines are removed
+from the list until the given number is achieved.
+
+<p><i>Default value:</i> <tt>10</tt>
+
+<p><hr>
+
+</body>
+</html>

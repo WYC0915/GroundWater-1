@@ -1,0 +1,35 @@
+SATELLITE PROBLEMS: MANEUVERS OR BAD OBSERVATION INTERVALS, BSW5.2              
+--------------------------------------------------------------------------------
+
+SATELLITE  PROBLEM    ACTION           FROM                  TO
+  ***         *         *       YYYY MM DD HH MM SS  YYYY MM DD HH MM SS
+
+   23         0         0       1993 09 20 11 45 00   
+   24         0         0       1993 09 27 11 45 00   
+    1         3         1       1993 10 03 23 00 00  1993 10 06 12 00 00
+    5         3         1       1993 09 27 00 00 00  1993 10 01 24 00 00
+   24         3         1       1993 09 27 00 00 00  1993 10 01 24 00 00
+   31         0         0       1993 11 01 00 00 00   
+   29         0         0       1993 11 04 01 45 00                     
+    7         0         0       1993 12 16 09 12 00 
+                                                                                
+
+                                                                                
+PROBLEM DESCRIPTION    PROBLEM          ACTION DESCRIPTION          ACTION      
+-------------------    -------          ------------------          ------      
+                                                                                
+SATELLITE MANEUVER        0             SET UP SAT. WITH SVN=SVN+50    0        
+SATELLITE MODELING        4             SPLIT UP ARCS IN ADDNEQ2       0        
+SATELLITE MODELING        4             ADD PULSES IN ORBGEN           4        
+SATELLITE MODELING        4             DELETE ALL PULSES IN ADDNEQ2   5        
+BAD PHASE DATA            1             MARK PHASE OBSERVATIONS        1        
+BAD PHASE DATA            1             REMOVE PHASE OBSERVATIONS      2        
+BAD CODE DATA             2             MARK CODE OBSERVATIONS         1        
+BAD CODE DATA             2             REMOVE CODE OBSERVATIONS       2        
+BAD PHASE AND CODE DATA   3             MARK BOTH OBSERVATION TYPES    1        
+BAD PHASE AND CODE DATA   3             REMOVE BOTH OBSERVATION TYPES  2        
+
+SIGNS ARE ONLY RELEVANT FOR LONGARC COMPUTATION USING ADDNEQ2:                  
++ SIGN: FORCE ADDNEQ2 TO PERFORM AN ARCSPLIT (=> NO LONGARC)                    
+- SIGN: PREVENT ADDNEQ2 FROM DOING AN ARCSPLIT (=> FORCE LONGARC)               
+                                                                                

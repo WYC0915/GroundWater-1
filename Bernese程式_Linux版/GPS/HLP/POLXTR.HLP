@@ -1,0 +1,320 @@
+<html>
+<body>
+
+<center>
+<b>CONCATENATE IERS POLE FILES</b>
+<p>Program: POLXTR
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program may be used to extract Earth rotation parameter (ERP) information
+from a list of consecutive pole files in the IERS format (see
+<a href="/$X/DOC/EXAMPLE.IEP">Example</a> from CODE).
+The user may specify which records in the original pole files
+should be extracted and from which records the UT1-UTC values are integrated
+into a continuous series.
+
+<p><hr>
+
+<p><b>POLXTR 1: Input Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RADIO_F" default="1"></a>
+<a name="EPFIL" default=""></a>
+<p><b>INPUT POLE FILES (IERS)</b>
+<p><b>Individual files:</b>
+Select the pole files (e.g. consecutive daily or <nobr>3-day</nobr> solutions)
+from which a series of Earth rotation parameters should be extracted.
+The files selected have to be ordered in time and it is not allowed to
+have gaps in the pole file series (because of the integration of UT1-UTC).
+
+<p><i>Remark:</i>
+The menu establishes an alphabetical order of the input files.
+
+<a name="RADIO_L" default="0"></a>
+<a name="EPLIST" default=""></a>
+<p><b>List of files:</b>
+In this field you may specify the name of a file containing a blank-separated
+list of the input pole files together with the records to be extracted.
+The files selected have to be ordered in time and it is not allowed to
+have gaps in the pole file series (because of the integration of UT1-UTC).
+
+<p>Example:<!-- Missing reference! -->
+<pre>
+${S}/IGS_2003/ORB/G3_03299.IEP  7 13 19 25 31
+${S}/IGS_2003/ORB/G3_03300.IEP  7 13 19 25 31
+${S}/IGS_2003/ORB/G3_03301.IEP  7 13 19 25 31
+</pre>
+
+<br><br>
+
+<a name="POLE" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>A priori pole file:</b>
+You may select an a priori pole file for comparison purposes. The ERPs
+of the extracted/integrated series will be compared to the ERPs in the
+a priori pole file and both values will be written to the output plot file.
+
+<a name="PLOTSKL" default=""></a>
+<p><b>Plot skeleton file:</b>
+If you would like to get a plot file you may enter the name of a plot
+skeleton file here. An example of a plot skeleton file for SAS plots
+is given in <a href="/$X/SKL/POLXTRPS.SKL">POLXTRPS.SKL</a>. Other plot
+packages are currently not supported.
+
+<p><hr>
+
+<p><b>POLXTR 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<p><hr>
+
+<p><b>POLXTR 2: Output Files</b>
+
+<a name="IERSPOL" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>Pole output (IERS):</b>
+Enter the name of the output pole file (IERS format) in this field to
+save the extracted ERP information. If you leave the field blank no output
+IERS pole file will be written.
+
+<p><a href="/$X/DOC/EXAMPLE.IEP">Example</a>
+
+<a name="POLERS" default=""></a>
+<p><b>Pole output (BERNESE):</b>
+Enter the name of the output pole file (Bernese format) in this field
+to save the extracted ERP information. If you leave the field blank no output
+IERS pole file will be written.
+
+<p><a href="/$X/DOC/EXAMPLE.ERP">Example</a>
+
+<br><br>
+
+<a name="PLOTRS" default=""></a>
+<p><b>OUTPUT FILE</b>
+<p><b>Plot file of results:</b>
+To write a plot file (SAS) you have to enter the name of the plot file
+in this field. Leave the field empty to makes sure that no plot file
+is created.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="POLXTR"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>POLXTR 3: Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment in the program output
+and will be saved in all the result files to document the program run.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="UT1TYP" default="IERS"></a>
+<p><b>HANDLING OF UT1-UTC</b>
+<p><b>Handling of UT1-UTC:</b>
+There are three options on how the UT1-UTC values for the result
+files are computed.
+<ul>
+<li><b>IERS:</b>
+    This option is used for the submissions of ERP results to IERS.
+    UT1-UTC is initialized with record 1 (see below) of the second
+    Earth rotation parameter file (IEP). The value of UT1-UTC for the
+    middle of the next day is then computed using the two records
+    "UT1-UTC integration 1" and "UT1-UTC integration 2" specified below.
+<li><b>ORBGEN:</b>
+    This option is normally used to create a pole file to be used for
+    long arcs in the program <a href="PGMLST.HLP#ORBGEN">ORBGEN</a>.
+    In this case the option "Number of epochs per day written" should be
+    set to 3 and three records from each ERP
+    input file (records 2,3,4 below) will be written to the output file.
+    UT1-UTC is made continuous and the first value is initialized with
+    the value in the a priori pole file.
+<li><b>NON:</b>
+    The UT1-UTC values for the middle epochs (record 3 below) are set to
+    the values of the a priori pole file for each day. The UT1-UTC
+    values for record 2 and 4 (if option "Number of epochs per day written"
+    is set to 3) are aligned
+    in such a way, that the UT1-UTC drift is the same in the resulting
+    ERP file as it is in the daily ERP input files.
+</ul>
+
+<a name="OUTEPO" default="1"></a>
+<p><b>Number of epochs per day written:</b>
+This option decides, whether one or three records are written to the
+ERP output files per input file. This option is not available if
+"Handling of UT1-UTC" is set to "IERS". In this case one epoch per
+day is written.
+
+<a name="ANCHOR" default="FIRST"></a>
+<p><b>Anchor epoch to a priori file:</b>
+With this option you may specify whether the anchor epoch for UT1-UTC
+(starting point for integration of UT1-UTC) is the first or the last file.
+This option is only available if "Handling of UT1-UTC" is set to "ORBGEN".
+In other cases the UT1-UTC time series is anchored at the first epoch.
+
+<p><i>Default value:</i> <tt>FIRST</tt>
+
+<br><br>
+
+<a name="OFFSET" default="0"></a>
+<p><b>OFFSETS</b>
+<p><b>Average of records 2 and 4:</b>
+If this option is enabled the offsets for x-pole, y-pole, UT1-UTC are
+not computed from record 3 of the input files but from the average of
+records 2 and 4. If the extraction scheme does not correspond to the
+ERP parametrization continuity of the ERPs may be enforced.
+This option is only available if "Handling of UT1-UTC" is set to "ORBGEN".
+
+<p><i>Default value:</i> unmarked
+
+<br><br>
+
+<a name="PRED" default="0"></a>
+<a name="NPREDAY" default="0"></a>
+<p><b>PREDICTION OF ERPs</b>
+<p><b>Number of days:</b>
+Number of days to be predicted using a polynomial fit through the
+ERP values read from record 3 (see below) of each input file. If zero
+days are entered, no prediction takes place.
+
+<p><i>Default value:</i> <tt>0</tt>
+
+<a name="PREDAPR" default="0"></a>
+<p><b>Consider a priori as prediction:</b>
+With this option enabled the a priori pole values are used as prediction
+for the number of days specified in "Number of days" or the number of
+days available in the file, whatever number is smaller. The values are
+shifted by a constant offsets in order to align the prediction with the
+last observed values.
+
+<a name="NFITDAY" default="5"></a>
+<p><b>Number of days to use for fit:</b>
+Number of days, counted backwards from the last available value, to be used
+for the polynomial fit. If option
+"Consider a priori as prediction" is enabled the number of days is counted
+backwards from the last epoch available in the a priori pole file.
+
+<p><i>Default value:</i> <tt>5</tt>
+
+<a name="NPREDEG" default="1"></a>
+<p><b>Polynomial degree:</b>
+Degree of polynomial used to predict the ERP values.
+
+<p><i>Default value:</i> <tt>1</tt>
+
+<p><hr>
+
+<p><b>POLXTR 4.1: Records to Extract</b>
+
+<a name="RECORD1" default=""></a>
+<p><b>RECORD NUMBERS TO BE USED</b>
+<p>
+The records in the IERS pole file (excluding any header lines) are
+numbered sequentially for references below. The recommended values for
+the extraction of <nobr>1-day</nobr> and <nobr>3-day</nobr> solutions and
+other CODE solution types are given in the panel.
+In the following five fields you specify the default
+values for the numbers of the records to be extracted.
+
+<p><b>UT1-UTC integration 1:</b>
+The UT1-UTC value in the record number entered here will be used
+together with the value in the record number given in the field
+"UT1-UTC integration 2" to compute the UT1-UTC drift and to do the
+integration of UT1-UTC. This record is only used if the option
+"Handling of UT1-UTC" is set to "IERS".
+
+<a name="RECORD2" default=""></a>
+<p><b>Daily drift 1:</b>
+If "IERS" is selected above, the daily drifts in the pole coordinates
+and in UT1-UTC given in the IERS pole format are computed from the two
+records given in the field here and the field "Daily drift 2" below.
+If "ORBGEN" or "NON" is selected and if "Number of epochs per day written"
+above is set to 3, the values of this record are written to the result file.
+
+<a name="RECORD3" default=""></a>
+<p><b>X,Y pole values:</b>
+The x,y pole values in the resulting series are taken from the record
+entered here unless option "Average of records 2 and 4" above is activated.
+
+<a name="RECORD4" default=""></a>
+<p><b>Daily drift 2:</b>
+See option "Daily drift 1".
+
+<a name="RECORD5" default=""></a>
+<p><b>UT1-UTC integration 2:</b>
+See option "UT1-UTC integration 1". This record is only used if the
+option "Handling of UT1-UTC" is set to "IERS".
+
+<a name="USELIST" default="0"></a>
+<p><b>Indiv. records for all files:</b>
+Check this box in order to specify individual records for each file in the
+following panel.
+
+<p><hr>
+
+<a name="RECLIST"     default="%% %% %% %% %% %%"></a>
+<a name="RECLIST_HLP" default="%% %% %% %% %% %%"></a>
+<p><b>POLXTR 4.2: List of Files and Records</b>
+<p>
+The names of the input pole files selected in the field "Individual files"
+are listed here. You may specify individual records for each file. See above
+for a definition of the records.
+
+<p><hr>
+
+</body>
+</html>

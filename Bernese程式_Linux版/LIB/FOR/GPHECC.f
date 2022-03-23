@@ -1,0 +1,450 @@
+      MODULE s_GPHECC
+      CONTAINS
+
+C*
+      SUBROUTINE GPHECC(ICORR ,STANAM,RECTYP,ANTTYP,NRANT ,IFREQ ,
+     1                  SESSID,ZEN   ,AZI   ,PHAECC,IRCODE)
+CC
+CC NAME       :  GPHECC
+CC
+CC PURPOSE    :  GET RECEIVER ANTENNA PHASE CENTER OFFSETS (ICORR=1)
+CC               OR ELEVATION-DEPENDENT CORRECTIONS (ICORR=2) FROM
+CC               PHASE CENTER INFORMATION FILE FOR THE REQUESTED
+CC               FREQUENCY/LINEAR COMBINATION "IFREQ" AND
+CC               SATELLITE ELEVATION "ZEN" (ELEV. CORRECTION) FOR
+CC               THE RECEIVER ANTENNA RESP. NADIR-DEPENDENT
+CC               CORRECTIONS FOR THE SATELLITE ANTENNA.
+CC               IF AN AZ/EL MAP IS AVAILABLE AND ICORR=2, THEN
+CC               THE MAP WILL BE USED TO MAKE THE CORRECTION.
+CC               IF A RECEIVER ANTENNA ORIENTATION FILE IS
+CC               AVAILABLE, THE ANTENNA CORRECTIONS WILL BE ROTATED
+CC               ACCORDING TO THIS FILE.
+CC
+CC PARAMETERS :
+CC         IN :  ICORR  : TYPE OF CORRECTION                  I*4
+CC                        =-1:PHASE CENTER OFFSETS, BUT DO NOT
+CC                            STOP IF RECEIVER/ANTENNA NOT FOUND
+CC                        =1: PHASE CENTER OFFSETS
+CC                        =2: ELEVATION AND/OR AZIMUTH DEPENDENT
+CC                            CORRECTION.
+CC                            IF AN AZ/EL MAP IS AVAILABLE, THEN IT
+CC                            WILL BE USED TO CALCULATE THE CORRECTION.
+CC                            OTHERWISE THE ELEVATION-DEPENDENT PARA-
+CC                            METERS WILL BE USED IF AVAILABLE --
+CC                            IF NOT, THEN A CORRECTION OF ZERO
+CC                            WILL BE RETURNED
+CC               STANAM : STATION NAME                       CH*(*)
+CC               RECTYP : RECEIVER TYPE                      CH*(*)
+CC               ANTTYP : ANTENNA  TYPE                      CH*(*)
+CC               NRANT  : SERIAL NUMBER OF ANTENNA            I*4
+CC               IFREQ  : FREQUENCY (OR LINEAR COMBINATION)   I*4
+CC                        REQUESTED
+CC               SESSID : SESSION IDENTIFICATION             CH*4
+CC               ZEN    : ZENITH DISTANCE RESP. NADIR ANGLE   R*8
+CC                        (RADIAN) FOR TYPE ICORR=2
+CC               AZI    : AZIMUTH (RADIAN) FOR TYPE ICORR=2   R*8
+CC        OUT :  PHAECC : PHASE CENTER OFFSET/CORRECTION.     R*8(3)
+CC                        THE ELEVATION- (RESP. NADIR-)
+CC                        DEPENDENT CORRECTION IS GIVEN IN
+CC                        PHAECC(1)
+CC               IRCODE : PHASE CENTER DATA FOUND             I*4
+CC                        0: NO / 1:YES
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  W.GURTNER, M.ROTHACHER, J.JOHNSON
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  89/06/07
+CC
+CC CHANGES    :  01-SEP-92 : ??: USE "OPNFIL"
+CC               25-FEB-93 : ??: READ AND RETURN ELEVATION DEPENDENT
+CC                               CORRECTIONS. NEW PARAMETERS "ICORR","ZEN".
+CC                               ERROR MESSAGE IF MAXRCV TOO SMALL.
+CC               29-OCT-93 : JJ: READ AND RETURN AZIMUTH AND ELEVATION
+CC                               DEPENDENT CORRECITONS.
+CC               08-APR-94 : MR: SMALL CORRECTIONS
+CC               25-JUL-94 : SS: MAXRCV=30 (INSTEAD OF 20)
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               01-SEP-94 : MR: ADD MORE INFO TO ERROR MESSAGE
+CC               29-SEP-94 : MR: LIMIT TEST OF REC/ANT TO 16 CHAR.
+CC               06-NOV-94 : MR: READ BOTH MODELS ESTIMATED BY GPSEST
+CC               26-NOV-94 : MR: ADD BLANK IN ERROR MESSAGE FOR MAPS
+CC               21-APR-95 : SS: NEW FUNCTION "ASLEFU" FOR APC-
+CC                               VARIATIONS
+CC               05-MAY-95 : MR: ALLOW OLD VALUES FOR SPHERIC.HARM. AS
+CC                               MODTYP=3
+CC               29-JUN-95 : MR: USE FACTOR OF 2 ALSO FOR NEW MODEL 2
+CC               26-MAR-96 : MR: ADD ANTENNA ORIENTATION TABLE OPTION
+CC                               SESSION ID ADDED AS PARAMETER
+CC               26-MAR-96 : MR: ADD SUBROUTINE RDAPHC TO READ PCV
+CC               06-JUN-96 : MR: REMOVED UNUSED VARIABLES
+CC               13-MAY-98 : MR: "DFLOAT" REMOVED
+CC               18-SEP-98 : MR: SET MAXRCV 50 --> 75
+CC               07-JUL-99 : SS: SET MAXRCV 75 --> 100
+CC               02-MAY-01 : RD: -ANTAZI -> ANTAZI FOR CONST PART.
+CC               23-JUL-01 : HU: SET MAXRCV 100 --> 200
+CC               04-SEP-01 : SS: SR ASLEFU REPLACED BY SR ASLEF2;
+CC                               APC-PARAMETER REPRESENTATION TYP 4
+CC               28-MAY-03 : RD: ADD RETURN CODE AND STATION NAME
+CC               11-AUG-03 : RS: ADD MAXZEN, RECTYP ALLOWED TO BE
+CC                               BLANK, SET MAXAZI 37 --> 73, TAKE
+CC                               SATELLITE ANTENNAS INTO ACCOUNT,CHANGE
+CC                               CALLS OF GETAZI
+CC               08-SEP-03 : HU: ANTNAM, RECNAM CHR16 -> CHR20
+CC               10-SEP-03 : HU: MERGED
+CC               20-NOV-03 : RS: CHECK WHETHER ZENDEG.GT.MAXZEN
+CC               21-APR-04 : HU: ANTAZI -> -ANTAZI FOR PHASE PATTERNS
+CC               16-JUN-05 : MM: COMCONST.inc REPLACED BY d_const
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               16-NOV-05 : AG: EXTENDED RDAPHC CALL
+CC               16-MAR-06 : AG: SET MAXRCV 200 --> 500
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1989     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE d_const, ONLY: FREQ, PI, WLGTH
+      USE s_getazi
+      USE s_exitrc
+      USE f_aslef2
+      USE f_aslefu
+      USE s_gtflna
+      USE s_rdaphc
+      USE s_ddreh
+      USE s_dmlmav
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IAZ1  , IAZ2  , IAZI  , ICORR , IEL1  , IEL2  ,
+     1          IELV  , IFIRST, IFREQ , IFRQ  , IMM   , IRC   , IRCODE,
+     2          IRCV  , LANT  , LREC  , MAXAZI, MAXELV, MAXRCV, NAZI  ,
+     3          NELV  , NMM   , NRANT , NRCV
+C
+      REAL*8    ANTAZI, AZ1   , AZI   , AZIDEG, AZIOK ,
+     1          COREL1, COREL2, DAZI  , DELV  , EL1   , ZEN   , ZENDEG
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+C MAXIMUM LOCAL DIMENSIONS
+C ------------------------
+C
+C MAXRCV: MAXIMUM NUMBER OF RECEIVER/ANTENNA PAIRS RESP. OF ANTENNAS
+C MAXELV: MAXIMUM NUMBER OF DIFFERENT ELEVATION ANGLES
+C         (19 ALLOWS FOR ELEVATION INCREMENTS DOWN TO 5 DEG)
+C MAXAZI: MAXIMUM NUMBER OF DIFFERENT AZIMUTH ANGLES
+C         (73 ALLOWS FOR AZIMUTH INCREMENTS DOWN TO 5 DEG)
+C
+      PARAMETER (MAXRCV=500,MAXELV=19,MAXAZI=73)
+C
+      CHARACTER     STANAM*(*),RECTYP*(*),ANTTYP*(*)
+      CHARACTER*80  TITLE,FILINFO
+      CHARACTER*32  FILPHC
+      CHARACTER*20  RECTPI(MAXRCV),ANTTPI(MAXRCV)
+      CHARACTER*20  ANTTP,RECTP,METHOD(MAXRCV)
+      CHARACTER*10  SINEX(MAXRCV),atDATE(MAXRCV)
+      CHARACTER*4   SESSID
+C
+      REAL*8        ANTPCV(MAXELV,MAXAZI,2,MAXRCV)
+      REAL*8        AZELCR(2)
+      REAL*8        PHAECC(3),ANTECC(3,2),ANTOFF(3,2,MAXRCV)
+      REAL*8        FACT(2,5),ROTMAT(3,3)
+C
+      INTEGER*4     NFRANT(MAXRCV),IANTEN(2,MAXRCV)
+      INTEGER*4     MODTYP(MAXRCV),NPCV(2,MAXRCV),MAXZEN(MAXRCV)
+C
+C ANTPCV - ARRAY HOLDS ECC CORRECTIONS THAT DEPEND
+C          ON BOTH ELEVATION RESP. NADIR AND AZIMUTH
+C NPCV   - ARRAY HOLDS NUMBER OF ELEVATION RESP. NADIR AND AZIMUTH
+C          VALUES OR DEGREE AND ORDER OF DEVELOPMENT IN ANTPCV
+C IEL1   - THESE TWO HOLD INDICES TO EL ENTRIES IN THE MAP THAT BRACKET
+C IEL2     THE REQUESTED ELEVATIONS RESP. NADIR ANGLES
+C IAZ1   - THESE TWO HOLD INDICES TO AZ ENTRIES IN THE MAP THAT BRACKET
+C IAZ2     THE REQUESTED AZIMUTHS
+C EL1    - ELEVATION RESP. NADIR VALUE FOR ENTRY POINTED TO BY IEL1
+C AZ1    - AZIMUTH VALUE FOR ENTRY POINTED TO BY IAZ1
+C COREL1 - THESE TWO HOLD MAP VALUES INTERPOLATED TO THE REQUESTED
+C COREL2   ELEVATION RESP. NADIR ANGLE AT THE TWO BRACKETING AZIMUTHS
+C AZELCR - HOLDS AZIMUTH/ELEVATION RESP. NADIR CORRECTIONS FOR L1 AND L2
+C
+C
+      DATA IFIRST/1/
+C
+C ILLEGAL CORRECTION TYPE OR FREQUENCY
+C ------------------------------------
+      IF (ABS(ICORR).NE.1.AND.ICORR.NE.2) THEN
+        WRITE(LFNERR,1) ICORR
+1       FORMAT(/,' *** SR GPHECC: ILLEGAL CORRECTION TYPE:',I3,/)
+        CALL EXITRC(2)
+      ENDIF
+C
+      IF(IFREQ.LT.1.OR.IFREQ.GT.5) THEN
+        WRITE(LFNERR,2) IFREQ
+2       FORMAT(/,' *** SR GPHECC: ILLEGAL FREQUENCY  : L',I1,/)
+        CALL EXITRC(2)
+      ENDIF
+C
+C READ ANTENNA PHASE CENTER CORRECTION FILE ON FIRST CALL
+      IF (IFIRST.EQ.1) THEN
+        IFIRST=0
+        CALL GTFLNA(1,'PHASECC',FILPHC,IRC)
+        CALL RDAPHC(MAXRCV,MAXELV,MAXAZI,FILPHC,TITLE ,NRCV  ,
+     1              RECTPI,ANTTPI,IANTEN,NFRANT,ANTOFF,MODTYP,
+     2              SINEX ,NPCV  ,ANTPCV,MAXZEN,METHOD,atDATE,
+     3              FILINFO)
+C
+C INITIALIZE THE FACT ARRAY FOR CALCULATING LINEAR COMBS
+        FACT(1,1)=1
+        FACT(2,1)=0
+        FACT(1,2)=0
+        FACT(2,2)=1
+        FACT(1,3)= FREQ(1)**2/(FREQ(1)**2-FREQ(2)**2)
+        FACT(2,3)=-FREQ(2)**2/(FREQ(1)**2-FREQ(2)**2)
+        FACT(1,4)= 1
+        FACT(2,4)=-1
+        FACT(1,5)= WLGTH(5)/WLGTH(1)
+        FACT(2,5)=-WLGTH(5)/WLGTH(2)
+      ENDIF
+C
+      LANT=20
+      IF (ANTTYP(17:20).EQ.'????') LANT=16
+      ANTTP=ANTTYP(1:LANT)
+C
+      IF(RECTYP.NE.' ') THEN
+        LREC=20
+        IF (RECTYP(17:20).EQ.'????') LREC=16
+        RECTP=RECTYP(1:LREC)
+      ELSE
+        RECTP=' '
+      END IF
+C
+C FIND REQUESTED ANTENNA(/RECEIVER) TYPE
+C --------------------------------------
+      DO 55 IRCV=1,NRCV
+        IF(((RECTPI(  IRCV).EQ.RECTP) .OR. (RECTP.EQ.' ')) .AND.
+     1       ANTTPI(  IRCV).EQ.ANTTP .AND.
+     2       IANTEN(1,IRCV).LE.NRANT .AND.
+     3       IANTEN(2,IRCV).GE.NRANT)     GOTO 60
+55    CONTINUE
+C
+C ANTENNA TYPE NOT FOUND, STOP WITH ERROR
+      IF (ICORR.GT.0) THEN
+        WRITE(LFNERR,51) STANAM,ANTTYP,RECTYP,NRANT
+51      FORMAT(/,' *** SR GPHECC: ANTENNA(/RECEIVER) TYPE NOT FOUND',/,
+     .           '                STATION NAME : ',A,/,
+     1           '                ANTENNA  TYPE: ',A,/,
+     2           '                RECEIVER TYPE: ',A,/,
+     3           '                ANTENNA  NR  : ',I6,/)
+        CALL EXITRC(2)
+      ELSE
+C
+C ANTENNA TYPE NOT FOUND
+        WRITE(LFNERR,52) STANAM,ANTTYP,RECTYP,NRANT
+52      FORMAT(/,' ### SR GPHECC: ANTENNA(/RECEIVER) TYPE NOT FOUND',/,
+     .           '                STATION NAME : ',A,/,
+     1           '                ANTENNA  TYPE: ',A,/,
+     2           '                RECEIVER TYPE: ',A,/,
+     3           '                ANTENNA  NR  : ',I6,/)
+        PHAECC=0d0
+        IRCODE = 1
+        RETURN
+      ENDIF
+60    CONTINUE
+      IRCODE = 0
+C
+C CHECK ANTENNA TYPE
+C ------------------
+      IF (IFREQ .GE. 2 .AND. NFRANT(IRCV) .EQ. 1) THEN
+        WRITE(LFNERR,61) IFREQ,ANTTYP,RECTYP,NRANT
+61      FORMAT(/,' *** SR GPHECC: REQUESTED FREQUENCY: ',I5,/,
+     1           '                ANTENNA  TYPE: ',A,/,
+     2           '                RECEIVER TYPE: ',A,/,
+     3           '                ANTENNA  NR  : ',I6,/,
+     4           '                (L1 ONLY ANTENNA(/RECEIVER))',/)
+        CALL EXITRC(2)
+      ENDIF
+C
+C PHASE CENTER OFFSETS REQUESTED (RECEIVER ANTENNAS ONLY!)
+C --------------------------------------------------------
+C (SATELLITE ANTENNAS: SEE GTSATA.f90)
+C
+      IF (ICORR.EQ.1 .OR. ICORR.EQ.-1) THEN
+C
+C COPY RECEIVER ANTENNA INFORMATION
+        DO 80 IFRQ=1,NFRANT(IRCV)
+          DO 70 I=1,3
+            ANTECC(I,IFRQ) = ANTOFF(I,IFRQ,IRCV)
+70        CONTINUE
+80      CONTINUE
+C
+C PHASE CENTER OFFSET FOR FREQUENCY "IFREQ"
+        DO 90 I=1,3
+          PHAECC(I)=FACT(1,IFREQ)*ANTECC(I,1)+FACT(2,IFREQ)*ANTECC(I,2)
+90      CONTINUE
+C
+C CORRECT FOR ANTENNA ORIENTATION (IF NOT ORIENTED TO THE NORTH)
+        CALL GETAZI(' ',ANTTP,NRANT,SESSID,ANTAZI)
+        IF (ANTAZI.NE.0.D0) THEN
+          PHAECC(2)=-PHAECC(2)
+          CALL DDREH(3,ANTAZI,ROTMAT)
+          CALL DMLMAV(PHAECC,ROTMAT,PHAECC)
+          PHAECC(2)=-PHAECC(2)
+        ENDIF
+C
+C ELEVATION- RESP. NADIR- AND/OR AZIMUTH-DEPENDENT CORRECTION REQUESTED
+C ---------------------------------------------------------------------
+      ELSE
+        IF (MODTYP(IRCV).EQ.0) THEN
+          PHAECC(1)=0.D0
+        ELSEIF (MODTYP(IRCV).EQ.-1 .OR. MODTYP(IRCV).EQ.1) THEN
+C
+C AZIMUTH- AND/OR ELEVATION- RESP. NADIR-DEPENDENT CORRECTION REQUESTED
+C ---------------------------------------------------------------------
+C FIND INDICES INTO ANTPCV ARRAY
+C
+C THE AZIMUTH ERROR IS APPLIED HERE.  THE AZIMUTH ERROR IS DEFINED
+C AS THE ANGLE FROM TRUE NORTH CLOCKWISE TO NORTH OF THE ANTENNA.
+C IN THE FIGURE BELOW, E IS THE AZIMUTH ALIGNMENT ERROR.
+C
+C  N
+C  ^    __ANTENNA NORTH
+C  |    /|
+C  |_E /
+C  | \/
+C  | /
+C  |/
+C
+C WE NEED TO FIND THE PHASE ECC RELATIVE TO THE ANTENNA, SO WE
+C SUBTRACT THE ALIGNMENT ERROR.
+C
+          CALL GETAZI(' ',ANTTP,NRANT,SESSID,ANTAZI)
+          ZENDEG = ZEN * 180.D0 / PI
+          AZIDEG = (AZI - ANTAZI) * 180.D0 / PI
+C
+C MAKE SURE THAT ZENDEG AND AZIDEG ARE WITHIN BOUNDS.
+C ZENDEG SHOULD NEVER BE GREATER THAN 90 DEG, BUT MIGHT BE IF
+C RECEIVER WAS TRACKING NEAR OR BELOW THE HORIZON.
+C AZIDEG SHOULD NOT BE GREATER THAN 360 DEG, BUT MIGHT BE IF THERE
+C IS ROUND OFF ERROR NEAR 360.  SAME WITH LESS THAN ZERO.
+C
+CCC          IF (ZENDEG .GT. 90.0) ZENDEG = 90.0
+          IF (ZENDEG .GT. DBLE(MAXZEN(IRCV))+1D-10) THEN
+            WRITE(LFNERR,56) STANAM,ANTTPI(IRCV),RECTPI(IRCV),
+     1                       DBLE(MAXZEN(IRCV)),ZENDEG,ZEN
+56          FORMAT(/,' *** SR GPHECC: ZENITH RESP. NADIR ANGLE ',
+     .               'EXCEEDS MAXIMUM ANGLE FOR ANTENNA PHASE CENTER',/,
+     1               '                VARIATIONS CONTAINED IN ANTENNA ',
+     2               'PHASE CENTER INFORMATION FILE.',/,
+     3               '                STATION NAME      : ',A,/,
+     4               '                ANTENNA  TYPE     : ',A,/,
+     5               '                RECEIVER TYPE     : ',A,/,
+     6               '                MAX ANGLE ALLOWED : ',F15.11,/,
+     7               '             ACTUAL ANGLE      : ',F25.21,F25.21/,
+     8               '                INCREASE MINIMAL ELEVATION OR ',
+     9               'ADD ANTENNA PHASE CENTER VARIATION VALUES ',/,
+     .               '                TO ANTENNA PHASE CENTER ',
+     1               'INFORMATION FILE!!',/)
+            CALL EXITRC(2)
+          ENDIF
+          IF (ZENDEG .LT.  0.0) ZENDEG =  0.0
+200       IF (AZIDEG .GT. 360.0) THEN
+            AZIDEG = AZIDEG - 360.0
+            GOTO 200
+          ENDIF
+210       IF (AZIDEG .LT. 0.0) THEN
+            AZIDEG = AZIDEG + 360.0
+            GOTO 210
+          ENDIF
+          IF (AZIDEG .EQ. 360.0) AZIDEG = 0.0
+C
+          IF (NPCV(1,IRCV).EQ.1) THEN
+            DELV = MAXZEN(IRCV)
+          ELSE
+            DELV =  DBLE(MAXZEN(IRCV))/(NPCV(1,IRCV)-1)
+          ENDIF
+          IF (NPCV(2,IRCV).EQ.1) THEN
+            DAZI=360.D0
+          ELSE
+            DAZI = 360.D0/(NPCV(2,IRCV)-1)
+          ENDIF
+C
+          IEL1 = IDINT(ZENDEG/DELV) + 1
+          IEL2 = IEL1 + 1
+          IF (IEL2.GT.NPCV(1,IRCV)) IEL2=NPCV(1,IRCV)
+          EL1  = (IEL1-1) * DELV
+C
+          IAZ1 = IDINT(AZIDEG/DAZI) + 1
+          IAZ2 = IAZ1 + 1
+          IF (IAZ2.GT.NPCV(2,IRCV)) IAZ2=NPCV(2,IRCV)
+          AZ1  = (IAZ1-1) * DAZI
+C
+C INTERPOLATE BETWEEN TABLE VALUES
+C
+          DO IFRQ=1,NFRANT(IRCV)
+            COREL1 = ANTPCV(IEL1,IAZ1,IFRQ,IRCV) +
+     1                 ((ZENDEG-EL1)/DELV) *
+     2                   (ANTPCV(IEL2,IAZ1,IFRQ,IRCV) -
+     3                    ANTPCV(IEL1,IAZ1,IFRQ,IRCV))
+            COREL2 = ANTPCV(IEL1,IAZ2,IFRQ,IRCV) +
+     1                 ((ZENDEG-EL1)/DELV) *
+     2                   (ANTPCV(IEL2,IAZ2,IFRQ,IRCV) -
+     3                    ANTPCV(IEL1,IAZ2,IFRQ,IRCV))
+            AZELCR(IFRQ) = (COREL1 +
+     1                      ((AZIDEG-AZ1)/DAZI) *
+     2                      (COREL2-COREL1))
+          END DO
+C
+          PHAECC(1) = FACT(1,IFREQ)*AZELCR(1)+FACT(2,IFREQ)*AZELCR(2)
+C
+C SPHERICAL HARMONICS (RECEIVER ANTENNAS ONLY!)
+C ---------------------------------------------
+        ELSE IF (MODTYP(IRCV).GE.2 .AND. MODTYP(IRCV).LE.4) THEN
+C
+C ANTENNA ORIENTATION CORRECTION
+          CALL GETAZI(' ',ANTTP,NRANT,SESSID,ANTAZI)
+          AZIOK=AZI-ANTAZI
+C
+          DO 500 IFRQ=1,NFRANT(IRCV)
+            AZELCR(IFRQ) = 0.D0
+            NELV=NPCV(1,IRCV)
+            DO 510 IELV=1,NELV
+              NAZI=NPCV(2,IRCV)
+              NMM=(NAZI-1)/2
+              DO 520 IAZI=1,NAZI
+                IMM=IAZI-(NAZI+1)/2
+                IF (IABS(IMM).GT.IELV) GO TO 520
+                IF (MODTYP(IRCV).EQ.2) THEN
+                  AZELCR(IFRQ)=AZELCR(IFRQ)+ANTPCV(IELV,IAZI,IFRQ,IRCV)*
+     1                         ASLEFU(2*ZEN,AZIOK,-IELV,IMM,0)
+                ELSEIF (MODTYP(IRCV).EQ.3) THEN
+                  AZELCR(IFRQ)=AZELCR(IFRQ)+ANTPCV(IELV,IAZI,IFRQ,IRCV)*
+     1                         ASLEF2(2*ZEN,AZIOK,-IELV,IMM,NELV,NMM)
+                ELSE
+                  AZELCR(IFRQ)=AZELCR(IFRQ)+ANTPCV(IELV,IAZI,IFRQ,IRCV)*
+     1                         ASLEF2(ZEN,AZIOK,-IELV,IMM,NELV,NMM)
+                ENDIF
+520           CONTINUE
+510         CONTINUE
+500       CONTINUE
+          PHAECC(1) = FACT(1,IFREQ)*AZELCR(1) +
+     1                FACT(2,IFREQ)*AZELCR(2)
+C
+        ELSE
+          WRITE(LFNERR,53) MODTYP(IRCV),ANTTPI(IRCV),RECTPI(IRCV)
+53        FORMAT(/,' *** SR GPHECC: INVALID PCV-MODEL TYPE FOUND',/,
+     1             '                PCV-MODEL TYPE:',I2,/,
+     2             '                ANTENNA  TYPE : ',A,/,
+     3             '                RECEIVER TYPE : ',A,/)
+          CALL EXITRC(2)
+        ENDIF
+      ENDIF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

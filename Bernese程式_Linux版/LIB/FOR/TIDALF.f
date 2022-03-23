@@ -1,0 +1,64 @@
+      MODULE s_TIDALF
+      CONTAINS
+
+C*
+      SUBROUTINE TIDALF(K,R,RS,RM,F)
+CC
+CC NAME       :  TIDALF
+CC
+CC PURPOSE    :  COMPUTEATION OF ACCELERATION ACTING ON A
+CC               SATELLITE DUE TO TIDAL ELONGATION OF THE EARTH
+CC               CAUSED BY LUNAR AND SOLAR GRAVITATION
+CC
+CC PARAMETERS :
+CC         IN :  K      : LOVE CONSTANT                       R*8
+CC               R(I),I=1,2,3:  GEOCENTRIC POSITION OF THE    R*8
+CC                        SATELLITE
+CC               RS(I),I=1,2,3: GEOC. POSITION OF THE SUN     R*8
+CC               RM(I),I=1,2,3: GEOC. POSITION OF THE MOON    R*8
+CC        OUT :  F(I),I=1,2,3: RESULTING ACCELERATION         R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/12/11 12:02
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE d_const, ONLY: AE, GMM, GMS
+      USE s_sprod
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I
+C
+      REAL*8    DF1 , DF2 , RR  , RRMM, RRSS, SC1 , SC2
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+      REAL*8 K,R(*),RS(*),RM(*),F(*)
+C
+C
+      CALL SPROD(R,RS,SC1,RR,RRSS)
+      CALL SPROD(R,RM,SC2,RR,RRMM)
+C
+      DO 10 I=1,3
+        DF1=K*GMS/RRSS**3*(AE/RR)**5*
+     1     ((-15./2.*(SC1/RR/RRSS)**2+1.5)*R(I)+3*SC1/RRSS**2*RS(I))
+        DF2=K*GMM/RRMM**3*(AE/RR)**5*
+     1     ((-15./2.*(SC2/RR/RRMM)**2+1.5)*R(I)+3*SC2/RRMM**2*RM(I))
+        F(I)=F(I)+DF1+DF2
+10    CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

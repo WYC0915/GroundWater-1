@@ -1,0 +1,134 @@
+      MODULE s_EFLSFL
+      CONTAINS
+
+C*
+      SUBROUTINE EFLSFL(XEFLAT,XEFLON,XEPO  ,POLE  ,IFLG1 ,IFLG2 ,
+     1                  IORSYS,XSFLAT,XSFLON)
+CC
+CC NAME       :  EFLSFL
+CC
+CC PURPOSE    :  TRANSFORM EARTH-FIXED LATITUDE/LONGITUDE INTO SUN-
+CC               FIXED LATITUDE/LONGITUDE.
+CC
+CC PARAMETERS :
+CC         IN :  XEFLAT : EARTH-FIXED LATITUDE (IN RAD)       R*8
+CC               XEFLON : EARTH-FIXED LONGITUDE (IN RAD)      R*8
+CC               XEPO   : REFERENCE EPOCH (IN MJD)            R*8
+CC               POLE   : COORDINATES OF GEOMAGNETIC POLE     R*8(2)
+CC                        (1): LATITUDE (IN DEG)
+CC                        (2): EAST LONGITUDE (IN DEG)
+CC               IFLG1  : FLAG FOR SUN-FIXED REFERENCE FRAME  I*4
+CC                        =1: GEOGRAPHIC
+CC                        =2: GEOMAGNETIC
+CC               IFLG2  : FLAG FOR POSITION OF THE SUN        I*4
+CC                        =1: MEAN
+CC                        =2: TRUE
+CC               IORSYS : ORBIT SYSTEM                        I*4
+CC                        =1: B1950.0
+CC                        =2: J2000.0
+CC        OUT :  XSFLAT : SUN-FIXED LATITUDE (IN RAD)         R*8
+CC               XSFLON : SUN-FIXED LONGITUDE (IN RAD)        R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  S.SCHAER
+CC
+CC VERSION    :  4.1
+CC
+CC CREATED    :  17-SEP-97
+CC
+CC CHANGES    :  24-OCT-97 : SS: CALL OF SR SUNEFF
+CC               16-JUN-05 : MM: COMCONST.inc REPLACED BY d_const
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               30-MAY-07 : AG: USE s_suneff
+CC               01-OCT-10 : CR: NEW CALL OF SUNEFF
+CC               04-MAY-12 : RD: USE DMOD FROM MODULE
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1997     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE d_const,  ONLY: PI
+      USE l_basfun, ONLY: dmod
+      USE s_cootra
+      USE s_suneff
+      USE s_ddreh
+      USE s_dmlmav
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IFLG1 , IFLG2 , IORSYS
+C
+      REAL*8    SZ    , UT1GPS, XEFLAT, XEFLON, XEPO  , XLAT0 , XLON  ,
+     1          XLON0 , XPOL  , XSFLAT, XSFLON, YPOL
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      REAL*8 POLE(2),XEFVEC(3),RMAT(3,3),XSUN(3),SUNPOS(4),DUM3(3)
+C
+C
+C COMPUTE EARTH-FIXED VECTOR
+C --------------------------
+      XEFVEC(1)=DCOS(XEFLAT)*DCOS(XEFLON)
+      XEFVEC(2)=DCOS(XEFLAT)*DSIN(XEFLON)
+      XEFVEC(3)=DSIN(XEFLAT)
+C
+C ROTATION INTO GEOMAGNETIC FRAME
+C -------------------------------
+      IF (IFLG1.EQ.2) THEN
+        CALL DDREH(3,POLE(2),RMAT)
+        CALL DMLMAV(XEFVEC,RMAT,XEFVEC)
+        CALL DDREH(2,PI/2.D0-POLE(1),RMAT)
+        CALL DMLMAV(XEFVEC,RMAT,XEFVEC)
+      ENDIF
+C
+      XLON=DATAN2(XEFVEC(2),XEFVEC(1))
+C
+      XSFLAT=DATAN(XEFVEC(3)/DSQRT(XEFVEC(1)**2+XEFVEC(2)**2))
+C
+C COMPUTE MEAN OR TRUE LONGITUDE/LATITUDE OF SUN
+C ----------------------------------------------
+      IF (IFLG2.EQ.1) THEN
+C
+C MEAN POSITION
+        XLON0=PI*(1.D0-2.D0*DMOD(XEPO,1.D0))
+C
+        XSUN(1)=DCOS(XLON0)
+        XSUN(2)=DSIN(XLON0)
+        XSUN(3)=0.D0
+      ELSE
+C
+C TRUE POSITION
+        CALL SUNEFF(IORSYS,2.D0,XEPO,SUNPOS,DUM3)
+        CALL COOTRA(IORSYS,0,XEPO,SUNPOS,SZ,XPOL,YPOL,UT1GPS)
+C
+        XSUN(1)=SUNPOS(1)
+        XSUN(2)=SUNPOS(2)
+        XSUN(3)=SUNPOS(3)
+C
+        CALL DDREH(3,SZ,RMAT)
+        CALL DMLMAV(XSUN,RMAT,XSUN)
+      ENDIF
+C
+C ROTATION INTO GEOMAGNETIC FRAME
+      IF (IFLG1.EQ.2) THEN
+        CALL DDREH(3,POLE(2),RMAT)
+        CALL DMLMAV(XSUN,RMAT,XSUN)
+        CALL DDREH(2,PI/2.D0-POLE(1),RMAT)
+        CALL DMLMAV(XSUN,RMAT,XSUN)
+      ENDIF
+C
+      XLON0=DATAN2(XSUN(2),XSUN(1))
+      XLAT0=DATAN(XSUN(3)/DSQRT(XSUN(1)**2+XSUN(2)**2))
+C
+C MEAN OR TRUE SUN-FIXED LONGITUDE
+C --------------------------------
+      XSFLON=XLON-XLON0
+      XSFLON=DATAN2(DSIN(XSFLON),DCOS(XSFLON))
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

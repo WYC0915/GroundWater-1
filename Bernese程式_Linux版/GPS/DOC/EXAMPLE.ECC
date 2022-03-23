@@ -1,0 +1,8 @@
+Example for an eccentricity file
+--------------------------------------------------------------------------------
+LOCAL GEODETIC DATUM: IGS00              SYSTEM : L (G: GEOCENTRIC, L: LOCAL)
+                                                 CENTER --> STATION
+NUM  STATION NAME      CENTER NAME          DN (M)     DE (M)     DH (M)
+
+  1  AUCK 50209S001    AUCK 50209M001      -0.0030    -0.0050     1.3490
+  2  FAIR 40408S001    FAIR 40408M001       0.0070     0.0040     0.5320

@@ -1,0 +1,217 @@
+      MODULE s_REDSES
+      CONTAINS
+
+C*
+      SUBROUTINE REDSES(NFLSES,FILNUM,NPAR,NAMB,NPARN,NPASES,NPARMS,
+     1                  ANOR,BNOR,LOCQ,RMS,AII,A0I,IDEL)
+CC
+CC NAME       :  REDSES
+CC
+CC PURPOSE    :  ELIMINATE SATELLITES OF CURRENT SESSION THAT HAVE
+CC               NOT BEEN OBSERVED. MOREOVER, PREELIMI-
+CC               NATE AMBIGUITY PARAMETERS OF CURRENT SESSION
+CC
+CC PARAMETERS :
+CC         IN :  NFLSES: NUMBER OF FILES IN SESSION           I*4
+CC               FILNUM(I),I=1,..,NFLSES: FILE NUMBERS        I*4
+CC     IN/OUT :  NPAR  : TOTAL NUMBER OF PARAMETERS NOT YET   I*4
+CC                       ELIMINATED
+CC               NAMB  : NUMBER OF AMBIGUITIES                I*4
+CC               NPARN : NPAR-NAMB                            I*4
+CC               NPASES: NUMBER OF PARAMETERS OF THE SESSION: I*4
+CC                       PARAMETERS WITHOUT AMBIGUITIES +
+CC                       AMBIGUITIES OF THE SESSION
+CC               NPARMS: NUMBER OF PARAMETERS TO CALCULATE    I*4
+CC                       RMS ERROR
+CC               ANOR(I),=1,2,..,NPAR(*(NPAR+1)/2             R*8
+CC               BNOR(I),=1,2,..,NPAR                         R*8
+CC               LOCQ(K,I),K=1,2,..,MAXLCQ, I=1,2,..,NPAR:    I*4
+CC                       PARAMETER CHARACTERIZATION
+CC               RMS   : SUM OF RESIDUALS SQUARES             R*8
+CC               A0I   : AUXILIARY MATRIX OF DIMENSION        R*8
+CC                       NPARN*NSAT(PER SESSION)
+CC               AII   : AUXILIARY MATRIX OF DIMENSION        R*8
+CC                       NAMB*(NAMB+1)/2
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/10/28 08:37
+CC
+CC CHANGES    :  24-FEB-92 : ??: WRITE MESSAGE WHEN ELIMINATING AMBIGUITIES
+CC               06-MAR-92 : ??: WRITE CORRECT PARAMETER NUMBER IN MESSAGE
+CC               22-JUN-92 : ??: TURBO VERSION
+CC               12-JUL-92 : ??: WRITE ONLY NUMBER OF ELIMINATED PARAMETERS
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               10-JUL-12 : RD: USE SYMINVG INSTEAD OF SYMIN8
+CC               10-JUL-12 : RD: USE M_BERN WITH ONLY
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern,  ONLY: LFNPRT, LFNERR
+      USE f_ikf
+      USE s_syminvg
+      USE s_exitrc
+      USE s_imatrd
+      USE s_dmatrd
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IF    , IFS   , II    , IJ    , IK    , IK1   ,
+     1          IK2   , ILC   , IONE  , IPAR  , IPRINT, ISING ,
+     2          ISIX  , J     , K     , KJ    , L     , LJ    , MAXLCQ,
+     3          MXCLCQ, NAMB  , NAMEFF, NDEL  , NDIM  , NFLSES, NPAR  ,
+     4          NPARMS, NPARN , NPASES, NPNEW
+C
+      REAL*8    RMS
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+      CHARACTER*6 MXNLCQ
+      INTEGER*4 LOCQ(MXCLCQ,*),IDEL(*),FILNUM(*)
+      REAL*8 ANOR(*),BNOR(*),A0I(*),AII(*),HS1(NPAR)
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+      MAXLCQ=MXCLCQ
+C
+      IPRINT=1
+C
+C PART 1: ELIMINATE SATELLITES WHICH HAVE NOT BEEN OBSERVED
+C         IN CURRENT SESSION
+C ---------------------------------------------------------
+      NDEL=0
+      NAMEFF=0
+      DO 1 IPAR=1,NPARN
+        IDEL(IPAR)=0
+1     CONTINUE
+      DO 10 I=1,NAMB
+        ILC=LOCQ(2,NPARN+I)
+        II=(NPARN+I)*(NPARN+I+1)/2
+        IDEL(NPARN+I)=0
+        DO 5 IFS=1,NFLSES
+          IF=FILNUM(IFS)
+          IF(ILC.NE.IF)GO TO 5
+          IF(ANOR(II).NE.0.D0)THEN
+            NAMEFF=NAMEFF+1
+          ELSE
+            NDEL=NDEL+1
+            IDEL(NPARN+I)=1
+          END IF
+5       CONTINUE
+10    CONTINUE
+C
+      CALL DMATRD('S',NPASES,NPASES,IDEL,ANOR,NPNEW,NPNEW)
+      CALL DMATRD('R',NPASES,1,IDEL,BNOR,NPNEW,IONE)
+      CALL IMATRD('C',MAXLCQ,NPAR,IDEL,LOCQ,ISIX,NPNEW)
+      NAMB=NAMB-NDEL
+      NPAR=NPAR-NDEL
+      NPARMS=NPARMS-NDEL
+C
+      IF (NDEL.NE.0) THEN
+        IF (IPRINT.EQ.1) WRITE(LFNPRT,'( )')
+        IPRINT=0
+        WRITE(LFNPRT,901) NDEL
+901     FORMAT(' ### SR REDSES: # AMBIG. WITH NO OBSERVATIONS:',I5)
+      ENDIF
+C
+C PART 2: PREELIMINATE AMBIGUITIES OF CURRENT SESSION
+C ---------------------------------------------------
+C
+C GENERATE TWO AUXILIARY MATRICES
+      IK1=0
+      IK2=0
+      DO 20 K=1,NAMEFF
+      DO 20 I=1,NPARN+K
+        IF(I.LE.NPARN+K)IK=(NPARN+K)*(NPARN+K-1)/2+I
+        IF(I.GT.NPARN+K)IK=I*(I-1)/2+NPARN+K
+        IF(I.LE.NPARN)THEN
+          IK1=IK1+1
+          A0I(IK1)=ANOR(IK)
+        ELSE
+          IK2=IK2+1
+          AII(IK2)=ANOR(IK)
+        END IF
+20    CONTINUE
+C
+C INVERT AII
+      NDIM=NAMEFF
+      CALL SYMINVG(NDIM,AII,1,ISING)
+      IF(ISING.NE.0)THEN
+        WRITE(LFNERR,111)
+111     FORMAT(/,' *** SR REDSES: MATRIX AII SINGULAR',/)
+        CALL EXITRC(2)
+      END IF
+C
+C REDUCE MATRICES ANOR, BNOR AND RES SQUARE SUM
+      DO 40 I=1,NDIM
+        HS1(I)=0.D0
+        DO 30 K=1,NDIM
+          IF(I.LE.K)IK=I+(K-1)*K/2
+          IF(I.GT.K)IK=K+(I-1)*I/2
+          HS1(I)=HS1(I)+AII(IK)*BNOR(NPARN+K)
+30      CONTINUE
+        RMS=RMS-BNOR(NPARN+I)*HS1(I)
+40    CONTINUE
+C
+C REDUCE BNOR FOR GENERAL (NON AMBIGUITY) PARAMETERS
+      DO 50 I=1,NPARN
+      DO 50 K=1,NDIM
+        IK=I+(K-1)*NPARN
+        BNOR(I)=BNOR(I)-A0I(IK)*HS1(K)
+50    CONTINUE
+C
+C REDUCE ANOR FOR GENERAL PARAMETERS
+C
+      DO 60 K=1,NPARN
+        DO 55 L=1,NDIM
+          HS1(L)=0.D0
+          DO 54 J=1,NDIM
+            LJ=IKF(L,J)
+            KJ=K+(J-1)*NPARN
+            HS1(L)=HS1(L)+AII(LJ)*A0I(KJ)
+54        CONTINUE
+55      CONTINUE
+C
+        DO 59 I=1,K
+          DO 58 J=1,NDIM
+            IJ=I+(J-1)*NPARN
+            IK=IKF(I,K)
+            ANOR(IK)=ANOR(IK)-A0I(IJ)*HS1(J)
+58        CONTINUE
+59      CONTINUE
+60    CONTINUE
+C
+C REDUCE LOCQ
+      NDEL=0
+      DO 80 I=1,NAMB
+        IDEL(NPARN+I)=0
+        DO 70 IFS=1,NFLSES
+          IF(LOCQ(2,NPARN+I).EQ.FILNUM(IFS)) THEN
+            IDEL(NPARN+I)=1
+            NDEL=NDEL+1
+          ENDIF
+70      CONTINUE
+80    CONTINUE
+      CALL IMATRD('C',MAXLCQ,NPAR,IDEL,LOCQ,ISIX,NPNEW)
+      NAMB=NAMB-NDEL
+      NPAR=NPAR-NDEL
+C
+      IF (NDEL.NE.0) THEN
+        IF (IPRINT.EQ.1) WRITE(LFNPRT,'( )')
+        IPRINT=0
+        WRITE(LFNPRT,902) NDEL
+902     FORMAT(' ### SR REDSES: # AMBIGUITIES PRE-ELIMINATED :',I5)
+      ENDIF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

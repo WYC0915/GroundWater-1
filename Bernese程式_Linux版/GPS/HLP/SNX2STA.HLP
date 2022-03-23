@@ -1,0 +1,189 @@
+<html>
+<body>
+
+<center>
+<b>EXTRACT STATION INFORMATION FROM SINEX FILE</b>
+<p>Program: SNX2STA
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The purpose of the program SNX2STA is to extract the station information
+from a SINEX file and to write it into a station information file.
+<br>
+This station information file may be used later to verify the
+data used for processing:
+<ul>
+<li>Program <a href="PGMLST.HLP#RXOBV3">RXOBV3</a>: to verify the header
+    information of RINEX observation files when importing them into the
+    Bernese format.
+<li>Program <a href="PGMLST.HLP#CHGHED">CHGHED</a>: to check/adapt
+    the Bernese observation header file entries when the data are retrieved,
+    e.g., from an archive.
+<li>Program <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a>: to check/adapt
+    the station information in Bernese normal equation files before
+    stacking them.
+</ul>
+<br>
+The information extracted from the header of the SINEX file is:
+<ul>
+<li>station name (from <tt>+SITE/ID</tt> block)
+<li>station description (from <tt>+SITE/ID</tt> block)
+<li>receiver name (from <tt>+SITE/RECEIVER</tt> block)
+<li>antenna name (from <tt>+SITE/ANTENNA</tt> block)
+<li>receiver unit number (from <tt>+SITE/RECEIVER</tt> block)
+<li>antenna serial number (from <tt>+SITE/ANTENNA</tt> block)
+<li>antenna eccentricity (north, east, up) (from <tt>+SITE/ECCENTRICITY</tt>
+    block)
+</ul>
+All four blocks have to be present in the SINEX file. Otherwise no output
+is generated.
+
+<p><hr>
+
+<p><b>SNX2STA 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="SNXFILE" default=""></a>
+<p><b>INPUT FILES </b>
+<p><b>SINEX file:</b>
+Specify the SINEX file from which a station information file should be created.
+
+<a name="SELFILE" default=""></a>
+<p><b>Selection file:</b>
+You may specify a station selection file containing a list of station names.
+Only stations from this list will be included in the output station information
+file.
+
+<p><i>Remark:</i>
+Only the first 14 characters of the station names are used.
+
+<p><a href="/$X/DOC/EXAMPLE.FIX">Example</a>
+
+<br><br>
+
+<a name="STAFILE" default=""></a>
+<p><b>RESULT FILE </b>
+<p><b>Station information file:</b>
+Specify the name of the station information file to be created from the SINEX
+file.
+
+<p><a href="/$X/DOC/EXAMPLE.STA">Example</a>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="SNX2STA"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>SNX2STA 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<p><hr>
+
+<p><b>SNX2STA 2: Settings</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+and will be saved in all the result files to document the program run.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="FLG1" default="001"></a>
+<p><b>FLAGS IN STATION INFORMATION FILE</b>
+<p><b>TYPE 001: Renaming of stations:</b>
+Specify the flag to be used for entries written to the section
+<tt>TYPE 001: RENAMING OF STATIONS</tt> of the station information file.
+
+<p><i>Default value:</i> <tt>001</tt>
+
+<a name="FLG2" default="001"></a>
+<p><b>TYPE 002: Station information:</b>
+Specify the flag to be used for entries written to the section
+<tt>TYPE 002: STATION INFORMATION</tt> of the station information file.
+
+<p><i>Default value:</i> <tt>001</tt>
+
+<br><br>
+
+<a name="REDRSN" default="1"></a>
+<p><b>INFORMATION REDUCTION</b>
+<p>
+You have the possibility to disregard specific station equipment attributes.
+SINEX station information entries get accordingly reduced when one or more of
+the listed attributes are ignored. In case of an SLR SINEX input file all these
+attributes are ignored anyway.
+
+<p><b>Disregard receiver serial numbers:</b>
+Generally recommended since these numbers are not further considered in the
+data analysis.
+
+<p><i>Default value:</i> marked
+
+<a name="REDASN" default="1"></a>
+<p><b>Disregard antenna serial numbers:</b>
+Antenna serial numbers are only needed in the further processing if
+individual antenna PCV calibrations are available.
+
+<p><i>Default value:</i> marked
+
+<a name="REDARC" default="0"></a>
+<p><b>Disregard antenna radome codes:</b>
+Antenna radome codes are only needed in the further processing if
+radome-dependent PCV calibrations are available.
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+</body>
+</html>

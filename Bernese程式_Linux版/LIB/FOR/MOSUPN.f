@@ -1,0 +1,237 @@
+      MODULE s_MOSUPN
+      CONTAINS
+C*
+      SUBROUTINE MOSUPN(T,INDEX,TA,TB,DT,X,Y,UT1UTC,GPSUTC,
+     1                  PRE,NUT,SUN,MOON,EQEQUI,SUNVEL)
+CC
+CC NAME       :  MOSUPN
+CC
+CC PURPOSE    :  T=0 :
+CC                 DEFINE AN INTERNAL TABLE OF THE POSITIONS OF SUN
+CC                 AND MOON, OF THE PRECESSION- AND NUTATION MATRICES,
+CC                 AND THE POLE INFORMATION (X, Y, UT1UTC, GPSUTC).
+CC                 THE TABLE IS EQUIDISTANT WITH TABULAR INTERVAL
+CC                 DT(HOURS) EXTENDING FROM TA TO TB.
+CC               T=MJD (NE ZERO):
+CC                 COMPUTE THE INFORMATION SPECIFIED USING THE
+CC                 INTERNAL TABLE
+CC
+CC PARAMETERS :
+CC        IN  :  T      : TIME ARGUMENT (MJD)                       R*8
+CC               INDEX  : = 1: COMPUTE X, Y, UT1UTC, GPSUTC         I*4
+CC                             PRE, NUT
+CC                        = 2: COMPUTE SUN
+CC                        = 3: COMPUTE MOON
+CC                        =-1: COMPUTE ALL VALUES
+CC               TA     : START OF TABLE (RELEVANT IF T=0)          R*8
+CC               TB     : END OF TABLE (RELEVANT IF T=0)            R*8
+CC               DT     : TABULAR INTERVAL (HOURS)                  R*8
+CC        OUT :  X      : X COORDINATE OF POLE AT TIME T            R*8
+CC               Y      : Y COORDINATE OF POLE AT TIME T            R*8
+CC               UT1UTC : UT1-UTC AT TIME T                         R*8
+CC               GPSUTC : GPS TIME - UTC AT TIME T                  R*8
+CC               PRE    : PRECESSION MATRIX AT TIME T           R*8(*,*)
+CC               NUT    : NUTATION MATRIX AT TIME T             R*8(*,*)
+CC               SUN    : HELIOCENTRIC VECTOR (PLUS DIST) OF SUN  R*8(*)
+CC               MOON   : HELIOCENTRIC VECTOR (PLUS DIST) OF MOON R*8(*)
+CC               EQEQUI : EQUATION OF EQUINOX                       R*8
+CC               SUNVEL : VELOCITY VECTOR OF SUN [M/S]            R*8(3)
+CC
+CC REMARKS    :
+CC
+CC AUTHOR     :  G.BEUTLER
+CC
+CC CREATED    :  23-OCT-94
+CC
+CC CHANGES    :  19-MAR-95 : MR: REPLACE "MOOLOC" BY "MONLOC" BECAUSE
+CC                               OF COMMON BLOCK
+CC               24-JAN-96 : GB: IORSYS TRANFERED VIA COMMON TO THIS ROUTINE
+CC               05-JUN-96 : TS: CALL POLDEF CHANGED DUE TO SUBDAILY POLE
+CC               14-NOV-96 : TS: MAXVAL INCREASED FOR LONG ARCS (21-DAYS)
+CC               12-MAR-03 : TF: MAXVAL INCREASED FOR LONGER ARCS (2 MONTHS)
+CC               11-JUN-03 : HU: RETURN EQUATION OF EQUINOX
+CC               06-AUG-03 : HU: INTERPOLATE EQUATION OF EQUINOX
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               08-JUL-05 : HB: ADD BIASLOC TO PARAMETER LIST OF NUTEFF
+CC               30-MAY-07 : AG: USE s_suneff
+CC               01-OCT-10 : CR: RETURN SUN VELOCITY FROM JPL EPHEMERIS
+CC               01-OCT-10 : CR: CALL OF SUBROUTINE AS MODULE
+CC               28-JAN-11 : SL: USE M_BERN WITH ONLY
+CC               26-MAR-12 : RD: SWITCH FROM TIMSTR TO TIMST2
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC               UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern,   ONLY: lfnErr
+      USE s_timst2
+      USE s_nuteff
+      USE s_moneff
+      USE s_suneff
+      USE s_poldef
+      USE s_exitrc
+      USE s_prceff
+      USE f_pvdeg2
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , INDEX , IORSYS, J     , K     , MAXVAL, NTAB
+C
+      REAL*8    DT    , DTDAY , DTEXTR, DTINDA, DTINDB, EQEQUI, GPSLO1,
+     1          GPSLO2, GPSLO3, GPSUTC, T     , TA    , TB    ,
+     2          TDT   , TEST12, TEST23, TLEFT , TMJD  , TREL  , TREL2 ,
+     3          TRIGHT, UT1LO1, UT1LO2, UT1LO3, UT1UTC, X     , Y
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+C
+      PARAMETER (MAXVAL=20000)
+C
+      CHARACTER*19 EPOST1,EPOST2,EPOST3
+C
+      REAL*8 PRE(3,*),NUT(3,*),SUN(*),MOON(*),SUNVEL(3)
+      REAL*8 biasloc(3,3,maxval)
+      REAL*8 PRELOC(3,3,MAXVAL),NUTLOC(3,3,MAXVAL),SUNLOC(4,MAXVAL)
+      REAL*8 SV_LOC(3,MAXVAL)
+      REAL*8 MONLOC(4,MAXVAL),UT1LOC(MAXVAL),GPSLOC(MAXVAL)
+      REAL*8 XPLOC(MAXVAL),YPLOC(MAXVAL),TARG(MAXVAL),EQELOC(MAXVAL)
+      REAL*8 BIAS(3,3)
+C
+      COMMON/CMOSUP/PRELOC,NUTLOC,SUNLOC,SV_LOC,MONLOC,UT1LOC,GPSLOC,
+     1              XPLOC,YPLOC,TARG,EQELOC
+      COMMON/ORBSYS/IORSYS
+C
+      DATA NTAB/0/
+C
+C INITIALIZE
+C ----------
+      IF(T.EQ.0.D0)THEN
+        DTEXTR=1.D0/1440.D0
+        DTDAY=DT/24.D0
+        NTAB=DNINT((TB-TA)/DTDAY)+1
+C
+C ALLOW 1 MINUTE EXTRAPOLATION AT END OF TABLE
+        IF ((TB-TA)-(NTAB-1)*DTDAY .GT. DTEXTR) NTAB=NTAB+1
+        TLEFT=TA
+        TRIGHT=TB
+C
+C CHECK MAXIMUM DIMENSION FOR ARRAYS WITH MAXDER
+        IF(NTAB.GT.MAXVAL)THEN
+          WRITE(LFNERR,1) NTAB,MAXVAL
+1         FORMAT(/,' *** SR MOSUPN: TOO MANY DATA POINTS OF SUN/MOON',
+     1             ' TABLE',
+     2           /,16X,'NUMBER OF POINTS RTEQUESTED  :',I5,
+     3           /,16X,'MAX. NUMBER OF POINTS ALLOWED:',I5,/)
+          CALL EXITRC(2)
+        END IF
+        DO 10 J=1,NTAB
+          TMJD=TA+(J-1)*DTDAY
+          TARG(J)=TMJD
+          TDT=TMJD+(19.D0+32.184D0)/86400.D0
+          CALL PRCEFF(IORSYS,.5D0,TDT,PRELOC(1,1,J))
+          CALL NUTEFF(IORSYS,1.D0,TDT,NUTLOC(1,1,J),EQELOC(J),
+     1                BIASLOC(1,1,J))
+          PRELOC(1:3,1:3,J)=
+     1                matmul(PRELOC(1:3,1:3,J),BIASLOC(1:3,1:3,J))
+          CALL SUNEFF(IORSYS,.5D0,TDT,SUNLOC(1,J),SV_LOC(1,J))
+          CALL MONEFF(IORSYS,.5D0,TDT,MONLOC(1,J))
+C
+C GET POLE: GPS TIME (CORRECT: UT1)
+          CALL POLDEF(TMJD,1,XPLOC(J),YPLOC(J),UT1LOC(J),GPSLOC(J))
+10      CONTINUE
+      ELSE
+C
+C EVALUATE PRE, NUT, ...
+C ----------------------
+        IF(NTAB.EQ.0)THEN
+          WRITE(LFNERR,20)
+20        FORMAT(/,' *** SR MOSUPN: ATTEMPT TO EVALUATE SUN/MOON TABLE',
+     1           /,16X,'BEFORE INITIALIZATION !',/)
+          CALL EXITRC(2)
+        END IF
+C
+C ALLOW 1 MINUTE EXTRAPOLATION AT BEGINNING AND END OF TABLE
+        DTINDA=T-TLEFT
+        DTINDB=T-(TLEFT+(NTAB-1)*DTDAY)
+        J=DTINDA/DTDAY+1
+        IF (DTINDA .LT. 0.D0 .AND. DTINDA. GT. -DTEXTR) J=1
+        IF (DTINDB .GT. 0.D0 .AND. DTINDB. LT.  DTEXTR) J=NTAB
+C
+        IF (J.LT.1.OR.J.GT.NTAB) THEN
+          CALL TIMST2(1,1,T     ,EPOST1)
+          CALL TIMST2(1,1,TLEFT ,EPOST2)
+          CALL TIMST2(1,1,TRIGHT,EPOST3)
+          WRITE(LFNERR,30) EPOST1,EPOST2,EPOST3
+30        FORMAT(/,' *** SR MOSUPN: REQUESTED TIME FOR SUN/MOON TABLE',
+     1             ' OUTSIDE TABLE',
+     2           /,16X,'REQUESTED TIME: ',A,
+     3           /,16X,'START OF TABLE: ',A,
+     4           /,16X,'END OF TABLE  : ',A,/)
+          CALL EXITRC(2)
+        END IF
+        IF(J.EQ.1)J=2
+        IF(J.EQ.NTAB)J=NTAB-1
+C
+C VALID REQUEST
+        TREL=(T-TARG(J))/DTDAY
+        TREL2=TREL**2
+        IF(INDEX.EQ.-1.OR.INDEX.EQ.1)THEN
+          X=PVDEG2(TREL,TREL2,XPLOC(J-1),XPLOC(J),XPLOC(J+1))
+          Y=PVDEG2(TREL,TREL2,YPLOC(J-1),YPLOC(J),YPLOC(J+1))
+          GPSLO1=GPSLOC(J-1)
+          GPSLO2=GPSLOC(J)
+          GPSLO3=GPSLOC(J+1)
+          UT1LO1=UT1LOC(J-1)
+          UT1LO2=UT1LOC(J)
+          UT1LO3=UT1LOC(J+1)
+          TEST12=DNINT((GPSLO2-GPSLO1)*86400.D0)
+          IF (TEST12.NE.0) THEN
+            GPSLO2=GPSLO2-TEST12/86400.D0
+            UT1LO2=UT1LO2-TEST12/86400.D0
+          ENDIF
+          TEST23=DNINT((GPSLO3-GPSLO2)*86400.D0)
+          IF (TEST23.NE.0) THEN
+            GPSLO3=GPSLO3-TEST23/86400.D0
+            UT1LO3=UT1LO3-TEST23/86400.D0
+          ENDIF
+          UT1UTC=PVDEG2(TREL,TREL2,UT1LO1,UT1LO2,UT1LO3)
+          GPSUTC=PVDEG2(TREL,TREL2,GPSLO1,GPSLO2,GPSLO3)
+          DO 60 I=1,3
+            DO 60 K=1,3
+              PRE(I,K)=PVDEG2(TREL,TREL2,PRELOC(I,K,J-1),PRELOC(I,K,J),
+     1                        PRELOC(I,K,J+1))
+              NUT(I,K)=PVDEG2(TREL,TREL2,NUTLOC(I,K,J-1),NUTLOC(I,K,J),
+     1                        NUTLOC(I,K,J+1))
+              BIAS(I,K)=PVDEG2(TREL,TREL2,BIASLOC(I,K,J-1),
+     1                    BIASLOC(I,K,J),BIASLOC(I,K,J+1))
+60        CONTINUE
+          EQEQUI=PVDEG2(TREL,TREL2,EQELOC(J-1),EQELOC(J),EQELOC(J+1))
+        END IF
+C
+        IF(INDEX.EQ.-1.OR.INDEX.EQ.2)THEN
+          DO 40 K=1,4
+            SUN(K)=PVDEG2(TREL,TREL2,SUNLOC(K,J-1),SUNLOC(K,J),
+     1                               SUNLOC(K,J+1))
+40        CONTINUE
+          DO 45 K=1,3
+            SUNVEL(K)=PVDEG2(TREL,TREL2,SV_LOC(K,J-1),SV_LOC(K,J),
+     1                                  SV_LOC(K,J+1))
+45        CONTINUE
+        END IF
+        IF(INDEX.EQ.-1.OR.INDEX.EQ.3)THEN
+          DO 50 K=1,4
+            MOON(K)=PVDEG2(TREL,TREL2,MONLOC(K,J-1),MONLOC(K,J),
+     1                                MONLOC(K,J+1))
+50        CONTINUE
+        END IF
+      END IF
+C
+999   CONTINUE
+      RETURN
+
+      END SUBROUTINE
+
+      END MODULE

@@ -1,0 +1,79 @@
+      MODULE s_WTIXDT
+      CONTAINS
+
+C*
+      SUBROUTINE WTIXDT(NUMVAL,IEXP,TECVAL)
+CC
+CC NAME       :  WTIXDT
+CC
+CC PURPOSE    :  WRITE IONEX DATA
+CC
+CC PARAMETERS :
+CC         IN :  NUMVAL : NUMBER OF TEC/RMS VALUES            I*4
+CC               IEXP   : ACTIVE EXPONENT                     I*4
+CC               TECVAL : TEC/RMS VALUES (IN TECU)            R*8(*)
+CC                        =999.9: UNDEFINED
+CC
+CC REMARKS    :  IONEX VERSION 1.0
+CC
+CC AUTHOR     :  S.SCHAER
+CC
+CC VERSION    :  4.1
+CC
+CC CREATED    :  10-SEP-97
+CC
+CC CHANGES    :  05-JAN-98 : SS: "AUXVAL" REDIMENSIONED
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1997     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IAUX  , IEXP  , ILIN  , IVAL  , IVAL1 , IVAL2 , NAUX  ,
+     1          NLIN  , NUMVAL
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      REAL*8        TECVAL(*)
+C
+      INTEGER*4     AUXVAL(16)
+C
+C
+C COMPUTE NUMBER OF DATA LINES TO BE WRITTEN
+C ------------------------------------------
+      NLIN=(NUMVAL-1)/16+1
+C
+C WRITE SINGLE TEC/RMS DATA BLOCK
+C -------------------------------
+      DO ILIN=1,NLIN
+        IVAL1=16*ILIN-15
+        IVAL2=16*ILIN
+        IF (IVAL2.GT.NUMVAL) IVAL2=NUMVAL
+C
+C CONVERT TEC/RMS VALUES FROM TECU INTO ACTIVE UNIT
+C -------------------------------------------------
+        NAUX=IVAL2-IVAL1+1
+        DO IAUX=1,NAUX
+          IVAL=IVAL1+IAUX-1
+          IF (TECVAL(IVAL).NE.999.9D0) THEN
+            AUXVAL(IAUX)=IDNINT(10.D0**(-IEXP)*TECVAL(IVAL))
+          ELSE
+            AUXVAL(IAUX)=9999
+          ENDIF
+        ENDDO
+C
+        WRITE(LFNLOC,900) (AUXVAL(IAUX),IAUX=1,NAUX)
+900     FORMAT(16I5)
+      ENDDO
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

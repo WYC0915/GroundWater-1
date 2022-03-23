@@ -1,0 +1,122 @@
+package CLKNEQ;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  CLKNEQ
+#
+# Purpose :  Execute ADDNEQ2 for the clock solution to obtain the corrsponding
+#            coordinate and troposphere result files
+#
+# Remark  :  According to the value of V_FIXCRD and V_FIXTRP an external
+#            solution may be introduced (options are adjusted properly
+#            and the result files are merged)
+#
+# PARAMs  :
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(replaceSelLst);
+
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyssss,
+      $i, $fixCrd, $fixTrp,
+      $dirCrd, $dirTrp,
+      $extCrd, $extTrp) =
+  $bpe->getKeys
+     ('$YSS+0',
+      'V_I', 'V_FIXCRD', 'V_FIXTRP',
+      'DIR_CRD', 'DIR_TRP',
+      'EXT_CRD', 'EXT_TRP');
+
+
+# External coordinate file is introduced
+# --------------------------------------
+  if ( $fixCrd ne "" ) {
+    $bpe->putKey("$ENV{U}/PAN/ADDNEQ2.INP","COORD","$fixCrd");
+    $bpe->putKey("$ENV{U}/PAN/ADDNEQ2.INP","RADIO2_1","0");
+    $bpe->putKey("$ENV{U}/PAN/ADDNEQ2.INP","RADIO2_2","0");
+    $bpe->putKey("$ENV{U}/PAN/ADDNEQ2.INP","RADIO2_3","0");
+    $bpe->putKey("$ENV{U}/PAN/ADDNEQ2.INP","RADIO2_4","1");
+  }
+
+# Remove result files from a previous run
+# ---------------------------------------
+   my $outCrd = "${dirCrd}${i}_${yyssss}.${extCrd}";
+   my $outTrp = "${dirTrp}${i}_${yyssss}.${extTrp}";
+
+   unlink($outCrd);
+   unlink($outTrp);
+
+   $bpe->putKey("$ENV{U}/PAN/ADDNEQ2.INP","COORDRS","$outCrd");
+   $bpe->putKey("$ENV{U}/PAN/ADDNEQ2.INP","TROPSAV","$outTrp");
+
+# Run program
+# -----------
+  my $PGMNAM = "ADDNEQ2";
+  $bpe->RUN_PGMS($PGMNAM);
+
+# External coordinate file is introduced
+# --------------------------------------
+  if ( $fixCrd ne "" ) {
+    my @crdLst = ();
+    push @crdLst, $fixCrd;
+    push @crdLst, $outCrd;
+
+    replaceSelLst($bpe,"CRDMERGE","CRDMRG",@crdLst);
+    my $PGMNAM = "CRDMERGE";
+    $bpe->RUN_PGMS($PGMNAM);
+
+# External troposphere file is introduced
+# ---------------------------------------
+    if ( $fixTrp ne "" ) {
+
+      my @head  = ();
+      my @data  = ();
+      my $iLine = 0;
+
+      # Read the external troposphere file
+      open(TRP,"${dirTrp}${fixTrp}.${extTrp}");
+      while(<TRP>) {
+        $iLine++;
+        if ( $iLine <= 6 ) {
+          push @head,$_;
+        } else {
+          last if ( $_ =~ /^[ ]*$/ );  # Stop in case of an empty line
+          push @data,$_;
+        }
+      }
+      close TRP;
+
+      # Read the troposphere file from this solution
+      my $iLine = 0;
+      open(TRP,$outTrp);
+      while(<TRP>) {
+        $iLine++;
+        if ( $iLine > 6 ) {
+          last if ( $_ =~ /^[ ]*$/ );  # Stop in case of an empty line
+          push @data,$_;
+        }
+      }
+      close TRP;
+
+      # Write the merged troposphere file
+      open(TRP,"> ${outTrp}");
+      print TRP @head;
+      print TRP sort @data;
+      print TRP "\n";
+      close TRP;
+    }
+  }
+}

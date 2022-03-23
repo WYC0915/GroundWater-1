@@ -1,0 +1,172 @@
+<html>
+<body>
+
+<center>
+<b>COORDINATE TRANSFORMATION</b>
+<p>Program: COOSYS
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="DELETE_FILES"  default="AUXFIL"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The purpose of program COOSYS is to generate a set of coordinates
+differing by a user specified seven parameter Helmert transformation
+from a given set of coordinates.
+
+<p><hr>
+
+<b>COOSYS 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="COORD" default=""></a>
+<p><b>INPUT FILE</b>
+<p><b>Input coordinate file:</b>
+Select the coordinate file to be transformed.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<br><br>
+
+<a name="COORDRS" default=""></a>
+<p><b>RESULT FILE</b>
+<p><b>Output coordinate file:</b>
+Specify the name of the coordinate result file which is obtained by applying
+the user defined transformation parameters to the coordinates in the "Input
+coordinate file".
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="COOSYS"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<b>COOSYS 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates. It is used
+to apply antenna heights and for the printing of coordinates in the
+local system (north, east, up). You only have to modify this file
+when you want to introduce a new reference ellipsoid.
+
+<p><i>Caution:</i>
+This file has no effect on Cartesian coordinates.
+
+<p>Example: <a href="/$X/GEN/DATUM.">$X/GEN/DATUM.</a>
+
+<br><br>
+
+<a name="AUXFIL" default="COOSYS$J"></a>
+<p><b>TEMPORARY FILES</b>
+<p><b>Scratch file:</b>
+Enter the name of the scratch file used by this program. The scratch file need
+to be named differently for different programs running simultaneously. This
+may be achieved, e.g., by adding the job ID
+<tt>$J</tt> to the program name (define the job ID in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>).
+
+<p><i>Default value:</i> <tt>COOSYS$J</tt>
+
+<p><hr>
+
+<b>COOSYS 2: Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<br><br>
+
+<a name="SHIFTX" default=""></a>
+<a name="SHIFTY" default=""></a>
+<a name="SHIFTZ" default=""></a>
+<p><b>TRANSFORMATION PARAMETERS</b>
+<p>
+In the following fields the transformation for a seven-parameter Helmert
+transformation of the coordinates in the "Input coordinate file" is specified.
+An empty input field is equivalent to a value zero.
+<br>
+The coordinate transformation will be applied according to
+<pre>
+ +-     -+               +-             -+   +-     -+   +-  -+
+ | X_out |               |  1    Rz  -Ry |   | X_inp |   | Dx |
+ | Y_out | = (1+scale) * | -Rz   1    Rx | * | Y_inp | + | Dy |
+ | Z_out |               |  Ry  -Rx   1  |   | Z_inp |   | Dz |
+ +-     -+               +-             -+   +-     -+   +-  -+
+</pre>
+
+<p><b>Shift X</b>,
+   <b>Shift Y</b>,
+   <b>Shift Z:</b>
+Specify the translation along the X-axis, Y-axis, and Z-axis resp. of the
+output coordinates with respect to the input coordinates in meters.
+
+<a name="ROTX"  default=""></a>
+<a name="ROTY" default=""></a>
+<a name="ROTZ" default=""></a>
+<p><b>Rot X</b>,
+   <b>Rot Y</b>,
+   <b>Rot Z:</b>
+Specify the rotation around the X-axis, Y-axis, and Z-axis resp. of the
+output coordinates with respect to the input coordinates in arcseconds.
+
+<a name="SCALE" default=""></a>
+<p><b>Scale:</b>
+Specify the difference from unity of the scaling factor of the output
+coordinates with respect to the input coordinates in parts per million.
+
+<p><hr>
+
+</body>
+</html>

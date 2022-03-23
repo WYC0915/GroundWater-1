@@ -1,0 +1,119 @@
+package BAS_SUM;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  BAS_SUM
+#
+# Purpose :  Create BASTST BPE processing summary file
+#
+# PARAMs  :
+#
+# Author  :  S. Schaer
+# Created :  21-Apr-2004
+#
+# Changes :  11-Aug-2011 RD: Updated for version 5.2
+#
+# ============================================================================
+use strict;
+
+use File::Basename;
+
+use lib $ENV{BPE};
+use bpe_util qw(appFile timprt);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyssss, $yy, $ssss,
+      $a,
+      $satInf, $pcvInf, $pcv,    $satcrx, $orbFil, $aprFil,
+      $crdInf, $blqInf, $atlInf, $hoiFil, $sampl,  $satsys,
+      $dirCrx, $dirStd, $dirErp, $dirCrd, $dirTrp, $dirAbb,
+      $extCrx, $extStd, $extErp, $extCrd, $extTrp, $extAbb,
+      $dirBlq, $dirAtl, $dirOut, $dirSum, $dirNeq, $dirRes,
+      $extBlq, $extAtl, $extOut, $extSum, $extNeq, $extRes) =
+    $bpe->getKeys(
+      '$YSS+0', '$Y', '$S+0',
+      'V_A',
+      'V_SATINF', 'V_PCVINF', 'V_PCV',    'V_SATCRX', 'V_ORBFIL', 'V_APRFIL',
+      'V_CRDINF', 'V_BLQINF', 'V_ATLINF', 'V_HOIFIL', 'V_SAMPL',  'V_SATSYS',
+      'DIR_CRX', 'DIR_STD', 'DIR_ERP', 'DIR_CRD', 'DIR_TRP', 'DIR_ABB',
+      'EXT_CRX', 'EXT_STD', 'EXT_ERP', 'EXT_CRD', 'EXT_TRP', 'EXT_ABB',
+      'DIR_BLQ', 'DIR_ATL', 'DIR_OUT', 'DIR_SUM', 'DIR_NEQ', 'DIR_RES',
+      'EXT_BLQ', 'EXT_ATL', 'EXT_OUT', 'EXT_SUM', 'EXT_NEQ', 'EXT_RES');
+
+# Initialize processing summary file
+# ----------------------------------
+  my $prcFil = "${dirOut}BAS${yyssss}.PRC";
+  unlink $prcFil;
+  appFile("BASTST BPE PROCESSING SUMMARY FOR YEAR-SESSION $yy-$ssss",
+    1,"",$prcFil,0);
+
+# Report the BPE settings
+# -----------------------
+  open(PRC,">> $prcFil");
+  print PRC "Summary file generated at ",timprt()," by BAS_SUM\n\n";
+  print PRC "General files:\n";
+  print PRC "   Antenna phase center eccentricity file:   ${pcvInf}.${pcv}\n";
+  print PRC "   Satellite information file:               ${satInf}.${pcv}\n";
+  print PRC "   Satellite problem file:                   ${satcrx}.${extCrx}\n";
+  print PRC "   Orbit filename:                           ",
+            basename($dirStd)."/${orbFil}.${extStd}\n";
+  print PRC "   ERP filename:                             ",
+            basename($dirErp)."/${orbFil}.${extErp}\n";
+  print PRC "   A prior coordinate filename:              ",
+            basename($dirCrd)."/${aprFil}.${extCrd}\n";
+  print PRC "   Abbreviation filename:                    ",
+            basename($dirAbb)."/${crdInf}.${extAbb}\n";
+  print PRC "   Ocean tidal loading table:                ",
+            $blqInf ne "" ? basename($dirBlq)."/${blqInf}.${extBlq}" : "", "\n";
+  print PRC "   Atmosphere tidal loading table:           ",
+            $atlInf ne "" ? basename($dirAtl)."/${atlInf}.${extAtl}" : "", "\n";
+  print PRC "\nResult files from baseline-wise processing\n";
+  print PRC "   GPSEST program output:                    ",
+            basename($dirOut)."/${a}${ssss}????.${extOut}\n";
+  print PRC "   Normal equation with CRD/TRP:             ",
+            basename($dirNeq)."/${a}${ssss}????.${extNeq}\n";
+  print PRC "   Coordinate results:                       ",
+            basename($dirCrd)."/${a}${ssss}????.${extCrd}\n";
+  print PRC "   Troposphere results:                      ",
+            basename($dirTrp)."/${a}${ssss}????.${extTrp}\n";
+  print PRC "   Residuals:                                ",
+            basename($dirRes)."/${a}${ssss}????.${extRes}\n";
+  print PRC "\nOther options from PCF:\n";
+  print PRC "   Satellite system(s) included:             ${satsys}\n";
+  print PRC "   Sampling rate for final solution:         ${sampl} seconds\n";
+  if ( ${hoiFil} ne "" ) {
+    print PRC "   Higher order ionosphere based on:         ",basename(${hoiFil}),"\n";
+  } else {
+    print PRC "   No higher order ionosphere corrections applied\n";
+  }
+
+  print PRC"\n\n";
+  close PRC;
+
+
+# Append protocol files
+# ---------------------
+
+# - GPSXTR summaries
+  my $sumFil = "${dirSum}${a}${ssss}OUT.${extSum}";
+  appFile("PART 1.1: Baseline-wise processing summary",2,$sumFil,$prcFil,1);
+
+  $sumFil = "${dirSum}${a}${ssss}CRD.${extSum}";
+  appFile("PART 1.2: Coordinate summary",2,$sumFil,$prcFil,1);
+
+# - Residual summary (RESCHK/RESRMS)
+  $sumFil = "${dirSum}CHK${yyssss}.${extSum}";
+  appFile("PART 2.1: Residual summary per satellite",2,$sumFil,$prcFil,1);
+
+  $sumFil = "${dirSum}${a}${yyssss}.${extSum}";
+  appFile("PART 2.2: Detailed residual summary",2,$sumFil,$prcFil,1);
+
+  $sumFil = "${dirOut}${a}${yyssss}.${extOut}";
+  appFile("PART 2.3: Detailed residual statistics",2,$sumFil,$prcFil,1);
+
+
+}

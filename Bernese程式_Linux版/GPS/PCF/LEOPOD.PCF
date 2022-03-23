@@ -1,0 +1,132 @@
+#
+# =============================================================================
+# LEOPOD.PCF
+# =============================================================================
+#
+# Purpose:      PRECISE ORBIT DETERMINATION FOR LOW EARTH ORBITER
+#               - reduced-dynamic and kinematic orbits
+#
+# -----------------------------------------------------------------------------
+#
+# A description of the BPE, the use of the BPE server variables, input and
+# output files as well as the important points to be checked in the processing
+# summary are provided in 
+#               ${U}/PCF/LEOPOD.README    (UNIX/Linux)
+#                %U%\PCF\LEOPOD.README    (Windows)
+#
+# -----------------------------------------------------------------------------
+#
+# Author:       Heike Bock
+# Created:      09-Feb-2012                  Last modified:
+#
+# Changes:
+#
+# ==============================================================================
+#
+#
+PID SCRIPT   OPT_DIR  CAMPAIGN CPU      F WAIT FOR....
+3** 8******* 8******* 8******* 8******* 1 3** 3** 3** 3** 3** 3** 3** 3** 3** 3**
+#
+# Copy required files
+# -------------------
+001 LEO_COP  NO_OPT            ANY      1
+#
+# Prepare pole, orbit, and clock information
+# => PART 0
+# ------------------------------------------
+051 POLUPD   LPD_GEN           ANY      1 001
+061 PRETAB   LPD_GEN           ANY      1 051
+062 ORBGEN   LPD_GEN           ANY      1 061
+071 RNXCLK   LPD_GEN           ANY      1 001
+#
+# LEO RINEX import
+# => PART 1
+# ------------------------------------------
+080 LEO_RNX  NO_OPT            ANY      1
+100 RXOBV3   LPD_APR           ANY      1 001 080
+#
+# First a priori orbit generation for LEO
+# => PART 2
+# ------------------------------------------
+110 CODSPP   LPD_APR           ANY      1 062 071 100
+120 KINPRE   LPD_APR           ANY      1 110
+130 ORBAPR   LPD_APR           ANY      1 120
+#
+# Data screening
+# => PART 3
+# -------------------------------------------
+140 MPGPUP   LPD_MPG           ANY      1 130
+150 GPSEST   LPD_GRS           ANY      1 140
+160 RESRMS   LPD_GRS           ANY      1 150
+170 SATMRK   LPD_GRS           ANY      1 160
+200 CODSPP   LPD_INT           ANY      1 170
+#
+# A priori orbit for final orbit determination
+# => PART 4
+# -------------------------------------------
+400 STDPRE   LPD_INT           ANY      1 140
+410 ORBAPF   LPD_INT           ANY      1 400
+#
+# Final LEO POD
+# -------------
+# Reduced-dynamic orbit
+# => PART 5
+# -------------------------------------------
+500 GPSEST   LPD_FIN           ANY      1 200 410
+501 GPSXTR   LPD_FIN           ANY      1 500
+502 ORBGEN   LPD_FIN           ANY      1 501
+503 STDPRE   LPD_FIN           ANY      1 502
+511 GPSEST   LPD_RES           ANY      1 503
+512 RESRMS   LPD_RES           ANY      1 511
+#
+# Kinematic orbit
+# => PART 6
+# -------------------------------------------
+600 GPSEST   LPD_KIN           ANY      1 503
+601 GPSXTR   LPD_KIN           ANY      1 600
+602 KINPRE   LPD_KIN           ANY      1 600
+612 RESRMS   LPD_KIN           ANY      1 601 602
+#
+# Comparison of orbits
+# => PART 7
+# -------------------------------------------
+700 ORBCMP   LPD_CMP           ANY      1 600 503 602
+#
+# Create summary file, save and delete files
+# -------------------------------------------
+901 LEO_SUM  LPD_GEN           ANY      1 700 512 612
+902 LEO_SAV  LPD_GEN           ANY      1 901
+903 LEO_DEL  LPD_GEN           ANY      1 902
+991 BPE_CLN  LPD_GEN           ANY      1 903
+#
+# End of BPE
+# ----------
+999 DUMMY    NO_OPT            ANY      1 991
+#
+PID USER         PASSWORD PARAM1   PARAM2   PARAM3   PARAM4   PARAM5   PARAM6   PARAM7   PARAM8   PARAM9
+3** 12********** 8******* 8******* 8******* 8******* 8******* 8******* 8******* 8******* 8******* 8*******
+903                       -5
+VARIABLE DESCRIPTION                              DEFAULT
+8******* 40************************************** 30****************************
+V_LEO    LEO name                                 GRCA            
+V_A      A priori information for LEO             A               
+V_F      Final solution identifier for LEO        AF              
+V_B      GPS orbit/ERP, DCB, CLK information      COD             
+V_SAMPL  Sampling of the observations             30              
+V_MINEL  Elevation cut-off for observations       5               
+V_BLQINF BLQ FILE NAME, CMC CORRECTIONS           EXAMPLE         
+V_ATLINF ATL FILE NAME, CMC CORRECTIONS           EXAMPLE         
+V_CRDINF CRD, ABB, CRX and STA FILE NAME          EXP_LEO         
+V_RESULT Directory name for the LEO-POD results   LEOPOD
+V_PCV    GNSS PCV MODEL                           I08             
+V_SATINF SATELLITE INFORMATION                    SATELLIT        
+V_PCVINF PCV INFORMATION                          PCV             
+V_SATCRX Satellite problem file                   SAT_$Y+0
+V_REFDIR Directory with basic Bernese files       REF52           
+V_LEODIR Directory with LEO data files            LEO             
+V_SAV    Save results?                            Y               
+V_DEL    Delete results?                          Y               
+#
+# DO NOT USE V_D, V_J, V_M, V_Y VARIABLES! 
+# (they are used already by the menu)
+# 

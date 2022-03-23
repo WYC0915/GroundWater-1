@@ -1,0 +1,101 @@
+      MODULE s_XYZELE
+      CONTAINS
+
+C*
+      SUBROUTINE XYZELE(GM,T,X,V,NUMSVN,A,E,I,KN,PER,T0)
+CC
+CC NAME       :  XYZELE
+CC
+CC PURPOSE    :  THIS SUBROUTINE CALCULATES THE (OSCULATING)
+CC               ORBITAL ELEMENTS OF A CELESTIAL BODY , WHOSE
+CC               CARTESIAN POSITION- AND VELOCITY COMPONENTS ARE
+CC               GIVEN IN THE ARRAYS X(K) , V(K) , K=1,2,3
+CC
+CC PARAMETERS :
+CC         IN :  GM     : GRAVITY-CONSTANT (GAUSSIAN CONSTANT R*8
+CC                        PLANETARY APPLICATIONS)
+CC               T      : EPOCH TO WHICH X,V (AND ELEMENTS)   R*8
+CC                        REFER (SEC)
+CC               X,V    : POSITION AMND VELOCITY OF CELESTIAL R*8(3)
+CC                        BODY AT TIME T
+CC               NUMSVN : SATELLITE NUMBER                    I*4
+CC        OUT :  A      : SEMI MAJOR AXIS                     R*8
+CC               E      : NUMERICAL EXCENTRICITY              R*8
+CC               I      : INCLINATION OF ORBITAL PLANE WITH   R*8
+CC                        RESPECT TO FUNDAMENTAL PLANE OF
+CC                        COORDINATE SYSTEM
+CC               KN     : LONGITUDE OF ASCENDING NODE         R*8
+CC               PER    : ARGUMENT OF PERIGEE/HELION          R*8
+CC               T0     : TIME OF PERIGEE/HELION PASSING      R*8
+CC
+CC
+CC REMARKS    :  ONLY ELLIPTICAL ELEMENTS ARE CALCULATED
+CC               VERSION CHECKING WHETHER ORBIT IS ELLIPTIC
+CC
+CC AUTHOR     :  G.BEUTLER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/03 12:22
+CC
+CC MODIFIED   :  28-NOV-01 : GB: CHECKING WHETHER ORBIT IS ELLIPTIC
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, M_BERN ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               04-MAY-08 : RD: SATELLITE NUMBER FOR ERROR MESSAGE
+CC               29-SEP-08 : RD: CORRECT FORMAT IN ERROR MESSAGE
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE M_BERN
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 NUMSVN
+      REAL*8    A  , CI , CK , E  , ECV, ESV, EX , GM , H  , P  , PER,
+     1          R  , SI , SK , T  , T0 , U  , V  , V1 , X  , XX
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+      DIMENSION X(3),V(3),XX(3),H(3)
+      REAL*8 I,KN
+C
+C
+      H(1)= X(2)*V(3)-X(3)*V(2)
+      H(2)=-X(3)*V(1)+X(1)*V(3)
+      H(3)= X(1)*V(2)-X(2)*V(1)
+      KN=DATAN2(H(1),H(2))
+      I=DATAN2(DSQRT(H(1)**2+H(2)**2),H(3))
+      P=(H(1)**2+H(2)**2+H(3)**2)/GM
+      R=DSQRT(X(1)**2+X(2)**2+X(3)**2)
+      ECV=P/R-1.D0
+      ESV=DSQRT(P/GM)/R*(X(1)*V(1)+X(2)*V(2)+X(3)*V(3))
+      V1=DATAN2(ESV,ECV)
+      E=DSQRT(ECV**2+ESV**2)
+C
+C STOP PROCESSING, IF ORBIT IS NO LONGER AN ELLIPSE
+      IF(e.ge.1.D0)THEN
+        WRITE(LFNERR,1000) NUMSVN
+1000    FORMAT(//,' *** SR XYZELE: ORBIT NO ELLIPSE, PROC STOPPED',/
+     1                        16X,'SATELLITE NUMBER:  ',I5,//)
+        CALL EXITRC(2)
+      ENDIF
+      CK=DCOS(KN)
+      SK=DSIN(KN)
+      CI=DCOS(I)
+      SI=DSIN(I)
+      XX(1)=    CK*X(1)   +SK*X(2)
+      XX(2)=-CI*SK*X(1)+CI*CK*X(2)+SI*X(3)
+      XX(3)= SI*SK*X(1)-SI*CK*X(2)+CI*X(3)
+      U=DATAN2(XX(2),XX(1))
+      PER=U-V1
+      EX=2*DATAN(DSQRT((1.D0-E)/(1.D0+E))*(DSIN(V1/2)/DCOS(V1/2)))
+      A=P/(1.D0-E**2)
+      T0=T-(EX-E*DSIN(EX))/DSQRT(GM/A**3)
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

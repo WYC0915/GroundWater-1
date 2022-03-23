@@ -1,0 +1,399 @@
+
+COORD     0
+  ## widget = selwin
+
+MSG_COORD 1  "Coordinate file"
+
+SIGMARS     0
+
+NEWFILE     0
+  ## widget = lineedit; menuaux = MENUAUX; action = ADD_ONE
+  ## menuauxkeys = NEWFILE
+
+STASEL     0
+  ## widget = selwin; pointer = STALST; activeif = COORD / _
+
+MSG_STASEL 1 "Station list for default a priori sigma"
+
+! Coord/velo (1 column)
+! ---------------------
+RADIO_1     1  "0"
+  ## widget = radiobutton; group = SIGTYP
+  ## radiokeys = SIGMA_0
+
+MSG_RADIO_1 1 "One sigma value per station"
+
+SIGMA_0     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_SIGMA_0 1 "Default a priori sigma first column"
+
+! Troposphere: vertical but no gradient (2 columns)
+! -------------------------------------------------
+RADIO_2     1  "0"
+  ## widget = radiobutton; group = SIGTYP
+  ## radiokeys = SIGMA_TA SIGMA_TR
+
+MSG_RADIO_2 1 "Two sigma values per station"
+
+SIGMA_TA     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_SIGMA_TA 1 "Default a priori sigma first  column"
+
+SIGMA_TR     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_SIGMA_TR 1 "Default a priori sigma second column"
+
+! Coord/velo for GPSEST / ADDNEQ2 (3 columns)
+! -------------------------------------------
+RADIO_3     1  "1"
+  ## widget = radiobutton; group = SIGTYP
+  ## radiokeys = SIGMA_N SIGMA_E SIGMA_U
+
+MSG_RADIO_3 1 "Three sigma values per station"
+
+SIGMA_N     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_SIGMA_N 1 "Default a priori sigma first column"
+
+SIGMA_E     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_SIGMA_E 1 "Default a priori sigma second column"
+
+SIGMA_U     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_SIGMA_U 1 "Default a priori sigma third  column"
+
+! Troposphere: vertical and gradient (4 columns)
+! ----------------------------------------------
+RADIO_4     1  "0"
+  ## widget = radiobutton; group = SIGTYP
+  ## radiokeys = SIGMA_VA SIGMA_VR SIGMA_GA SIGMA_GR
+
+MSG_RADIO_4 1 "Four sigma values per station"
+
+SIGMA_VA     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_SIGMA_VA 1 "Default a priori sigma first  column"
+
+SIGMA_VR     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_SIGMA_VR 1 "Default a priori sigma second column"
+
+SIGMA_GA     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_SIGMA_GA 1 "Default a priori sigma third  column"
+
+SIGMA_GR     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_SIGMA_GR 1 "Default a priori sigma fourth column"
+
+! Dummy
+! -----
+RADIO_5     1  "0"
+
+! Troposphere: vertical and gradients (6 columns)
+! -----------------------------------------------
+RADIO_6     1  "0"
+  ## widget = radiobutton; group = SIGTYP
+  ## radiokeys = SIGMA_AV SIGMA_RV SIGMA_AN SIGMA_RN SIGMA_AE SIGMA_RE
+
+MSG_RADIO_6 1 "Six sigma values per station"
+
+SIGMA_AV     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_SIGMA_AV 1 "Default a priori sigma first  column"
+
+SIGMA_RV     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_SIGMA_RV 1 "Default a priori sigma second column"
+
+SIGMA_AN     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_SIGMA_AN 1 "Default a priori sigma third  column"
+
+SIGMA_RN     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_SIGMA_RN 1 "Default a priori sigma fourth column"
+
+SIGMA_AE     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_SIGMA_AE 1 "Default a priori sigma fifth  column"
+
+SIGMA_RE     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_SIGMA_RE 1 "Default a priori sigma sixth  column"
+
+! Coord/velo for ADDNEQ2
+! ----------------------
+FILNAM1     0
+  ## widget = comment
+
+MSG_FILNAM1 1 "Filename"
+
+TITLE1     0
+  ## widget = lineedit
+
+MSG_TITLE1 1 "Title line"
+
+STAHELP1     1  "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = SIG_LIST1
+  ## menuauxkeys = SIGMARS STASEL SIGMA_0
+  ## updateifsave = RADIO_1 = 1
+
+STALIST1     1  "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = SIG_LIST1
+  ## menuauxkeys = SIGMARS STASEL SIGMA_0
+  ## updateifsave = RADIO_1 = 1; updateifchanged = STAHELP1
+  ## check_strlen.1 = 16; check_type.2 = real; check_min.2 = 0.0
+  ## numlines = 12
+
+MSG_STALIST1 1 "Station name and sigma"
+
+! Troposphere: vertical but no gradient
+! -------------------------------------
+FILNAM2     0
+  ## widget = comment
+
+MSG_FILNAM2 1 "Filename"
+
+TITLE2     0
+  ## widget = lineedit
+
+MSG_TITLE2 1 "Title line"
+
+STAHELP2     1  "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = SIG_LIST2
+  ## menuauxkeys = SIGMARS STASEL SIGMA_TA SIGMA_TR
+  ## updateifsave = RADIO_2 = 1
+
+STALIST2     1  "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = SIG_LIST2
+  ## menuauxkeys = SIGMARS STASEL SIGMA_TA SIGMA_TR
+  ## updateifsave = RADIO_2 = 1; updateifchanged = STAHELP2
+  ## check_strlen.1 = 16
+  ## check_type.2 = real; check_min.2 = 0.0
+  ## check_type.3 = real; check_min.3 = 0.0
+  ## numlines = 12
+
+MSG_STALIST2 1 "Station name / Sigma vert.(abs) / Sigma vert.(rel)"
+
+! Coord/velo for GPSEST / ADDNEQ2
+! -------------------------------
+FILNAM3     0
+  ## widget = comment
+
+MSG_FILNAM3 1 "Filename"
+
+TITLE3     0
+  ## widget = lineedit
+
+MSG_TITLE3 1 "Title line"
+
+STAHELP3     1  "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = SIG_LIST3
+  ## menuauxkeys = SIGMARS STASEL SIGMA_N SIGMA_E SIGMA_U
+  ## updateifsave = RADIO_3 = 1
+
+STALIST3     1  "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = SIG_LIST3
+  ## menuauxkeys = SIGMARS STASEL SIGMA_N SIGMA_E SIGMA_U
+  ## updateifsave = RADIO_3 = 1; updateifchanged = STAHELP3
+  ## check_strlen.1 = 16
+  ## check_type.2 = real; check_min.2 = 0.0
+  ## check_type.3 = real; check_min.3 = 0.0
+  ## check_type.4 = real; check_min.4 = 0.0
+  ## numlines = 12
+
+MSG_STALIST3 1 "Station name / Sigma north / Sigma east / Sigma up"
+
+! Troposphere: vertical and gradient
+! ----------------------------------
+FILNAM4     0
+  ## widget = comment
+
+MSG_FILNAM4 1 "Filename"
+
+TITLE4     0
+  ## widget = lineedit
+
+MSG_TITLE4 1 "Title line"
+
+STAHELP4     1  "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = SIG_LIST4
+  ## menuauxkeys = SIGMARS STASEL SIGMA_VA SIGMA_VR SIGMA_GA SIGMA_GR
+  ## updateifsave = RADIO_4 = 1
+
+STALIST4     1  "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = SIG_LIST4
+  ## menuauxkeys = SIGMARS STASEL SIGMA_VA SIGMA_VR SIGMA_GA SIGMA_GR
+  ## updateifsave = RADIO_4 = 1; updateifchanged = STAHELP4
+  ## check_strlen.1 = 16
+  ## check_type.2 = real; check_min.2 = 0.0
+  ## check_type.3 = real; check_min.3 = 0.0
+  ## check_type.4 = real; check_min.4 = 0.0
+  ## check_type.5 = real; check_min.5 = 0.0
+  ## numlines = 12
+
+MSG_STALIST4 1 "Station name/Sig.vert.(abs)/Sig.vert.(rel)/Sig.grad.(abs)/Sig.grad.(rel)"
+
+! Troposphere: vertical and gradients North and East
+! --------------------------------------------------
+FILNAM6     0
+  ## widget = comment
+
+MSG_FILNAM6 1 "Filename"
+
+TITLE6     0
+  ## widget = lineedit
+
+MSG_TITLE6 1 "Title line"
+
+STAHELP6     1  "" "" "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = SIG_LIST6
+  ## menuauxkeys = SIGMARS STASEL SIGMA_AV SIGMA_RV SIGMA_AN SIGMA_RN SIGMA_AE SIGMA_RE
+  ## updateifsave = RADIO_6 = 1
+
+STALIST6     1  "" "" "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = SIG_LIST6
+  ## menuauxkeys = SIGMARS STASEL SIGMA_AV SIGMA_RV SIGMA_AN SIGMA_RN SIGMA_AE SIGMA_RE
+  ## updateifsave = RADIO_6 = 1; updateifchanged = STAHELP6
+  ## check_strlen.1 = 16
+  ## check_type.2 = real; check_min.2 = 0.0
+  ## check_type.3 = real; check_min.3 = 0.0
+  ## check_type.4 = real; check_min.4 = 0.0
+  ## check_type.5 = real; check_min.5 = 0.0
+  ## check_type.6 = real; check_min.6 = 0.0
+  ## check_type.7 = real; check_min.7 = 0.0
+  ## numlines = 12
+
+MSG_STALIST6 1 "Station name/Sig.vert.(abs)/Sig.vert.(rel)/Sig.grad.-N(abs)/Sig.grad.-N(rel)/Sig.grad.-E(abs)/Sig.grad.-E(rel)"
+
+STALST     0
+  ## widget = selwin; menuaux = MENUAUX; action = STALST
+  ## menuauxkeys = CONST DATUM COORD
+
+
+# BEGIN_PANEL NEWFILE = one  #############################################################################
+# CREATE/UPDATE STATION SIGMA FILE - EDITSIG                                                             #
+# CREATE A NEW STATION SIGMA FILE                                                                        #
+#                                                                                                        #
+# Station list for default a priori sigma          > %%%%%%%%%%%%%%%%%%%% <                              # STASEL
+#                                                                                                        #
+# Applications:@@@@@@@@@@@@@@@@@@ Column 1@@@ Column 2@@@ Column 3@@@ Column 4@@@ Column 5@@@ Column 6   #
+# @ Two columns@ : Troposphere@@@ vert(abs)@@ vert(rel)                                                  #
+# @ Three columns: Coordinates@@@ north@@@@@@ east@@@@@@@ up                                             #
+# @@@@@@@@@@@@@@@@ Velocities@@@@ north@@@@@@ east@@@@@@@ up                                             #
+# @ Four columns : Troposphere@@@ vert(abs)@@ vert(rel)@@ grad(abs)@@ grad(rel)                          #
+# @ Six columns@ : Troposphere@@@ vert(abs)@@ vert(rel)@@ grad-N(abs) grad-N(rel) grad-E(abs) grad-E(rel)#
+#                                                                                                        #
+# Units: Coordinates: meters                                                                             #
+# @@@@@@ Velocities : meters/year                                                                        #
+# @@@@@@ Troposphere: meters                                                                             #
+#                                                                                                        #
+# > % <  One sigma value per station                                                                     # RADIO_1
+#          Default a priori sigma first@ column   > %%%%%%% <                                            # SIGMA_0
+#                                                                                                        #
+# > % <  Two sigma values per station                                                                    # RADIO_2
+#          Default a priori sigma first@ column   > %%%%%%% <                                            # SIGMA_TA
+#          @@@@@@@@@@@@@@@@@@@@@@ second column   > %%%%%%% <                                            # SIGMA_TR
+#                                                                                                        #
+# > % <  Three sigma values per station                                                                  # RADIO_3
+#          Default a priori sigma first@ column   > %%%%%%% <                                            # SIGMA_N
+#          @@@@@@@@@@@@@@@@@@@@@@ second column   > %%%%%%% <                                            # SIGMA_E
+#          @@@@@@@@@@@@@@@@@@@@@@ third@ column   > %%%%%%% <                                            # SIGMA_U
+#                                                                                                        #
+# > % <  Four sigma values per station                                                                   # RADIO_4
+#          Default a priori sigma first@ column   > %%%%%%% <                                            # SIGMA_VA
+#          @@@@@@@@@@@@@@@@@@@@@@ second column   > %%%%%%% <                                            # SIGMA_VR
+#          @@@@@@@@@@@@@@@@@@@@@@ third@ column   > %%%%%%% <                                            # SIGMA_GA
+#          @@@@@@@@@@@@@@@@@@@@@@ fourth column   > %%%%%%% <                                            # SIGMA_GR
+#                                                                                                        #
+# > % <  Six sigma values per station                                                                    # RADIO_6
+#          Default a priori sigma first@ column   > %%%%%%% <                                            # SIGMA_AV
+#          @@@@@@@@@@@@@@@@@@@@@@ second column   > %%%%%%% <                                            # SIGMA_RV
+#          @@@@@@@@@@@@@@@@@@@@@@ third@ column   > %%%%%%% <                                            # SIGMA_AN
+#          @@@@@@@@@@@@@@@@@@@@@@ fourth column   > %%%%%%% <                                            # SIGMA_RN
+#          @@@@@@@@@@@@@@@@@@@@@@ fifth@ column   > %%%%%%% <                                            # SIGMA_AE
+#          @@@@@@@@@@@@@@@@@@@@@@ sixth@ column   > %%%%%%% <                                            # SIGMA_RE
+#                                                                                                        #
+# END_PANEL ##############################################################################################
+
+
+# BEGIN_PANEL RADIO_1 = 1 ########################################################
+# EDIT STATION SIGMA FILE: File with one sigma value per station                 #
+#                                                                                #
+#  Filename  > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <  #  FILNAM1
+#  Title     > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <#  TITLE1
+#                                                                                #
+# > Station_name____ Sigma_1     <                                               # STALIST1
+#                                                                                #
+# END_PANEL ######################################################################
+
+
+# BEGIN_PANEL RADIO_2 = 1 ########################################################
+# EDIT STATION SIGMA FILE: File with two sigma values per station                #
+#                                                                                #
+#  Filename  > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <  #  FILNAM2
+#  Title     > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <#  TITLE2
+#  Applications:                                                                 #
+#    Troposphere@@@@@@@ vert.(abs)@ vert.(rel)@@@@ meters                        #
+#                                                                                #
+# > Station_name____ Sigma_1 Sigma_2     <                                       # STALIST2
+#                                                                                #
+# END_PANEL ######################################################################
+
+
+# BEGIN_PANEL RADIO_3 = 1 ########################################################
+# EDIT STATION SIGMA FILE: File with three sigma values per station              #
+#                                                                                #
+#  Filename  > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <  #  FILNAM3
+#  Title     > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <#  TITLE3
+#  Applications:                                                                 #
+#    Coordinates@@@@@@@@@ north@@@@@ east@@@@@@@ up@@@@@ meters                  #
+#    Velocities@@@@@@@@@@ north@@@@@ east@@@@@@@ up@@@@@ meters/year             #
+#                                                                                #
+# > Station_name____ Sigma_1 Sigma_2 Sigma_3     <                               # STALIST3
+#                                                                                #
+# END_PANEL ######################################################################
+
+
+# BEGIN_PANEL RADIO_4 = 1 ########################################################
+# EDIT STATION SIGMA FILE: File with four sigma values per station               #
+#                                                                                #
+#  Filename  > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <  #  FILNAM4
+#  Title     > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <#  TITLE4
+#  Applications:                                                                 #
+#    Troposphere@@@@@@@ vert.(abs)@ vert.(rel) grad.(abs) grad.(rel)@ meters     #
+#                                                                                #
+# > Station_name____ Sigma_1 Sigma_2 Sigma_3 Sigma_4     <                       # STALIST4
+#                                                                                #
+# END_PANEL ######################################################################
+
+
+# BEGIN_PANEL RADIO_6 = 1 ################################################################################
+# EDIT STATION SIGMA FILE: File with six sigma values per station                                        #
+#                                                                                                        #
+#  Filename  > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <                          #  FILNAM6
+#  Title     > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <                        #  TITLE6
+#  Applications:                                                                                         #
+#    Troposphere@@@@@@@ vert.(abs) vert.(rel) grad.-N(abs) grad.-N(rel) grad.-E(abs) grad.-E(rel)@ meters#
+#                                                                                                        #
+# > Station_name____ Sigma_1 Sigma_2 Sigma_3 Sigma_4 Sigma_5 Sigma_6     <                               # STALIST6
+#                                                                                                        #
+# END_PANEL ##############################################################################################

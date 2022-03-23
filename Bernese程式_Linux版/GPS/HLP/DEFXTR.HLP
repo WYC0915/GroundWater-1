@@ -1,0 +1,207 @@
+<html>
+<body>
+
+<center>
+<b>EXTRACT ORBGEN PROGRAM OUTPUT</b>
+<p>Program: DEFXTR
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program extracts the most important information
+from one or more <a href="PGMLST.HLP#ORBGEN">ORBGEN</a> program output
+files and writes a comprehensive summary file.
+
+<p><hr>
+
+<b>DEFXTR 1: Extractions</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RADIO_1" default="1"></a>
+<a name="JOBOUT" default="ORBGEN.L??"></a>
+<a name="RADIO_2" default="0"></a>
+<a name="OUTPUT" default=""></a>
+<p><b>INPUT FILENAMES</b>
+<p>
+Selection of ORBGEN output file(s) as input for the extraction program.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="DEFXTR"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment in the program output.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="OUTFIL" default=""></a>
+<p><b>OUTPUT FILES</b>
+<p>
+When specifying more than one summary output file, you have to use
+different filenames because all summary files will have the same
+extension.
+
+<p><b>Output summary:</b>
+Output name of the summary. This summary includes the ORBGEN output
+filename, the day of year, the total number of satellites, the number of eclipsing
+satellites, the maximum RMS in meters, and the number of the satellite which has
+the maximum RMS.
+<br>
+For each eclipsing satellite is given the satellite number, the number of
+minutes in eclipse, and the RMS in millimeters.
+
+<p>Output example:<!-- $S/RAP/OUT/IGSRAPID.11_323 -->
+<pre>
+  ORBGEN.L08      # Sat.:  31 , # Eclipsing:  7 , Max. RMS: 1.163 for sat.  32
+  (DOY: 323)      Eclips. Sat. :    5  10  18  20  22  30  32
+                  Min in eclips:   51  52  52  47  52  25  55
+                  RMS (mm)     :  614 898 405 400 605 9591163
+</pre>
+
+<a name="WEEKFM" default=""></a>
+<p><b>Weekly summary form:</b>
+Another output summary. This is a one line summary which lists
+first the day of year followed by the ORBGEN RMS in centimeters
+for each individual satellite.
+
+<p>Output example:<!-- $S/RAP/OUT/IGSRAPID.11_323 -->
+<pre>
+ 323   1   2   1   3   2   2   2   1   3   3   1   2   2   2   1   ...
+</pre>
+
+<a name="ASPLIT" default=""></a>
+<p><b>Split arc info:</b>
+This file activates the automatic arc splitting provided that the arc length
+is <nobr>2-days</nobr> and the number of input files is 2. Satellites with an
+RMS exceeding a specific upper limit will be considered as bad and the arc will
+be split by adding
+a corresponding line in the satellite problem file (input field
+"Satellite problems" in section "GENERAL INPUT FILES"). The RMS is given in
+millimeters.
+
+<p>Output example:<!-- $S/RAP/OUT/IGSRAPID.11_323 -->
+<pre>
+IGSRAPID_113230: ASPLIT FOR RH ORBIT SOLUTION                    19-NOV-11 14:07
+Mean RMS and editing level: G 0.031/ 0.123  R 0.040/ 0.161
+Arc splitting for  2 sat. on 2011-11-19 in ${X}/GEN/SAT_2011.CRX
+based on ${P}/IGSRAPID/OUT/ORBGEN.L16
+  Sat.    :  27 104
+  RMS (mm): 238 188
+</pre>
+
+<p><i>Default value:</i> blank
+
+<p><hr>
+
+<b>DEFXTR 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems concerning modeling.
+It is used for exclusion of misbehaving satellites
+(and for orbit arc splitting).
+It may also contain (mean) epochs of GPS repositioning events.
+
+<p><i>Note:</i>
+Corresponding year-specific files are maintained by AIUB/CODE.
+You can get the latest version of the current file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SAT_2003.CRX">$X/GEN/SAT_2003.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<p><hr>
+
+<b>DEFXTR 2.1: Quality check</b>
+
+<a name="TOL_RMS" default="0.03"></a>
+<p><b>QUALITY OF ORBIT FITTING</b>
+<p><b>Maximally tolerated RMS value:</b>
+You may specify here a tolerance value for checking the quality of the
+orbit fitting. The program will stop (with an error message) in case
+the specified value is exceeded. 0.00 (or blank) means no check.
+
+<p><i>Default value:</i> <tt>0.03</tt> m
+
+<p><hr>
+
+<b>DEFXTR 2.2: Arc split options</b>
+
+<a name="FAC_GPS" default="4"></a>
+<a name="FAC_GLO" default="4"></a>
+<p><b>THRESHOLD VALUES FOR RMS</b>
+<p><b>Factor w.r.t. arithmetic mean RMS:</b>
+The upper limit used for testing corresponds to the specified factor times
+the arithmetic mean RMS (computed with respect to all accepted satellites
+of a specific GNSS). A blank option field means no arc splitting for the
+satellites of the corresponding GNSS.
+
+<p><i>Default value:</i> <tt>4</tt> (or blank)
+
+<a name="LIM_GPS" default="0.05"></a>
+<a name="LIM_GLO" default="0.10"></a>
+<p><b>Lower limit for RMS:</b>
+In addition, a lower limit may be defined for each GNSS. Arc splitting
+will be disabled for satellites with an RMS smaller than the defined value.
+
+<p><i>Default value:</i> blank
+
+<p><hr>
+
+</body>
+</html>

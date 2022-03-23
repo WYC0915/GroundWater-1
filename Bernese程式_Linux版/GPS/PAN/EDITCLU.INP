@@ -1,0 +1,30 @@
+
+STACLURS     0
+  ## widget = comment
+
+MSG_STACLURS 1 "Filename"
+
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1 "Title line"
+
+STACLU     1  "" "" ""
+  ## widget = uniline
+  ## check_strlen.1 = 16
+  ## check_type.2 = integer
+  ## check_min.2 = 0; check_max.2 = 99
+  ## numlines = 15
+
+MSG_STACLU 1 "Station name/Cluster/Comment"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CREATE/UPDATE CLUSTER DEFINITION FILE - EDITCLU                              #
+#                                                                              #
+#  Filename> %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # STACLURS
+#  Title   > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # TITLE
+#                                                                              #
+# > Station_name____ Cluster Comment__________________________________   <     # STACLU
+#                                                                              #
+# END_PANEL ####################################################################

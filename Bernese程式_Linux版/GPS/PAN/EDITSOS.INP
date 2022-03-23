@@ -1,0 +1,93 @@
+
+DATUM     1  "DATUM."
+
+MSG_DATUM 1  "Geodetic datum file"
+
+COORD     0
+  ## widget = selwin
+
+MSG_COORD 1  "Coordinate file"
+
+STAWGTRS     0
+  ## widget = comment
+
+MSG_STAWGTRS 1  "Station observation sigma factor file to be edit"
+
+NEWFILE     0
+  ## widget = lineedit; menuaux = MENUAUX; action = ADD_ONE
+  ## menuauxkeys = NEWFILE
+
+STASEL     0
+  ## widget = selwin; pointer = STALST; activeif = COORD /= _
+
+MSG_STASEL 1  "Station list for sigma factor file"
+
+PHASE     1  "0"
+  ## widget = checkbox
+
+MSG_PHASE 1  "Sigma factors for phase observations"
+
+CODE     1  "0"
+  ## widget = checkbox
+
+MSG_CODE 1  "Sigma factors for code observations"
+
+RANGE     1  "0"
+  ## widget = checkbox
+
+MSG_RANGE 1  "Sigma factors for range observations"
+
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+STAWGT_HLP     1  "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = SOS_LIST
+  ## updateifsave = true
+  ## menuauxkeys = STAWGTRS STASEL PHASE CODE RANGE
+
+STAWGT     1  "" "" "" "" ""
+  ## widget = uniline; menuaux = MENUAUX; action = SOS_LIST
+  ## updateifsave = true
+  ## menuauxkeys = STAWGTRS STASEL PHASE CODE RANGE
+  ## updateifchanged = STAWGT_HLP
+  ## check_strlen.1 = 16
+  ## check_strlen.2 = 5
+  ## check_type.3 = real
+  ## check_min.3 = 0.0
+  ## numlines = 15
+
+MSG_STAWGT 1  "Station name/Meatyp/Sigma/Valid from to"
+
+STALST     0
+  ## widget = selwin; menuaux = MENUAUX; action = STALST
+  ## menuauxkeys = CONST DATUM COORD
+
+
+# BEGIN_PANEL COORD / _ AND NEWFILE = one ######################################
+# CREATE/UPDATE STATION OBSERVATION SIGMA FACTORS - EDITSOS:                   #
+# CREATE A NEW STATION OBSERVATION SIGMA FACTOR FILE                           #
+#                                                                              #
+# Station list for sigma factor file       > %%%%%%%%%%%%%%%%%%%% <            # STASEL
+#                                                                              #
+# TYPES OF OBSERVATIONS                                                        #
+#   Sigma factors for phase observations   > % <                               # PHASE
+#   Sigma factors for code@ observations   > % <                               # CODE
+#   Sigma factors for range observations   > % <                               # RANGE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CREATE/UPDATE STATION OBSERVATION SIGMA FACTORS - EDITSOS                    #
+#                                                                              #
+#  Filename> %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # STAWGTRS
+#  Title   > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # TITLE
+#                                                                              #
+#                         Sigma      Valid from             to                 #
+# > Station_name____ Meatyp factor__ yyyy_mm_dd_hh_mm_ss yyyy_mm_dd_hh_mm_ss < # STAWGT
+#                                                                              #
+# END_PANEL ####################################################################
+
+

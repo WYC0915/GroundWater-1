@@ -1,0 +1,374 @@
+<html>
+<body>
+
+<center>
+<b>CHANGE HEADER OF OBSERVATION FILES</b>
+<p>Program: CHGHED
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program allows to modify observation header files without having to
+edit each individual file. If you enter the name of a station information
+file the entries for all selected observation header files are adapted
+according to the settings in this file.
+This may be useful, e.g., to make sure that the header information for
+old observation files are up to date before you start a reprocessing.
+Individual items of the observation header files may be updated using
+the manual mode of this program.
+<br>
+It is possible to edit an observation header file manually
+within the menu (<b>Menu &gt; Service &gt; Bernese observation files &gt;
+Edit observation header file</b>). However, the use of this program is the
+save way to change observation header file information.
+
+<p><hr>
+
+<p><b>CHGHED 1: Input/Output Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="OBSTYPE" default="GNSS"></a>
+<p><b>OBSERVATION FILES:</b>
+Select whether microwave (GNSS) or SLR (Range) observation files should
+be considered.
+
+<a name="CZHFIL" default=""></a>
+<p><b>Zero diff. Code:</b>
+Select a list of header files for code zero difference observations to be
+modified. Leave this field empty if you don't want to modify observation
+header files for this type.
+
+<a name="PZHFIL" default=""></a>
+<p><b>Zero diff.</b> <b>Phase:</b>
+Select a list of header files for phase zero difference observations to be
+modified. Leave this field empty if you don't want to modify observation
+header files for this type.
+
+<a name="BOTHZERO" default="0"></a>
+<p><b>Zero diff.</b> <b>both:</b>
+Check this box if you have code and phase zero difference files with identical
+names that you like to modify in one run. The selection lists from
+the code and phase zero difference header files will be merged and the files
+for both types of observations will be modified.
+
+<a name="CSHFIL" default=""></a>
+<p><b>Single diff. Code:</b>
+Select a list of header files for code single difference observations to be
+modified. Leave this field empty if you don't want to modify observation
+header files for this type.
+
+<a name="PSHFIL" default=""></a>
+<p><b>Single diff.</b> <b>Phase:</b>
+Select a list of header files for phase single difference observations to be
+modified. Leave this field empty if you don't want to modify observation
+header files for this type.
+
+<a name="BOTHSING" default="0"></a>
+<p><b>Single diff.</b> <b>both:</b>
+Check this box if you have code and phase single difference files with
+identical names that you like to modify in one run. The selection lists from
+the code and phase zero difference header files will be merged and the files
+for both types of observations will be modified.
+
+<a name="RZHFIL" default=""></a>
+<p><b>Range:</b>
+Select a list of header files for range observations to be modified.
+
+<br><br>
+
+<a name="STAINFO" default=""></a>
+<p><b>INPUT FILE</b>
+<p><b>Station Information File:</b>
+The station information file contains a list of station information records.
+Specify the name of this file here to change the entries in the selected
+observation header files to the values given in this file.
+Leave this field empty to specify the changes using interactive input panels.
+<br>
+In a first step the "Type 001: Renaming of stations" changes from the
+station information file will
+be applied. All station names will be changed to the new values. The
+station names will be changed if at least one epoch of the observation file
+touches the time interval specified in the station information file and the
+station name in the header file is identical to the old name given in the
+station information file.
+<br>
+In a second step the "Type 002: Station information" changes from the
+station information file will
+be applied. If the station name from the observation header file resp. the
+new station name from the TYPE 001 change is identical with one of the
+station names in the TYPE 002 section and at least one epoch of the observation
+file touches the time interval specified in the station information file all
+entries will be replaced in the observation header file: receiver type,
+antenna type, receiver number, antenna number, and position eccentricity.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.STA">Example</a>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT" default="CHGHED"></a>
+<p><b>GENERAL OUTPUT FILES </b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output.
+The title should characterize the program run.
+
+<p><hr>
+
+<p><b>CHGHED 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">CONST.</a>
+
+<!-- This panel will not be displayed
+<p><hr>
+
+<p><b>CHGHED 2.1.1: Select Flags from Station Information File to be Used</b>
+
+<a name="USEFLG" default="0"></a>
+<p><b>FLAGS TO BE CONSIDERED</b>
+
+<a name="FLG001" default="999"></a>
+<p><b>Type 001: Renaming of stations</b>
+In the station information file flags (integer values) may be specified for
+every entry. Following the default values the program CHGHED will handle
+all entries with the flag <tt>001</tt>.
+<br>
+In this field you can specify the flag or a list of flags to be used by
+the program CHGHED for the "Type 001: Renaming of stations" changes.
+Select the flag <tt>999</tt> make all entries from this section of the station
+information file active.
+
+<p><i>Default value:</i> <tt>999</tt>
+
+<a name="FLG002" default="999"></a>
+<p><b>Type 002: Station information</b>
+In the station information file flags (integer values) may be specified for
+every entry. Following the default values the program CHGHED will handle
+all entries with the flag <tt>001</tt>.
+<br>
+In this field you can specify the flag or a list of flags to be used by
+the program CHGHED for the "Type 002: Station information" changes.
+Select the flag <tt>999</tt> make all entries from this section of the station
+information file active.
+
+<p><i>Default value:</i> <tt>999</tt>
+-->
+
+<p><hr>
+
+<p><b>CHGHED 2.1: Changes in Observation Header File (1)</b>
+
+<a name="OPTTIT" default="0"></a>
+<a name="OBSTITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+If the box is checked the title line of the selected observation header
+files will be updated to the new title line given in the input field.
+
+<a name="OPTCMP" default="0"></a>
+<a name="OPTSTA" default="NONE"></a>
+<a name="OPTREC" default="NONE"></a>
+<a name="OPTANT" default="NONE"></a>
+<a name="OPTOBS" default="NONE"></a>
+<a name="OPTSES" default="0"></a>
+<a name="OPTSFL" default="0"></a>
+<a name="OPTRCN" default="NONE"></a>
+<a name="OPTANN" default="NONE"></a>
+<a name="OPTRMK" default="0"></a>
+<a name="OPTINT" default="0"></a>
+<a name="OPTEXN" default="NONE"></a>
+<a name="OPTEXE" default="NONE"></a>
+<a name="OPTEXU" default="NONE"></a>
+<p><b>OTHER CHANGES:</b>
+The observation header files contain station dependent and station independent
+information.
+For the station independent information you have to mark the corresponding
+checkbox to activate the item for modification.
+For station dependent options the following settings are allowed:
+<ul>
+<li><b>NONE</b>: This header item remains unchanged.
+<li><b>1ST</b>: Only the information belonging to the first station in the zero
+         or single difference file(s) is modified.
+<li><b>2ND</b>: Only the information belonging to the second station in the
+         single difference file(s) is modified. This option has no effect
+         on zero difference files.
+<li><b>BOTH</b>: This header item is changed for the first station (zero and
+         single difference files) and for the second station (single
+         difference files).
+</ul>
+Changes are done if the <b>From</b> field exactly matches the value in the
+observation file or if the <b>From</b> field is empty. In these cases the value
+in the <b>To</b> field is written into the file headers.
+
+<a name="CMPNAM_O" default=""></a>
+<a name="CMPNAM_N" default=""></a>
+<p><b>Campaign name:</b>
+Fields to change the campaign name.
+
+<a name="STANAM_O" default=""></a>
+<a name="STANAM_N" default=""></a>
+<p><b>Station name:</b>
+Fields to change the station name.
+<br>
+<b>BOTH</b> (in <b>Option</b> field) together with ANY (empty <b>From</b> field)
+is not allowed for this entry.
+
+<a name="RECNAM_O" default=""></a>
+<a name="RECNAM_N" default=""></a>
+<p><b>Receiver type:</b>
+Fields to change the receiver type. Keep in mind to make only changes
+that are consistent with your antenna phase center correction file
+(see, e.g., <a href="/$X/GEN/PHAS_IGS.REL">PHAS_IGS.REL</a>). Standard
+receiver and antenna names as defined by the IGS may be found in
+<a href="/$X/GEN/RCVR_ANT.TAB">RCVR_ANT.TAB</a> at the ftp server
+of the IGS Central Bureau.
+
+<a name="ANTNAM_O" default=""></a>
+<a name="ANTNAM_N" default=""></a>
+<p><b>Antenna type:</b>
+Fields to change the antenna type. See also the description of the
+previous option.
+
+<a name="OBSNAM_O" default=""></a>
+<a name="OBSNAM_N" default=""></a>
+<p><b>Operator name:</b>
+Change of the operator name.
+<br>
+<b>BOTH</b> (in <b>Option</b> field) together with ANY (empty <b>From</b> field)
+is not allowed for this entry.
+
+<a name="SESNAM_O" default=""></a>
+<a name="SESNAM_N" default=""></a>
+<p><b>Session ident.:</b>
+Change of the session identification. Starting with version 4.0 of the
+software the session identification has a length of 4 characters.
+Both, numbers and characters may be used. The naming of the sessions
+should be consistent with the <a href="SESSIONS.HLP">session table</a>
+of the campaign.
+
+<a name="SFLNAM_O" default=""></a>
+<a name="SFLNAM_N" default=""></a>
+<p><b>Sess. file char.:</b>
+Change of the session file characterization. Usually this is the fourth
+character for the session identifier.
+Subsequent files of the same session might have different characters.
+<br>
+Normally there should be just one file per station (or
+baseline) and session. This can be achieved with the RINEX file
+concatenation program <a href="PGMLST.HLP#CCRINEXO">CCRINEXO</a>.
+
+<p><hr>
+
+<p><b>CHGHED 2.2: Changes in Observation Header File (2)</b>
+
+<a name="RECNUM_O" default=""></a>
+<a name="RECNUM_N" default=""></a>
+<p><b>Receiver number:</b>
+Change of the receiver serial number. Receiver serial numbers have to
+be integer.
+<br>
+<b>BOTH</b> (in <b>Option</b> field) together with ANY (empty <b>From</b> field)
+is not allowed for this entry.
+
+<a name="ANTNUM_O" default=""></a>
+<a name="ANTNUM_N" default=""></a>
+<p><b>Antenna number:</b>
+Change of the antenna serial number. Antenna serial numbers have to be
+integers.
+<br>
+<b>BOTH</b> (in <b>Option</b> field) together with ANY (empty <b>From</b> field)
+is not allowed for this entry.
+
+<a name="REMARK_O" default=""></a>
+<a name="REMARK_N" default=""></a>
+<p><b>Remark number:</b>
+Change of the remark number in the observation file(s). The remark
+is an integer.
+
+<a name="OBSINT_O" default=""></a>
+<a name="OBSINT_N" default=""></a>
+<p><b>Observation interval:</b>
+Change of the nominal observation interval.
+
+<p><i>Caution:</i>
+This option should be used
+with care. If you change the observation interval to a value smaller
+than the actual sampling in the file, unpredictable results may be
+produced by processing programs! The observation interval is given in
+integer seconds. It is used for the numbering of the observations which
+has to be unique.
+
+<a name="EXENTN_O" default=""></a>
+<a name="EXENTN_N" default=""></a>
+<p><b>Pos. eccentr. north:</b>
+Change of the north component of the antenna positioning eccentricity,
+the vector between antenna reference point (see <a href="/$X/GEN/ANTENNA.GRA">
+ANTENNA.GRA</a>)
+and the station marker. The unit is meter. Values may be given to
+the tenth of a millimeter (e.g., 0.0023).
+
+<a name="EXENTE_O" default=""></a>
+<a name="EXENTE_N" default=""></a>
+<p><b>Pos. eccentr. east:</b>
+Change of the east component of the antenna positioning eccentricity.
+See remarks on the north component above.
+
+<a name="EXENTU_O" default=""></a>
+<a name="EXENTU_N" default=""></a>
+<p><b>Pos. eccentr. up:</b>
+Change of the antenna height. Unit is meter. Values may be given to
+the tenth of a millimeter. The antenna height is defined as the height
+difference between the antenna reference point (ARP) and the marker.
+
+<p><hr>
+
+</body>
+</html>

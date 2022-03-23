@@ -1,0 +1,76 @@
+      MODULE s_WGTSAT
+      CONTAINS
+
+C*
+      SUBROUTINE WGTSAT(NWGT,SATWGT,TIMWGT,WGTWGT,TOBS,NSASES,SATSES,
+     1                  COVSAT)
+CC
+CC NAME       :  WGTSAT
+CC
+CC PURPOSE    :  SET SATELLITE SPECIFIC SIGMAS INTO ARRAY COVSAT
+CC
+CC PARAMETERS :
+CC         IN :  NWGT   : NUMBER OF INTERVALS WITH WEIGHTED     I*4
+CC                        SATELLITES
+CC               SATWGT(I),I=1,..,NWGT: NUMBERS OF WEIGHTED     I*4
+CC                        SATELLITES
+CC               TIMWGT(K,I),K=1,2,I=1,..,NWGT: START AND END   R*8
+CC                        OF TIME INTERVAL WITH WEIGHTED
+CC                        SATELLITES IN MODIFIED JULIAN DATE
+CC               WGTWGT(I),I=1,..,NWGT: SATELLITE SPECIFIC      R*8
+CC                        SIGMA
+CC               TOBS   : OBSERVATION TIME (MJD)                R*8
+CC               NSASES : NUMBER OF SATELLITES IN SESSION       I*4
+CC               SATSES(I),I=1,..,NSASES: SATELLITE NUMBERS IN  I*4
+CC                        SESSION
+CC               COVSAT(I),I=1,..,NSASES: SIGMA**2 FOR SPECIAL  R*8
+CC                        SATELLITES (COMPARED TO 1.D0)
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  3.4
+CC
+CC CREATED    :  92/07/27
+CC
+CC CHANGES    :  28-JAN-03 : RS: COVSAT REAL*4 -> REAL*8
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1992     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 ISASES, IWGT  , NSASES, NWGT
+C
+      REAL*8    TOBS
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      REAL*8       TIMWGT(2,*),WGTWGT(*)
+      REAL*8       COVSAT(*)
+      INTEGER*4    SATWGT(*),SATSES(*)
+C
+C SET SATELLITE SPECIFIC SIGMAS INTO ARRAY "COVSAT" FOR EPOCH "TOBS"
+C ------------------------------------------------------------------
+      DO 20 ISASES=1,NSASES
+        DO 10 IWGT=1,NWGT
+          IF (SATWGT(IWGT).EQ.SATSES(ISASES) .AND.
+     1        TIMWGT(1,IWGT).LE.TOBS         .AND.
+     2        TIMWGT(2,IWGT).GT.TOBS) THEN
+            COVSAT(ISASES)=1.D0/WGTWGT(IWGT)
+            GOTO 20
+          ENDIF
+10      CONTINUE
+        COVSAT(ISASES)=1.0
+20    CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

@@ -1,0 +1,19 @@
+SLR range biases and center-of-mass values                                   05-Oct-2011 12:56
+----------------------------------------------------------------------------------------------
+
+Format Version:  1.00
+
+TYP  Station name           Sat  WL  Value (m)    Sigma (m)    Valid from           to                   Flag    Remark
+***  ********************  ****  **  ****.******  ****.******  *******************  *******************  ******  ***********************
+COM  7840 13212S001         951         0.245        0.000000                                            apri    CoM table, 2008-10-23
+COM                         951         0.251        0.000000                                            apri    Default value         
+COM  7840 13212S001         952         0.245        0.000000                                            apri    CoM table, 2008-10-23
+COM                         952         0.251        0.000000                                            apri    Default value         
+COM                         953         0.576        0.000000                                            apri    Default value         
+COM                         954         0.576        0.000000                                            apri    Default value         
+RGB  1873 12337S003              R1    -0.270000     0.000000  1995-01-01 00:00:00  2000-01-01 00:00:00  apri    ILRS data handling     
+RGB  7210 40445M001              R1    -0.011000     0.000000  1994-01-21 00:00:00  2000-01-01 00:00:00  apri    ILRS data handling     
+RGB  7249 21601S004              R1     0.020000     0.000000  2001-01-20 00:00:00                       apri    ILRS data handling     
+RGB  7811 12205S001              R1    -0.030000     0.000000  1998-05-19 00:00:00  2002-05-06 00:00:00  apri    ILRS data handling     
+RGB  7820 21609S002              R1    -0.020000     0.000000  2000-10-18 00:00:00                       apri    ILRS data handling     
+RGB  7941 12734S008              R1    -0.025000     0.003000  2007-08-30 00:00:00  2007-10-22 14:00:00  apri    engineering bias       

@@ -1,0 +1,875 @@
+<html>
+<body>
+
+<center>
+<b>TRANSFER RINEX OBSERVATION FILES TO BERNESE FORMAT</b>
+<p>Program: RXOBV3
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="DELETE_FILES"  default="%AUXFIL%\n%AUXCOD%\n%AUXPHS%"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+This program converts the RINEX observation files into the Bernese
+observation file format. Numerous checks for the content of
+the RINEX header information are implemented. The entries for the Bernese
+observation header files may be translated to standardized values if necessary.
+
+<p><hr>
+
+<p><b>RXOBV3 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RADIO_O" default="1"></a>
+<a name="RADIO_S" default="0"></a>
+<a name="RXOFILE" default="????$S+0"></a>
+<a name="SMTFILE" default="????$S+0"></a>
+<p><b>INPUT FILES</b>
+<p><b>Filename:</b>
+Select the RINEX observation files to be converted to Bernese.
+A list of files may be processed in one program run. For each
+RINEX file a Bernese zero difference code and/or a zero difference phase
+observation file may be created. You may cut the observations to a
+time window specified in a separate panel below
+("RXOBV3 3: Observation Window").
+If you would like to concatenate or split RINEX files
+use the program <a href="PGMLST.HLP#CCRINEXO">CCRINEXO</a> before
+transferring the data into the Bernese observation file format.
+<br>
+Select the type of RINEX observation files you want to transfer
+into Bernese observation file format and specify the filenames
+in the corresponding input field:
+<ul>
+<li>You can transfer original RINEX observation files. The default
+    extension is <tt>yyO</tt> where yy is the two digit year of the current
+    session. Select the current session in the dialogue
+    <a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>.
+<li>If you have preprocessed your RINEX observation files using the program
+    <a href="PGMLST.HLP#RNXSMT">RNXSMT</a> you have to import
+    smoothed RINEX observation files (default extension <tt>SMT</tt>).
+</ul>
+
+<p><i>Default value:</i> <tt>????$S+0</tt>
+
+<a name="STAINFO" default=""></a>
+<p><b>Station information file:</b>
+This file contains station specific information.
+It is used to verify RINEX header information such as station names,
+receiver and antenna names, antenna heights etc., and to adapt the station
+information records to well defined names before writing to the Bernese
+observation header files. For the consistency checks the <tt>TYPE 001:
+RENAMING OF STATIONS</tt>, <tt>TYPE 002: STATION INFORMATION</tt>, and
+<tt>TYPE 005: HANDLING STATION TYPES</tt> sections are used. In addition the
+section <tt>TYPE 003: HANDLING OF STATION PROBLEMS</tt> is used to suppress
+writing of Bernese observation files if a station is flagged as bad in
+the appropriate time window.
+<br>
+If no file is specified the verification is skipped. The values from
+the RINEX header are written as such into the Bernese observation files.
+You should do this only if you are very sure that the entries in the RINEX
+header are correct.
+<br>
+The same file may be used to adapt the station information record in the
+program <a href="PGMLST.HLP#CHGHED">CHGHED</a> (for existing Bernese
+observation files) and <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a> (for
+existing Bernese normal equation files).
+
+<p><a href="/$X/DOC/EXAMPLE.STA">Example</a>
+
+<br><br>
+
+<a name="RADIO_G" default="1"></a>
+<a name="SAVCOD" default="1"></a>
+<a name="SAVPHS" default="1"></a>
+<a name="RADIO_R" default="0"></a>
+<p><b>RESULT FILES</b>
+<p><b>Measurement types to save:</b>
+Using this group of buttons you specify the types of Bernese observation
+files which RXOBV3 will write. Either GPS/GLONASS observations (<b>Code</b>
+and/or <b>Phase</b>) or <b>Range</b>s (SLR) can be saved.
+<br>
+In all cases the names of the Bernese observation files will be generated
+automatically using the 4 character entries in the station name abbreviation
+table (specified in the field "Abbreviation table" under "GENERAL INPUT FILES"
+below) for the corresponding station and the 4 character session ID (see
+option "SESSION IDENTIFIER" below).
+
+<p><i>Default value:</i> Usually you will store code and phase data.
+
+<a name="COORD" default=""></a>
+<p><b>Update coordinates:</b>
+If you enter a coordinate filename here the site coordinates in the header of
+the RINEX observation files will be added for stations not contained
+in this coordinate file. If you do not have any good a priori
+coordinates at the beginning of the processing of a campaign you may use this
+option to build up a coordinate file containing the RINEX coordinates
+(coordinate flag <tt>R</tt>). You may specify the name of an existing or of a new
+coordinate file.
+<br>
+If the field is left blank no coordinate file will be updated.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<p><i>Default value:</i> blank
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="RXOBV3"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>RXOBV3 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT. is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p><i>Remark:</i>
+If the information record for a satellite is missing in
+this file for the measurement epoch the corresponding observations are
+not transferred into the Bernese observation files. A warning message is
+issued in that case.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems concerning modeling.
+It is used for exclusion of misbehaving satellites
+(and for orbit arc splitting).
+It may also contain (mean) epochs of GPS repositioning events.
+
+<p><i>Note:</i>
+Corresponding year-specific files are maintained by AIUB/CODE.
+You can get the latest version of the current file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SAT_2003.CRX">$X/GEN/SAT_2003.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<a name="RECEIVR" default="RECEIVER."></a>
+<p><b>Receiver information:</b>
+This file contains in essence the code measurement types for a list of
+receivers. These specifications are relevant when considering so-called
+differential (<nobr>P1-P2</nobr> or <nobr>P1-C1</nobr>) code biases.
+
+<p>Example: <a href="/$X/GEN/RECEIVER.">$X/GEN/RECEIVER.</a>
+
+<a name="PHASECC" default="PCV.I08"></a>
+<p><b>Phase center offsets:</b>
+This file contains receiver antenna phase center offsets and optionally
+elevation-dependent phase center patterns.
+In addition, the file may contain satellite-specific antenna
+phase center patterns (dependent on nadir angle) as well as offset values.
+Corresponding offset (correction) values, however, are not yet considered
+by the software.
+The satellite antenna offset values applied correspond to
+those given in <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>.
+<br>
+You have to modify this file when you use a new antenna type
+or when you wish to consider your own PCV calibrations.
+The program <a href="PGMLST.HLP#ATX2PCV">ATX2PCV</a> allows to convert
+PCV information given in ANTEX format into Bernese-formatted PCV tables.
+
+<p><i>Important note:</i>
+The file $X/GEN/PHAS_IGS.REL contains PCV values
+for most of the receiver antenna types commonly used
+within IGS (and EUREF).
+These PCV values are addressed as 'relative' values
+as they are generally referred to
+a specific receiver antenna type (AOAD/M_T).
+For this reference antenna type
+(as well as implicitly all GNSS antenna types),
+PCV patterns are assumed to be nonexistent.
+Sooner or later, it will become common to consider 'absolutely' calibrated
+receiver and satellite antenna PCV values.
+A corresponding file ($X/GEN/PHAS_IGS.ABS) will be made available
+as soon as this is the case.
+<br>
+RXOBV3 uses this file only to check that the antenna names written
+to the Bernese observation file headers exist in this file. See
+option "Check phase center file for antenna type" in the section
+"ADDITIONAL VERIFICATION" below for more details.
+
+<p><i>Remark:</i>
+The availability of the records for the satellites in the
+"Phase center offsets" file is not checked.
+
+<p>Example:<a href="/$X/GEN/PCV.I08">$X/GEN/PCV.I08</a>.
+
+<a name="GPSUTC" default="GPSUTC."></a>
+<p><b>GPS-UTC seconds:</b>
+Select the file with GPS-UTC values here. You have to update this file each
+time a leap second is introduced.
+
+<p>Example: <a href="/$X/GEN/GPSUTC.">$X/GEN/GPSUTC.</a>
+
+<a name="ABBREV" default="ABBREV">
+<p><b>Abbreviation table:</b></a>
+This file contains a station name abbreviation table containing
+<nobr>4-character</nobr>
+and <nobr>2-character</nobr> abbreviations for a list of station names.
+The <nobr>4-character</nobr> station name abbreviations are used to generate
+the zero-difference observation filenames in RXOBV3.
+
+<p><i>Remark:</i>
+The names of the observation files in Bernese format are
+generated automatically. Therefore, please take care, that all stations
+you want to process have different <nobr>4-character</nobr> abbreviations.
+Otherwise the observation files may be overwritten.
+
+<p><a href="/$X/DOC/EXAMPLE.ABB">Example</a>
+
+<a name="FRQINFO" default="">
+<p><b>Frequency information:</b></a>
+This file contains the frequency information (frequency value, measurement
+type, frequency number) for all observation types. Entries are specified by the
+measurement type, the satellite or station name, and the duration of validity.
+Currently, it is used for range measurements (SLR) only.
+The frequency value is needed for the MARINI-MURRAY troposphere model,
+used for SLR data analysis.
+
+<p>Example: <a href="/$X/GEN/FREQINFO.FRQ">$X/GEN/FREQINFO.FRQ</a>
+
+<br><br>
+
+<a name="AUXFIL" default="RXOBV3$J"></a>
+<a name="AUXCOD" default="RXOBV3$J"></a>
+<a name="AUXPHS" default="RXOBV3$J"></a><p>
+<p><b>TEMPORARY FILES</b>
+<p>
+Enter the names of the scratch files used by this program. The scratch files
+need to be named differently for different programs running
+simultaneously. This may be achieved, e.g., by adding the job ID
+<tt>$J</tt> to the program name (define the job ID in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>).
+
+<p><i>Default values:</i> <tt>RXOBV3$J</tt>
+
+<p><hr>
+
+<p><b>RXOBV3 2: Input Options 1</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be included into the Bernese observation file
+headers. The title should characterize the program run by, e.g., giving
+the most important options used and the session.
+
+<br><br>
+
+<a name="SATSYS" default="ALL"></a>
+<p><b>SATELLITE SYSTEM SELECTION</b>
+<p><b>Satellite system to be considered:</b>
+Observation data from one specific (<b>GPS</b>, <b>GLONASS</b>, <b>GALILEO</b>),
+several (<b>GPS/GAL</b>, <b>GPS/GLO</b>, <b>GLO/GAL</b>) or <b>ALL</b> satellite
+systems may be selected here.
+
+<p><i>Default value:</i> <tt>ALL</tt>
+
+<br><br>
+
+<a name="STANAM" default="FILE_NAME"></a>
+<p><b>STATION NAMES</b>
+<p><b>Gather station names from:</b>
+The station names can be gathered from different sources. These station names
+either will be stored as such in the Bernese observation files or - if a
+"Station information file" was specified in the "INPUT FILES" section - will
+be used as basis for the renaming/consistency check procedure.
+
+<p>You have four choices:
+<ul>
+<li><b>MARKER_NAME:</b> The <tt>MARKER&nbsp;NAME</tt> entry of the RINEX
+    observation file is used as station name.
+<li><b>MARKER_NUMBER:</b> The <tt>MARKER&nbsp;NUMBER</tt> entry of the RINEX
+    observation file is used as station name.
+<li><b>MARKER_DOMES:</b> The <tt>MARKER&nbsp;NAME</tt> and the
+    <tt>MARKER&nbsp;NUMBER</tt> entry of the RINEX observation file is
+    combined to get a station name
+    according to IGS conventions: The first four characters of the
+    <tt>MARKER&nbsp;NAME</tt> and the first nine characters of the
+    <tt>MARKER NUMBER</tt>
+    (assuming a Domes number) are concatenate to get names of the form
+    <tt>ZIMM&nbsp;14001M004</tt>.
+<li><b>FILE_NAME:</b> The first four characters of the RINEX observation
+    filename will be used as station name.
+</ul>
+The best choice for you depends on the convention adopted for your campaign.
+For the transfer of RINEX observation files from IGS we propose to use
+"FILE_NAME" if you have specified a "Station information file" in the "INPUT
+FILES" section.
+
+<p><i>Default value:</i> <tt>FILE_NAME</tt> for processing RINEX observation
+files from IGS.
+
+<a name="ABBUPD" default="UPDATE"></a>
+<p><b>Action if station not in abbreviation list:</b>
+To generate the filenames the program uses the <nobr>4-character</nobr> station
+abbreviations given in the abbreviation table (field "Abbreviation table"
+under "GENERAL INPUT FILES"). You have three choices to handle the case that a
+station is missing in this file:
+<ul>
+<li><b>ERROR</b>: The program will stop with an error if the station name could
+    not be found in the station abbreviation table.
+<li><b>UPDATE</b>: The program will automatically create new
+    <nobr>4-character</nobr> and <nobr>2-character</nobr> abbreviations from the
+    station name if it could not be found in the abbreviation table.
+    Only upper case letters and digits are used to generate new and unique
+    abbreviations.
+<li><b>UPDATE+</b>: The program will automatically create new
+    <nobr>4-character</nobr> and <nobr>2-character</nobr> abbreviations from the
+    station name if it could not be found in the abbreviation table.
+    Upper case and lower case characters and digits are used to generate new and
+    unique abbreviations.
+    <br>
+    <i>Remark for WINDOWS:</i>
+    The option is only reasonable
+    if the operating system allows for case sensitive filenames. This
+    is <b>not</b> the case for WINDOWS platforms.
+</ul>
+
+<p><i>Remark:</i>
+Be careful when selecting either UPDATE or UPDATE+: The program
+will automatically update the abbreviation table on your hard disk after
+creating a new abbreviation set. If more than one program RXOBV3 is running
+in the same campaign at the same time interactions may be possible!
+
+<p><i>Default value:</i> <tt>UPDATE</tt>
+
+<br><br>
+
+<a name="SESSID" default="$S+0"></a>
+<p><b>SESSION IDENTIFIER</b>
+<p><b>Session ID used for Bernese observation files:</b>
+Select the session ID (4 characters) which should be used for the naming of
+the Bernese observation files as well as written into the Bernese observation
+header files. This session ID must be defined in the
+<a href="SESSIONS.HLP">session table</a>. It is used later by the programs
+<a href="PGMLST.HLP#SNGDIF">SNGDIF</a> and
+<a href="PGMLST.HLP#GPSEST">GPSEST</a> to identify observation files with
+simultaneous observations for building baselines and for setting up the
+correlations between stations/baselines respectively.
+<br>
+If you leave the field blank the session the Bernese observation files
+belong to will be determined automatically. If you have a
+RINEX observation file which covers - after being cut to the observation window
+specified in panel "RXOBV3 3: Observation Window" - more than one session it is
+recommended to specify the session explicitly for the naming of the Bernese
+observation files.
+
+<p><i>Default value:</i>  <tt>$S+0</tt>
+
+<br><br>
+
+<a name="SAMPL" default="30"></a>
+<p><b>DATA SAMPLING</b>
+<p><b>Sampling interval:</b>
+Select the sampling rate in seconds of the observations in the Bernese
+observation files. The default sampling rate within the IGS is 30&nbsp;seconds but 
+there may be stations which have a higher sampling rate (e.g., 10&nbsp;seconds). 
+<br>
+Leave the input field empty or set the value to <tt>0</tt> if all
+observations from the RINEX file should be transferred to the Bernese
+observation files.
+
+<p><i>Default value:</i> <tt>30</tt>&nbsp;seconds
+
+<a name="SOFFSET" default="0"></a>
+<p><b>Sampling offset to full minute:</b>
+Select the sampling offset to the full minute in seconds. The sampling rate
+selected in the previous option "Sampling interval" is counted starting with
+the offset you select here. E.g., if you sample your original 10&nbsp;sec data
+at 60&nbsp;seconds, you might specify an offset of 10&nbsp;seconds to the full
+minute. The observation epochs of the resulting Bernese observation file will
+then be 10&nbsp;sec, 70&nbsp;sec, 130&nbsp;sec, ... .
+
+<p><i>Default value:</i> <tt>0</tt>
+
+<p><hr>
+
+<p><b>RXOBV3 3: Observation Window</b>
+
+<a name="RADIO_0" default="0"></a>
+<p><b>OBSERVATION WINDOW</b>
+<p>
+This panel allows to define a time window. If you specify a window only
+observations falling into this time window will be processed.
+<br>
+You may choose one of the following options:
+
+<p><b>Take all observations:</b> Select this option to convert all observations
+available in the RINEX files into Bernese format.
+
+<a name="RADIO_1" default="1"></a>
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the observation window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="RADIO_2" default="0"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the observation window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: <tt>00&nbsp;00&nbsp;00</tt>, end date: <tt>$YMD_STR+0</tt>,
+end time: <tt>23&nbsp;59&nbsp;59</tt>
+
+<p><hr>
+
+<p><b>RXOBV3 4: Input Options 2 </b>
+
+<a name="MINSIG" default="1"></a>
+<p><b>SIGNAL STRENGTH REQUIREMENTS</b>
+<p><b>Minimum signal strength:</b>
+This option can be used to eliminate data with a low signal/noise
+ratio. According to the RINEX format definition the signal/noise
+ratio is mapped into values from 0 to 9. By setting this option, e.g.,
+to 1, you can remove any data with signal/noise values of 0.
+Some RINEX converters use a value of 0 to mark bad observations.
+
+<p><i>Remark:</i>
+When converting observations cleaned by the program
+<a href="PGMLST.HLP#RNXSMT">RNXSMT</a> set the minimum signal strength to
+2 to eliminate bad observations.
+
+<p><i>Default value:</i> <tt>1</tt> for original RINEX files or <tt>2</tt>
+for smoothed RINEX files
+
+<a name="ACCEPT0" default="1"></a>
+<p><b>Accept signal strength = 0:</b>
+In addition to the previous option you may specify whether data with a
+signal strength of 0 should be kept. Some RINEX converters do not provide
+the signal strength.
+
+<p><i>Default value:</i> marked for original RINEX files or unmarked
+for smoothed RINEX files
+
+<a name="ACCEPTCS" default="0"></a>
+<p><b>Accept cycle slip flags from RINEX:</b>
+This option is available for processing zero difference phase
+observations. If the RINEX files are cleaned, e.g., by the program
+<a href="PGMLST.HLP#RNXSMT">RNXSMT</a>, then the cycle slips may
+safely be accepted. In this case an ambiguity parameter will be
+set up in the phase zero-difference header file for each flag.
+The cycle slip flags from original RINEX files should <b>not</b>
+be accepted. There may be large numbers of flags in the RINEX
+files which may cause problems with array dimensions.
+
+<p><i>Default value:</i> unmarked for original RINEX files or marked
+for smoothed RINEX files
+
+<br><br>
+
+<a name="REQEPO" default="10"></a>
+<p><b>MINIMUM OBSERVATION NUMBER</b>
+<p><b>Minimum number of epochs requested per file:</b>
+To exclude stations with a small number of epochs (considering the sampling
+specified above) you may specify a minimum number of epochs. If the
+Bernese observation file would contain less epochs than specified the data
+are not imported into Bernese format. An empty input field means that all
+observation files are accepted.
+
+<p><i>Default value:</i> <tt>10&nbsp;epochs</tt>
+
+<br><br>
+
+<a name="RADOME" default="1"></a>
+<p><b>OPTIONS CONCERNING ANTENNAS</b>
+<p><b>Consider radome code of the antennas:</b>
+According to the IGS standards the radome code is given in the RINEX
+observation files in
+characters 17 to 20 of the antenna name. You can specify whether you want to
+use the radome code or not. If the box is unmarked the characters 17 to 20 of
+the antenna name from RINEX are set to blank.
+
+<p><i>Remark:</i>
+Be sure to use this option and the entries in the "Station
+information file" as well as in the "Phase center offsets" file in a
+consistent way.
+
+<p><i>Default value:</i> marked
+
+<a name="CORRAD" default="0"></a>
+<p><b>Correct position of radome code:</b>
+You may activate this option to handle incorrectly positioned radome codes in
+IGS RINEX data. Note that this option is independent of the above setting.
+
+<p><i>Default value:</i> unmarked
+
+<a name="DOANTVER" default="1"></a>
+<a name="ANTVER" default="WARNING"></a>
+<p><b>Check phase center file for antenna type:</b>
+This option allows you to verify the content of the "Phase center offsets"
+file specified in "GENERAL INPUT FILES" above. The program checks whether the
+antenna type specified in the RINEX file and translated according to
+the "Station information file" is contained in that file. You may select one
+of the following actions to handle the case that the antenna type
+is not found:
+<ul>
+<li><b>WARNING:</b> The program issues a warning message and continues
+        execution.</li>
+<li><b>SKIP:</b> The program issues a warning message and continues execution.
+        The RINEX file causing the message is <b>not</b> converted into Bernese
+        format.</li>
+<li><b>ERROR:</b> The program issues an error message and stops execution.</li>
+</ul>
+
+<p><i>Remark:</i>
+The availability of the records for the satellites in the
+"Phase center offsets" file is not checked.
+
+<p><i>Default value:</i> <tt>WARNING</tt> for manual processing,
+<tt>SKIP</tt> for a robust automated processing
+
+<br><br>
+
+<a name="EPOFLAG" default="SKIP"></a>
+<p><b>EVENT FLAG HANDLING</b>
+<p><b>What to do in case of event flags:</b>
+RINEX observation files may contain event flags. A flag 4 means that an
+additional RINEX header (or a part of a RINEX header) follows. All other
+flags (e.g., start moving antenna, or new site occupation) are not handled
+by RXOBV3. If such an event flag is found in the input RINEX file the selection
+for this option specifies:
+<ul>
+<li><b>WARNING:</b> to ignore the record of the epoch flag and to continue
+        importing the observations from the RINEX file.</li>
+<li><b>SKIP:</b> to skip the RINEX file (no Bernese observation files are
+        written) and to continue importing the observations from the next
+        RINEX input file in the list.</li>
+<li><b>ERROR:</b> to stop the program with an error.</li>
+</ul>
+The program issues a warning resp. an error message in any case.
+
+<p><i>Default value:</i> <tt>SKIP</tt>
+
+<!-- This panel will not be displayed
+<br><br>
+
+<a name="STAFLG" default="0"></a>
+<p><b>FLAGS CONCERNING STATION INFORMATION FILE</b>
+<p><b>Consider flags:</b>
+
+<p><hr>
+
+<p><b>RXOBV3 4.1: Flags Concerning Station Information File</b>
+
+<a name="FLG001" default="999"></a>
+<a name="FLG002" default="999"></a>
+<a name="FLG003" default="999"></a>
+<a name="FLG005" default="999"></a>
+<p><b>FLAGS TO BE CONSIDERED</b>
+<p><b>Type 001: Renaming of stations</b>
+<p><b>Type 002: Station information</b>
+<p><b>Type 003: Station problems</b>
+<p><b>Type 005: Marker type</b>
+-->
+
+<p><hr>
+
+<p><b>RXOBV3 5.1: Check Content of RINEX Header 1</b>
+
+<a name="TSTANAM" default="WARNING"></a>
+<a name="TRYFILE" default="1"></a>
+<p><b>ACTIONS IN CASE OF INCONSISTENCIES</b>
+<p>
+The program may compare the header information in the RINEX observation
+files and the entries in the "Station information file" specified in the
+"INPUT FILES" section. You may select one of the following actions to handle
+the case that these entries are not consistent. This is in particular helpful
+for automated processing:
+<ul>
+<li><b>NO_CHECK:</b> Any entry in the actual RINEX file will be accepted
+        without error or warning. When selecting this option you have to be
+        sure that the information in the RINEX header is correct.</li>
+<li><b>WARNING:</b> Any entry in the actual RINEX file will be accepted. If
+        the entry differs from the expected value a warning message is
+        issued. Check the warning messages in the "Error messages" file
+        carefully in order to identify problems.
+<li><b>SKIP:</b> If the entry in the actual RINEX file differs from the
+        expected value a warning message is issued and the corresponding RINEX
+        file is NOT converted into Bernese format. This is a very safe setting
+        to eliminate stations with potential problems (e.g., antenna change) in
+        an automatic processing environment. </li>
+<li><b>ERROR:</b> If the entry in the actual RINEX file differs from the
+        expected value an error message is issued and the program stops.</li>
+</ul>
+These four options may be selected independently for "Station name",
+"Receiver/antenna type", "Receiver/antenna number", "Antenna position", and "Marker
+type", see below. The program provides in its output an extended summary on
+station renaming and station information. Each line of the summary tables
+contain a string <tt>#OK</tt> if no problem was identified, a string
+<tt>#Problem</tt> if a problem was found, or <tt>#Verify</tt> if a
+verification of an information failed (see field "ADDITIONAL VERIFICATION"
+below).
+The hash strings may be used for easy extraction of information from the
+program output file.
+
+<p><b>Station name:</b>
+The station name (see your setting in option "Gather station names from")
+is compared with the old station name in the
+<tt>TYPE 001: RENAMING OF STATIONS</tt> section of the "Station information
+file".
+Wildcards are allowed here.
+If there is no match within the appropriate time window this option specifies
+the action of the program (see description above).
+<br>
+Even if this option is set to <b>NO_CHECK</b> the renaming of stations from the
+<tt>TYPE 001: RENAMING OF STATIONS</tt> section of the "Station information
+file" are performed.
+All following checks refer to the new name of the station which will be
+written also to the Bernese observation files.
+
+<p><i>Default value:</i> <tt>WARNING</tt> for manual processing,
+<tt>SKIP</tt> for a robust automated processing
+
+<p><b>Try also filename:</b>
+If this option is activated and the station name consistency check failed
+the 4 character ID from the RINEX observation file is used as station name
+and the procedure described above is repeated. Only if also this second
+check fails the action specified for the inconsistency of the "Station name"
+is executed.
+<br>
+This option makes no sense if the option "Gather station names from" is
+already set to <b>FILE_NAME</b>.
+
+<p><i>Default value:</i> marked
+
+<a name="TANTTYP" default="WARNING"></a>
+<p><b>Receiver/antenna type:</b>
+The entries for the <tt>REC TYPE</tt> and <tt>ANT TYPE</tt> in the actual
+RINEX observation file are compared with the <tt>RECEIVER TYPE</tt> and
+<tt>ANTENNA TYPE</tt> in the
+<tt>TYPE 002: STATION INFORMATION</tt> section of the "Station information file"
+(wildcards allowed).
+The (new) station name and the time window are used to identify the correct
+entry.
+The option specifies the action of the program in case no entry is found
+(description above).
+
+<p><i>Default value:</i> <tt>WARNING</tt> for manual processing,
+<tt>SKIP</tt> for a robust automated processing
+
+<a name="TANTNUM" default="WARNING"></a>
+<p><b>Receiver/antenna number:</b>
+The entry for the <tt>REC #</tt> and <tt>ANT #</tt> in the actual RINEX
+observation file is compared with the corresponding values in the
+<tt>TYPE 002: STATION INFORMATION</tt> section of the "Station information
+file".
+The (new) station name and the time window are used to identify the correct
+entry.
+The option specifies the action of the program in case no entry is found
+(description above).
+
+<p><i>Default value:</i> <tt>WARNING</tt>
+
+<a name="TANTPOS" default="WARNING"></a>
+<p><b>Antenna position:</b>
+The entry for the <tt>ANTENNA: DELTA H/E/N</tt> in the actual RINEX
+observation file is compared with the <tt>NORTH</tt>, <tt>EAST</tt> and
+<tt>UP</tt> in the
+<tt>TYPE 002: STATION INFORMATION</tt> section of the "Station information
+file".
+The (new) station name and the time window are used to identify the correct
+entry.
+The option specifies the action of the program in case no entry is found
+(description above).
+
+<p><i>Default value:</i> <tt>WARNING</tt> for manual processing,
+<tt>SKIP</tt> for a robust automated processing
+
+<a name="TMRKTYP" default="WARNING"></a>
+<p><b>Marker type:</b>
+The entry for the <tt>MARKER TYPE</tt> (if present) in the actual RINEX
+observation file is compared with the marker type in the
+<tt>TYPE 005: HANDLING STATION TYPES</tt> section of the "Station
+information file".
+If the marker type is <tt>SPACEBORNE</tt> the availability of a corresponding
+entry for the station/LEO in the "Satellite information" file is checked.
+The option specifies the action of the program in case no entry is found
+(description above).
+
+<p><i>Default value:</i> <tt>WARNING</tt>
+
+<p><hr>
+
+<p><b>RXOBV3 5.2: Check Content of RINEX Header 2</b>
+
+<a name="DOSTAVER" default="1"></a>
+<a name="STAVER" default="MARKER_DOMES"></a>
+<p><b>ADDITIONAL VERIFICATION</b>
+<p>
+The following options may be used to perform additional verifications on
+station names and equipment in order to monitor the consistency of the
+information contained in the RINEX file headers. If a verification fails the
+corresponding line in the information summary provided in the program output
+will contain a string <tt>#Verify</tt>. The failure of a verification step has
+no effect on the execution of the program.
+
+<p><b>Verify station name/number using:</b>
+Enable this option if you want to verify the (new) station name with respect
+to the station name given in the header of the RINEX observation file. The
+station name may be
+compared to the
+<ul>
+<li><b>MARKER_NAME</b>:
+    The <tt>MARKER NAME</tt> entry of the RINEX observation file.
+<li><b>MARKER_NUMBER</b>:
+    The <tt>MARKER NUMBER</tt> entry of the RINEX observation file.
+<li><b>MARKER_DOMES</b>:
+    The <tt>MARKER NAME</tt> and the <tt>MARKER NUMBER</tt> entry of the RINEX
+    observation file is combined to get a station name according to IGS
+    conventions:
+    The first four characters of the <tt>MARKER NAME</tt> and the first nine
+    characters of the <tt>MARKER NUMBER</tt> (assuming a Domes number) are
+    concatenated to get names of the form <tt>ZIMM&nbsp;14001M004</tt>.
+</ul>
+The correct choice for you depends on the convention you adopted for your
+campaign.
+For the transfer of RINEX observation files from IGS we propose to verify with
+respect to the "MARKER_DOMES" entry.
+
+<p><i>Default value:</i> <tt>MARKER_DOMES</tt> for processing RINEX observation files from IGS
+
+<a name="RNXVER" default="1"></a>
+<p><b>Verify station name using RINEX filename:</b>
+Enable this option to verify the first four characters of the (new) station
+name with respect to the first four characters of the RINEX filename.
+<br>
+This convention applies for RINEX observation files from the IGS. It may
+not be true for your own campaign.
+
+<p><i>Default value:</i> marked for processing RINEX observation files from IGS
+
+<a name="DOFRQVER" default="1"</a>
+<a name="FRQVER" default="WARNING"</a>
+<p><b>Check frequency information file for frequency:</b>
+The program may compare the header information in the RINEX observation
+files and the entries in the "Frequency information" file specified in the
+"GENERAL INPUT FILES" section. You may select one of the following actions to
+handle the case that the frequency entries are not consistent. This is in
+particular helpful for automated processing:
+<ul>
+<li><b>WARNING:</b> Any entry in the actual RINEX file will be accepted. If
+        the frequency information entry differs from the expected value a
+        warning message is issued. Check the warning messages in the
+        "Error messages" file carefully in order to identify problems.
+<li><b>SKIP:</b> If the entry in the actual RINEX file differs from the
+        expected frequency value a warning message is issued and the corresponding RINEX
+        file is NOT converted into Bernese format. This is a very safe setting
+        to eliminate stations with potential problems in
+        an automatic processing environment. </li>
+<li><b>ERROR:</b> If the frequency information in the actual RINEX file differs from the
+        expected value an error message is issued and the program stops.</li>
+<li><b>UPDATE:</b> If there is no frequency entry for a station and the corresponding 
+        observation time the frequency information file will be updated. The new record 
+        will contain the station name, the frequency information and
+        the first observation epoch found in the RINEX file.</li>
+</ul>
+
+<p><i>Default value:</i> <tt>WARNING</tt>
+
+<br><br>
+
+<a name="RNXINFO" default=""></a>
+<p><b>HANDLING OF KNOWN INCONSISTENCIES</b>
+<p><b>Accepted station information:</b>
+If for a particular station a certain inconsistency regularly appears
+(e.g., misspelled receiver name or wrong antenna height in RINEX file)
+you may suppress the corresponding warning or error message by adding a
+line to a file containing the inconsistent values. If you specify the name
+of this station problem file in this field, the program compares RINEX
+entries not only with the content of the "Station information file" but
+also with the entries in this file.
+<br>
+The entries in this station problem file resemble the
+<tt>TYPE 002: STATION INFORMATION</tt> section of the station information
+file except that the flag and the station description columns are missing.
+Use <nobr><tt> *** UNDEFINED ***  </tt></nobr> (as indicated in the example
+file) to represent undefined values, i.e., values which should not be checked.
+
+<p><a href="/$X/DOC/EXAMPLE.CRX">Example</a>
+
+<p><hr>
+
+</body>
+</html>

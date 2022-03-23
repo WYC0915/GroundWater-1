@@ -1,0 +1,487 @@
+<html>
+<body>
+
+<center>
+<b>FORM CLUSTERS OF OBSERVATION FILES</b>
+<p>Program: MKCLUS
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+The program MKCLUS groups Bernese observation files into clusters. The
+output of the program are cluster files which may be used to process groups
+of files together. The cluster-wise processing of observations may be
+necessary if the number of stations is too large to allow for a processing
+of all of them in a single <a href="PGMLST.HLP#GPSEST">GPSEST</a> run.
+<br>
+Three basic scenarios are supported:
+<ol>
+<li>Form global clusters using zero difference observation files.
+    Each cluster may be used for generating an independent global solution.
+<li>Form regional clusters using zero difference observation files.
+    Stations located close together are assigned to the same cluster
+    allowing to take as much correlations into account as possible.
+<li>Form regional clusters using single difference observation files.
+    Baselines located close together are assigned to the same cluster
+    allowing to take as much correlations into account as possible.
+</ol>
+<br>
+With MKCLUS it is possible to select an optimum set of stations for a
+solution by requesting only one cluster with a defined number of stations.
+The cluster file may then be used, e.g., in program
+<a href="PGMLST.HLP#SNGDIF">SNGDIF</a> for baseline creation.
+<br>
+Several options to exclude stations (e.g., stations with too many
+ambiguities, too few observations, ...) are available for zero
+difference files only.
+
+<p><i>Remark:</i>
+Make sure to use reasonable settings (e.g.,
+it makes no sense to form 3 global clusters with 10 stations each).
+
+<p><hr>
+
+<p><b>MKCLUS 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RADIO_Z"  default="1"></a>
+<a name="PZHFILES" default="????$S+0"></a>
+<p><b>INPUT FILES</b>
+<p><b>Zero difference observation files:</b>
+Select the zero difference observation files to be clustered.
+
+<p><i>Default value:</i> <tt>????$S+0</tt>
+
+<a name="RADIO_S" default="0"></a>
+<a name="PSHFILES" default="????$S+0"></a>
+<p><b>Single difference observation files:</b>
+Select the single difference observation files to be clustered.
+
+<p><i>Default value:</i> <tt>????$S+0</tt>
+
+<a name="COORD" default=""></a>
+<p><b>Station coordinates:</b>
+Select a coordinate file that contains all the sites you are processing.
+
+<p><a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="RMSFIT" default=""></a>
+<p><b>Linear fit RMS of station clocks:</b>
+Specify a file which contains the linear fit RMS of the station clock
+corrections. The file should contain all stations you are processing.
+<br>
+It is only necessary for clustering zero difference observation files
+if you want to set a maximum allowed RMS value (option "Maximum linear fit
+RMS of station clocks") or if you want to use the RMS as selection criterion
+(option "Station selection criterion" set to <tt>CLOCK</tt>).
+<br>
+The linear fit RMS values may be acquired from an external source or
+estimated from clock RINEX files using the program
+<a href="PGMLST.HLP#CCRNXC">CCRNXC</a>.
+
+<p><a href="/$X/DOC/EXAMPLE.SIG">Example</a>
+
+<a name="CORESITE" default=""></a>
+<p><b>List of core sites:</b>
+This file contains a list of so-called core sites. These are sites with a
+special importance for the solution (e.g., stations used to define the
+geodetic datum). The sites in this list will only be deleted if they contain
+bad data. They will not be deleted only to reduce the number of stations
+to a defined maximum value.
+
+<p><a href="/$X/DOC/EXAMPLE.FIX">Example</a>
+
+<br><br>
+
+<a name="SELBSL" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>Cluster assignment files:</b>
+The lists of observation files belonging to the different clusters are
+written to corresponding cluster assignment files. One file is generated
+for each cluster by appending a two-digit number (01, 02, ...) to the
+specified filename.
+
+<p><a href="/$X/DOC/EXAMPLE.CLB">Example</a>
+
+<a name="NOTUSE" default=""></a>
+<p><b>Rejected observation files list:</b>
+This list contains the rejected zero difference observation files and may be
+used to delete the rejected files from your observation directory. Files
+may be rejected because they do not meet one of the requested conditions or to
+reduce the number of stations to a defined maximum value.
+<br>
+It is not possible to delete stations from single difference files because
+in that case all baselines would have to be rebuilt.
+
+<a name="DELALL" default="1"></a>
+<p><b>Add code observation files to list:</b>
+Use the checkbox to specify whether only phase or both, phase and code
+observation files should be added to the list containing rejected stations.
+
+<p><i>Default value:</i> marked
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="MKCLUS"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>MKCLUS 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates. It is used
+to apply antenna heights and for the printing of coordinates in the
+local system (north, east, up). You only have to modify this file
+when you want to introduce a new reference ellipsoid.
+
+<p><i>Caution:</i>
+This file has no effect on Cartesian coordinates.
+
+<p>Example: <a href="/$X/GEN/DATUM.">$X/GEN/DATUM.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT. is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<p><i>Default value:</i> <tt>SATTELIT.I08</tt>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems concerning modeling.
+It is used for exclusion of misbehaving satellites
+(and for orbit arc splitting).
+It may also contain (mean) epochs of GPS repositioning events.
+
+<p><i>Note:</i>
+Corresponding year-specific files are maintained by AIUB/CODE.
+You can get the latest version of the current file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SAT_2011.CRX">$X/GEN/SAT_2011.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<p><hr>
+
+<p><b>MKCLUS 2: General Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<br><br>
+
+<a name="MINOBS" default="3000"></a>
+<p><b>STATION/FILE SELECTION</b>
+<p>
+The following three options are used to specify some requirements each
+station has to meet. Stations not passing the criteria are not considered for
+clustering and are enlisted in the "Rejected observation files list" if
+specified in section "RESULT FILES". These options are only available for
+zero difference files, single difference files may not be rejected.
+
+<p><b>Minimum number of observations per file:</b> Specify the minimum
+number of observations you want to have in an observation file. This is
+useful, e.g., to remove stations showing a huge data loss in the screening
+steps.
+
+<p><i>Default value:</i> <tt>3000</tt> (for data sampled with 30 seconds)
+
+<a name="MAXAMB" default="150"></a>
+<p><b>Maximum number of ambiguities per file:</b>
+Specify the maximum number of ambiguities you want to allow for an
+observation file. This option may be used to remove files with too many
+ambiguities from following parameter estimation steps. A big amount of
+ambiguities may indicate a problem in the preprocessing of an observation
+file.
+
+<p><i>Default value:</i> <tt>150</tt> (for a one-day observation file)
+
+<a name="MAXRMS" default="100"></a>
+<p><b>Maximum linear fit RMS of station clocks:</b>
+If the linear fit RMS of a station clock exceeds this value the station
+will not be considered for clustering. This option is only available if
+a file with the RMS errors is selected in the field "Linear fit RMS of
+station clocks" in the section "INPUT FILES".
+
+<p><i>Default value:</i> <tt>100</tt> microseconds
+
+<br><br>
+
+<a name="CLUSTRAT_Z" default="GLOBAL"></a>
+<p><b>CLUSTER DEFINITION</b>
+<p><b>Strategy for zero difference observations:</b>
+Select the cluster type you want to build. You may select REGIONAL
+clusters containing stations located close together to take as many
+correlations as possible into account. Or you decide to get GLOBAL
+clusters, all of which may be used for an independent global solution.
+
+<a name="CLUSTRAT_S" default="REGIONAL"></a>
+<p><b>Strategy for single difference observations:</b>
+For single difference files you can only build REGIONAL clusters.
+Baselines located close together are assigned to the same cluster to take
+as many correlations as possible into account.
+
+<p><hr>
+
+<a name="NUMCLU_ZG" default="1"></a>
+<p><b>MKCLUS 3: Global Cluster Definition Options (Zero Differences)</b>
+<p>
+Global clusters may be generated using zero-difference files only.
+The global clusters are constructed based on geometrical considerations
+such as the distance between sites as well as the number of observations
+contributed by the clusters to each satellite for each epoch. Basically
+the distance between stations within the clusters is maximized.
+
+<br><br>
+
+<p><b>CLUSTER DEFINITION</b>
+<p><b>Number of clusters:</b>
+Specify how many global clusters you want to create.
+
+<a name="AUTOSTA_ZG" default="0"></a>
+<p><b>Optimum number of stations per cluster:</b>
+Instead of specifying a "Maximum number of stations per cluster" the program
+can reduce the number of stations per cluster dynamically until an optimum
+number of stations is reached to meet the "Minimum number of observations per
+satellite at each epoch" condition.
+
+<p><i>Default value:</i> unmarked
+
+<a name="MAXSTA_ZG" default="30"></a>
+<p><b>Maximum number of stations per cluster:</b>
+Here you can select a maximum number of stations per cluster.
+After assigning all stations to clusters, the program checks which sites
+are indispensable in each cluster to meet the "Minimum number of observations
+per satellite at each epoch" condition from section "OBSERVATION REDUNDANCY".
+The remaining stations are removed until the maximum number is reached. The
+stations to be removed from the clusters are selected according to the "Station
+selection criterion".
+
+<a name="STADEL_ZG" default="NUM.OBS"></a>
+<p><b>Station selection criterion:</b>
+Here you can choose which criterion should be used to delete surplus
+stations in each cluster to reduce the number of stations per cluster to
+the maximum value:
+<ul>
+<li><b>NUM.OBS</b>:
+    Delete stations with lowest number of observations.
+<li><b>CLOCK</b>:
+    Delete stations with highest linear fit RMS for their clock (to
+    use this option you must specify a file containing the RMS errors).
+<li><b>GEOMETRY</b>:
+    Stations located close to others (where the sum of squared distances
+    to the other stations of the cluster is minimal) are deleted first.
+<li><b>DENSITY</b>:
+    The inverse number of stations observing a satellite at each epoch is
+    accumulated for each station. The station with the smallest sum is
+    deleted. This corresponds to the station with the biggest number of
+    observations to satellites which are observed from other stations, too.
+    Stations are deleted iteratively. This method may consume a lot of
+    computing time because in each iteration all observation files have to
+    be read.
+</ul>
+
+<br><br>
+
+<a name="SATOBS_ZG" default="3"></a>
+<p><b>OBSERVATION REDUNDANCY</b>
+<p><b>Minimum number of observations per satellite at each epoch:</b>
+Specify how many observations per satellite per epoch you want to have.
+For a reliable estimation of parameters with high temporal resolution
+(e.g., satellite clock
+parameters) it is important to have enough observations available at each
+epoch. It may happen that some stations appear in more than one clusters to
+meet this condition. Select <tt>1</tt> to deactivate this option.
+
+<p><i>Default value:</i> <tt>3</tt>
+
+<a name="NSOLVE_ZG" default="2"></a>
+<p><b>Number of clusters for which redundancy option applies:</b> Specify the
+minimum number of clusters for which the "Minimum number of observations per
+satellite at each epoch" condition should be fulfilled.
+<br>
+This option allows for some flexibility in the sense that not each cluster
+needs to provide the full information (e.g., for all satellite clocks) allowing
+it to reduce the average size of
+the clusters. For the combined cluster results it is enough if one or two
+clusters can provide the "Minimum number of observations per satellite at each
+epoch". It is recommended to impose the redundancy criteria to at least two
+clusters in order to allow for a verification of results.
+
+<p><i>Default value:</i> <tt>2</tt>
+
+<a name="OBSSAT_ZG" default="90"></a>
+<p><b>... but not for satellites with a low number of observ.:</b> If, e.g.,
+unhealthy satellites are only tracked by a significantly reduced number of
+stations the "Minimum number of observations per satellite at each epoch"
+are required only in one cluster instead of the number specified in the
+previous option "Number of clusters for which redundancy option applies".
+The definition for a satellite with a low number of observations bases on
+the relation between the number of observations of the current satellite
+w.r.t. the satellite with the biggest number of observations.
+
+<p><i>Default value:</i> <tt>90</tt>%
+
+<a name="SATSYS_ZG" default="ALL"></a>
+<p><b>Satellite systems to be considered:</b>
+Observation data from a specific satellite system may be selected here that
+are considered when forming the clusters.
+
+<p><i>Default value:</i> <tt>ALL</tt>
+
+<a name="NSAMPL_ZG" default="0"></a>
+<p><b>Sampling interval to be considered:</b>
+You may wish to process sampled observation epochs, i.e. only one
+epoch per n seconds. In that case it make sense that the consideration of
+the observations for creating the clusters is done already with this sampling.
+This may reduce the processing time for forming the clusters and helps the
+algorithm to be more efficient.
+
+<p><i>Default value:</i> <tt>0</tt> or blank (all observations)
+
+<p><hr>
+
+<a name="RADIO_Z1" default="1"></a>
+<a name="MAXSTA_ZR" default="10"></a>
+<p><b>MKCLUS 3: Regional Cluster Definition Options (Zero Differences)</b>
+<p>
+The regional clusters are constructed based on geometrical considerations
+such as the distance between sites as well as the number of observations
+contributed by the clusters to each satellite for each epoch. Basically the
+distance between stations within the clusters is minimized.
+
+<br><br>
+
+<p><b>CLUSTER DEFINITION</b>
+<p><b>Maximum number of stations per cluster:</b>
+Specify the maximum number of stations for each cluster. The number of
+clusters is then determined in a way that no cluster will contain more
+stations.
+
+<a name="RADIO_Z2" default="0"></a>
+<a name="NUMCLU_ZR" default="1"></a>
+<p><b>Number of clusters:</b>
+Specify how many regional clusters you want to have created.
+
+<a name="STAOBS_ZR" default="3"></a>
+<p><b>Minimum number of observations per satellite at each epoch:</b>
+Specify how many observations per satellite per epoch you want to have.
+For a reliable estimation of parameters with high temporal resolution
+(e.g., satellite clock
+parameters) it is important to have enough observations available at each
+epoch. It may happen that some stations appear in more than one clusters to
+meet this condition. Select <tt>1</tt> to deactivate this option.
+
+<p><i>Default value:</i> <tt>3</tt>
+
+<a name="SATSYS_ZR" default="ALL"></a>
+<p><b>Satellite systems to be considered:</b>
+Observation data from a specific satellite system may be selected here that
+are considered when forming the clusters.
+
+<p><i>Default value:</i> <tt>ALL</tt>
+
+<a name="NSAMPL_ZR" default="0"></a>
+<p><b>Sampling interval to be considered:</b>
+You may wish to process sampled observation epochs, i.e. only one
+epoch per n seconds. In that case it make sense that the consideration of
+the observations for creating the clusters is done already with this sampling.
+This may reduce the processing time for forming the clusters and helps the
+algorithm to be more efficient.
+
+<p><i>Default value:</i> <tt>0</tt> or blank (all observations)
+
+<p><hr>
+
+<a name="RADIO_S1" default="1"></a>
+<a name="MAXSTA_SR" default="10"></a>
+<p><b>MKCLUS 3: Regional Cluster Definition Options (Single Differences)</b>
+<p>
+The regional clusters are constructed based on geometrical considerations
+such as the distance between sites. Basically the distance between stations
+within the clusters is minimized.
+
+<br><br>
+
+<p><b>CLUSTER DEFINITION</b>
+<p><b>Maximum number of baselines per cluster:</b>
+Specify the maximum number of baselines for each cluster. The number of
+clusters is then determined in a way that no cluster will contain more
+baselines.
+
+<a name="RADIO_S2" default="0"></a>
+<a name="NUMCLU_SR" default="1"></a>
+<p><b>Number of clusters:</b>
+Specify how many regional clusters you want to have created.
+
+<p><hr>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+#!/usr/bin/perl -w
+# -------------------------------------------------------------------------
+# Bernese GPS Software Version 5.0
+# -------------------------------------------------------------------------
+#
+# Script:     NPUTKEY
+#
+# Purpose:    Store Value of a Keyword into an Input File
+#
+# Author:     L.Mervart
+#
+# Created:    21-MAR-2001
+#
+# Changes:    14-APR-2001 : HU: Handle quotes within key value
+#
+# Copyright:  Astronomical Institute
+#             University of Bern
+#             Switzerland
+# -------------------------------------------------------------------------
+
+use strict;
+use lib "$ENV{BPE}";
+use RUNBPE;
+
+RUNBPE::putKey ('',@ARGV);

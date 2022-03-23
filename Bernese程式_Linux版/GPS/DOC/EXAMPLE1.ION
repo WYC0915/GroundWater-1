@@ -1,0 +1,85 @@
+CODE'S RAPID IONOSPHERE MAPS FOR DAY 104, 2010                   15-APR-10 07:09
+--------------------------------------------------------------------------------
+MODEL NUMBER / STATION NAME                    : 1040-01         
+MODEL TYPE (1=LOCAL,2=GLOBAL,3=STATION)        :    2
+MAXIMUM DEGREE OF SPHERICAL HARMONICS          :   15
+MAXIMUM ORDER                                  :   15
+DEVELOPMENT WITH RESPECT TO                     
+  GEOGRAPHICAL (=1) OR GEOMAGNETIC (=2) FRAME  :    2
+  MEAN (=1) OR TRUE (=2) POSITION OF THE SUN   :    1
+MAPPING FUNCTION (0=NONE,1=COSZ,2=MSLM,3=ESM)  :    2
+HEIGHT OF SINGLE LAYER AND ITS RMS ERROR (KM)  :  450.00     0.00
+COORDINATES OF EARTH-CENTERED DIPOLE AXIS       
+  LATITUDE OF NORTH GEOMAGNETIC POLE (DEGREES) :   79.93
+  EAST LONGITUDE (DEGREES)                     :  -71.96
+PERIOD OF VALIDITY                              
+  FROM EPOCH / REFERENCE EPOCH (Y,M,D,H,M,S)   : 2010 04 14 00 00 00
+  TO EPOCH                                     :                    
+LATITUDE BAND COVERED                           
+  MINIMUM LATITUDE (DEGREES)                   :  -88.10
+  MAXIMUM LATITUDE (DEGREES)                   :   89.11
+ADDITIONAL INFORMATION                          
+  NUMBER OF CONTRIBUTING STATIONS              :  120
+  NUMBER OF CONTRIBUTING SATELLITES            :   51
+  ELEVATION CUT-OFF ANGLE (DEGREES)            :   10
+  MAXIMUM TEC AND ITS RMS ERROR (TECU)         :   50.32     0.56
+COMMENT / WARNING                              :
+COEFFICIENTS                                    
+DEGREE  ORDER    VALUE (TECU)   RMS (TECU)      
+   0       0       13.14128103     0.0471
+   1       0        2.03069152     0.0437
+   1       1        6.12370400     0.0447
+   1      -1        4.01780782     0.0411
+   2       0       -5.15873430     0.0430
+   2       1        0.05442838     0.0429
+   2      -1        0.88610159     0.0403
+   2       2        1.56289796     0.0404
+   2      -2        0.81094286     0.0405
+   3       0       -1.17727869     0.0402
+   3       1       -1.97485592     0.0428
+...
+  15      15       -0.06579750     0.0340
+  15     -15        0.02577385     0.0340
+
+CODE'S RAPID IONOSPHERE MAPS FOR DAY 104, 2010                   15-APR-10 07:09
+--------------------------------------------------------------------------------
+MODEL NUMBER / STATION NAME                    : 1040-02         
+MODEL TYPE (1=LOCAL,2=GLOBAL,3=STATION)        :    2
+MAXIMUM DEGREE OF SPHERICAL HARMONICS          :   15
+MAXIMUM ORDER                                  :   15
+DEVELOPMENT WITH RESPECT TO                     
+  GEOGRAPHICAL (=1) OR GEOMAGNETIC (=2) FRAME  :    2
+  MEAN (=1) OR TRUE (=2) POSITION OF THE SUN   :    1
+MAPPING FUNCTION (0=NONE,1=COSZ,2=MSLM,3=ESM)  :    2
+HEIGHT OF SINGLE LAYER AND ITS RMS ERROR (KM)  :  450.00     0.00
+COORDINATES OF EARTH-CENTERED DIPOLE AXIS       
+  LATITUDE OF NORTH GEOMAGNETIC POLE (DEGREES) :   79.93
+  EAST LONGITUDE (DEGREES)                     :  -71.96
+PERIOD OF VALIDITY                              
+  FROM EPOCH / REFERENCE EPOCH (Y,M,D,H,M,S)   : 2010 04 14 02 00 00
+  TO EPOCH                                     :                    
+LATITUDE BAND COVERED                           
+  MINIMUM LATITUDE (DEGREES)                   :  -89.00
+  MAXIMUM LATITUDE (DEGREES)                   :   89.29
+ADDITIONAL INFORMATION                          
+  NUMBER OF CONTRIBUTING STATIONS              :  120
+  NUMBER OF CONTRIBUTING SATELLITES            :   51
+  ELEVATION CUT-OFF ANGLE (DEGREES)            :   10
+  MAXIMUM TEC AND ITS RMS ERROR (TECU)         :   45.52     0.63
+COMMENT / WARNING                              :
+COEFFICIENTS                                    
+DEGREE  ORDER    VALUE (TECU)   RMS (TECU)      
+   0       0       13.09777234     0.0500
+   1       0        1.34949379     0.0462
+   1       1        5.80434170     0.0443
+   1      -1        3.64645597     0.0443
+   2       0       -5.20838463     0.0457
+   2       1       -0.10586455     0.0426
+   2      -1        0.61090149     0.0431
+   2       2        1.40207356     0.0420
+   2      -2        0.52927027     0.0395
+   3       0       -1.13598651     0.0427
+   3       1       -1.70253879     0.0426
+...
+  15      15       -0.03351210     0.0339
+  15     -15       -0.00199290     0.0339

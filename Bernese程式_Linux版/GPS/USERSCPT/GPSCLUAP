@@ -1,0 +1,81 @@
+package GPSCLUAP;
+@ISA = ("RUNBPE");
+# ----------------------------------------------------------------------------
+#
+# Name    :  GPSCLUAP
+#
+# Purpose :  Prepare parallel GPSEST run (cluster solution)
+#
+# Remark  :  If variable V_CLUFIN is "N" all files are computed in one
+#            cluster only
+#
+# PARAMs  :
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ----------------------------------------------------------------------------
+use strict;
+
+use File::Basename;
+
+use lib $ENV{BPE};
+use bpe_util qw(initPar_Fl);
+
+
+sub run {
+  my $bpe = shift;
+
+
+# Get variables
+# -------------
+  my ($yyssss, $ssss,
+      $clufin,
+      $dirOut, $dirRes, $dirNeq, $dirClb,
+      $extOut, $extRes, $extNeq, $extClb) =
+  $bpe->getKeys(
+      '$YSS+0','$S+0',
+      'V_CLUFIN',
+      "DIR_OUT","DIR_RES","DIR_NEQ","DIR_CLB",
+      "EXT_OUT","EXT_RES","EXT_NEQ","EXT_CLB");
+
+
+# Define directories and file names
+# ---------------------------------
+  my @cluFil = glob("${dirClb}${yyssss}??.$extClb");
+
+
+# Remove residual files, output files, NQ0's
+# ------------------------------------------
+  unlink glob("${dirOut}EST${ssss}???.${extOut}");
+  unlink glob("${dirRes}EST${ssss}???.${extRes}");
+  unlink glob("${dirNeq}EST${ssss}???.${extNeq}");
+
+
+# Clusters from SNGDIF are ignored
+# --------------------------------
+  if ( uc $clufin =~ /^[N01]/ ) {
+    my @bsl = ();
+    my $clbOut = "";
+    foreach my $clb ( sort @cluFil ) {
+      next if index(basename($clb),"00.CLB") != -1;
+      $clbOut = $clb if ($clbOut eq "");
+      open(CLB,"$clb");
+      push @bsl,<CLB>;
+      close CLB;
+      unlink $clb;
+    }
+    open (CLB,"> $clbOut");
+    print CLB sort @bsl;
+    close CLB;
+  }
+
+
+# Initialize parallel run
+# -----------------------
+  initPar_Fl($bpe,@cluFil);
+
+
+}

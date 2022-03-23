@@ -1,0 +1,28 @@
+package SNX2NQ0;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  SNX2NQ0
+#
+# Purpose :  Execute SNX2NQ0
+#
+# PARAMs  :
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+sub run {
+  my $bpe = shift;
+
+
+# Run program
+# -----------
+  my $PGMNAM = "SNX2NQ0";
+  $bpe->RUN_PGMS($PGMNAM);
+
+}

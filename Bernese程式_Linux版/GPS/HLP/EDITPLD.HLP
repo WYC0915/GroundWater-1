@@ -1,0 +1,59 @@
+<html>
+<body>
+
+<center>
+<b>CREATE/UPDATE TECTONIC PLATE ASSIGNMENT</b>
+<p>Editor: EDITPLD
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT" default="%% %%"></a>
+<a name="DATUM"       default="DATUM."></a>
+<a name="AUXFIL"      default="EDITPLD$J"></a>
+<a name="PLATERS"     default=""></a>
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+The plate definition file contains the tectonic plate information of
+each station specified.
+This input panel helps you to create or to edit this type of files.
+<br>
+To create a new plate definition file specify a new filename in the file
+selection dialogue. In this case you will be asked to select an existing
+coordinate file. The station names will be read from this
+file to generate a plate definition file template.
+
+<p><i>Remark:</i>
+The end of the plate definition file is indicated by a blank line. Lines
+below the blank line are ignored. If you use this input mask to edit a
+plate definition file, these additional lines will be lost. If you want
+to keep them in the file you have to use an external text file editor.
+
+<p><a href="/$X/DOC/EXAMPLE.PLD">Example</a>
+<br>
+(The file format is the same as for the velocity files.
+The DATUM string as well as VX, VY, VZ and FLAG have no meaning here.)
+
+<p><hr>
+
+<p><b>TECTONIC PLATE ASSIGNMENT</b>
+
+<a name="TITLE" default=""></a>
+<p><b>Title:</b>
+Enter a title line.
+
+<a name="STAPLD" default="%% %% %%"></a>
+<p><b>Num:</b>
+Enter the station number.
+
+<p><b>Station name:</b>
+Enter the station name.
+
+<p><b>Plate:</b>
+Enter the tectonic plate ID of the station. The plate name must
+correspond to the table <a href="PLATES.HLP">here</a>.
+
+<p><hr>
+
+</body>
+</html>

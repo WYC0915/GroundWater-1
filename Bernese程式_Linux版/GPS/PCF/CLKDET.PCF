@@ -1,0 +1,302 @@
+#
+# ============================================================================
+# CLKDET.PCF
+# ============================================================================
+#
+# Purpose:      CLOCK DETERMINATION (CLKDET): standard zero difference
+#               processing for regional networks for dual-frequency
+#               stations starting from broadcast clocks.
+#
+#               The purpose of this BPE is to compute station and satellite
+#               clock parameters for all included stations. The results are
+#               provided in clock RINEX format.
+#
+#               Coordinates and troposphere corrections (e.g., from a double
+#               difference solution, see RNX2SNX.PCF) may be introduced and
+#               a consistent set of clock corrections will be obtained.
+#
+# ----------------------------------------------------------------------------
+#
+# A description of the BPE, the use of the BPE server variables, input and
+# output files as well as the important points to be checked in the processing
+# summary are provided in 
+#               ${U}/PCF/CLKDET.README    (UNIX/Linux)
+#                %U%\PCF\CLKDET.README    (Windows)
+#
+# ----------------------------------------------------------------------------
+#
+# Author     :  R. Dach
+# Created    :  10-Aug-2011               Last modified: 10-Aug-2011
+#
+# Changes    :
+#
+# ============================================================================
+#
+#
+PID SCRIPT   OPT_DIR  CAMPAIGN CPU      P WAIT FOR....
+3** 8******* 8******* 8******* 8******* 1 3** 3** 3** 3** 3** 3** 3** 3** 3** 3**
+#
+# Copy required files
+# -------------------
+001 CLK_COP  CLK_GEN           ANY      1
+002 ATX2PCV  CLK_GEN           ANY      1 001
+003 COOVEL   CLK_GEN           ANY      1 001
+004 COOVEL   CLK_GE2           ANY      1 001
+005 CRDMERGE CLK_GEN           ANY      1 003 004
+011 RNX_COP  CLK_GEN           ANY      1 001
+099 DUMMY    CLK_GEN           ANY      1 002 005 011
+#
+# Prepare the orbits
+# ------------------
+101 POLUPD   CLK_GEN           ANY      1 001
+111 ORBMRG   CLK_GEN           ANY      1 001
+112 PRETAB   CLK_GEN           ANY      1 111
+113 ORBGEN   CLK_GEN           ANY      1 112
+#
+# Extract broadcast clocks from navigation files
+# ----------------------------------------------
+121 CCRINEXN CLK_GE2           ANY      1 099
+122 CCRINEXG CLK_GE2           ANY      1 099
+123 RXNPRE   CLK_GE2           ANY      1 121 122
+124 PRETAB   CLK_GE2           ANY      1 123
+199 DUMMY    NO_OPT            ANY      1 113 124
+#
+# Preprocess, convert, and synchronize observation data
+# -----------------------------------------------------
+201 RNXGRA   CLK_GEN           ANY      1 099
+211 PPP_PRP  CLK_GEN           ANY      1 199
+#
+# Phase preprocessing with RNXSMT
+221 RNXSMTAP CLK_GE2           ANY      1 211
+222 RNXSMT_P CLK_GE2           ANY      1 221
+231 RXOBV3AP CLK_GE2           ANY      1 222
+232 RXOBV3_P CLK_GE2           ANY      1 231
+241 CODSPPAP CLK_GE2           ANY      1 232
+242 CODSPP_P CLK_GE2           ANY      1 241
+243 CODXTR   CLK_GE2           ANY      1 242
+249 JUMP     NO_OPT            ANY      1 243
+#
+# Extract precise satellite clocks
+251 CCRNXC   CLK_GE2           ANY      1 249
+252 RNXCLK   CLK_GE2           ANY      1 251
+#
+# Phase preprocessing with MAUPRP
+261 RNXSMTAP CLK_GEN           ANY      1 249
+262 RNXSMT_P CLK_GEN           ANY      1 261
+271 RXOBV3AP CLK_GEN           ANY      1 262
+272 RXOBV3_P CLK_GEN           ANY      1 271
+281 CODSPPAP CLK_GEN           ANY      1 272 252
+282 CODSPP_P CLK_GEN           ANY      1 281
+283 CODXTR   CLK_GEN           ANY      1 282
+291 MAUPRPAP CLK_GEN           ANY      1 283    
+292 MAUPRP_P CLK_GEN           ANY      1 291  
+293 MPRXTR   CLK_GEN           ANY      1 292
+299 DUMMY    NO_OPT            ANY      1 201 249 293
+#
+# Compute weights for the code
+# ----------------------------
+301 MKCLUSAC CLK_WGT           ANY      1 299
+302 TIMEST_C CLK_WGT           ANY      1 301
+303 GPSXTR   CLK_WGT           ANY      1 302
+304 CLK_CHK  CLK_WGT           ANY      1 303
+305 RESRMS   CLK_WGT           ANY      1 304
+#
+# Clean code residuals
+# --------------------
+321 MKCLUSAC CLK_COD           ANY      1 305
+322 TIMEST_C CLK_COD           ANY      1 321
+323 GPSXTR   CLK_COD           ANY      1 322
+324 CLK_CHK  CLK_COD           ANY      1 323
+325 RESRMS   CLK_COD           ANY      1 324
+331 MRKOBSAP CLK_COD           ANY      1 325
+332 MRKOBS_P CLK_COD           ANY      1 331
+#
+# Unified inter-system/inter-frequency code biases
+# ------------------------------------------------
+341 MKCLUSAC CLK_IFB           ANY      1 332
+342 TIMEST_C CLK_IFB           ANY      1 341
+343 IFBNEQ   CLK_IFB           ANY      1 342
+390 COD_SUM  NO_OPT            ANY      1 343
+399 DUMMY    NO_OPT            ANY      1 390
+#
+# Preprocessing: residual check, from RNXSMT
+# ------------------------------------------
+401 PPP_PRP  CLK_GEN           ANY      1 399
+#
+411 MKCLUSAP CLK_ED0           ANY      1 401
+412 TIMEST_P CLK_ED0           ANY      1 411
+413 GPSXTR   CLK_ED0           ANY      1 412
+414 CLK_CHK  CLK_ED0           ANY      1 413
+415 RESRMS   CLK_ED0           ANY      1 414
+421 MRKOBSAP CLK_ED0           ANY      1 415
+422 MRKOBS_P CLK_ED0           ANY      1 421
+429 GOTO     NO_OPT            ANY      1 422
+#
+# Preprocessing: residual check, last iteration
+# ---------------------------------------------
+451 MKCLUSAP CLK_EDT           ANY      1 429
+452 TIMEST_P CLK_EDT           ANY      1 451
+453 GPSXTR   CLK_EDT           ANY      1 452
+454 CLK_CHK  CLK_EDT           ANY      1 453
+455 RESRMS   CLK_EDT           ANY      1 454
+461 MRKOBSAP CLK_EDT           ANY      1 455
+462 MRKOBS_P CLK_EDT           ANY      1 461
+471 CCRNXC   CLK_EDT           ANY      1 455
+489 GOTO     NO_OPT            ANY      1 462 471
+#
+499 DUMMY    NO_OPT            ANY      1 489
+#
+# Combined Code and Phase solution
+# --------------------------------
+501 MKCLUSAP CLK_RES           ANY      1 499
+502 TIMEST_P CLK_RES           ANY      1 501
+503 GPSXTR   CLK_RES           ANY      1 502
+504 RESRMS   CLK_RES           ANY      1 502
+521 CLKNEQ   CLK_RE2           ANY      1 503
+522 GPSXTR   CLK_RE2           ANY      1 521
+523 CCRNXC   CLK_RES           ANY      1 521
+#
+599 DUMMY    NO_OPT            ANY      1 522 523
+#
+# Create summary file and delete files
+# ------------------------------------
+901 CLK_SUM  CLK_GEN           ANY      1 599
+902 CLK_SAV  CLK_GEN           ANY      1 901
+903 CLK_DEL  CLK_GEN           ANY      1 902
+991 BPE_CLN  CLK_GEN           ANY      1 903
+#
+# End of BPE
+# ----------
+999 DUMMY    NO_OPT            ANY      1 991
+#
+#
+PID USER         PASSWORD PARAM1   PARAM2   PARAM3   PARAM4   PARAM5   PARAM6   PARAM7   PARAM8   PARAM9
+3** 12********** 8******* 8******* 8******* 8******* 8******* 8******* 8******* 8******* 8******* 8*******
+# Copy required files
+# -------------------
+# ....
+#
+# Prepare the orbits
+# ------------------
+# ....
+#
+# Extract broadcast clocks from navigation files
+# ----------------------------------------------
+# ...
+#
+# Preprocess, convert, and synchronize observation data
+# -----------------------------------------------------
+211                       NEXTJOB  221      251
+#
+# Phase preprocessing with RNXSMT
+221                       $221
+222                       PARALLEL $221
+231                       $231
+232                       PARALLEL $231
+241                       $241
+242                       PARALLEL $241
+249                       NEXTJOB  299
+#
+# Extract precise satellite clocks
+# ...
+# Phase preprocessing with MAUPRP
+261                       $261
+262                       PARALLEL $261
+271                       $271
+272                       PARALLEL $271
+281                       $281
+282                       PARALLEL $281
+291                       $291
+292                       PARALLEL $291
+#
+# Compute weights for the code
+# ----------------------------
+301                       $301     V_C
+302                       PARALLEL $301
+304                       NEXTJOB  305      301
+#
+# Clean code residuals
+# --------------------
+321                       $321     V_E
+322                       PARALLEL $321
+324                       NEXTJOB  325      321
+331                       $331     CODE
+332                       PARALLEL $331
+#
+# Unified inter-system/inter-frequency code biases
+# ------------------------------------------------
+341                       $341     V_F
+342                       PARALLEL $341
+343                       NEXTJOB  341
+#
+# Preprocessing: residual check, from RNXSMT
+# ------------------------------------------
+401                       NEXTJOB  411      451
+411                       $411     V_G
+412                       PARALLEL $411
+414                       NEXTJOB  415      411
+421                       $421     BOTH
+422                       PARALLEL $421
+429                       NEXTJOB
+#
+# Preprocessing: residual check, last iteration
+# ---------------------------------------------
+451                       $451     V_H
+452                       PARALLEL $451
+454                       NEXTJOB  455      451
+461                       $461     BOTH
+462                       PARALLEL $461
+489                       NEXTJOB
+#
+# Combined Code and Phase solution
+# --------------------------------
+501                       $501     V_I
+502                       PARALLEL $501
+#
+# Create summary file and delete files
+# ------------------------------------
+903                       (10)
+#
+#
+VARIABLE DESCRIPTION                              DEFAULT
+8******* 40************************************** 30****************************
+V_A      A priori information                     APR 
+V_B      Orbit/ERP, DCB, CLK information          COD
+V_C      Weights for the code observations        CW
+V_E      Code screening                           CR              
+V_F      Unify inter-system/frequency biases      CB              
+V_G      Code+phase screening in reg. clusters    T0              
+V_H      Code+phase screening in reg. clusters    TR              
+V_I      Final results, code+phase (after edit)   TP              
+V_RNXDIR Directory with the RINEX files           RINEX
+V_OBSSEL Station selection file (blank: all)
+V_REFDIR Directory with basic Bernese files       REF52  
+V_REFINF Master/reference CRD/VEL filename        IGB08
+V_CRDINF Merged CRD/VEL filename                  EXAMPLE
+V_CRXINF Accepted station inform. inconsistencies     
+V_BLQINF BLQ FILE NAME, CMC CORRECTIONS           EXAMPLE         
+V_ATLINF ATL FILE NAME, CMC CORRECTIONS           EXAMPLE         
+V_HOIFIL Ionosphere model for higher order iono   HOI$YSS+0
+V_RESULT Directory name for the CLKDET results    CLKDET
+V_SATSYS Select the GNSS (GPS, GPS/GLO)           GPS/GLO
+V_SAMPL  Sampling interval                        300
+V_HRCLK  High-rate clock available (YES/NO)       NO
+V_FIXPTH Path from where the sol.files are copied ${S}/RNX2SNX/$Y+0
+V_FIXCRD Solution coord. file to be introduced    F1_$YSS+0
+V_FIXTRP Solution tropo. file to be introduced    F1_$YSS+0
+V_CLU    Maximum number of files per cluster      7
+V_CLUCOD Num. of clusters in code pre-proc.       1
+V_CLUPRP Num. of clusters in code+phase pre-proc. 1
+V_CLUSOL Num. of clusters in final solution       1
+V_MAXSOL Maximum number of stations per cluster   40
+V_MYATX  ANTEX file for update (name incl. ext)   
+V_PCV    Absolute/relative PCV model              I08
+V_SATINF Satellite information file               SATELLIT        
+V_PCVINF PCV information file                     PCV       
+V_SATCRX Satellite problem file                   SAT_$Y+0
+V_SAV    Save results?                            Y               
+V_DEL    Delete results?                          Y               
+#
+# DO NOT USE V_D, V_J, V_M, V_Y VARIABLES! 
+# (they are used already by the menu)
+# 

@@ -1,0 +1,165 @@
+      MODULE s_PRIBLH
+      CONTAINS
+
+C*
+      SUBROUTINE PRIBLH(TITLES,IPART,RMS,QB,QL,QH,NSTAT,LISTUS,
+     1                  STANUM)
+CC
+CC NAME       :  PRIBLH
+CC
+CC PURPOSE    :  PRINT RMS OF ELLIPSOIDAL COORDINATES AND COORD.DIFF
+CC
+CC PARAMETERS :
+CC         IN :  TITLES(I),I=1,2: TITLE LINES                 CH*132
+CC               RMS    : RMS OF UNIT WEIGHT                  R*8
+CC               QB,QL,QH: COV.MATRICES OF LAT,LONG,HEIGHT    R*8(1)
+CC                        (UPPER TRIANGLE, LINEARIZED)
+CC               NSTAT  : NUMBER OF UNKNOWN STATIONS          I*4
+CC               LISTUS : LIST OF UNKNOWN STATIONS            I*4(2,1)
+CC               STANUM : EXTERNAL STATION NUMBERS            I*4(1)
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  W.GURTNER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/03 10:17
+CC
+CC CHANGES    :  27-MAY-91 : ??: DON'T PRINT TRAILING BLANKS
+CC               05-MAR-03 : CU: REMOVE USE OF SKELETON FILE, USE IPART
+CC               15-APR-03 : CU: BUG FIXED (FORMAT STATEMENTS)
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE f_lengt1
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , II    , IK    , J     , K     , KK    , KM    ,
+     1          N     , NACT  , NCHAR , NFROM , NMAT  , NMAXS ,
+     2          NSTAT , NTO
+C
+      REAL*8    RMS
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      CHARACTER*132 TITLES(2)
+      CHARACTER*1   LINES*132,LINE(132)
+      CHARACTER*1   MINUS,BLANK,VERT
+      CHARACTER*14  TXTSTRG
+      INTEGER*4     LISTUS(2,*),STANUM(*),IPART
+      REAL*8        QB(*),QL(*),QH(*),MB(16),MH(16),ML(16)
+C
+      EQUIVALENCE(LINES,LINE(1))
+      DATA MINUS/'-'/,BLANK/' '/,VERT/'|'/
+C
+C  NUMBER OF PARTIAL MATRICES: MAXIMUM 'NMAXS' STATIONS PER LINE
+      NMAXS=16
+      NMAT=(NSTAT-1)/NMAXS+1
+C
+      DO 10 N=1,NMAT
+C
+C  STATION NUMBERS TO BE PRINTED IN LINE
+        NFROM=(N-1)*NMAXS+1
+        NTO  =NFROM+NMAXS-1
+        IF(NTO.GT.NSTAT) NTO=NSTAT
+C  ACTUAL # OF STATIONS
+        NACT=NTO-NFROM+1
+C  # OF CHARACTERS PER LINE (EXCEPT PRINTER CONTROL CHARACTER)
+        NCHAR=7*NACT+13
+C
+        WRITE(LFNPRT,13) TITLES(1)(1:LENGT1(TITLES(1))),
+     1                   TITLES(2)(1:LENGT1(TITLES(2)))
+13      FORMAT(//,A,/,A,/,' ',131('-'),//)
+C
+        IF(N.EQ.1) TXTSTRG = ''
+        IF(N.GT.1) TXTSTRG = '  CONTINUATION'
+        WRITE(LFNPRT,"(
+     1       ' RMS ERRORS OF ELLIPS. COORDINATES AND COORDINATE '
+     1      ,'DIFFER. IN MM   (PART ',I1,'):',A
+     2    ,/,' -------------------------------------------------'
+     2      ,'------------------------'
+     3    ,/,1X)") IPART,TRIM(TXTSTRG)
+C
+        WRITE(LFNPRT,2) (MINUS,J=1,NCHAR)
+2       FORMAT(' ',131A1)
+C
+C  WRITE STATION NUMBERS
+        WRITE(LINES,4)(STANUM(LISTUS(1,J)),J=NFROM,NTO)
+4       FORMAT('| NUM |   |',16(I6,1X))
+        LINE(NCHAR)  ='|'
+        LINE(NCHAR-1)=' '
+        WRITE(LFNPRT,2) (LINE(J),J=1,NCHAR)
+C
+        WRITE(LFNPRT,2) (MINUS,J=1,NCHAR)
+C
+        DO 20 I=1,NSTAT
+C
+C  DIAGONAL ELEMENT OF STATION I IN LINEARIZED MATRICES QB,QL,QH
+          II=(I+1)*I/2
+          KM=0
+C
+          DO 30 K=NFROM,NTO
+C
+            KM=KM+1
+C
+C  RMS OF COORDINATES (STATION I)
+            IF(I.EQ.K) THEN
+              MB(KM)=RMS*DSQRT(QB(II))*1000.D0
+              ML(KM)=RMS*DSQRT(QL(II))*1000.D0
+              MH(KM)=RMS*DSQRT(QH(II))*1000.D0
+C
+C  RMS OF COORD.DIFFERENCES (STATION I - STATION K)
+C
+            ELSE
+C
+C  DIAGONAL ELEMENT OF STATION K IN LINEARIZED MATRICES QB,QL,QH
+              KK=(K+1)*K/2
+C
+C  COVARIANCE ELEMENT OF STATIONS I,K IN MATRICES QB,QL,QH
+              IF(I.LT.K) IK=(K-1)*K/2+I
+              IF(I.GT.K) IK=(I-1)*I/2+K
+C
+              MB(KM)=RMS*DSQRT(QB(II)-2.D0*QB(IK)+QB(KK))*1000.D0
+              ML(KM)=RMS*DSQRT(QL(II)-2.D0*QL(IK)+QL(KK))*1000.D0
+              MH(KM)=RMS*DSQRT(QH(II)-2.D0*QH(IK)+QH(KK))*1000.D0
+            END IF
+C
+30        CONTINUE
+C
+          WRITE(LINES,7)   (MB(KM),KM=1,NACT)
+7         FORMAT('|     | B |',16F7.1)
+          LINE(NCHAR)  ='|'
+          LINE(NCHAR-1)=' '
+          WRITE(LFNPRT,2) (LINE(J),J=1,NCHAR)
+          WRITE(LINES,8) STANUM(LISTUS(1,I)),(ML(KM),KM=1,NACT)
+8         FORMAT('| ',I3,' | L |',16F7.1)
+          LINE(NCHAR)  ='|'
+          LINE(NCHAR-1)=' '
+          WRITE(LFNPRT,2) (LINE(J),J=1,NCHAR)
+          WRITE(LINES,9)   (MH(KM),KM=1,NACT)
+9         FORMAT('|     | H |',16F7.1)
+          LINE(NCHAR)  ='|'
+          LINE(NCHAR-1)=' '
+          WRITE(LFNPRT,2) (LINE(J),J=1,NCHAR)
+          IF(I.NE.NSTAT) WRITE(LFNPRT,3) (BLANK,J=1,7*NACT+1),VERT
+3         FORMAT(' |     |   |',114A1)
+C
+20      CONTINUE
+C
+        WRITE(LFNPRT,2) (MINUS,J=1,NCHAR)
+C
+10    CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

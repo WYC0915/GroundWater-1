@@ -1,0 +1,72 @@
+<html>
+<body>
+
+<center>
+<b>CREATE/UPDATE STATION ABBREVIATION TABLE</b>
+<p>Editor: EDITABB
+</center>
+<hr width="100%">
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+The station abbreviation file tabulates the <nobr>4-character</nobr> and
+<nobr>2-character</nobr> abbreviations for the list of station names. This
+input panel helps you to create or to edit this type of files.
+<br>
+Abbreviations should be unique. A warning is issued if equal
+abbreviations are found in different lines when saving the file.
+<br>
+To create a new abbreviation table specify a new filename in the file
+selection dialogue. In this case you will be asked to select an existing
+coordinate file. The station names will be read from this
+file to generate an abbreviation table template. The program suggests the first
+four resp. two characters of the station name as abbreviations
+regardless of possible multiple appearance of abbreviations.
+
+<p><i>Remark:</i>
+The end of the abbreviation table is indicated by a blank line. Lines below the
+blank line are ignored. If you use this input mask to edit an abbreviation table
+these additional lines will be lost. If you want to keep them in the file
+you have to use an external text file editor.
+<br>
+An abbreviation table may also be created or updated by the program
+<a href="PGMLST.HLP#RXOBV3">RXOBV3</a> (see option
+<a href="RXOBV3.HLP#ABBUPD">ABBUPD</a>).
+
+<p><a href="/$X/DOC/EXAMPLE.ABB">Example</a>
+
+<p><hr>
+
+<p><b>STATION ABBREVIATION TABLE</b>
+
+<a name="ABBREVRS" default=""></a>
+<p><b>Filename:</b>
+The absolute path and the name of the abbreviation table is given here.
+
+<a name="TITLE" default=""></a>
+<p><b>Title:</b>
+Enter or change the title line here.
+The title will be saved in the header of the file.
+
+<a name="LIST_OF_ABBREV" default="%% %% %% %%"></a>
+<p><b>Station name:</b>
+Enter the station name.
+
+<p><b>4-Chr</b> Abbreviation:
+Specify the <nobr>4-character</nobr> abbreviation for the station name.
+It should be unique because it will be used to identify each station, e.g.,
+in the name of <i>zero-difference</i> observation files.
+
+<p><b>2-Chr</b> Abbreviation:
+Specify the <nobr>2-character</nobr> abbreviation for the station name.
+It should be unique because it will be used to identify each station, e.g.,
+in the name of <i>single-difference</i> observation files.
+
+<p><b>Remark:</b>
+You may enter any remark. This line will be saved in the file but will
+not be used by the programs.
+
+<p><hr>
+
+</body>
+</html>

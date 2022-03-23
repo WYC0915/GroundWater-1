@@ -1,0 +1,62 @@
+<html>
+<body>
+
+<center>
+<b>CREATE/UPDATE CLUSTER DEFINITION FILE</b>
+<p>Editor: EDITCLU
+</center>
+<hr width="100%">
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+This cluster definition file is used by the program
+<a href="PGMLST.HLP#SNGDIF">SNGDIF</a> to form clusters of baselines. This
+input panel helps you to create or to edit this type of files.
+<br>
+To create a new cluster definition file specify a new filename in the file
+selection dialogue. In this case you will be asked to select an existing
+coordinate file. The station names will be read from this
+file to generate a cluster definition file template.
+
+<p><i>Remark:</i>
+The end of the cluster definition file is indicated by a blank line. Lines
+below the blank line are ignored. If you use this input mask to edit a cluster
+definition file these additional lines will be lost. If you want to keep them
+in the file you have to use an external text file editor.
+
+<p><a href="/$X/DOC/EXAMPLE.CLU">Example</a>
+
+<p><hr>
+
+<p><b>CLUSTER DEFINITION FILE</b>
+
+<a name="STACLURS" default=""></a>
+<p><b>Filename:</b>
+The absolute path and the name of the cluster definition file is given here.
+
+<a name="TITLE" default=""></a>
+<p><b>Title:</b>
+This title line will be saved in the header of the file and should
+characterize the station cluster file.
+
+<a name="STACLU" default="%% %% %%"></a>
+<p><b>Station name:</b>
+Enter the station names.
+
+<p><b>Cluster:</b>
+Enter the cluster number for each station. The maximum number of clusters
+allowed is 100 (0-99).
+
+<p><i>Remark:</i>
+This number will be used, e.g., in program
+<a href="PGMLST.HLP#SNGDIF">SNGDIF</a> to generate the names of the
+cluster/baseline assignment files.
+
+<p><b>Comment:</b>
+You may enter any comment. The comment line is saved in the file but
+not used by any program.
+
+<p><hr>
+
+</body>
+</html>

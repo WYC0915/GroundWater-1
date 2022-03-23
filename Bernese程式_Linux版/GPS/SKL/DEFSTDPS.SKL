@@ -1,0 +1,43 @@
+)A
+/*                                                                            */
+/*   Skeleton file to plot DEFSTD residual: one plot is generated for         */
+/*   each satellite containing the residuals in radial, along track, and      */
+/*   out of plane direction. Device PS300.                                    */
+/*                                                                            */
+filename psfile 'defstd.ps';
+goptions device=ps300 gsfmode=replace gsfname=psfile
+         gsflen=132 handshake=none nodisplay noprompt
+         gprolog='2521'x penmounts=255 chartype=12
+         hsize=10.0 in vsize=7.0 in gunit=pct
+         rotate=landscape
+         ftext=swissl htitle=6 htext=3.5 colors=(black) csymbol=black;
+title1 height=5 'RESIDUALS OF PROGRAM DEFSTD';
+legend label=none
+       shape=symbol(5,2.5)
+       value=(tick=1 height=3.5 justify=left 'Radial'
+              tick=2 height=3.5 justify=left 'Along Track'
+              tick=3 height=3.5 justify=left 'Out of Plane')
+       frame;
+axis1 label=(height=3.5 'Time from Start of Arc in Minutes');
+axis2 label=(height=3.5 angle=90 'Residuals in Meters');
+symbol1 interpol=join value=triangle height=2.5;
+symbol2 interpol=join value=diamond height=2.5;
+symbol3 interpol=join value=star height=2.5;
+data residual;
+  INPUT arc iter sat comp time residu;
+  if arc = 1 and iter = 2;
+  cards;
+)B
+;
+run;
+proc sort data=residual out= sorted;
+     by arc iter sat time comp;
+PROC GPLOT data=sorted;
+LABEL sat=Satellite;
+by sat;
+PLOT residu*time=comp /
+        legend=legend1
+        haxis=axis1
+        vaxis=axis2
+        vref=0.0
+        frame;

@@ -1,0 +1,3 @@
+
+RUN_BPE 1 ${U}/PAN/RUNBPE.INP
+

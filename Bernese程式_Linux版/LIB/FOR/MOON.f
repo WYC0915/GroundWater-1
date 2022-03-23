@@ -1,0 +1,180 @@
+      MODULE s_MOON
+      CONTAINS
+
+C*
+      SUBROUTINE MOON(T,L,B,P,RA,DE)
+CC
+CC NAME       :  MOON
+CC
+CC PURPOSE    :  COMPUTE LONGITUDE L, LATITUDE B (REFERRED TO ECLIPTIC)
+CC               PARALLAX P, RIGHT ASCENSIAN RA AND DECLINATION DE OF
+CC               THE MOON.
+CC               COORDINATE SYSTEM : SYSTEM OF EPOCH
+CC
+CC PARAMETERS :
+CC         IN :  T      : TIME IN MOD. JULIAN DATE            R*8
+CC               L      : ECL. LONGITUDE                      R*8
+CC               B      : ECL. LATITUDE                       R*8
+CC               P      : PARALLAX (RADIAN)                   R*8
+CC        OUT :  RA     : RIGHT ASCENSION                     R*8
+CC               DE     : DECLINATION                         R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/12/11 11:24
+CC
+CC CHANGES    :  23-SEP-91 : DP: IN TWO STEPS
+CC               28-JAN-03 : RS: M,M1,L1,J,K4,B4,L4 REAL*4 -> REAL*8
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               28-FEB-07 : AG: USE PI FROM DEFCON
+CC               04-MAY-12 : RD: USE DMOD FROM MODULE
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE d_const, ONLY: pi
+      USE l_basfun, ONLY: dmod
+      USE s_monsto
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      REAL*8    AD    , ARCMOD, D     , DB    , DEPS  , DL    , DP    ,
+     1          E     , E2    , EPS   , F     , O     , O1    , O2    ,
+     2          PSI   , SO    , SW    , T0    , V     , XKLAM
+C
+        REAL*8 L,B,P,T,TT,X,K,XM,YM,ZM,RA,DE
+        REAL*8 M,M1,L1,J,K4,B4,L4
+C
+        ARCMOD(X)=DMOD(X,360.D0)/180.D0*PI
+C
+C        PI=3.141592653589793D0
+        TT=(T-15019.5D0)/36525.D0
+        T0=TT
+C
+C MEAN LONGITUDE OF THE MOON
+C
+        L1=ARCMOD(270.434164D0+481267.8831D0*TT-.001133D0*TT*TT
+     1            +1.9D-6*TT**3)
+C
+C MEAN ANOMALY OF THE SUN
+C
+        M=ARCMOD(358.475833D0+35999.0498D0*TT-1.5D-4*TT**2
+     1           -3.3D-6*TT**3)
+C
+C MEAN ANOMALY OF THE MOON
+C
+        M1=ARCMOD(296.104608D0+477198.8491D0*TT+9.192D-3*TT**2
+     1            +1.44D-5*TT**3)
+C
+C MEAN ELONGATION OF THE MOON
+C
+        D=ARCMOD(350.737486D0+445267.1142D0*TT-1.436D-3*TT**2
+     1           +1.9D-6*TT**3)
+C
+C MEAN DISTANCE OF THE MOON FROM THE ASCENDING NODE
+C
+        F=ARCMOD(11.250889D0+483202.0251D0*TT-3.211D-3*TT**2
+     1           -3.D-7*TT**3)
+C
+C LONGITUDE OF ASCENDING NODE OF THE MOON
+C
+        O=ARCMOD(259.183275D0-1934.142D0*TT+2.078D-3*TT**2
+     1           +2.2D-6*TT**3)
+C
+C MEAN LONGITUDES OF VENUS AND JUPITER, MEAN LONGITUDE OF THE EARTH +180
+C DEGREES FOR JUPITER
+C
+        V=ARCMOD(63.07037D0+22518.442986D0*TT)
+        J=ARCMOD(221.64742D0+32964.466939D0*TT)
+C
+C "ADDITIVE" TERMS
+C
+        K=PI/180d0
+        K4=K
+        SW=K4*SIN((51.2+20.2*T0)*K4)
+C
+        L1=L1+2.33E-4*SW
+        M =M-1.778E-3*SW
+        M1=M1+8.17E-4*SW
+        D =D+2.011E-3*SW
+C
+        AD=K4*3.964E-3*SIN((346.56+132.87*T0-9.1731E-3*T0**2)*K4)
+C
+        L1=L1+AD
+        M1=M1+AD
+        D = D+AD
+        F = F+AD
+C
+        SO=K4*SIN(O)
+C
+        L1=L1+1.964E-3*SO
+        M1=M1+2.541E-3*SO
+        D = D+1.964E-3*SO
+        F =F-2.4691E-2*SO
+        F =F-K4*4.328E-3*SIN(O+(275.05-2.3*T0)*K4)
+C
+C
+        E=1.D0-2.495D-3*TT-7.52D-6*TT**2
+        E2=E**2
+C
+C PERTURBATIONS IN LONGITUDE AND LATITUDE: SUBROUTINE MONSTO
+C
+        CALL MONSTO(M,M1,F,D,V,J,E,E2,K,DL,DB)
+        L=L1+DL
+        O1=4.664E-4*COS(O)
+        O2=7.54E-5*COS(O+(275.05-2.3*T0)*K4)
+        XKLAM=1-O1-O2
+        B=DB*XKLAM
+C
+C PARALLAXIS OF THE MOON
+C
+        DP=51818.*COS(M1)+9531*COS(2*D-M1)+7843*COS(2*D)
+     *     +2824*COS(2*M1)+857*COS(2*D+M1)+533*E*COS(2*D-M)
+     *     +401*E*COS(2*D-M-M1)+320*E*COS(M1-M)-271*COS(D)
+     *     -264*E*COS(M+M1)-198*COS(2*F-M1)+173*COS(3*M1)
+     *     +167*COS(4*D-M1)-111*E*COS(M)+103*COS(4*D-2*M1)
+     *     -84*COS(2*M1-2*D)
+        DP=DP
+     *     -83*E*COS(2*D+M)+79*COS(2*D+2*M1)
+     *     +72*COS(4*D)+64*E*COS(2*D-M+M1)-63*E*COS(2*D+M-M1)
+     *     +41*E*COS(M+D)+35*E*COS(2*M1-M)-33*COS(3*M1-2*D)
+     *     -30*COS(M1+D)-29*COS(2*F-2*D)-29*E*COS(2*M1+M)
+     *     +26*E2*COS(2*D-2*M)-23*COS(2*F-2*D+M1)+19*E*COS(4*D-M-M1)
+        P=(.950724D0+1.E-6*DP)*K
+C
+C OBLIQUITY OF ECLIPTIC
+C
+        EPS=23.452294D0-.0130125D0*TT-1.64D-6*TT**2+5.03D-7*TT**3
+        DEPS=((9.21+.00091*T0)*COS(O)+.552*COS(2*F-2*D+2*O))/3600.
+        EPS=(EPS+DEPS)*K4
+C
+C NUTATION IN LONGITUDE (FIRST 4 TERMS)
+C
+        PSI=(-17.2327*SIN(O)-1.2730*SIN(2*F-2*D+2*O)+0.2088*SIN(2*O)
+     *       -0.2037*SIN(2*F+2*O))/3600.*K
+        L=L+PSI
+C
+C CARTESIAN COORDINATES
+C
+        L4=L
+        B4=B
+        XM=COS(B4)*COS(L4)
+        YM=COS(B4)*SIN(L4)*COS(EPS)-SIN(B4)*SIN(EPS)
+        ZM=COS(B4)*SIN(L4)*SIN(EPS)+SIN(B4)*COS(EPS)
+C
+C RIGHT ASCENSION AND DECLINATION
+C
+        RA=DATAN2(YM,XM)
+        IF(RA.LT.0.D0)RA=RA+2*PI
+        DE=DATAN(ZM/DSQRT(XM**2+YM**2))
+        RETURN
+        END SUBROUTINE
+
+      END MODULE

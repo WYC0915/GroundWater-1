@@ -1,0 +1,164 @@
+======================================================================
+Bernese GNSS Software, Version 5.2              Last mod.: 01-Nov-2012
+----------------------------------------------------------------------
+SLRVAL.PCF README
+======================================================================
+
+------------------------------------------------------------
+Purpose:
+------------------------------------------------------------
+
+ORBIT VALIDATION USING SLR DATA
+
+
+------------------------------------------------------------
+Description:
+------------------------------------------------------------
+
+This BPE performs an orbit validation using SLR tracking data.
+
+
+------------------------------------------------------------
+Remarks:
+------------------------------------------------------------
+
+Quality control: Residual statistics from program QLRSUM.
+
+
+------------------------------------------------------------
+BPE server variables:
+------------------------------------------------------------
+
+Input files / reference files:
+V_REFDIR (default: REF52)
+   Directory in the datapool area containing the basic
+   Bernese files used in the BPE script SLR_COP:
+   ${D}/{V_REFDIR}
+V_CRDINF (default: EX52_SLR)
+   Station related reference files copied from the datapool
+   area into the processing campaign.
+   The station positions used as reference for computing the
+   SLR residuals are extrapolated from {V_CRDINF}.CRD and
+   {V_CRDINF}.VEL to the processing epoch by the BPE user
+   script COOVEL.
+V_NPDIR (default: SLR_NP)
+   Directory with normal point files
+V_NP (default: gnss):
+   The SLR normal point file is copied from the datapool
+   area to the ORX directory of the processing campaign:
+   ${D}/{V_NPDIR}/(V_NP}.yymmdd.
+   Note: daily files are considered in the BPE script SLR_COP.
+   Note: data in Quicklook and CRD format can be handled.
+         Automatic switch in BPE user script QLRNX_1 at
+         epoch May 2nd, 2012.
+V_O1 (default: COD)
+   Orbit to be validated with SLR observations. The variable
+   is used for the directory in the datapool area as well as
+   for the naming of the orbit:
+   ${D}/{V_O1}/(V_O1}wwwwd
+V_ORBEXT (default: STD)
+   Specify the type of orbit to be copied from the datapool
+   area. You have two possibilities:
+   STD: the SLR validation starts directly with a Bernese-
+        formatted standard orbit. This is the usual case if
+        you validate orbits that you estimated by yourself.
+   PRE: you use precise orbits for the SLR validation. In
+        this case, a standard orbit has to be generated first,
+        which will be done in PID 110. This is the case if you
+        validate orbits from external sources, e.g., from CODE
+        or IGS.
+V_BLQINF (default: EX52_SLR)
+   ${V_BLQINF}.BLQ file, which contains CMC corrections connected
+   to ocean tidal loading. These corrections are needed for orbit
+   generation.
+
+Selection of the satellite(s) to be validated:
+V_SATSEL (default: SATSEL)
+   Specify the name of the satellite selection file. The
+   format is a FIX file. The file contains the PRNs of the
+   satellites to be included in the SLR orbit validation. It
+   must be prepared beforehand and stored in the STA directory
+   of the processing campaign. If no satellite selection file
+   is found in the campaign STA directory, the default selection
+   file distributed with the software release will be used
+   (located in ${D}/MSC/SATSEL.FIX).
+   The BPE scripts QLRNX_1 and QLRSUM_1 generate the list of
+   satellites in the option panels according to this file.
+V_LEO (default: N)
+   Activate LEO satellites for SLR validation.
+   Different settings are needed in GPSEST when validating
+   the orbit of a LEO satellite.
+
+Naming of output files:
+V_A (default: APR)
+   Station coordinates extrapolated to the processing epoch.
+V_G (default: R1_)
+   Computation of SLR residuals with program GPSEST.
+V_Q (default: S1)
+   Generation of residual statistics with program QLRSUM.
+
+Model selection related BPE variables:
+V_PCV (default: I08)
+   Selection of the antenna phase center model identifier
+V_SATINF (default: SATELLIT)
+   Basename of the satellite information file
+   The resulting filename is ${X}/GEN/{V_SATINF}.{V_PCV}
+V_PCVINF (default: PCV)
+   Basename of the antenna phase center correction file
+   The resulting filename is ${X}/GEN/{V_PCVINF}.{V_PCV}
+   If you create your own antenna phase center correction
+   file considering your own station information file using
+   the program ATX2PCV (menu > Conversion > ANTEX to Bernese
+   format) we recommend to change the filename to indicate
+   which station information file was used (e.g., PCV_EXAMPLE).
+V_SATCRX (default: SAT_$Y+0)
+   Name of the satellite problem file
+
+The last group is related to the file handling in the
+campaign:
+V_SAV (default: Y)
+   Save result file into the ${S}/{V_RESULT} area
+   if V_SAV == 'Y'. This variable is managed by the BPE user
+   script SLR_SAV.
+V_RESULT (default: SLRVAL)
+   Save result file into the ${S}/{V_RESULT} area
+   if V_SAV == 'Y'. This variable is managed by the BPE user
+   script SLR_SAV.
+V_DEL (default: Y)
+   Delete all files from the 'processed_session - 7' from
+   the campaign if V_DEL == 'Y'; managed in SLR_DEL user script.
+   Usually the deletion should be enabled to keep the campaign
+   clean. For debugging purposes and to identify sources for
+   errors in the processing it may be useful to keep all files.
+ATTENTION: This logic implies that you will lose the results in
+   case of Y_SAV == 'N' and V_DEL == 'Y' (clean up the campaign
+   but do not store the results).
+
+
+------------------------------------------------------------
+Input files:
+------------------------------------------------------------
+
+The input files are copied from the DATAPOOL area into
+campaign area in the BPE user script 'SLR_COP':
+
+- External products files (mandatory):
+  -->>  ${D}/{V_O1}/(V_O1}wwwwd.EPH / .SP3 / .STD
+  -->>  ${D}/{V_O1}/(V_O1}wwww7.ERP
+
+- Station related reference files (mandatory):
+  -->>  ${D}/{V_REFDIR}/(V_CRDINF}.CRD
+  -->>  ${D}/{V_REFDIR}/(V_CRDINF}.VEL
+  -->>  ${D}/{V_REFDIR}/(V_CRDINF}.ABB
+  -->>  ${D}/{V_REFDIR}/(V_CRDINF}.STA
+
+- Tidal loading corrections (optional)
+  Ocean tidal loading may be corrected during the
+  SLRVAL procedure if the corresponding corrections
+  are provided in the files.
+  -->>  ${D}/{V_REFDIR}/(V_BLQINF}.BLQ
+
+- SLR observation file (mandatory):
+  -->>  ${D}/{V_NPDIR}/(V_NP}.yymmdd
+
+======================================================================

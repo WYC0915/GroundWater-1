@@ -1,0 +1,72 @@
+)A
+/*                                                                            */
+/*   Skeleton file to display POLXTR results: one plot is generated for       */
+/*   x-pole, y-pole, UT1-UTC, and the drift in UT1-UTC. The plots also        */
+/*   contain the a priori pole. Device PS300.                                 */
+/*                                                                            */
+goptions device=vt340
+         hsize=10.0 in vsize=7.0 in gunit=pct
+         ftext=complex htitle=6 htext=3.5 ctext=black cback=white;
+title1 height=4.0
+       '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%';
+legend label=none
+       shape=symbol(5,2.5)
+       value=(tick=1 height=3.5 justify=left 'CODE'
+              tick=2 height=3.5 justify=left 'IERS')
+       frame;
+axis1 label=(height=3.5 'Day of Year 1993');
+axis2 label=(height=3.5 angle=90 'Pole Coord. Diff. in mas');
+axis3 label=(height=3.5 angle=90 'UT1-UTC Diff. in msec');
+axis4 label=(height=3.5 angle=90 'UT1-UTC Drift Diff. in msec/day');
+symbol1 interpol=join value=triangle height=2.5;
+symbol2 interpol=join value=diamond height=2.5;
+data pole;
+  INPUT day1 type1 xpole1 ypole1 ut1utc1 drift1;
+  INPUT day2 type2 xpole2 ypole2 ut1utc2 drift2;
+  if drift1 = 0.0000 then drift1 =.;
+  if drift2 = 0.0000 then drift2 =.;
+  xpole=(xpole1-xpole2)*1000.;
+  ypole=(ypole1-ypole2)*1000.;
+  ut1utc=(ut1utc1-ut1utc2)*1000.;
+  drift=drift1-drift2;
+  day1=day1-366;
+  drop type1 type2 xpole1 xpole2 ypole1 ypole2 ut1utc1 ut1utc2 drift1 drift2
+       day2;
+  cards;
+)B
+;
+run;
+proc sort data=pole out= sorted;
+     by day1;
+PROC GPLOT data=sorted;
+title2 height=4.0 'X-POLE';
+PLOT xpole*day1/
+        legend=legend1
+        haxis=axis1
+        vaxis=axis2
+        vref=0.0
+        frame;
+PROC GPLOT data=sorted;
+title2 height=4.0 'Y-POLE';
+PLOT ypole*day1/
+        legend=legend1
+        haxis=axis1
+        vaxis=axis2
+        vref=0.0
+        frame;
+PROC GPLOT data=sorted;
+title2 height=4.0 'UT1-UTC';
+PLOT ut1utc*day1/
+        legend=legend1
+        haxis=axis1
+        vaxis=axis3
+        vref=0.0
+        frame;
+PROC GPLOT data=sorted;
+title2 height=4.0 'UT1-UTC DRIFT';
+PLOT drift*day1/
+        legend=legend1
+        haxis=axis1
+        vaxis=axis4
+        vref=0.0
+        frame;

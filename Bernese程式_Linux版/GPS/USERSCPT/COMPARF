@@ -1,0 +1,58 @@
+package COMPARF;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  COMPARF
+#
+# Purpose :  Execute COMPAR for a range of sessions
+#
+# Remark  :  If a variable V_REPRO is not empty the script is skiped
+#            because the processing of inividual sessions is assumed.
+#
+# PARAMs  :  PARAM1: minus  (if undefined, V_MINUS is used)
+#            PARAM2: plus   (if undefined, V_PLUS is used)
+#
+# Author  :  M. Meindl
+# Created :  17-Feb-2006
+#
+# Changes :  11-Aug-2011 RD: Updated for version 5.2
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(setMinusPlus);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($repro) = $bpe->getKeys('V_REPRO');
+  my $repro0 = $repro;
+  $repro = "" if ($repro eq "set by COMPARF" );
+
+# Do not execute the program if the BPE runs in a the single session mode
+# (e.g., for reprocessing)
+# -----------------------------------------------------------------------
+  if ( $repro eq "" ) {
+
+# Set plus-minus
+# --------------
+    setMinusPlus($bpe);
+
+# Run program
+# -----------
+    my $PGMNAM = "COMPAR";
+    $bpe->RUN_PGMS($PGMNAM);
+
+# Count the number of files; set V_REPRO if only one file was included
+# --------------------------------------------------------------------
+    my @crdLst = split("\n",$bpe->getKey("$ENV{U}/INP/COMPAR.INP","COOFIL"));
+    if ( scalar(@crdLst) < 2 ) {
+      $bpe->setVar('REPRO',"set by COMPARF");
+    } elsif ( $repro0 ne $repro ) {
+      $bpe->setVar('REPRO',"$repro");
+    }
+  } # end of ($repro ne "")-section
+}

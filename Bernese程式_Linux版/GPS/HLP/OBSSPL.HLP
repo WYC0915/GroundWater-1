@@ -1,0 +1,194 @@
+<html>
+<body>
+
+<center>
+<b>SPLIT OBSERVATION FILES</b>
+<p>Program: OBSSPL
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="DELETE_FILES"  default="AUXFIL"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The program OBSSPL splits a Bernese observation file into two files based on
+a user specified epoch or epoch number, creates a header file for the second
+observation file and modifies the first header file accordingly. Several
+files may be split in one program run, e.g., corresponding code and phase
+files, or all observation files of a session.
+
+<p><hr>
+
+<p><b>OBSSPL 1: Input and Output Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="OBSTYPE" default="GNSS"</a>
+<a name="CZHFIL" default=""></a>
+<p><b>OBSERVATION FILES</b>
+Select whether microwave (GNSS) or SLR (Range) observation files should
+be considered.
+
+<p><b>Zero diff.</b> <b>code:</b>
+Select a list of headers of code zero difference files. All the
+corresponding observation files will be split and the headers will be modified
+accordingly. If you want to use other types of observation files only, this field 
+has to remain empty.
+
+<a name="PZHFIL" default=""></a>
+<p><b>Zero diff.</b> <b>phase:</b>
+Select a list of headers of phase zero difference files. All the
+corresponding observation files will be split and the headers will be modified
+accordingly. If you want to use other types of observation files only, this field 
+has to remain empty.
+
+<a name="BOTHZERO" default="0"></a>
+<p><b>Zero diff.</b> <b>both:</b>
+Check this box if you have code and phase zero difference files with identical
+names that you like to split in one run. The selection lists from
+the code and phase zero difference files will be merged and the files
+for both types of observations will be processed.
+
+<a name="CSHFIL" default=""></a>
+<p><b>Single diff.</b> <b>code:</b>
+Select a list of headers of code single difference files. All the
+corresponding observation files will be split and the headers will be modified
+accordingly. If you want to use other types of observation files only, this field 
+has to remain empty.
+
+<a name="PSHFIL" default=""></a>
+<p><b>Single diff.</b> <b> phase:</b>
+Select a list of headers of phase single difference files. All the
+corresponding observation files will be split and the headers will be modified
+accordingly. If you want to use other types of observation files only, this field 
+has to remain empty.
+
+<a name="BOTHSING" default="0"></a>
+<p><b>Single diff.</b> <b>both:</b>
+Check this box if you have code and phase single difference files with
+identical names that you like to split in one run. The selection lists from
+the code and phase single difference files will be merged and the files
+for both types of observations will be processed.
+
+<a name="RZHFIL" default=""></a>
+<p><b>Range:</b>
+Select a list of headers of range observation files. All the
+corresponding observation files will be split and the headers will be modified
+accordingly.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="OBSSPL"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the year
+and day of year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<p><hr>
+
+<p><b>OBSSPL 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<br><br>
+
+<a name="AUXFIL"  default="OBSSPL$J"></a>
+<p><b>TEMPORARY FILES</b>
+<p>
+Enter the names of the scratch file used by this program. The scratch file needs
+to be named differently for different programs running simultaneously. This
+may be achieved, e.g., by adding the job ID
+<tt>$J</tt> to the program name (define the job ID in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>).
+
+<p><i>Default value:</i> <tt>OBSSPL$J</tt>
+
+<p><hr>
+
+<p><b>OBSSPL 2: Options</b>
+
+<a name="FILNEW" default=""></a>
+<p><b>OPTIONS</b>
+<p><b>Second obs. file or last char.:</b>
+You have to specify a filename for the second observation file. You may
+specify either a new filename with up to 8 characters or a single character
+which defines the last character of the new filename
+(e.g., <tt>A</tt> for <tt>ZIMM213A.CZH</tt>).
+<br>
+If you specify a new filename of 8 characters, make sure that you have
+selected only one observation file for each observation type!
+
+<p><i>Caution:</i>
+The input file(s) will be modified in any case. Be aware
+that already existing observation files with the name of the second file will
+be <i>overwritten</i> without any message.
+
+<a name="RADIO_1" default="0"></a>
+<a name="OBSNUM" default=""></a>
+<p><b>Split observation number:</b>
+Specify the observation number where the observation file has to be split.
+
+<p><i>Remark:</i>
+The epoch corresponding to
+an epoch number depends on the reference epoch of the observation files.
+If this reference epoch is different for the selected observation files
+you will split them at different epochs.
+
+<a name="RADIO_2" default="1"></a>
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<p><b>Split time:</b>
+Specify the observation epoch where the observation files have to be split.
+
+<p><hr>
+
+</body>
+</html>

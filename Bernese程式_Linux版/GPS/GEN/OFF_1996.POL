@@ -1,0 +1,10 @@
+POLE OFFSET COEFFICIENTS IERS EOP SERIES -- IERS REFERENCE FRAMES     16-JAN-95
+-------------------------------------------------------------------------------
+REFERENCE TIME (YYYY MM DD HH.H): 1993 00 00 00.0
+
+      X    RMSX    Y    RMSY   UT1   RMSU  DPSI   RMS   DEPSI  RMS
+     MAS   MAS    MAS   MAS   0.1MS  0.1MS  MAS   MAS    MAS   MAS
+**  *****  ****  *****  ****  *****  ****  *****  ****  *****  ****
+A   -0.08  0.13   0.03  0.13   0.02  0.12  -0.01  0.08   0.01  0.03
+A'  -0.07  0.10   0.03  0.10   0.00  0.07   0.00  0.00   0.00  0.00
+

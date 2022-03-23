@@ -1,0 +1,73 @@
+      MODULE s_OCLOAD
+      CONTAINS
+
+C*
+      SUBROUTINE OCLOAD(TOBS,OCNAMP,OCNPHS,DOLOAD)
+CC
+CC NAME       :  OCLOAD
+CC
+CC PURPOSE    :  COMPUTES EFFECT OF OCEAN LOADING ON STATION COORDINATES
+CC               ACCORDING TO IERS CONVENTIONS 1996
+CC               THE FOLLOWING TERMS ARE USED:
+CC                  M2, S2, N2, K2, K1, O1, P1, Q1, MF, MM, SSA
+CC                  (values from SCHERNECK)
+CC
+CC PARAMETERS :
+CC         IN :  TOBS: OBSERVATION EPOCH (MJD)                R*8
+CC               OCNAMP: OCEAN LOADING AMPLITUDES             R*8(3,11)
+CC               OCNPHS: OCEAN LOADING AMPLITUDES             R*8(3,11)
+CC         OUT:  DOLOAD: OCEAN LAODING CORRECTIONS (-N,-E,U)  R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  T.A. SPRINGER
+CC
+CC VERSION    :  4.1
+CC
+CC CREATED    :  10-MAR-98
+CC
+CC CHANGES    :  10-MAR-98 : TS: CREATED
+CC               17-FEB-03 : LM: USE M_MAXDIM
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1997     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_maxdim, ONLY: MAXOCN
+      USE s_argocn
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I   , J
+C
+      REAL*8    TOBS
+C
+CCC       IMPLICIT  REAL*8(A-H,O-Z)
+C
+C
+      REAL*8    ASTANG(MAXOCN)
+      REAL*8    OCNAMP(3,MAXOCN)
+      REAL*8    OCNPHS(3,MAXOCN),DOLOAD(3)
+C
+C GET THE ASTRONOMICAL ANGLE
+C --------------------------
+      CALL ARGOCN(TOBS,ASTANG)
+C
+C DETERMINE TOTAL EFFECT OF OCEAN LOADING FOR THE W, S, U DIRECTIONS
+C ------------------------------------------------------------------
+      DO 10 I=1,3
+        DOLOAD(I)=0.D0
+        DO 20 J=1,MAXOCN
+          DOLOAD(I)=DOLOAD(I)+OCNAMP(I,J)*
+     1               DCOS(ASTANG(J)-OCNPHS(I,J))
+20      CONTINUE
+10    CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+
+      END MODULE

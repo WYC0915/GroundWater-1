@@ -1,0 +1,39 @@
+      MODULE s_SPLINI
+      CONTAINS
+
+      SUBROUTINE SPLINI(XA,YA,Y2A,N,X,YI)
+C       INTEGRATE CUBIC SPLINE FUNCTION FROM XA(1) TO X
+C        XA,YA: ARRAYS OF TABULATED FUNCTION IN ASCENDING ORDER BY X
+C        Y2A: ARRAY OF SECOND DERIVATIVES
+C        N: SIZE OF ARRAYS XA,YA,Y2A
+C        X: ABSCISSA ENDPOINT FOR INTEGRATION
+C        Y: OUTPUT VALUE
+C
+      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT INTEGER*4 (I-N)
+C
+      DIMENSION XA(N),YA(N),Y2A(N)
+      SAVE
+      YI=0
+      KLO=1
+      KHI=2
+    1 CONTINUE
+      IF(X.GT.XA(KLO).AND.KHI.LE.N) THEN
+        XX=X
+        IF(KHI.LT.N) XX=DMIN1(X,XA(KHI))
+        H=XA(KHI)-XA(KLO)
+        A=(XA(KHI)-XX)/H
+        B=(XX-XA(KLO))/H
+        A2=A*A
+        B2=B*B
+        YI=YI+((1.D0-A2)*YA(KLO)/2.D0+B2*YA(KHI)/2.D0+
+     1     ((-(1.D0+A2*A2)/4.D0+A2/2.D0)*Y2A(KLO)+
+     1     (B2*B2/4.D0-B2/2.D0)*Y2A(KHI))*H*H/6.D0)*H
+        KLO=KLO+1
+        KHI=KHI+1
+        GOTO 1
+      ENDIF
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

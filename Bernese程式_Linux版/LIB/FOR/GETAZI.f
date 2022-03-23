@@ -1,0 +1,159 @@
+      MODULE s_GETAZI
+      CONTAINS
+
+C*
+      SUBROUTINE GETAZI(RECTYP,ANTTYP,IANTEN,SESSID,ANTAZI)
+CC
+CC NAME       :  GETAZI
+CC
+CC PURPOSE    :  GET ORIENTATION OF RECEIVER ANTENNA FOR A SPECIFIC
+CC               SESSION FROM THE ANTENNA ORIENTATION FILE
+CC
+CC PARAMETERS :
+CC         IN :  RECTYP : RECEIVER NAME                      CH*(*)
+CC               ANTTYP : ANTENNA NAME                       CH*(*)
+CC               IANTEN : ANTENNA NUMBER                      I*4
+CC               SESSID : SESSION IDENTIFICATION             CH*4
+CC        OUT :  ANTAZI : AZIMUTH OF THE ANTENNA ORIENTATION  R*8
+CC                        IN RADIAN MEASURED CLOCK-WISE FROM
+CC                        THE TRUE NORTH TO THE ANTENNA NORTH
+CC                        REFERENCE. E.G. IF THE ANTENNA NORTH
+CC                        ARROW IS ORIENTED TOWARDS THE EAST
+CC                        THEN THE AZIMUTH IS +90 DEGREES
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M. ROTHACHER
+CC
+CC VERSION    :  4.0
+CC
+CC CREATED    :  22-DEC-95
+CC
+CC CHANGES    :  11-AUG-03 : RS: RECTYP ALLOWED TO BE BLANK
+CC               08-SEP-03 : HU: ANTNAM, RECNAM CHR16 -> CHR20, FILENAMES LONG
+CC               10-SEP-03 : PS: ANTNAM, RECNAM DECLARED FREE
+CC               16-JUN-05 : MM: COMCONST.inc REPLACED BY d_const
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1995     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE M_BERN
+      USE d_const, ONLY: PI
+      USE s_exitrc
+      USE s_opnfil
+      USE s_gtflna
+      USE s_opnerr
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IANHP1, IANHP2, IANTEN, IAZHLP, IAZI  , IFIRST, IOSTAT,
+     1          IRCAZI, MAXAZI, NAZI
+C
+      REAL*8    ANTAZI
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      PARAMETER (MAXAZI=250)
+C
+      CHARACTER*(fileNameLength80) FILNAM
+      CHARACTER*(*) RECTYP,ANTTYP
+      CHARACTER*20 RECTYF(MAXAZI),ANTTYF(MAXAZI)
+      CHARACTER*20 RECHLP,ANTHLP
+      CHARACTER*4  SESSID,SESFIL(MAXAZI),SESHLP
+C
+      REAL*8       ANTAZF(MAXAZI)
+C
+      INTEGER*4    ANTNUM(2,MAXAZI)
+C
+      COMMON/CGETAZ/RECTYF,ANTTYF,SESFIL,ANTNUM
+C
+C
+      DATA IFIRST/1/
+C
+C OPEN ANTENNA ORIENTATION FILE
+C -----------------------------
+      IF(IFIRST.EQ.1) THEN
+        IFIRST=0
+        CALL GTFLNA(0,'ANTAZI ',FILNAM,IRCAZI)
+        IF(IRCAZI.EQ.0) THEN
+          CALL OPNFIL(LFNLOC,FILNAM,'OLD','FORMATTED',
+     1                'READONLY',' ',IOSTAT)
+          CALL OPNERR(LFNERR,LFNLOC,IOSTAT,FILNAM,'GETAZI')
+C
+C READ ALL ORIENTATIONS FROM THE FILE
+C -----------------------------------
+          READ(LFNLOC,1)
+1         FORMAT(/////)
+          DO 10 IAZI=1,100000
+            READ(LFNLOC,2,END=20) RECHLP,IANHP1,IANHP2,SESHLP,IAZHLP,
+     1                            ANTHLP
+2           FORMAT(/,A20,1X,2I7,2X,A4,I7,/,A20)
+            IF(RECHLP.EQ.' ') GOTO 20
+            IF(ANTHLP.EQ.' ') THEN
+              ANTHLP=RECHLP
+              RECHLP=' '
+            ENDIF
+C
+C CHECK MAXIMUM DIMENSIONS
+            IF (IAZI.GT.MAXAZI) THEN
+              WRITE(LFNERR,901) MAXAZI,TRIM(FILNAM)
+901           FORMAT(/,' *** SR GETAZI: TOO MANY ANTENNA ORIENTATIONS',
+     1                 ' IN ANTENNA ORIENTATION FILE',
+     2                /,16X,'MAXIMUM NUMBER OF STATIONS:',I4,
+     3                /,16X,'ANTENNA ORIENTATION FILE  : ',A,/)
+              CALL EXITRC(2)
+            ENDIF
+            RECTYF(IAZI)  =RECHLP
+            ANTTYF(IAZI)  =ANTHLP
+            ANTNUM(1,IAZI)=IANHP1
+            ANTNUM(2,IAZI)=IANHP2
+            SESFIL(IAZI)  =SESHLP
+            ANTAZF(IAZI)  =IAZHLP*PI/180
+10        CONTINUE
+C
+C NUMBER OF ORIENTATIONS
+C ----------------------
+20        NAZI=IAZI-1
+C
+C CLOSE TRANSLATION TABLE
+C -----------------------
+          CLOSE(UNIT=LFNLOC)
+        ENDIF
+      ENDIF
+C
+C NO ORIENTATION FILE AVAILABLE
+C -----------------------------
+      IF(IRCAZI.NE.0) THEN
+        ANTAZI=0.D0
+      ELSE
+C
+C FIND RECEIVER TYPE, ANTENNA TYPE, ANTENNA NUMBER, AND SESSION
+C -------------------------------------------------------------
+        DO 30 IAZI=1,NAZI
+C
+          IF(((RECTYP.EQ.RECTYF(IAZI)) .OR. (RECTYP.EQ.' ')) .AND.
+     1         ANTTYP.EQ.ANTTYF(IAZI)   .AND.
+     2         IANTEN.GE.ANTNUM(1,IAZI) .AND.
+     3         IANTEN.LE.ANTNUM(2,IAZI) .AND.
+     4         SESSID.EQ.SESFIL(IAZI) ) THEN
+            ANTAZI=ANTAZF(IAZI)
+            GOTO 40
+          END IF
+C
+30      CONTINUE
+C
+C RECEIVER/ANTENNA/SESSION NOT FOUND: NORTH ORIENTATION
+        ANTAZI=0.D0
+C
+40      CONTINUE
+      ENDIF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

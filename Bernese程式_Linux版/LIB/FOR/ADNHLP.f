@@ -1,0 +1,103 @@
+      MODULE s_ADNHLP
+      CONTAINS
+
+C*
+      SUBROUTINE ADNHLP(NEQ,NPAR,INDA,MAXPPE,MAXEQN,MXCEQN,INDHLP,
+     1                  NPEFF,IPAEXT,NLIN,LINNUM,COLNUM)
+CC
+CC NAME       :  ADNHLP
+CC
+CC PURPOSE    : SUBROUTINE HANDLING BOOK-KEEPING FOR SR ADDNOR
+CC              TO ALLOW ADDNOR TO ACCESS NON-ZERO ELEMENTS ONLY.
+CC
+CC PARAMETERS :
+CC        IN  : NEQ     : NUMBER OF DOUBLE DIFFERENCE OBS EQNS      I*4
+CC              NPAR    : TOTAL NUMBER OF PARAMETERS                I*4
+CC              INDA    : INDEX ARRAY FOR A-MATRIX                  I*2(*,*)
+CC              MAXPPE  : MAX NUMBER OF NON ZERO PAR. IN EPOCH      I*4
+CC              MAXEQN  : MAX NUMBER OF OBS EQNS                    I*4
+CC              MXCEQN  : MAX NUMBER OF OBS EQNS                    I*4
+CC              INDHLP  : AUXILIARY ARRAY                           I*2(*)
+CC        OUT : NPEFF   : NUMBER OF PARAMETERS ACTUALLY SHOWING UP  I*4
+CC              IPAEXT(K) : EXT. PARAMETER NUMBER FOR INT. PARM K   I*2(*)
+CC              NLIN(K) : NUMBER OF LINES IN WHICH INT. PARAMETER K I*2(*)
+CC                        IS ACTUALLY PRESENT
+CC              LINNUM(L,K),L=1,..,NLIN(K): CORRESPONDING LINE NUMBERS I*2(*,*)
+CC              COLNUM(L,K) : INDEX IN MATRIX A FOR ELEMENT L,K     I*2(*,*)
+CC
+CC REMARKS    :
+CC
+CC AUTHOR     :  G.BEUTLER
+CC
+CC VERSION    :  3.5  (MAY 94)
+CC
+CC CREATED    :  94/05/11
+CC
+CC CHANGES    :  13-JUN-95 : GB: MAXSNG CHANGED TO MAXPPE
+CC               24-JAN-97 : TS: BETTER ERROR MESSAGES FOR MAXPPE
+CC               19-NOV-04 : RD: F90-ARRAY PARAMETER HANDLING
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1994     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IPAR  , IPMIN , ITEST , L     , MAXEQN, MAXPPE,
+     1          MXCEQN, NEQ   , NPAR  , NPEFF
+C
+CCC       IMPLICIT   REAL*8 (A-H,O-Z)
+CCC       IMPLICIT   INTEGER*4 (I-N)
+      INTEGER*4  INDA(mxceqn,*),IPAEXT(*),LINNUM(:,:),
+C      INTEGER*4  INDA(*),IPAEXT(*),LINNUM(MAXEQN,*),
+     1           COLNUM(:,:),INDHLP(*),NLIN(*)
+C
+C
+      NPEFF=0
+      DO 10 I=1,NEQ
+        INDHLP(I)=1
+10    CONTINUE
+      DO 100 IPAR=1,NPAR
+        IPMIN=1000000
+        DO 20 L=1,NEQ
+C          INDX=(INDHLP(L)-1)*MXCEQN+L
+C          ITEST=INDA(INDX)
+          ITEST=INDA(L,INDHLP(L))
+          IF(ITEST.GT.0.AND.ITEST.LT.IPMIN)IPMIN=ITEST
+20      CONTINUE
+        IF(IPMIN.EQ.1000000)GO TO 110
+        NPEFF=NPEFF+1
+        IF (NPEFF.GT.MAXPPE) THEN
+          WRITE(LFNERR,25)MAXPPE,NPAR
+25        FORMAT(//,' *** SR ADNHLP : MAXPPE (ADDNOR) TOO SMALL',/,
+     1                          16X,' MAXPPE: ',I5,/,
+     1                          16X,' NPAR  : ',I5,//)
+          CALL EXITRC(2)
+        ENDIF
+        IPAEXT(NPEFF)=IPMIN
+        NLIN(NPEFF)=0
+        DO 30 L=1,NEQ
+C          INDX=(INDHLP(L)-1)*MXCEQN+L
+C          ITEST=INDA(INDX)
+          ITEST=INDA(L,INDHLP(L))
+          IF(ITEST.EQ.IPMIN)THEN
+            NLIN(NPEFF)=NLIN(NPEFF)+1
+            LINNUM(NLIN(NPEFF),NPEFF)=L
+            COLNUM(NLIN(NPEFF),NPEFF)=INDHLP(L)
+            INDHLP(L)=INDHLP(L)+1
+          END IF
+30      CONTINUE
+100   CONTINUE
+110   CONTINUE
+999   CONTINUE
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

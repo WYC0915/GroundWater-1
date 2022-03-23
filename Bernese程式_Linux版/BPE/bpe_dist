@@ -1,0 +1,11 @@
+
+cp ${BPE}/BEG_MENU     $X/SCRIPT/
+cp ${BPE}/DO_TAIL      $X/SCRIPT/
+cp ${BPE}/END_MENU     $X/SCRIPT/
+cp ${BPE}/NPUTKEY      $X/EXE/
+cp ${BPE}/RBPE         $X/EXE/
+cp ${BPE}/RUN_PGMS     $X/SCRIPT/
+cp ${BPE}/SET_SESS     $X/SCRIPT/
+cp ${BPE}/PRT_GOTO     $X/SCRIPT/
+
+

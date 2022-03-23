@@ -1,0 +1,116 @@
+<html>
+<body>
+
+<center>
+<b>TEST OF RECEIVER PERFORMANCE</b>
+<p>Program: RCVTST
+</center>
+<hr WIDTH="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+<font color="#FF0000">Text for GENERAL DESCRIPTION will be added soon.</font>
+
+<p><hr>
+
+<p><b>RCVTST 1: Filenames</b>
+
+<p><b>GENERAL FILES</b>
+<p><a name="SHOWGEN" default="1"></a>
+<b>Show all general files:</b>
+Check this box to get the currently active campaign, session and session table.
+
+<br><br>
+<p><b>INPUT FILE</b>
+<p><a name="ARSUM" default=""></a>
+<b>Ambiguity resolution summaries:</b>
+
+<font color="#FF0000">Text for key ARSUM will be added soon.</font>
+
+<br><br>
+<p><b>OUTPUT FILE</b>
+<p><a name="RESID" default=""></a>
+<b>Residuals:</b>
+
+<font color="#FF0000">Text for key RESID will be added soon.</font>
+
+<br><br>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><a name="SYSODEF" default="1"></a>
+   <a name="SYSOUT"  default="RCVTST"></a>
+<b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<p><a name="ERRMRG" default="0"></a>
+   <a name="SYSERR" default="ERROR"></a>
+<b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or to specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>RCVTST 1.1: General Files</b>
+
+<p><b>GENERAL INPUT FILES</b>
+<p><a name="CONST" default="CONST."></a>
+<b>General constants:</b>
+
+<font color="#FF0000">Text for key CONST will be added soon.</font>
+
+<p><a name="ABBREV" default="ABBREV"></a>
+<b>Abbreviation table:</b>
+
+<font color="#FF0000">Text for key ABBREV will be added soon.</font>
+
+<p><a name="RNXINFO" default=""></a>
+<b>Station information:</b>
+
+<font color="#FF0000">Text for key RNXINFO will be added soon.</font>
+
+<p><hr>
+
+<p><b>RCVTST 2: Input Options</b>
+
+<p><a name="TITLE" default=""></a>
+<b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<p><b>OPTIONS</b>
+<p><a name="ORDER" default="1"></a>
+<b>Order results:</b>
+
+<font color="#FF0000">Text for key ORDER will be added soon.</font>
+
+<p><a name="NITER" default="3"></a>
+<b>Number of iterations:</b>
+
+<font color="#FF0000">Text for key NITER will be added soon.</font>
+
+<p><hr>
+
+</body>
+</html>

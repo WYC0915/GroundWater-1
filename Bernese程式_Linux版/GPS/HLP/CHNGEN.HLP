@@ -1,0 +1,233 @@
+<html>
+<body>
+
+<center>
+<b>CHANGE GENERAL OPTIONS</b>
+<p>Program: CHNGEN
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The program CHNGEN allows to change general options in one or more program
+input files. These options are primarily names of general input files, but
+CHNGEN allows you also to change values of other keywords in program input
+panels.
+
+<p><hr>
+
+<p><b> CHNGEN 1: Input/Output Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+This program does not need general files. If you check this box, the currently
+active campaign, session and session table are displayed.
+
+<a name="RADIO_UPDFIL" default="0"></a>
+<a name="UPDFIL" default=""></a>
+<p><b>INPUT FILES TO BE CHANGED </b>
+<p><b>Separate file(s):</b>
+Select this option if you want to specify individual program input files.
+The list of program input file(s) to be changed has to be selected in the
+input field. These files are taken from your user input file directory
+(default: <tt>${U}/PAN</tt>).
+
+<a name="RADIO_UPDDIR" default="1"></a>
+<a name="UPDDIR" default="${U}/OPT/*"></a>
+<p><b>Panel directory:</b>
+Select this option if you want to modify all program input files in a
+directory. Specify the directory in the corresponding field. You may use
+wildcards to select individual directories (examples: <tt>${U}/PAN</tt>,
+<tt>${U}/OPT/*</tt>, or <tt>${U}/OPT/PPP_???</tt>).
+
+<a name="RADIO_UPDLST" default="0"></a>
+<a name="UPDLST" default=""></a>
+<p><b>File with directory list:</b>
+Select this option if you want to modify all program input files in several
+directories and specify the file containing the list of directories.
+
+<p><a href="/$X/DOC/EXAMPLE.UPD">Example</a>
+
+<br><br>
+
+<a name="SYSODEF" default="0"></a>
+<a name="SYSOUT"  default="CHNGEN"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You have to specify a name for the program
+output file. This allows to characterize the program run.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR">
+<p><b>Error messages:</b></a>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output.
+
+<p><hr>
+
+<p><b>CHNGEN 2: Change General Input Files</b>
+
+<a name="CHK_CONST" default="0"></a>
+<a name="CHK_SATELL" default="0"></a>
+<a name="CHK_DATUM" default="0"></a>
+<a name="CHK_PHASECC" default="0"></a>
+<a name="CHK_STAINFO" default="0"></a>
+<a name="CHK_SATCRUX" default="0"></a>
+<a name="CHK_POLE" default="0"></a>
+<a name="CHK_NUTMOD" default="0"></a>
+<a name="CHK_SUBMOD" default="0"></a>
+<p><b>NAMES TO BE CHANGED</b>
+<p>
+Check one or more item to be changed in the selected input files.
+Note that inactive input fields indicate that the corresponding item will
+not be modified.
+
+<p><b>Old value:</b>
+Specify the old value of the item in this field. If left blank, any existing value for
+this item will be changed to the new value.
+
+<p><b>New value:</b>
+Specify the new value of the item in this field. If the field is left
+blank, the corresponding value in the program input file(s) will be cleared.
+
+<br><br>
+
+<a name="OLD_CONST" default=""></a>
+<a name="NEW_CONST" default="CONST."></a>
+<p><b> General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+
+<a name="OLD_SATELL" default=""></a>
+<a name="NEW_SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite info:</b>
+This file contains satellite specific information. You have to modify
+this file each time you need to introduce newly launched satellites. For
+the processed session each satellite has to appear once in this file
+within a corresponding time window. If you have ftp access then you can get
+this file from the <a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a>
+account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<a name="OLD_DATUM" default=""></a>
+<a name="NEW_DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates. It is used
+to apply antenna heights and for the printing of coordinates in the
+local system (north, east, up). You only have to modify this file
+when you want to introduce a new reference ellipsoid.
+
+<p><i>Caution:</i>
+This file has no effect on Cartesian coordinates.
+
+<p>Example: <a href="/$X/GEN/DATUM.">$X/GEN/DATUM.</a>
+
+<a name="OLD_PHASECC" default=""></a>
+<a name="NEW_PHASECC" default="PCV.I08"></a>
+<p><b>Phase center ecc.:</b>
+This file contains the phase center offsets and, possibly,
+elevation-dependent phase center variations for most of the commonly
+used antenna types. You have to modify this file when you use
+a new antenna type or when you introduce new elevation-dependent
+corrections.
+<p>Example:<a href="/$X/GEN/PCV.I08">$X/GEN/PCV.I08</a>.
+
+<a name="OLD_STAINFO" default=""></a>
+<a name="NEW_STAINFO" default=""></a>
+<p><b>Station information:</b>
+This file contains station specific information.
+It is, e.g., used to change station names, antenna heights etc. when
+processing normal equation files with the program
+<a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a>.
+
+<p><a href="/$X/DOC/EXAMPLE.STA">Example</a>
+
+<a name="OLD_SATCRUX" default=""></a>
+<a name="NEW_SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems. It is used to
+exclude bad satellites. This file has to be updated every time when
+a new satellite problem appears (satellite maneuvers, bad data,...).
+If you have ftp access then you can get this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SAT_2003.CRX">$X/GEN/SAT_2003.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<a name="OLD_POLE" default=""></a>
+<a name="NEW_POLE" default=""></a>
+<p><b>Pole file:</b>
+This file contains the Earth rotation parameters (ERPs). It is used for
+the transformations between the International Celestial Reference Frame
+(ICRF) and the International Terrestrial Reference Frame (ITRF).
+
+<p><a href="/$X/DOC/EXAMPLE.ERP">Example</a>
+
+<a name="OLD_NUTMOD" default=""></a>
+<a name="NEW_NUTMOD" default="IAU2000R06"></a>
+<p><b>Nutation model:</b>
+This file contains the parameters for the nutation model.
+
+<p>Example: <a href="/$X/GEN/IAU2000R06.NUT">$X/GEN/IAU2000R06.NUT</a>
+
+<a name="OLD_SUBMOD" default=""></a>
+<a name="NEW_SUBMOD" default="IERS2010XY"></a>
+<p><b>Subdaily pole model:</b>
+This file contains the parameters for the subdaily pole model.
+
+<p>Example: <a href="/$X/GEN/IERS2010XY.SUB">$X/GEN/IERS2010XY.SUB</a>
+
+<a name="ADVANCED_USERS" default="0"></a>
+<p><b>Change other keywords:</b>
+Check this box to redefine other keywords in input files.
+<br>
+Use this option with care!
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+<p><b>CHNGEN 3: Change any keywords -- use with care</b>
+
+<a name="UNIVERSAL" default="%% %% %%"></a>
+<p><b>Keyword  Old value  New value</b><br>
+You can redefine the value of any keyword available in the input files. The
+program searches in all selected input files for the keyword specified in
+the first field. Care has to be taken for keywords which are used in different
+program input files in varying context.
+<br>
+Use more than one line in order to change the values of several keywords
+in a single program run.
+<br>
+If you leave the old value blank, the keyword will be redefined regardless
+of the current value. If you specify an old value, only keywords with this
+value will be redefined.
+<br>
+If you leave the field "New value" blank, the keyword will be set to a
+blank value.
+
+<p><hr>
+
+</body>
+</html>

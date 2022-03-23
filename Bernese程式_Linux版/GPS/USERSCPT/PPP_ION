@@ -1,0 +1,69 @@
+package PPP_ION;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  PPP_ION
+#
+# Purpose :  Initialize or skip ionosphere estimation
+#
+# Remark  :  Ionosphere estimation is only available for daily processing
+#
+# PARAMs  :  PARAM2 - goto PID if V_K undefined
+#
+# Author  :  S. Schaer
+# Created :  07-Apr-2004
+#
+# Changes :  11-Aug-2011 RD: Updated for version 5.2
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtGoto isHourly);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyssss, $ssss,
+      $param2, $clu, $k, $l,
+      $dirOut, $dirSum, $dirIon, $dirInx, $dirDcb, $dirNeq,
+      $extOut, $extSum, $extIon, $extInx, $extDcb, $extNeq) =
+  $bpe->getKeys
+     ('$YSS+0', '$S+0',
+      'PARAM2', 'V_CLU', 'V_K', 'V_L',
+      'DIR_OUT', 'DIR_SUM','DIR_ION', 'DIR_INX', 'DIR_DCB', 'DIR_NEQ',
+      'EXT_OUT', 'EXT_SUM','EXT_ION', 'EXT_INX', 'EXT_DCB', 'EXT_NEQ');
+
+# Delete old files (OUT, SUM, ION, INX, DCB, NEQ)
+# ------------------------------------- ---------
+  my $cluster = $clu ne "" ? "${ssss}???" : "${ssss}????";
+
+  unless (isHourly($ssss)) {
+    if ("$k" ne "") {
+      unlink glob("${dirOut}${k}${cluster}.${extOut}");
+      unlink glob("${dirIon}${k}${cluster}.${extIon}");
+      unlink glob("${dirDcb}${k}${cluster}.${extDcb}");
+      unlink glob("${dirNeq}${k}${cluster}.${extNeq}");
+
+      unlink "${dirOut}${k}${yyssss}.${extOut}";
+      unlink "${dirDcb}${k}${yyssss}.${extDcb}";
+
+      unlink "${dirOut}${l}${yyssss}.${extOut}";
+      unlink "${dirIon}${l}${yyssss}.${extIon}";
+      unlink "${dirInx}${l}${yyssss}.${extInx}";
+      unlink "${dirDcb}${l}${yyssss}.${extDcb}";
+
+      unlink "${dirSum}${k}${ssss}OUT.${extSum}";
+      unlink "${dirSum}${k}${ssss}ION.${extSum}";
+      unlink "${dirSum}${l}${ssss}OUT.${extSum}";
+      unlink "${dirSum}${l}${ssss}ION.${extSum}";
+    }
+  }
+
+# Skip ionosphere estimation if V_K undefined
+# -------------------------------------------
+  prtGoto($bpe,$param2) if "$k" eq "" || isHourly($ssss);
+
+}

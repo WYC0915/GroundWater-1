@@ -1,0 +1,72 @@
+package POLUPDH;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  POLUPDH
+#
+# Purpose :  Execute POLUPD for daily or hourly processing
+#
+# Remark  :  - Consider range of sessions for hourly processing
+#            - USERATE is automatically adjusted according to the existence
+#              of midnight epochs in the IERS pole file or not
+#
+# PARAMs  :
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(isHourly setMinusPlus);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($ssss,$hourly) = $bpe->getKeys('$S+0','V_HOURLY');
+
+# Hourly processing
+# -----------------
+  if (isHourly($ssss)) {
+    setMinusPlus($bpe,-$hourly,0)
+  } else {
+    setMinusPlus($bpe,0,0)
+  }
+
+# Run program
+# -----------
+  my $PGMNAM = "POLUPD";
+  $bpe->RUN_PGMS($PGMNAM);
+
+# Check whether the ERP must switched off
+# ---------------------------------------
+  my $iepFil = $bpe->getKey("$ENV{U}/INP/POLUPD.INP","IEPFIL");
+  my $isRate = $bpe->getKey("$ENV{U}/INP/POLUPD.INP","USERATE");
+  my $doRate = 1;
+
+  open(IEP,"$iepFil");
+  while ( <IEP> ) {
+   if ( /^[ ]*([\d][\d][\d][\d][\d]\.[\d]*) / ) {
+     my $epo = $1;
+     if ( $epo == int($epo) ) {
+       $doRate = 0;
+       last;
+     }
+   }
+  }
+  close IEP;
+
+# Repeat the program if necessary
+# -------------------------------
+  if ( $doRate != $isRate ) {
+    $bpe->putKey("$ENV{U}/PAN/POLUPD.INP","USERATE","$doRate");
+
+    my $PGMNAM = "POLUPD";
+    $bpe->RUN_PGMS($PGMNAM);
+  }
+}

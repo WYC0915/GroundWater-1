@@ -1,0 +1,238 @@
+      MODULE s_SEQAMB
+      CONTAINS
+
+C*
+      SUBROUTINE SEQAMB(FILNUM,IFRSES,IEPOCH,SVNFIL,NUMAMB,AMBSAT,
+     1                  AMBIEP,AMBCLS,NPARN ,NPAR  ,NPASES,LOCQ  ,
+     2                  ANOR  ,BNOR  )
+CC
+CC NAME       :  SEQAMB
+CC
+CC PURPOSE    :  SET UP AMBIGUTIY PARAMETERS THAT ARE OBSERVED FOR
+CC               THE FIRST TIME. SET LOCQ(7,...) TO THE LAST EPOCH
+CC               NUMBER BELONGING TO THE CORRESPONDING CLUSTER.
+CC
+CC PARAMETERS :
+CC         IN :  FILNUM : OBS. FILE NUMBER                    I*4
+CC               IFRSES : FREQUENCY                           I*4
+CC               IEPOCH : OBSERV. NUMBER                      I*4
+CC               SVNFIL : SATELLITE NUMBER                    I*4
+CC               NUMAMB(I),I=1,..,NFTOT: NUMBER OF AMBIGU.    I*4
+CC               AMBSAT(J,I),J=1,..,NUMAMB(I),I=1,..,NFTOT:   I*4
+CC                        AMBIGUITY SATELLITE NUMBERS
+CC               AMBIEP(J,I),J=1,..,NUMAMB(I),I=1,..,NFTOT:   I*4
+CC                        STARTING EPOCH NRS FOR AMBIGUITIES
+CC               AMBCLS(L,K,I),L=1,..,NUMAMB(I), K=1,2,3,     I*4
+CC                        I=1,..,NFTOT: AMBIGUITY CLUSTERS
+CC               NPARN  : NUMBER OF NON AMBIGUITY PARAMETERS  I*4
+CC     IN/OUT :  NPAR   : TOTAL NUMBER OF PARAMETERS          I*4
+CC               NPASES : TOTAL NUMBER OF PARAMETERS          I*4
+CC               LOCQ(I,K),K=1,..,NPAR,I=1,..,MAXLCQ:         I*4
+CC                        DEFINITION OF EACH PARAMETER
+CC               ANOR(I): NORMAL EQUATION MATRIX              R*8
+CC               BNOR(I): RIGHT HAND SIDE OF NEQ SYSTEM       R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  L. MERVART, M. ROTHACHER
+CC
+CC VERSION    :  3.6
+CC
+CC CREATED    :  08-AUG-95
+CC
+CC CHANGES    :  17-AUG-95 : LM: OPTION STRAMB(2)
+CC               05-SEP-95 : LM: CORRECT INITIALIZATION, CHECK A0I-DIMENS.
+CC               08-SEP-95 : LM: SINGULARITY PROBLEM
+CC               28-SEP-95 : JJ: DECLARE PARFLG AS I*4(*)
+CC               07-AUG-97 : MR: ADJUSTED FOR ONE SATELLITE, ONE
+CC                               FREQUENCY, AND ONE FILE; NO PRE-ELIMI-
+CC                               NATION
+CC               07-AUG-97 : MR: ADD LOCQ(7,...) INFORMATION
+CC               11-AUG-97 : SS: FORMATS CORRECTED
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1995     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE f_ikf
+      USE s_maxtst
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IA    , IAM2  , IAMB  , IC    , ICLS  , IEP2  ,
+     1          IEPOCH, IF    , IFIL  , IFIRST, IFLAG , IFRQ  , IFRSES,
+     2          IHLP  , ILOC  , IPAR  , IRC   , IS    , LSTEPO,
+     3          MAXLCQ, MXCAMB, MXCAMP, MXCLCQ, MXCLOC, MXCPAR, NPAR  ,
+     4          NPARN , NPASES
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+
+      CHARACTER*6  MXNAMP,MXNAMB,MXNLCQ,MXNPAR,MXNLOC
+C
+C COMMON FOR MAXIMAL DIMENSIONS
+C -----------------------------
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+      COMMON/MCMPAR/MXCPAR,MXNPAR
+      COMMON/MCMAMP/MXCAMP,MXNAMP
+      COMMON/MCMAMB/MXCAMB,MXNAMB
+      COMMON/MCMLOC/MXCLOC,MXNLOC
+C
+C GLOBAL DIMENSIONS
+C -----------------
+      REAL*8       ANOR(*),BNOR(*)
+C
+      INTEGER*4    SVNFIL,FILNUM,LOCQ(MXCLCQ,*)
+      INTEGER*4    NUMAMB(*),AMBIEP(MXCAMB,*),AMBSAT(MXCAMB,*)
+      INTEGER*4    AMBCLS(MXCAMB,3,*)
+C
+C LOCAL DIMENSIONS
+C ----------------
+      PARAMETER (MAXLCQ=7)
+C
+      INTEGER*4    LOCHLP(MAXLCQ)
+C
+C INCLUDE
+C -------
+C
+C DATA
+C ----
+      DATA IFIRST/0/
+C
+C CHECK MAXIMUM LOCAL DIMENSIONS
+C ------------------------------
+      IF (IFIRST.EQ.0) THEN
+        CALL MAXTST(0,'SEQAMB',MXNLCQ,MAXLCQ,MXCLCQ,IRC)
+        IF (IRC.NE.0) CALL EXITRC(2)
+        IFIRST=1
+      END IF
+C
+C FIND THE AMBIGUITY PARAMETER CORRESPONDING TO "IF", "IC" AND "IS"
+C -----------------------------------------------------------------
+      IF = FILNUM
+      IC = IFRSES
+      IS = SVNFIL
+C
+      IF (IC.EQ.2) THEN
+        IFRQ=2
+      ELSE IF (IC.EQ.5) THEN
+        IFRQ=3
+      ELSE
+        IFRQ=1
+      END IF
+C
+      IFLAG = 0
+C
+      DO 400 IPAR=NPAR,NPARN+1,-1
+        IF (IF.NE.LOCQ(2,IPAR)) GOTO 400
+C
+C FIND AMBIGUITY INDEX
+        DO 500 IA=NUMAMB(IF),1,-1
+          IF (AMBSAT(IA,IF).EQ.IS .AND.
+     1        AMBIEP(IA,IF).LE.IEPOCH) GOTO 501
+500     CONTINUE
+501     CONTINUE
+C
+        ICLS=AMBCLS(IA,IFRQ,IF)
+        IF (LOCQ(3,IPAR) .NE. ICLS) GOTO 400
+        IF (IPAR.LE.NPASES) THEN
+          IFLAG=2
+          GOTO 401
+        ELSE
+          IFLAG=1
+          GOTO 401
+        END IF
+400   CONTINUE
+C
+C CHECK FOR IFLAG=0
+C -----------------
+      IF (IFLAG.EQ.0) THEN
+        WRITE(LFNERR,1002) IF,IS,IEPOCH
+1002    FORMAT(/,' *** SR SEQAMB: PARAMETER CANNOT BE FOUND',/,
+     1                 16X,'SHOULD NEVER HAPPEN !!! ',/,
+     2                 16X,'FILE:     ',I4,/,
+     3                 16X,'SATELLITE:',I4,/,
+     4                 16X,'EPOCH:    ',I4,/)
+        CALL EXITRC(2)
+      END IF
+C
+401   CONTINUE
+C
+C HANDLE THE PARAMETERS "IPAR" ACCORDING TO IFLAG
+C ----------------------------------------------------------------------
+C CASE 1: INTRODUCE PARAMETER IPAR
+C --------------------------------
+      IF (IFLAG.EQ.1) THEN
+C
+C DETERMINE LAST OBSERVATION EPOCH OF THE AMBIGUITIY CLUSTER
+C ----------------------------------------------------------
+        IFIL=LOCQ(2,IPAR)
+        ICLS=LOCQ(3,IPAR)
+        LSTEPO=0
+        DO 510 IAMB=1,NUMAMB(IFIL)
+C
+C SEARCH FOR AMBIGUITIES BELONGING TO THE CURRENT CLUSTER
+          IF (ICLS.NE.AMBCLS(IAMB,IFRQ,IFIL)) GOTO 510
+C
+C SEARCH FOLLOW-UP AMBIGUITY OF THE SAME SATELLITE
+          DO 520 IAM2=1,NUMAMB(IFIL)
+            IF (AMBSAT(IAM2,IFIL).NE.AMBSAT(IAMB,IFIL)) GOTO 520
+            IF (AMBIEP(IAM2,IFIL).LE.AMBIEP(IAMB,IFIL)) GOTO 520
+C
+C FOUND
+            IEP2=AMBIEP(IAM2,IFIL)-1
+            IF (LSTEPO.LT.IEP2) LSTEPO=IEP2
+            GOTO 510
+520       CONTINUE
+C
+C NO SUCCESSOR FOUND FOR THE SAME SATELLITE (LOCQ(7,...) IS INITIALIZED
+C IN SR SEQPAR TO "NEPOCH"
+          GOTO 530
+510     CONTINUE
+C
+C SAVE LAST POSSIBLE EPOCH NUMBER OF CURRENT CLUSTER
+        LOCQ(7,IPAR)=LSTEPO
+530     CONTINUE
+C
+C CHECK NUMBER OF AMBIGUITY PARAMETERS
+        NPASES=NPASES+1
+        IF (NPASES-NPARN.GT.MXCAMP) THEN
+          WRITE(LFNERR,1000) NPASES-NPARN,MXCAMP
+1000      FORMAT(/,' *** SR SEQAMB: TOO MANY AMBIGUITIES',/,
+     1                   16X,'NUMBER OF AMBIGUITIES:',I5,/,
+     2                   16X,'MAXIMUM NUMBER       :',I5,/)
+          CALL EXITRC(2)
+        ENDIF
+C
+        IF (NPASES.GT.MXCPAR) THEN
+          WRITE(LFNERR,1001) NPASES,MXCPAR
+1001      FORMAT(/,' *** SR SEQAMB: TOO MANY PARAMETERS',/,
+     1                    16X,'NUMBER OF PARAMETERS:',I5,/,
+     2                    16X,'MAXIMUM NUMBER      :',I5,/)
+          CALL EXITRC(2)
+        ENDIF
+C
+        DO 800 ILOC=1,MXCLCQ
+          LOCHLP(ILOC) = LOCQ(ILOC,IPAR)
+          DO 810 IHLP=IPAR,NPASES+1,-1
+            LOCQ(ILOC,IHLP)=LOCQ(ILOC,IHLP-1)
+810       CONTINUE
+          LOCQ(ILOC,NPASES) = LOCHLP(ILOC)
+800     CONTINUE
+C
+        BNOR(NPASES)=0.D0
+        DO 820 I=1,NPASES
+          ANOR(IKF(I,NPASES))=0.D0
+820     CONTINUE
+      ENDIF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

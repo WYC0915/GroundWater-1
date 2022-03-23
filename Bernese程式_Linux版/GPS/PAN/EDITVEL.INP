@@ -1,0 +1,60 @@
+
+! Environment variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! Datum definition file
+! ---------------------
+DATUM     1  "DATUM."
+
+MSG_DATUM 1  "Geodetic datum file"
+
+! Scratch file
+! ------------
+AUXFIL     1  "EDITVEL$J"
+
+! Station velocity file
+! ---------------------
+VELORS     0
+  ## widget = comment
+
+MSG_VELORS 1 "Filename"
+
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1 "Title line"
+
+DATUM_STRG     0
+  ## widget = lineedit
+  ## check_strlen = 16
+
+MSG_DATUM_STRG 1 "Geodetic datum"
+
+STAVEL     1  "" "" "" "" "" "" ""
+  ## widget = uniline
+  ## check_type.1 = integer
+  ## check_min.1 = 1
+  ## check_strlen.2 = 16
+  ## check_type.3 = real
+  ## check_type.4 = real
+  ## check_type.5 = real
+  ## check_strlen.6 = 1
+  ## check_strlen.7 = 4
+  ## numlines = 12
+
+MSG_STAVEL 1 "Num/Station name/vX/vY/vZ/Flag/Plate"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CREATE/UPDATE STATION VELOCITIES - EDITVEL                                   #
+#                                                                              #
+#  Filename > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # VELORS
+#  Title    > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% < # TITLE
+#                                                                              #
+#  Geodetic datum > %%%%%%%%%%%%%%%%% <                                        # DATUM_STRG
+#                                                                              #
+# > Num Station_name____ ___vX_(m/y)__ ___vY_(m/y)__ ___vZ_(m/y)__ Flag Plate <# STAVEL
+#                                                                              #
+# END_PANEL ####################################################################

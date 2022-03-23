@@ -1,0 +1,77 @@
+package RNXSMTAP;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  RNXSMTAP
+#
+# Purpose :  Prepare parallel RNXSMT run
+#
+# PARAMs  :  PARAM2 - output file identifier (default: SMT)
+#            PARAM3 - empty: stop if no RINEX files are found
+#
+# Author  :  M. Meindl
+# Created :  23-Jul-2003
+#
+# Changes :  31-Jan-2005 MM: New initPar call (w/o tmpFil)
+#            11-Aug-2011 RD: Updated for version 5.2
+#
+# ============================================================================
+use strict;
+
+use File::Basename;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtErr initPar_Bl initPar_Cl);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ( $yyssss, $ssss,
+       $param2, $param3, $clu,    $dirBpe,
+       $dirOut, $dirRxo, $dirSmt,
+       $extOut, $extRxo, $extSmt ) =
+  $bpe->getKeys
+     ( '$YSS+0', '$S+0',
+       'PARAM2', 'PARAM3', 'V_CLU', 'DIR_BPEPRT',
+       'DIR_OUT','DIR_RXO', 'DIR_SMT',
+       'EXT_OUT','EXT_RXO', 'EXT_SMT' );
+
+# Delete old files (SMT)
+# ----------------------
+  my $smt = "SMT";
+  if ( $param2 ne "" ) {
+    $smt = defined $$bpe{$param2} ? $$bpe{$param2} : $param2;
+  }
+  unlink glob("${dirSmt}????${ssss}.${extSmt}");
+  if ($clu ne "") {
+    unlink glob("${dirOut}${smt}${ssss}???.${extOut}");
+  } else {
+    unlink glob("${dirOut}${smt}${ssss}????.${extOut}");
+  }
+
+# Delete collecting file for RINEX error/warning messages
+# -------------------------------------------------------
+  unlink "${dirOut}RNX${yyssss}.ERR";
+
+# Initialize parallel run
+# -----------------------
+  my $bpeFil = "${dirBpe}SMT${yyssss}";
+  my @rxoFil = glob("${dirRxo}????${ssss}.${extRxo}");
+
+  if ($clu ne "") {
+    initPar_Cl($bpe,$bpeFil,@rxoFil,0,$clu,0);
+  } else {
+    @rxoFil = map { substr(basename($_),0,4) } @rxoFil;
+    initPar_Bl($bpe,@rxoFil)
+  }
+
+# Stop if no RINEX files found
+# ----------------------------
+  if (@rxoFil == 0 && $param3 eq "") {
+    prtErr($bpe,"No RINEX files found") and
+      die "No RINEX files found for session ${ssss}";
+  }
+
+}

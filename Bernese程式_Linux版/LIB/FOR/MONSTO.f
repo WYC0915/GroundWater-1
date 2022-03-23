@@ -1,0 +1,166 @@
+      MODULE s_MONSTO
+      CONTAINS
+
+C*
+      SUBROUTINE MONSTO(M,M1,F,D,V,J,E,E2,K,DL,DB)
+CC
+CC NAME       :  MONSTO
+CC
+CC PURPOSE    :  COMPUTATION OF PERTURBATIONS OF THE MOON. USED
+CC               BY SUBROUTINE MOON
+CC
+CC PARAMETERS :
+CC         IN :  M      : MEAN ANOMALY OF THE SUN             R*8
+CC               M1     : MEAN ANOMALY OF THE MOON            R*8
+CC               F      : MEAN DISTANCE OF THE MOON FROM THE  R*8
+CC                        ASCENDING NODE
+CC               D      : MEAN ELONGATION OF THE MOON         R*8
+CC               V      : MEAN LONGITUDE OF VENUS             R*8
+CC               J      : MEAN LONGITUDE OF JUPITER           R*8
+CC               E      : ECCENTRICITY                        R*8
+CC               E2     : ECCENTRICITY SQUARED                R*8
+CC               K     : PI/180                              R*8
+CC        OUT :  DL     : PERTURBATION IN LONGITUDE           R*8
+CC               DB     : PERTURBATION IN LATITUDE            R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/12/11 11:24
+CC
+CC CHANGES    :  23-SEP-91 : ??: SPLIT COMPUTATIONS INTO SEVERAL STEPS
+CC               13-NOV-96 : MR: ALL COMPUTATIONS IN REAL*8
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      REAL*8    D  , DB , DB1, DL , DL0, DL1, E  , E2 , F  , V
+C
+CCC         IMPLICIT REAL*8 (A-H,O-Z)
+C
+        REAL*8 M,M1,J,K
+C
+C PERTURBATIONS IN LONGITUDE
+C
+        DL= .213616D0*DSIN(2*M1)-.185596D0*E*DSIN(M)-.114336D0*DSIN(2*F)
+     *     +.058793D0*DSIN(2*D-2*M1)+.057212D0*E*DSIN(2*D-M-M1)
+     *     +.053320D0*DSIN(2*D+M1)+.045874D0*E*DSIN(2*D-M)
+     *     +.041024D0*E*DSIN(M1-M)-.034718D0*DSIN(D)
+     *     -.030465D0*E*DSIN(M+M1)+.015326D0*DSIN(2*D-2*F)
+     *     +6.288750D0*DSIN(M1)+1.274018D0*DSIN(2*D-M1)
+     *     +.658309D0*DSIN(2*D)
+        DL0=
+     *     -12528.D0*DSIN(2*F+M1)-10980.D0*DSIN(2*F-M1)
+     *     +10674.D0*DSIN(4*D-M1)+10034.D0*DSIN(3*M1)
+     *     +8548.D0*DSIN(4*D-2*M1)-7910.D0*E*DSIN(M-M1+2*D)
+     *     -6783.D0*E*DSIN(2*D+M)+5162.D0*DSIN(M1-D)
+     *     +5000.D0*E*DSIN(M+D)+4049.D0*E*DSIN(M1-M+2*D)
+     *     +3996.D0*DSIN(2*M1+2*D)+3862.D0*DSIN(4*D)
+     *     +3665.D0*DSIN(2*D-3*M1)+2695.D0*E*DSIN(2*M1-M)
+     *     +2602.D0*DSIN(M1-2*F-2*D)
+        DL0=DL0
+     *     +2396.D0*E*DSIN(2*D-M-2*M1)
+     *     -2349.D0*DSIN(M1+D)+2249.D0*E2*DSIN(2*D-2*M)
+     *     -2125.D0*E*DSIN(2*M1+M)-2079.D0*E2*DSIN(2*M)
+     *     +2059.D0*E2*DSIN(2*D-M1-2*M)-1773.D0*DSIN(M1+2*D-2*F)
+     *     -1595.D0*DSIN(2*F+2*D)+1220.D0*E*DSIN(4*D-M-M1)
+     *     -1110.D0*DSIN(2*M1+2*F)+892.D0*DSIN(M1-3*D)
+        DL0=DL0
+     *     -811.D0*E*DSIN(M+M1+2*D)+761.D0*E*DSIN(4*D-M-2*M1)
+     *     +717.D0*E2*DSIN(M1-2*M)+704.D0*E2*DSIN(M1-2*M-2*D)
+     *     +693.D0*E*DSIN(M-2*M1+2*D)+598.D0*E*DSIN(2*D-M-2*F)
+     *     +550.D0*DSIN(M1+4*D)+538.D0*DSIN(4*M1)
+     *     +521.D0*E*DSIN(4*D-M)+486.D0*DSIN(2*M1-D)
+C
+C TERMS 47-71 BY MEEUS: "TABLES OF MOON AND SUN",1962,
+C KESSELBERG STERRENWACHT,BELGIUM
+C
+        DL1= 144.D0*E*DSIN(2*F-M-2*D)+130.D0*DSIN(2*F-2*M1)
+     *      +127.D0*E*DSIN(M+D+M1)+122.D0*DSIN(2*M1-3*D)
+     *      +119.D0*DSIN(4*D-3*M1)+118.D0*E*DSIN(2*D+2*M1-M)
+     *      -117.D0*E2*DSIN(2*M+M1)+114.D0*DSIN(2*D-M1+2*J+180.3*K)
+     *      +109.D0*E*DSIN(M+D-M1)+106.D0*DSIN(2*D+3*M1)
+     *       -99.D0*DSIN(M1+2*D+2*F)+95.D0*DSIN(2*D-4*M1)
+     *       +82.D0*DSIN(V)
+        DL1=DL1
+     *      +76.D0*E2*DSIN(M1-2*M+2*D)+68.D0*E*DSIN(3*M1-M)
+     *      +66.D0*DSIN(3*V+2*D-M1)+64.D0*DSIN(J+1.2*K)
+     *      +64.D0*E*DSIN(M1-M-4*D)-59.D0*DSIN(2*M1+D)
+     *      +58.D0*DSIN(2*F-D)+57.D0*DSIN(6*D-2*M1)
+     *      +56.D0*E*DSIN(M-D)+56.D0*DSIN(2*M1-2*D+2*F)
+     *      -55.D0*E*DSIN(3*M1+M)+54.D0*DSIN(2*M1-2*D-2*F)
+        DL=K*(DL+DL1/3600.D0/100.D0+DL0*1.D-6)
+C
+C PERTURBATIONS IN LATITUDE
+C
+        DB=5128189.D0*DSIN(F)-1750.D0*DSIN(3*F)
+     *     +280606.D0*DSIN(M1+F)+277693.D0*DSIN(M1-F)
+     *     +173238.D0*DSIN(2*D-F)+55413.D0*DSIN(2*D+F-M1)
+     *     +46272.D0*DSIN(2*D-F-M1)+32573.D0*DSIN(2*D+F)
+     *     +17198.D0*DSIN(2*M1+F)+9267.D0*DSIN(2*D+M1-F)
+     *     +8823.D0*DSIN(2*M1-F)+8247.D0*E*DSIN(2*D-M-F)
+        DB=DB
+     *     +4323.D0*DSIN(2*D-F-2*M1)+4200.D0*DSIN(2*D+F+M1)
+     *     +3372.D0*E*DSIN(F-M-2*D)+2472.D0*E*DSIN(2*D+F-M-M1)
+     *     +2222.D0*E*DSIN(2*D+F-M)+2072.D0*E*DSIN(2*D-F-M-M1)
+     *     +1877.D0*E*DSIN(F-M+M1)+1828.D0*DSIN(4*D-F-M1)
+     *     -1803.D0*E*DSIN(F+M)
+        DB=DB
+     *     +1570.D0*E*DSIN(M1-M-F)-1487.D0*DSIN(F+D)
+     *     -1481.D0*E*DSIN(F+M+M1)+1417.D0*E*DSIN(F-M-M1)
+     *     +1350.D0*E*DSIN(F-M)+1330.D0*DSIN(F-D)+1106.D0*DSIN(F+3*M1)
+     *     +1020.D0*DSIN(4*D-F)+833.D0*DSIN(F+4*D-M1)
+     *     +781.D0*DSIN(M1-3*F)+670.D0*DSIN(F+4*D-2*M1)
+     *     +606.D0*DSIN(2*D-3*F)+597.D0*DSIN(2*D+2*M1-F)
+        DB=DB
+     *     +492.D0*E*DSIN(2*D+M1-M-F)+450.D0*DSIN(2*M1-F-2*D)
+     *     +439.D0*DSIN(3*M1-F)+423.D0*DSIN(F+2*D+2*M1)
+     *     +422.D0*DSIN(2*D-F-3*M1)-367.D0*E*DSIN(M+F+2*D-M1)
+     *     -353.D0*E*DSIN(M+F+2*D)+331.D0*DSIN(F+4*D)
+     *     +317.D0*E*DSIN(2*D+F-M+M1)+306.D0*E2*DSIN(2*D-2*M-F)
+     *     -283.D0*DSIN(M1+3*F)
+        DB=DB/1.D6
+C
+C TERMS 45-85 BY MEEUS: "TABLES OF MOON AND SUN",1962,
+C KESSELBERG STERRENWACHT,BELGIUM
+C
+        DB1= 83.D0*E*DSIN(F-2*D-M-M1)+81.D0*E*DSIN(F-M+2*M1)
+     *      +81.D0*E*DSIN(D+M-F)+80.D0*E*DSIN(M+F+D)
+     *      +79.D0*E*DSIN(M1+F-2*D-M)-67.D0*DSIN(M1+F+D)
+     *      -66.D0*E*DSIN(F+2*M1+M-2*D)-64.D0*E*DSIN(M+F+2*M1)
+     *      +63.D0*DSIN(4*D-F-2*M1)+60.D0*E*DSIN(4*D-F-M-M1)
+     *      +59.D0*DSIN(F-M1-D)+47.D0*DSIN(M1+4*D-F)+43.D0*DSIN(M1+F-D)
+     *      +42.D0*E*DSIN(4*D-F-M)+39.D0*E2*DSIN(2*D-2*M+F)
+        DB1=DB1
+     *      +35.D0*DSIN(F-3*D)
+     *      +34.D0*E*DSIN(F+4*D-M-M1)+33.D0*DSIN(2*D-M1-3*F)
+     *      +32.D0*E2*DSIN(2*D-M1+F-2*M)+31.D0*E*DSIN(F-M-2*M1)
+     *      +31.D0*DSIN(M1+F-3*D)+30.D0*E*DSIN(2*M1-M-F)
+     *      +29.D0*DSIN(3*F-M1-2*D)-27.D0*E2*DSIN(M1+F-2*D+2*M)
+     *      +27.D0*DSIN(F+4*M1)+25.D0*DSIN(F+2*D-3*M1)
+     *      -24.D0*DSIN(2*D-M1+3*F)
+        DB1=DB1
+     *      -24.D0*E*DSIN(M+F+M1+2*D)
+     *      +22.D0*E*DSIN(F+4*D-M-2*M1)+21.D0*DSIN(M1+F+4*D)
+     *      -21.D0*DSIN(F-M1+3*D)+17.D0*E*DSIN(4*D-F+M-M1)
+     *      +15.D0*E*DSIN(F+4*D-M)+15.D0*DSIN(2*D-F+3*M1)
+     *      -14.D0*DSIN(2*D+3*F)+14.D0*DSIN(F-M1+D)
+     *      +14.D0*DSIN(F+2*D+3*M1)+14.D0*E2*DSIN(F-2*D-2*M)
+     *      +13.D0*DSIN(2*D-F-4*M1)+13.D0*DSIN(3*F-2*M1)
+     *      +13.D0*E*DSIN(2*M1-F-M+2*D)
+        DB=(DB+DB1/3600.D0/100.D0)*K
+C
+        RETURN
+        END SUBROUTINE
+
+      END MODULE

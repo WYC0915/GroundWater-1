@@ -1,0 +1,68 @@
+package GPSCLU_P;
+@ISA = ("RUNBPE");
+# ----------------------------------------------------------------------------
+#
+# Name    :  GPSCLU_P
+#
+# Purpose :  Parallel run for parameter estimation with GPSEST and
+#            NEQ-file generation
+#
+# PARAMs  :
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :  12-Jun-2013 RD: Keep the CLB file
+#
+# ----------------------------------------------------------------------------
+use strict;
+
+use File::Basename;
+use File::Copy;
+
+use lib $ENV{BPE};
+use bpe_util qw(replaceSel setUserVar prtBPEfile);
+
+sub run {
+  my $bpe = shift;
+
+
+# Get variables
+# -------------
+  my ($yyddd, $ssss,
+      $subPid, $pid,
+      $param1,
+      $dirOut,
+      $extOut) =
+  $bpe->getKeys(
+      '$YD+0', '$S+0',
+      'SUB_PID', 'PID',
+      'PARAM1',
+      'DIR_OUT',
+      'EXT_OUT');
+
+
+# Initialize $D4 variable with subpid
+# -----------------------------------
+  setUserVar($bpe,"D4",$subPid);
+
+
+# Replace selected with station list
+# ----------------------------------
+  replaceSel($bpe,"GPSEST","PSFILES",$param1);
+
+
+# Run program
+# -----------
+  my $PGMNAM = "GPSEST";
+  $bpe->RUN_PGMS($PGMNAM);
+
+
+
+# Print processed stations BPE file
+# ---------------------------------
+  open(CLB,$param1); my @clb=<CLB>; close CLB;
+  prtBPEfile($param1,0);
+  open(CLB,"> $param1"); print CLB @clb; close CLB;
+
+}

@@ -1,0 +1,54 @@
+package PPP_GCC;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  PPP_GCC
+#
+# Purpose :  Initialize or skip GCC estimation
+#
+# PARAMs  :  PARAM2 - goto PID if V_G undefined
+#
+# Author  :  R. Dach
+# Created :  11-Sep-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtGoto);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($param2, $yyssss, $g,
+      $dirOut, $dirGcc, $dirCrd, $dirSum,
+      $extOut, $extGcc, $extCrd, $extSum) =
+  $bpe->getKeys
+     ('PARAM2', '$YSS+0', 'V_G',
+      'DIR_OUT', 'DIR_GCC', 'DIR_CRD', 'DIR_SUM',
+      'EXT_OUT', 'EXT_GCC', 'EXT_CRD', 'EXT_SUM');
+
+# Check whether V_G is defined
+# ----------------------------
+  unless (defined ($$bpe{V_G})) {
+    die "GCC-solution identifier V_G is expected as PCF variable\n";
+  }
+
+# Delete old files (OUT, GCC, CRD)
+# --------------------------------
+  if ("$g" ne "") {
+    unlink glob("${dirOut}${g}${yyssss}.${extOut}");
+    unlink glob("${dirGcc}${g}${yyssss}.${extGcc}");
+    unlink glob("${dirCrd}${g}${yyssss}.${extCrd}");
+    unlink glob("${dirSum}${g}${yyssss}.${extSum}");
+  }
+
+# Skip geocenter estimation if V_G undefined
+# ------------------------------------------
+  prtGoto($bpe,$param2) if "$g" eq "";
+
+}

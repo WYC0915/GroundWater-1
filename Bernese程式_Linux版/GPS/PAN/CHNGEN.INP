@@ -1,0 +1,315 @@
+
+! SOME KEYWORDS FOR AUTOMATIC OUTPUT
+! ----------------------------------
+CAMPAIGN     0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! Program Output File
+! -------------------
+SYSODEF     1  "0"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "CHNGEN"
+  ## widget = lineedit; path = PTH_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG     1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR     1  "ERROR"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+
+DESCR_SYSERR 1  "Error message"
+
+RADIO_UPDFIL     1  "0"
+  ## widget = radiobutton; group = DUMMY; radiokeys = UPDFIL
+
+MSG_RADIO_UPDFIL 1  "Separate file(s)"
+
+RADIO_UPDDIR     1  "1"
+  ## widget = radiobutton; group = DUMMY; radiokeys = UPDDIR
+
+MSG_RADIO_UPDDIR 1  "Panel directory"
+
+RADIO_UPDLST     1  "0"
+  ## widget = radiobutton; group = DUMMY; radiokeys = UPDLST
+
+MSG_RADIO_UPDLST 1  "File with directory list"
+
+UPDFIL     0
+  ## widget = selwin; path = PTH_INP; ext = EXT_INP; maxfiles = 999
+  ## emptyallowed = true
+
+MSG_UPDFIL 1  "Separate file(s)"
+
+UPDDIR     1  "${U}/OPT/*"
+  ## widget = combobox; editable = true; cards = ${U}/PAN ${U}/OPT/*
+
+DESCR_UPDDIR 1  "Panel directory"
+
+UPDLST     0
+  ## widget = selwin; path = PTH_UPD; ext = EXT_UPD; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_UPDLST 1  "File with directory list"
+
+CHK_CONST     1  "0"
+  ## widget = checkbox
+
+MSG_CHK_CONST 1  "General constants"
+
+CHK_SATELL     1  "0"
+  ## widget = checkbox
+
+MSG_CHK_SATELL 1  "Satellite info"
+
+CHK_DATUM     1  "0"
+  ## widget = checkbox
+
+MSG_CHK_DATUM 1  "Geodetic datum"
+
+CHK_PHASECC     1  "0"
+  ## widget = checkbox
+
+MSG_CHK_PHASECC 1  "Phase center ecc."
+
+CHK_STAINFO     1  "0"
+  ## widget = checkbox
+
+MSG_CHK_STAINFO 1  "Station information"
+
+CHK_SATCRUX     1  "0"
+  ## widget = checkbox
+
+MSG_CHK_SATCRUX 1  "Satellite problems"
+
+CHK_POLE     1  "0"
+  ## widget = checkbox
+
+MSG_CHK_POLE 1  "Pole file"
+
+CHK_NUTMOD     1  "0"
+  ## widget = checkbox
+
+MSG_CHK_NUTMOD 1  "Nutation model"
+
+CHK_SUBMOD     1  "0"
+  ## widget = checkbox
+
+MSG_CHK_SUBMOD 1  "Subdaily model"
+
+OLD_CONST     0
+  ## widget = lineedit; activeif = CHK_CONST == 1
+  ## keepvariables = true
+
+MSG_OLD_CONST 1  "General constants: Old value"
+
+NEW_CONST     1  "CONST."
+  ## widget = lineedit; activeif = CHK_CONST == 1
+  ## keepvariables = true
+
+MSG_NEW_CONST 1  "General constants: New value"
+
+OLD_SATELL     0
+  ## widget = lineedit; activeif = CHK_SATELL == 1
+  ## keepvariables = true
+
+MSG_OLD_SATELL 1  "Satellite info: Old value"
+
+NEW_SATELL     1  "SATELLIT.I08"
+  ## widget = lineedit; activeif = CHK_SATELL == 1
+  ## keepvariables = true
+
+MSG_NEW_SATELL 1  "Satellite info: New value"
+
+OLD_DATUM     0
+  ## widget = lineedit; activeif = CHK_DATUM == 1
+  ## keepvariables = true
+
+MSG_OLD_DATUM 1  "Geodetic datum: Old value"
+
+NEW_DATUM     1  "DATUM."
+  ## widget = lineedit; activeif = CHK_DATUM == 1
+  ## keepvariables = true
+
+MSG_NEW_DATUM 1  "Geodetic datum: New value"
+
+OLD_PHASECC     0
+  ## widget = lineedit; activeif = CHK_PHASECC == 1
+  ## keepvariables = true
+
+MSG_OLD_PHASECC 1  "Phase center ecc.: Old value"
+
+NEW_PHASECC     1  "PCV.I08"
+  ## widget = lineedit; activeif = CHK_PHASECC == 1
+  ## keepvariables = true
+
+MSG_NEW_PHASECC 1  "Phase center ecc.: New value"
+
+OLD_STAINFO     0
+  ## widget = lineedit; activeif = CHK_STAINFO == 1
+  ## keepvariables = true
+
+MSG_OLD_STAINFO 1  "Station information: Old value"
+
+NEW_STAINFO     0
+  ## widget = lineedit; activeif = CHK_STAINFO == 1
+  ## keepvariables = true
+
+MSG_NEW_STAINFO 1  "Station information: New value"
+
+OLD_SATCRUX     0
+  ## widget = lineedit; activeif = CHK_SATCRUX == 1
+  ## keepvariables = true
+
+MSG_OLD_SATCRUX 1  "Satellite problems: Old value"
+
+NEW_SATCRUX     1  "SAT_$Y+0"
+  ## widget = lineedit; activeif = CHK_SATCRUX == 1
+  ## keepvariables = true
+
+MSG_NEW_SATCRUX 1  "Satellite problems: New value"
+
+OLD_POLE     0
+  ## widget = lineedit; activeif = CHK_POLE == 1
+  ## keepvariables = true
+
+MSG_OLD_POLE 1  "Pole file: Old value"
+
+NEW_POLE     0
+  ## widget = lineedit; activeif = CHK_POLE == 1
+  ## keepvariables = true
+
+MSG_NEW_POLE 1  "Pole file: New value"
+
+OLD_NUTMOD     0
+  ## widget = lineedit; activeif = CHK_NUTMOD == 1
+  ## keepvariables = true
+
+MSG_OLD_NUTMOD 1  "Nutation model: Old value"
+
+NEW_NUTMOD     1  "IAU2000R06"
+  ## widget = lineedit; activeif = CHK_NUTMOD == 1
+  ## keepvariables = true
+
+MSG_NEW_NUTMOD 1  "Nutation model: New value"
+
+OLD_SUBMOD     0
+  ## widget = lineedit; activeif = CHK_SUBMOD == 1
+  ## keepvariables = true
+
+MSG_OLD_SUBMOD 1  "Subdaily pole model: Old value"
+
+NEW_SUBMOD     1  "IERS2010XY"
+  ## widget = lineedit; activeif = CHK_SUBMOD == 1
+  ## keepvariables = true
+
+MSG_NEW_SUBMOD 1  "Subdaily pole model: New value"
+
+ADVANCED_USERS     1  "0"
+  ## widget = checkbox
+
+MSG_ADVANCED_USERS 1  "Change any keywords"
+
+UNIVERSAL     1  "" "" ""
+  ## widget = uniline; numlines = 10
+  ## keepvariables = true
+
+MSG_UNIVERSAL 1  "keyword / old value / new value"
+
+! Title
+! -----
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+SHOWGEN     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CHANGE GENERAL OPTIONS - CHNGEN 1: Input/Output Files                        #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files  > % <                                              # SHOWGEN
+#                                                                              #
+# INPUT FILES TO BE CHANGED                                                    #
+#  > % <  Separate file(s)          > %%%%%%%% <                               # RADIO_UPDFIL UPDFIL
+#  > % <  Panel directory           > %%%%%%%%%%%%%%%%%%%%% <                  # RADIO_UPDDIR UPDDIR
+#  > % <  File with directory list  > %%%%%%%% <                               # RADIO_UPDLST UPDLST
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output                                                > %%%%%%%% < # SYSODEF SYSOUT
+#   Error messages        > % < merged to program output    or    > %%%%%%%% < # ERRMRG SYSERR
+#                                                                              #
+# TITLE  > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <  # TITLE
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# CHNGEN 1.1: General Files                                                    #
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CHNGEN 2: Change General Input Files                                         #
+#                                                                              #
+# NAMES TO BE CHANGED                                                          #
+#                                       Old value            New value         #
+#   General constants     > % <      > %%%%%%%%%%%% <     > %%%%%%%%%%%% <     # CHK_CONST          OLD_CONST           NEW_CONST
+#   Satellite info        > % <      > %%%%%%%%%%%% <     > %%%%%%%%%%%% <     # CHK_SATELL         OLD_SATELL          NEW_SATELL
+#   Geodetic datum        > % <      > %%%%%%%%%%%% <     > %%%%%%%%%%%% <     # CHK_DATUM          OLD_DATUM           NEW_DATUM
+#   Phase center ecc.     > % <      > %%%%%%%%%%%% <     > %%%%%%%%%%%% <     # CHK_PHASECC        OLD_PHASECC         NEW_PHASECC
+#   Station information   > % <      > %%%%%%%%%%%% <     > %%%%%%%%%%%% <     # CHK_STAINFO        OLD_STAINFO         NEW_STAINFO
+#   Satellite problems    > % <      > %%%%%%%% <         > %%%%%%%% <         # CHK_SATCRUX        OLD_SATCRUX         NEW_SATCRUX
+#   Pole file             > % <      > %%%%%%%% <         > %%%%%%%% <         # CHK_POLE           OLD_POLE            NEW_POLE
+#   Nutation model        > % <      > %%%%%%%% <         > %%%%%%%% <         # CHK_NUTMOD         OLD_NUTMOD          NEW_NUTMOD
+#   Subdaily pole model   > % <      > %%%%%%%% <         > %%%%%%%% <         # CHK_SUBMOD         OLD_SUBMOD          NEW_SUBMOD
+#                                                                              #
+#   Change other keywords > % <        (use with care)                         # ADVANCED_USERS
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL ADVANCED_USERS = 1 ###############################################
+# CHNGEN 3: Change any keywords -- use with care                               #
+# > Keyword______________ Old_value_______ New_value_________    <             # UNIVERSAL
+#                                                                              #
+# END_PANEL ####################################################################

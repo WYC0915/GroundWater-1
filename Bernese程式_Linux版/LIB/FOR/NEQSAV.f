@@ -1,0 +1,1228 @@
+      MODULE s_NEQSAV
+      CONTAINS
+
+C*
+      SUBROUTINE NEQSAV(FILNEQ,NEQVER,TITLES,NPAR  ,NFTOT ,STFIL ,
+     1    RMS   ,SIGAPR,NSMPNQ,IELVNQ,NSTAT ,STNAME,STANUM,XSTECC,
+     2    NFIX  ,STFIX ,NSTWGT,ISTWGT,STWGT ,ICOADD,ICENTR,XSTAT ,
+     3    LOCQ  ,ANOR  ,BNOR  ,AELL  ,BELL  ,DXELL ,DRELL ,SCELL ,
+     4    MAXFRS,NFROBS,NCLREQ,ISTCLK,NCLK  ,CLKWGT,CLFRTO,PREC  ,
+     5    NSATEL,SATNUM,NWGT  ,SATWGT,TIMWGT,WGTWGT,NARC  ,NUMSAT,
+     6    ARCINT,POLMOD,POLPAR,NPOL  ,TPOL  ,SIGPOL,ISGPOL,ISGNUT,
+     7    NPSAVE,NCAMP ,TAECMP,FILORB,FILRPR,FILSTD,NOBS  ,NPARMS,
+     8    NSTCEP,SCASTC,INTSTC,TIMSTC,NSASTC,NUMSTC,SIGSTC,NANOFF,
+     9    NSAOFF,SATOFF,PAROFF,SIGOFF,NHILL ,SIGHIL,NPOT  ,SIGPOT,
+     .    NALB  ,SIGALB,NALBGR,NSAALB,SATALB,NCENM ,CENMAS,SIGCEN,
+     1    SCAHIL,SCAPOT,SCAALB,SCACEN,ANTPHS,ANTFRQ,ANTECC,ANTNUM,
+     2    ANTSTA,ANTREC,ITROPO,IEXTRA,NTRSTA,STATRP,TRPLMS,SIGTRS,
+     3    ISGTRS,NTRREQ,NPARTR,TRPLIM,SIGTRP)
+CC
+CC NAME       :  NEQSAV
+CC
+CC PURPOSE    :  SAVE NORMAL EQUATION AND IMPORTANT INFORMATION
+CC
+CC PARAMETERS :
+CC         IN :  FILNEQ : FILENAME FOR SAVING                 CH*32
+CC               NEQVER : VERSION NUMBER OF NEQ CONSISTS OF   I*4
+CC                        NORMAL EQUATION TYPE (INQTYP=ASCII
+CC                        OR BINARY) AND FORMAT NUMBER (INQFMT)
+CC                        USED INTERNALLY
+CC                        INQTYP=MOD(NEQVER+1,2)+1
+CC                        INQTYP=1: ASCII
+CC                        INQTYP=2: BINARY
+CC                        INQFMT=(NEQVER+1)/2
+CC                        INQFMT=1: FORMAT WITHOUT ELEV+SAMPL
+CC                        INQFMT=2: FORMAT INCLUD. ELEV+SAMPL
+CC               TITLES(I),I=1,2: TITLE LINES                 CH*132
+CC               NPAR   : NUMBER OF PARAMETERS (WITHOUT PRE-  I*4
+CC                        ELIMINATED PARAMETERS)
+CC               NFTOT  : TOTAL NUMBER OF FILES               I*4
+CC               STFIL(L,I),L=1,2 , I=1,2,...,NFTOT: STATION  I*4
+CC                        NUMBERS INVOLVED IN OBSFILE I
+CC               RMS    : SUM OF SQUARED RESIDUALS (M)        R*8
+CC               SIGAPR : A PRIORI SIGMA                      R*8
+CC               NSMPNQ : DATA SAMPLE RATE (SEC)              I*4
+CC               IELVNQ : MINIMUM ELEVATION ANGLE (DEGREE)    I*4
+CC               NSTAT  : NUMBER OF STATIONS                  I*4
+CC               STNAME(I),I=1,2,..,NSTAT : STATION NAMES     CH*16
+CC               STANUM(I),I=1,2,..,NSTAT : STATION NUMBERS   I*4
+CC               XSTECC(K,I),K=1,2,3 ,I=1,2,..,NSTAT: ECCEN-  R*8
+CC                        TRICITIES FOR STATION I
+CC               NFIX   : # STATIONS HELD FIXED               I*4
+CC               STFIX  : NUMBERS OF THE STATIONS HELD FIXED  I*4(1)
+CC               NSTWGT : # STATIONS WITH A PRIORI WEIGHTS    I*4
+CC                        FOR COORDINATES
+CC               ISTWGT : NUMBERS OF THE STATION WITH A       I*4(1)
+CC                        PRIORI WEIGHTS
+CC               STWGT  : STWGT(K,I) A PRIORI WEIGHT FOR      R*8(3,1)
+CC                        STATION I AND COORDINATE K
+CC               ICOADD : CORRECT STATION WEIGHTS ADDED ON    I*4
+CC                        NEQ (=1) OR UNCORRECT (PREVIOUS TO
+CC                        21-AUG-95) USING ONLY SPHERICAL
+CC                        APPROXIMATION (=0)
+CC               ICENTR(I),I=1,2,..,NSTAT : INDEX OF CENTER   I*4
+CC                        STATION FOR STATION I
+CC               XSTAT(K,I),K=1,2,3 , I=1,2,..,NSTAT: RECT-   R*8
+CC                        ANGULAR GEOCENTRIC STATION COORD.
+CC               LOCQ(K,I),K=1,..,MAXLCQ, I=1,2,...,NPAR:     I*4
+CC                        CHARACTERISTICS FOR EACH PARAMETER
+CC               ANOR(I),I=1,2,..,NPAR*(NPAR+1)/2: INVERSE OF R*8
+CC                        NORMAL EQUATION MATRIX (UPPER
+CC                        TRIANGLE ONLY, COLUMNWISE LINEAR.)
+CC               BNOR(I),I=1,..,NPAR: RIGHT SIDE OF           R*8
+CC                        NORMAL EQUATION SYSTEM
+CC               AELL: SEMIMAJOR AXES OF ELLIPSOID            R*8
+CC               BELL: SEMIMINOR AXES OF ELLIPSOID            R*8
+CC               DXELL(I),I=1,2,3: SHIFT OF DATUM TO WGS      R*8
+CC               DRELL(I),I=1,2,3: ROTATIONS TO WGS-84        R*8
+CC               SCELL  : SCALE FACTOR TO WGS-84              R*8
+CC               MAXFRS : MAXIMUM NUMBER OF DIFFERENT FREQ.   I*4
+CC               NFROBS(K,I),K=1,2, I=1,..,MAXFRS: NUMBER OF  I*4
+CC                        OBSERVATIONS WITH MEASUREMENT TYPE
+CC                        K AND FREQUENCY I
+CC               NCLREQ : # CLOCK ERROR REQUESTS              I*4
+CC               ISTCLK(I),I=1,2,..,NCLREQ: STATION NUMBER    I*4
+CC                        FOR REQUEST I
+CC               NCLK   : # CLOCK PARAMETERS TO BE ESTIMATED  I*4(1)
+CC                        NCLK(I)=1 : OFFSET ESTIMATED
+CC                                    FOR STATION I
+CC               CLKWGT : CLKWGT(J,I): A PRIORI WEIGHT FOR    R*8(2,1)
+CC                        CLOCK ERROR J, STATION I (J=1,2)
+CC                        IN SEC
+CC               CLFRTO : TIME INTERVAL FOR CLOCK ERRORS      R*8(2,1)
+CC                        CLFRTO(1,K): START OF THE INTERVAL
+CC                        CLFRTO(2,K): END OF THE INTERVAL
+CC                        IN JULIAN DATE FOR CLOCK REQUEST K
+CC               PREC   : A PRIORI ORBITAL PRECISIONS         R*8(1)
+CC               NSATEL(I),I=1,..,NFTOT: NUMBER OF SATELLITES I*4
+CC               SATNUM(J,I),J=1,..,NSATEL(I),I=1,..,NFTOT:   I*4
+CC                        SATELLITE NUMBERS
+CC               NWGT   : NUMBER OF INTERVALS WITH WEIGHTED   I*4
+CC                        SATELLITES
+CC               SATWGT(I),I=1,..,NWGT: NUMBERS OF WEIGHTED   I*4
+CC                        SATELLITES
+CC               TIMWGT(K,I),K=1,2,I=1,..,NWGT: START AND END R*8
+CC                        OF TIME INTERVAL WITH WEIGHTED
+CC                        SATELLITES IN MODIFIED JULIAN DATE
+CC               WGTWGT(I),I=1,..,NWGT: SATELLITE SPECIFIC    R*8
+CC                        SIGMA
+CC               NARC   : NUMBER OF ORBIT ARCS                I*4
+CC               NUMSAT(I),I=1,2,...,NARC: NUMBER OF SATELLI- I*4
+CC                        TES IN ARC I
+CC               ARCINT(I),I=1,2,...,NFTOT : ARC NUMBER       I*4
+CC                        BELONGING TO FILE I
+CC               POLMOD : MODEL OF POLAR WOBBLE               I*4
+CC               POLPAR : PARAMETERS TO BE ESTIMATED          I*4(5)
+CC                        (1)=XP, (2)=YP, (3)=DT,
+CC                        (4)=EPS,(5)=PSI
+CC                        1 := ESTIMATED 0 := NOT ESTIMATED
+CC               NPOL   : NUMBER OF POLE PARAMETER SETS       I*4
+CC               TPOL   : START AND END TIME OF INTERVAL FOR  R*8(2,*)
+CC                        ONE SET OF PARAMETERS
+CC                        1,2 :=BEGIN,END TIME, *:= 1..MAXPOL
+CC               SIGPOL : A PRIORI SIGMA OF POLE PARAMETERS   R*8(5,*)
+CC                        1-5 := XP,YP,DT,EPS,PSI *:= 1..MAXPOL
+CC                        1,2,4,5 GIVEN IN MAS, 3 GIVEN IN MSEC
+CC               ISGPOL : EARTH ROTATION PARAMETER SIGMAS :   I*4(*)
+CC                        =0 : APPLY FOR RELEVANT PARAMETER
+CC                             ONLY THE ABSOLUTE CONSTRAINTS
+CC                             GIVEN IN INPUT OPTION FILE
+CC                        =1 : ENSURE CONTINUITY WITH RESPECT
+CC                             TO PREVIOUS POLYNOMIAL (IN ADD.
+CC                             TO ABSOLUTE CONSTRAINTS)
+CC               ISGNUT : EARTH ORIENTATION PARAMETER SIGMAS: I*4(*)
+CC                        =0 : APPLY FOR RELEVANT PARAMETER
+CC                             ONLY THE ABSOLUTE CONSTRAINTS
+CC                             GIVEN IN INPUT OPTION FILE
+CC                        =1 : ENSURE CONTINUITY WITH RESPECT
+CC                             TO PREVIOUS POLYNOMIAL (IN ADD.
+CC                             TO ABSOLUTE CONSTRAINTS)
+CC               NPSAVE(I): NUMBER OF SAVESETS PER INTERVAL   I*4
+CC                        (1): FOR BERNESE POLE FORMAT
+CC                        (2): FOR IERS POLE FORMAT
+CC               NCAMP  : NUMBER OF CAMPAIGNS                 I*4
+CC               TAECMP(2,I),I=1,..,NCAMP: OBSERVATION INTER- R*8
+CC                        VAL FOR CAMPAIGN I
+CC               FILORB : ELE-FILE OF ORBIT IMPROVEMENT       CH*32
+CC               FILRPR : RADIATION PRESSURE FILENAM          CH*32
+CC               FILSTD : STANDARD ORBIT FILENAME (A-PRIORI)  CH*32
+CC               NOBS   : NUMBER OF OBSERVATIONS TO COMP. RMS I*4
+CC               NPARMS : NUMBER OF PARAMETERS TO COMPUTE RMS I*4
+CC               NSTCEP : NUMBER OF STOCH PARAMETERS/EPOCH    I*4
+CC               SCASTC : SCALING FOR STOCH. OBBIT PARAM.     R*8
+CC               INTSTC : INTERVAL NUMBERS FOR STOCH. PARMS. I*4(*,*,*)
+CC               TIMSTC : CORRESPONDING EPOCHS               R*8(*,*,*)
+CC               NSASTC : NUMBER OF SATELLITES WITH STOCHAST. I*4
+CC                        ORBITS
+CC               NUMSTC : CORRESPONDING SATELLITE NUMBERS     I*4(*)
+CC               SIGSTC : A PRIORI SIGMAS FOR STOCHASTIC      R*8(3,*)
+CC               NANOFF : NUMBER OF SATELLITE ANTENNA OFFSET  I*4
+CC                        GROUPS TO BE ESTIMATED
+CC               NSAOFF(I),I=1,..,NANOFF: NUMBER OF           I*4
+CC                        SATELLITES BELONGING TO GROUP I
+CC               SATOFF(J,I),J=1,..,NSAOFF(I),I=1,..,NANOFF:  I*4
+CC                        SATELLITE NUMBERS OF EACH ANTENNA
+CC                        GROUP
+CC               PAROFF(K),K=1,2,3: ANTENNA OFFSET COMPONENTS I*4
+CC                        TO BE ESTIMATED (X,Y,Z IN SATELLITE
+CC                        REFERENCE FRAME
+CC                        =1: ESTIMATED
+CC                        =0: NOT ESTIMATED
+CC               SIGOFF(J,I),J=1,2,3,I=1,..,NANOFF: A PRIORI  R*8(*,*)
+CC                        SIGMAS FOR COMP. J AND ANT. GROUP I
+CC               NHILL  : NUMBER OF HILL PARAMETERS           I*4
+CC               SIGHIL : A PRIORI SIGMAS FOR HILL PARMS      R*8(*)
+CC               NPOT   : NUMBER OF PARMS OF EARTH'S POT.     I*4
+CC               SIGPOT : A PRIORI SIGMAS FOR EARTH'S POT.    R*8(*)
+CC               NALB   : NUMBER OF ALBEDO PARAMETERS/GROUP   I*4
+CC               SIGALB : A PRIORI SIGMAS FOR ALB PAR TYPES   R*8(*)
+CC               NALBGR : NUMBER OF ALBEDO GROUPS             I*4
+CC               NSAALB : NUMBER OF SATELLITES PER GROUP      I*4(*)
+CC               SATALB(J,I),J=1,..,NSAALB(I),I=1,..,NALBGR:  I*4(*,*)
+CC                        SATELLITE NUMBERS OF EACH ALBEDO
+CC                        GROUP
+CC               NCENM  : NUMBER OF CENTER OF MASS PARAMETER  I*4
+CC                        (1, 2, OR 3)
+CC               CENMAS : CORRESP. COORDINATE NUMBERS         I*4(*)
+CC               SIGCEN : CORRESP. A PRIORI SIGMAS            R*8(*)
+CC               SCAHIL : SCALE PAR. FOR HILL PARAMETER       R*8
+CC               SCAPOT : SCALE PAR. FOR POT. PARAMETER       R*8
+CC               SCAALB : SCALE PAR. FOR ALBEDO PARAMETER     R*8
+CC               SCACEN : SCALE PAR. FOR CENTER OF MASS
+CC                        PARAMETER                           R*8
+CC               ANTPHS : PHASE  ECCENTRICITY IN LOKAL SYSTEM R*8
+CC                        (I=1,3,J=1,ANTFRQ(ISTAT),K=1,NSTAT)
+CC               ANTFRQ : I=1,NSTAT NANTENNA FREQUENCIES      I*4
+CC               ANTECC : ANTENNA ECCENTRICITY IN LOKAL SYSTEMR*8
+CC                        (I=1,3,K=1,NSTAT)
+CC               ANTNUM(K),K=1,NSTAT: ANTENNA NUMBERS         I*4
+CC               ANTSTA(K),K=1,NSTAT: RECEIVER TYPES          CH*16
+CC               ANTREC(K),K=1,NSTAT: ANTENNA TYPES           CH*16
+CC               ITROPO : TROPOSPHERIC MODEL                  I*4
+CC               IEXTRA : =0 : USE MEASURED VALUES            I*4
+CC                        =1 : USE ATM. MODEL VALUES
+CC                        =2 : USE ESTIMATED VALUES
+CC               NTRSTA : NUMBER OF TROPOSPHERE REQUESTS      I*4
+CC                        FOR INDIVIDUAL STATIONS
+CC               STATRP(I),I=1,2,..,NTRSTA: STATION NUMBER    I*4
+CC                        FOR REQUEST I
+CC               TRPLMS(K,I),K=1,2,I=1,..,NTRSTA: TROPOS-     R*8
+CC                        PHERE PARAMETER EST. FROM .. TO
+CC               SIGTRS(J,I),I=1,2,..,NTRSTA: A PRIORI SIGMA  R*8
+CC                        IN M FOR INDIV. TROPOSPHERE PARAM.
+CC                        J=1: NORTH (GRADIENT)
+CC                        J=2: EAST (GRADIENT)
+CC                        J=3: UP (ZENITH DELAY)
+CC               ISGTRS(I),I=1,2,..,NTRSTA: TYPE OF SIGMA     I*4
+CC                        =0: ABSOLUTE SIGMA
+CC                        =1: SIGMA RELATIVE TO THE PREVIOUS
+CC                            PARAMETER OF THE SAME SITE
+CC               NTRREQ : NUMBER OF LOCAL TROPOS. MODEL       I*4
+CC                        REQUESTS
+CC               NPARTR(I),I=1,2,..,NTRREQ: NUMBER OF PARA-   I*4
+CC                        METERS IN REQUEST I
+CC               TRPLIM(K,I),K=1,2, I=1,2,..,NTRREQ: TIME     R*8
+CC                        INTERVAL OF VALIDITY (MJD) FOR
+CC                        REQUEST I
+CC               SIGTRP(I),I=1,2,..,NTRREQ: A PRIORI SIGMAS   R*8
+CC                        FOR TROPOSPHERE PARAMETERS IN
+CC                        M, M/(100M), M/(100M)**2, ...
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  E. BROCKMANN
+CC
+CC VERSION    :  3.4
+CC
+CC CREATED    :  13-FEB-93
+CC
+CC CHANGES    :  15-JUL-93 : ??: OUTPUT FORMAT FOR RMS AND STAT. WEIGHTS
+CC                               CHANGED
+CC               23-JUL-93 : ??: ISGPOL SAVE
+CC               28-JUL-93 : ??: STOCH. PARAMETERS STORED
+CC                4-AUG-93 : ??: BINARY STORAGE, FORMAT NUMBER=2
+CC               24-AUG-93 : ??: BOTH WRITING IS POSSIBLE: ASCII (1)
+CC                                                AND BINARY (2)
+CC               07-OCT-93 : ??: SAVE EXTENDED TO STOCH., MASS CENTER,
+CC                               ANT.-OFF, EARTH POT.,HILL'S RESONANZ,
+CC                               ALBEDO
+CC               23-DEC-93 : ??: INCLUDE INFORMATION OF ANTENNA ECCENTER
+CC                7-APR-94 : ??: INCLUDE TROPOSPHERE INFORMATION
+CC               19-APR-94 : ??: NUTATION-MODEL PARAMETERS, "ISGNUT"
+CC               24-JUN-94 : ??: FILSTD,FILORB,FILRPR POSSIBLE TO SAVE
+CC                               VIA INPUT TO SUBROUTINE
+CC               13-OCT-94 : MR: CORRECT FORMAT (RIGHT BRACKET REMOVED)
+CC               19-JAN-95 : MR/SF: CORRECTION DUE TO ERROR READING
+CC                               BINARY FILE ON PC (READ BLANK LINE)
+CC                4-APR-95 : EB: STOP TO EXITRC CHANGED
+CC               18-AUG-95 : EB: WRITE 0. IN CASE OF ZERO (FORMATTED)
+CC               21-AUG-95 : EB: CORRECT ADDITION OF STATION WEIGHTS (ICOADD)
+CC                8-SEP-95 : EB: POLE NOT NECESSARY
+CC               11-JAN-96 : EB: CHANGE TO NEW ORBIT MODEL
+CC               20-FEB-96 : EB: SIGHIL - SIGPOT CHANGE
+CC               26-APR-96 : TS: ZERO DIFFERENCE/SLR CHANGES (MAXMEA)
+CC                7-MAI-96 : EB: SKIP POLE SAVE POSSIBLE (902)
+CC                4-JUN-96 : TS: ADDED SUBDAILY POLE MODEL
+CC               24-JUN-96 : TS: ALLOW ESTIMATED TROPOSPHERE INPUT
+CC               10-JUL-96 : EB: POLTYP INITIALISATION
+CC               13-SEP-96 : EB: 902 FORMAT ACTIVATED
+CC               19-FEB-97 : MP: NEW PARAMETERS 'NSMPNQ' AND 'IELVNQ'
+CC                               DIFFER BETWEEN FORMAT NUMBER AND
+CC                               FILE TYPE (ASCII/BINARY)
+CC               08-APR-97 : SS: NIELL MAPPING, TROPOSPHERE GRADIENTS
+CC               05-DEC-02 : PS: CALL SR RDPOLH WITH NUTNAM AND SUBNAM
+CC               04-FEB-03 : PS: CALL TO SR GETPOL CHANGED
+CC               05-NOV-03 : HU: ADDITIONAL ARGUMENTS FOR GETPOL
+CC               16-JUN-05 : MM: UNUSED COMCONST.inc REMOVED
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1993     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE f_ikf
+      USE s_opnfil
+      USE s_opnerr
+      USE s_rdpolh
+      USE s_getpol
+      USE s_rdpoli
+      USE s_exitrc
+      USE s_gtflna
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , I1    , I2    , I4DUMY, IALB  , IARC  , ICAMP ,
+     1          ICEN  , ICOADD, IELVNQ, IEND  , IEND2 , IEXTRA, IF    ,
+     2          IFIL  , IFIX  , IFORM , IFRC  , IFRQ  , IHIL  , II    ,
+     3          IJ    , IMTYP , INDEND, INDFRC, INDSAT, INQFMT,
+     4          INQTYP, IOFF  , IOSTAT, IP    , IPAR  , IPE   , IPOL  ,
+     5          IPOLB , IPOLE , IPOT  , IRC   , IRCCOO, IRCCRS, IRCECC,
+     6          IRCIER, IRCNEQ, IRCORB, IRCPOL, IRCPRS, IRCRPR, IRCSTD,
+     7          IREQ  , ISAT  , ISTAT , ISTC  , ISVN  , ITROPO, ITYP  ,
+     8          IWGT  , J     , JJ    , K     , KK    , LFNNEQ, MAXFRS,
+     9          MAXMEA, MXCFRQ, MXCLCQ, MXCSAT, MXCSTC, MXCVAR, NALB  ,
+     1          NALBGR, NANOFF, NARC  , NCAMP , NCENM , NCLREQ, NEQVER,
+     2          NFIX  , NFTOT , NHILL , NOBS  , NPAR  , NPARMS, NPOL  ,
+     3          NPOT  , NSASTC, NSMPNQ, NSTAT , NSTCEP, NSTWGT, NTRREQ,
+     4          NTRSTA, NWGT
+C
+      REAL*8    AELL  , BELL  , R8DUMY, RIDEND, RMS   , SCAALB, SCACEN,
+     1          SCAHIL, SCAPOT, SCASTC, SCELL , SCL1  , SCL2  , SIGAPR,
+     2          T1    , T2    , TPOLB , TPOLE
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      PARAMETER (MAXMEA=3)
+C
+      REAL*8       CLKWGT(2,*),CLFRTO(2,*),STWGT(3,*),TAECMP(2,*)
+      REAL*8       TPOL(2,*),SIGPOL(5,*),TIMWGT(2,*),WGTWGT(*),PREC(*)
+      REAL*8       XSTAT(3,*),ANOR(*),BNOR(*),DXELL(3),DRELL(3)
+      REAL*8       XSTECC(3,*)
+      REAL*8       STW(3)
+      REAL*8       T,GPSUTC,POLCOO(5),RMSPOL(5)
+      REAL*8       RD1(2),RD2(2),RD3(2),RD4(2),RD5(2),RD6(2),THELP(2)
+      REAL*8       TIMSTC(MXCSTC,MXCSAT,*)
+      REAL*8       SIGSTC(3,*),SIGOFF(3,*)
+      REAL*8       SIGHIL(*),SIGPOT(*),SIGALB(*),SIGCEN(*)
+      REAL*8       ANTPHS(3,MXCFRQ,*),ANTECC(3,*)
+      REAL*8       SIGTRS(3,*),TRPLMS(2,*),TRPLIM(2,*),SIGTRP(*)
+C
+      INTEGER*4    STFIX(*),ISTCLK(*),NCLK(*),ISTWGT(*)
+      INTEGER*4    SATWGT(*)
+      INTEGER*4    LOCQ(MXCLCQ,*)
+      INTEGER*4    STANUM(*),ICENTR(*),NFROBS(MAXMEA,*)
+      INTEGER*4    NMTOBS(MAXMEA)
+      INTEGER*4    NSATEL(*),SATNUM(MXCSAT,*)
+      INTEGER*4    STFIL(2,*)
+      INTEGER*4    NUMSTC(*)
+      INTEGER*4    ARCINT(*)
+      INTEGER*4    POLMOD,POLPAR(*),NUMSAT(*)
+      INTEGER*4    NPSAVE(2),ISGPOL(*),ISGNUT(*)
+      INTEGER*4    INTSTC(MXCSTC,MXCSAT,*)
+      INTEGER*4    NSAOFF(*),SATOFF(MXCSAT,*),PAROFF(3)
+      INTEGER*4    CENMAS(*)
+      INTEGER*4    NSAALB(*),SATALB(MXCSAT,*)
+      INTEGER*4    ANTFRQ(*),ANTNUM(*),STATRP(*),ISGTRS(*),NPARTR(*)
+      INTEGER*4    POLTYP(2)
+C
+      CHARACTER*132 TITLES(2)
+      CHARACTER*80  DUMMYC,STRING
+      CHARACTER*32  FILORB,FILRPR,FILSTD,FILCOO,FILECC,FILCRS
+      CHARACTER*32  FILPOL,FILPRS,FILIER,FILNEQ
+      CHARACTER*16  STNAME(*)
+      CHARACTER*16  ANTSTA(*),ANTREC(*)
+      CHARACTER*16  NUTNAM, SUBNAM
+      CHARACTER*8   MTYP(MAXMEA)
+      CHARACTER*6   MXNSAT,MXNLCQ,MXNSTC,MXNFRQ,MXNVAR
+      CHARACTER*3   REM
+C
+C COMMON FOR LOGICAL FILE NUMBERS
+C
+C COMMON FOR MAXIMAL DIMENSIONS
+C -----------------------------
+      COMMON/MCMSAT/MXCSAT,MXNSAT
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+      COMMON/MCMSTC/MXCSTC,MXNSTC
+      COMMON/MCMFRQ/MXCFRQ,MXNFRQ
+      COMMON/MCMVAR/MXCVAR,MXNVAR
+C
+      DATA MTYP/'PHASE','CODE','RANGE'/
+      DATA I4DUMY/0/, R8DUMY/0.D0/
+C
+C GENERAL FORMATS
+C ---------------
+1     FORMAT(A)
+C
+C OPEN NORMAL EQUATION FILE FOR STORAGE
+C -------------------------------------
+      IF (FILNEQ.EQ.' ') THEN
+        CALL GTFLNA(0,'NEQUARS',FILNEQ,IRCNEQ)
+        IF (IRCNEQ.NE.0) RETURN
+      ENDIF
+      IF (FILNEQ.EQ.' ') RETURN
+C
+C DECODE "NEQVER" INTO FILE TYPE AND FORMAT NUMBER
+C ------------------------------------------------
+      INQTYP=MOD(NEQVER+1,2)+1
+      INQFMT=(NEQVER+1)/2
+C
+C OPEN FILE
+C ---------
+      LFNNEQ=LFNRP1
+      IF (INQTYP.EQ.1) THEN
+        CALL OPNFIL(LFNNEQ,FILNEQ,'UNKNOWN','FORMATTED',
+     1            ' ',' ',IOSTAT)
+      ELSE
+        CALL OPNFIL(LFNNEQ,FILNEQ,'UNKNOWN','UNFORMATTED',
+     1              ' ',' ',IOSTAT)
+      ENDIF
+      CALL OPNERR(LFNERR,LFNNEQ,IOSTAT,FILNEQ,'NEQSAV')
+C
+C INITIALISATION
+C --------------
+      DO 5 I=1,3
+        STW(I)=0.D0
+5     CONTINUE
+      SCL1=0.0D0
+      SCL2=0.0D0
+      POLTYP(1)=1
+      POLTYP(2)=1
+C
+      II=NCLK(1)
+      II=POLMOD
+C
+C PRINT VERSION NUMBER OF NORMAL EQUATION SAVE
+C --------------------------------------------
+      STRING='**FORMAT VERSION'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,*)NEQVER
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)NEQVER
+      ENDIF
+C
+C PRINT TITLE LINES
+C -----------------
+      STRING='**TITLE'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+C        WRITE(LFNNEQ,'(A,/,A))') TITLES(1)(1:LENGT1(TITLES(1))),
+C     1                       TITLES(2)(1:LENGT1(TITLES(2)))
+        WRITE(LFNNEQ,'(A,/,A)') TITLES(1)(1:132),
+     1                          TITLES(2)(1:132)
+      ELSE
+        WRITE(LFNNEQ)STRING
+C        WRITE(LFNNEQ) TITLES(1)(1:LENGT1(TITLES(1))),
+C     1                       TITLES(2)(1:LENGT1(TITLES(2)))
+        WRITE(LFNNEQ) TITLES(1),
+     1                       TITLES(2)
+      ENDIF
+C
+C NUMBER OF OBSERVATIONS
+C ----------------------
+      STRING='**NUMBER OF OBSERVATIONS'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,*)MAXFRS
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)MAXFRS
+      ENDIF
+C
+      DO 60 IMTYP=1,2
+        NMTOBS(IMTYP)=0
+        DO 55 IFRQ=1,MAXFRS
+          IF (INQTYP.EQ.1) THEN
+            WRITE(LFNNEQ,52) MTYP(IMTYP),IFRQ,NFROBS(IMTYP,IFRQ)
+52          FORMAT(1X,A8,8X,'L',I1,14X,'ALL',15X,I8)
+          ELSE
+            WRITE(LFNNEQ) MTYP(IMTYP),IFRQ,NFROBS(IMTYP,IFRQ)
+          ENDIF
+          NMTOBS(IMTYP)=NMTOBS(IMTYP)+NFROBS(IMTYP,IFRQ)
+55      CONTINUE
+60    CONTINUE
+C
+      DO 62 IMTYP=1,2
+        IF (INQTYP.EQ.1) THEN
+          WRITE(LFNNEQ,61) MTYP(IMTYP),NMTOBS(IMTYP)
+61        FORMAT(1X,A8,7X,'ALL',14X,'ALL',15X,I8)
+        ELSE
+          WRITE(LFNNEQ) MTYP(IMTYP),NMTOBS(IMTYP)
+        ENDIF
+62    CONTINUE
+C
+C SIGMA OF SINGLE DIFF. OBSERVATION
+C ---------------------------------
+      STRING='**RMS, APRIORI SIGMA, NUMBER OF OBS. AND UNKNOWNS'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,*) RMS,SIGAPR,NOBS,NPARMS,NSMPNQ,IELVNQ
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ) RMS,SIGAPR,NOBS,NPARMS,NSMPNQ,IELVNQ
+      ENDIF
+C
+C SAVE IMPORTANT INFORMATION OF THE PARAMETRS AND THE APRIORI VALUES
+C ------------------------------------------------------------------
+C
+C FIX STATIONS
+      STRING='**FIX STATIONS'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,'(I4)')NFIX
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)NFIX
+      ENDIF
+      DO 80 IFIX=1,NFIX
+        IF (INQTYP.EQ.1) THEN
+          WRITE(LFNNEQ,'(I4)')STFIX(IFIX)
+        ELSE
+          WRITE(LFNNEQ)STFIX(IFIX)
+        ENDIF
+80    CONTINUE
+C
+C TOTAL NUMBER OF FILES AND STATIONS IN FILE
+      STRING='**STATIONS IN THE FILE'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,'(I4)')NFTOT
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)NFTOT
+      ENDIF
+      DO 82 IFIL=1,NFTOT
+        IF (INQTYP.EQ.1) THEN
+          WRITE(LFNNEQ,'(2(I4))')(STFIL(J,IFIL),J=1,2)
+        ELSE
+          WRITE(LFNNEQ)(STFIL(J,IFIL),J=1,2)
+        ENDIF
+82    CONTINUE
+C
+C SAVE COORDINATE FILE NAME AND ECCENTRICITY FILENAME (FOR CHECK)
+C
+        CALL GTFLNA(0,'COORD  ',FILCOO,IRCCOO)
+        CALL GTFLNA(0,'ECCENT ',FILECC,IRCECC)
+        CALL GTFLNA(0,'COORDRS',FILCRS,IRCCRS)
+        IF(IRCECC.NE.0)FILECC='------'
+        IF(IRCCRS.NE.0)FILCRS='------'
+        STRING='**FILENAMES FOR STATION INFORMATION'
+        IF (INQTYP.EQ.1) THEN
+          WRITE(LFNNEQ,1)STRING
+          WRITE(LFNNEQ,'(3(A))')FILCOO,FILECC,FILCRS
+        ELSE
+          WRITE(LFNNEQ)STRING
+          WRITE(LFNNEQ)FILCOO,FILECC,FILCRS
+        ENDIF
+C
+C SAVE GEODETIC DATUM
+C
+        STRING='**GEODETIC DATUM'
+        IF (INQTYP.EQ.1) THEN
+          WRITE(LFNNEQ,1)STRING
+          WRITE(LFNNEQ,*)AELL,BELL,(DXELL(I),I=1,3),(DRELL(I),I=1,3),
+     1                 SCELL
+        ELSE
+          WRITE(LFNNEQ)STRING
+          WRITE(LFNNEQ)AELL,BELL,(DXELL(I),I=1,3),(DRELL(I),I=1,3),
+     1                 SCELL
+        ENDIF
+C
+C STATION, CENTER STATIONS, WEIGHTS,...
+C
+          STRING='**STATION INFORMATION AND WEIGHTS'
+          IF (INQTYP.EQ.1) THEN
+            WRITE(LFNNEQ,1)STRING
+            WRITE(LFNNEQ,'(I4,5X,I1)')NSTAT,ICOADD
+          ELSE
+            WRITE(LFNNEQ)STRING
+            WRITE(LFNNEQ)NSTAT,ICOADD
+          ENDIF
+          DO 150 ISTAT=1,NSTAT
+            IF (NSTWGT.NE.0) THEN
+              DO 152 IWGT=1,NSTWGT
+                IF(ISTWGT(IWGT).EQ.ISTAT) THEN
+                  DO 154 J=1,3
+                    STW(J)=STWGT(J,IWGT)
+154               CONTINUE
+                  GOTO 156
+                ENDIF
+152           CONTINUE
+              DO 155 J=1,3
+                STW(J)=0.D0
+155           CONTINUE
+            ENDIF
+156         IF (INQTYP.EQ.1) THEN
+              WRITE(LFNNEQ,101) STANUM(ISTAT),STNAME(ISTAT),
+     1                        ICENTR(ISTAT),(XSTAT(J,ISTAT),J=1,3),
+     2                        (XSTECC(J,ISTAT),J=1,3),(STW(J),J=1,3)
+101           FORMAT(I4,2X,A16,1X,I4,3(F16.4),/,3(F19.4),3(F13.5))
+            ELSE
+              WRITE(LFNNEQ) STANUM(ISTAT),STNAME(ISTAT),
+     1                        ICENTR(ISTAT),(XSTAT(J,ISTAT),J=1,3),
+     2                        (XSTECC(J,ISTAT),J=1,3),(STW(J),J=1,3)
+            ENDIF
+150       CONTINUE
+C
+C STATION CLOCKS
+C
+          STRING='**CLOCK INFORMATION'
+          IF (INQTYP.EQ.1) THEN
+            WRITE(LFNNEQ,1)STRING
+            WRITE(LFNNEQ,'(I4)')NCLREQ
+          ELSE
+            WRITE(LFNNEQ)STRING
+            WRITE(LFNNEQ)NCLREQ
+          ENDIF
+          IF (NCLREQ.EQ.0) GOTO 320
+          IF (NCLREQ.NE.0) THEN
+            DO 252 IWGT=1,NCLREQ
+              SCL1=CLKWGT(1,IWGT)
+              SCL2=CLKWGT(2,IWGT)
+256           IF (INQTYP.EQ.1) THEN
+                WRITE(LFNNEQ,201) IWGT,ISTCLK(I),CLFRTO(1,IWGT),
+     1                          CLFRTO(2,IWGT),SCL1,SCL2
+201             FORMAT(I6,4X,I4,2F13.3,1X,2(F15.5))
+              ELSE
+                WRITE(LFNNEQ) IWGT,ISTCLK(I),CLFRTO(1,IWGT),
+     1                        CLFRTO(2,IWGT),SCL1,SCL2
+              ENDIF
+252         CONTINUE
+          ENDIF
+C
+C STORE ORBIT INFORMATION
+C -----------------------
+C
+C CHECK IF ORBITAL PARAMETERS HAVE BEEN ESTIMATED
+C -----------------------------------------------
+320   DO 330 IPAR=1,NPAR
+        IF(LOCQ(1,IPAR).EQ.3) THEN
+          STRING='**ORBIT INFORMATION STORED'
+          IF (INQTYP.EQ.1) THEN
+            WRITE(LFNNEQ,1)STRING
+          ELSE
+            WRITE(LFNNEQ)STRING
+          ENDIF
+          GOTO 340
+        ENDIF
+330   CONTINUE
+      STRING='**NO ORBIT INFORMATION STORED'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+      ELSE
+        WRITE(LFNNEQ)STRING
+      ENDIF
+      GOTO 350
+C
+C GET ORBIT OUTPUT FILENAME
+C -------------------------
+340   STRING='**ORBIT FILENAMES INFORMATION'
+      IF (INQTYP.EQ.1) THEN
+         WRITE(LFNNEQ,1)STRING
+      ELSE
+         WRITE(LFNNEQ)STRING
+      ENDIF
+      IF (FILORB.EQ.' ') THEN
+        FILORB='------'
+        CALL GTFLNA(0,'ORBITRS',FILORB,IRCORB)
+        IF(IRCORB.NE.0)FILORB='------'
+      ENDIF
+      IF (FILSTD.EQ.' ') THEN
+        FILSTD='------'
+        CALL GTFLNA(0,'STDORB ',FILSTD,IRCSTD)
+        IF(IRCSTD.NE.0)FILSTD='------'
+      ENDIF
+      IF (FILRPR.EQ.' ') THEN
+        FILRPR='------'
+        CALL GTFLNA(0,'RPRCOE ',FILRPR,IRCRPR)
+        IF(IRCRPR.NE.0)FILRPR='------'
+      ENDIF
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,'(3(A))')FILORB,FILSTD,FILRPR
+      ELSE
+        WRITE(LFNNEQ)FILORB,FILSTD,FILRPR
+      ENDIF
+C
+C STORE ORBIT WEIGHTS (IF USED)
+C -----------------------------
+      STRING='**ORBIT WEIGHTS'
+      IF (INQTYP.EQ.1) THEN
+
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,*)NWGT
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)NWGT
+      ENDIF
+      DO 370 IWGT=1,NWGT
+        IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,*)SATWGT(IWGT),WGTWGT(IWGT),(TIMWGT(J,IWGT),J=1,2)
+        ELSE
+          WRITE(LFNNEQ)SATWGT(IWGT),WGTWGT(IWGT),(TIMWGT(J,IWGT),J=1,2)
+        ENDIF
+370   CONTINUE
+C
+C SAVE SATELLITE INFORMATION
+C --------------------------
+      STRING='**SATELLITE INFORMATION'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+C
+        WRITE(LFNNEQ,*)NARC
+        DO 376 IARC=1,NARC
+          WRITE (LFNNEQ,*)NUMSAT(IARC)
+376     CONTINUE
+C
+        WRITE(LFNNEQ,*)(NSATEL(IF),IF=1,NFTOT)
+        DO 381 IFIL=1,NFTOT
+          WRITE (LFNNEQ,*)ARCINT(IFIL)
+          DO 381 ISAT=1,NSATEL(IFIL)
+            WRITE(LFNNEQ,*)SATNUM(ISAT,IFIL)
+381     CONTINUE
+      ELSE
+        WRITE(LFNNEQ)STRING
+C
+        WRITE(LFNNEQ)NARC
+        DO 375 IARC=1,NARC
+          WRITE (LFNNEQ)NUMSAT(IARC)
+375     CONTINUE
+C
+        WRITE(LFNNEQ)(NSATEL(IF),IF=1,NFTOT)
+        DO 380 IFIL=1,NFTOT
+          WRITE (LFNNEQ)ARCINT(IFIL)
+          DO 380 ISAT=1,NSATEL(IFIL)
+            WRITE(LFNNEQ)SATNUM(ISAT,IFIL)
+380     CONTINUE
+      ENDIF
+C
+C STORE ORBIT ACCURACY
+C --------------------
+      STRING='**ORBIT PRECISION'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,*)MXCVAR
+        WRITE(LFNNEQ,*)(PREC(I),I=1,MXCVAR)
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)MXCVAR
+        WRITE(LFNNEQ)(PREC(I),I=1,MXCVAR)
+      ENDIF
+C
+C CHECK IF STOCHSTIC PARAMETERS ARE ESTIMATED
+C -------------------------------------------
+      DO 335 IPAR=1,NPAR
+        IF(LOCQ(1,IPAR).EQ.11) THEN
+          STRING='**STOCHASTIC ORBIT INFORMATION STORED'
+          IF (INQTYP.EQ.1) THEN
+            WRITE(LFNNEQ,1)STRING
+          ELSE
+            WRITE(LFNNEQ)STRING
+          ENDIF
+          GOTO 348
+        ENDIF
+335   CONTINUE
+      STRING='**NO STOCHASTIC ORBIT INFORMATION STORED'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+      ELSE
+        WRITE(LFNNEQ)STRING
+      ENDIF
+      GOTO 350
+C
+348   IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,*)SCASTC,NSTCEP
+      ELSE
+        WRITE(LFNNEQ)SCASTC,NSTCEP
+      ENDIF
+      DO 360 IPAR=1,NPAR
+        IF (LOCQ(1,IPAR).NE.11) GOTO 360
+C
+        IARC  =LOCQ(2,IPAR)
+        ISVN  =LOCQ(3,IPAR)
+        ISTC  =LOCQ(4,IPAR)
+        IFRC  =LOCQ(5,IPAR)
+        INDFRC=LOCQ(6,IPAR)
+        INDSAT=LOCQ(7,IPAR)
+C
+        IF (INQTYP.EQ.1) THEN
+          WRITE(LFNNEQ,321)ISTC,INDSAT,IARC,INTSTC(ISTC,INDSAT,IARC),
+     1                      TIMSTC(ISTC,INDSAT,IARC)
+321       FORMAT(4I6,F12.5)
+        ELSE
+          WRITE(LFNNEQ)ISTC,INDSAT,IARC,INTSTC(ISTC,INDSAT,IARC),
+     1                      TIMSTC(ISTC,INDSAT,IARC)
+        ENDIF
+360   CONTINUE
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,*)' '
+      ELSE
+C
+C IDENTIFIER "INDEND" INSTEAD OF BLANK LINE (CORRECTION FOR DOS)
+C (MR/SF)-------------------------------------------------------
+C (OLD STATMENT:  WRITE(LFNNEQ)' ')
+        INDEND=-1
+        WRITE(LFNNEQ) INDEND,I4DUMY,I4DUMY,I4DUMY,R8DUMY
+      ENDIF
+C
+C STOCHASTIC SIGMAS
+C -----------------
+      STRING='**STOCHASTIC SIGMAS'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,*)NSASTC
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)NSASTC
+      ENDIF
+      DO 342 ISTC=1,NSASTC
+        IF (INQTYP.EQ.1) THEN
+          WRITE(LFNNEQ,*)NUMSTC(ISTC),(SIGSTC(IPE,ISTC),IPE=1,NSTCEP)
+        ELSE
+          WRITE(LFNNEQ)NUMSTC(ISTC),(SIGSTC(IPE,ISTC),IPE=1,NSTCEP)
+        ENDIF
+342   CONTINUE
+C
+C SATELLITE ANTENNA OFFSETS
+C -------------------------
+350   STRING='**SATELLITE ANTENNA OFFSETS'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,*)NANOFF
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)NANOFF
+      ENDIF
+      DO 410 IOFF=1,NANOFF
+        IF (INQTYP.EQ.1) THEN
+           WRITE(LFNNEQ,*)(SIGOFF(K,IOFF),PAROFF(K),K=1,3)
+           WRITE(LFNNEQ,*)NSAOFF(IOFF),(SATOFF(K,IOFF),K=1,NSAOFF(IOFF))
+        ELSE
+           WRITE(LFNNEQ)(SIGOFF(K,IOFF),PAROFF(K),K=1,3)
+           WRITE(LFNNEQ)NSAOFF(IOFF),(SATOFF(K,IOFF),K=1,NSAOFF(IOFF))
+        ENDIF
+410   CONTINUE
+C
+C CENTER OF MASS
+C --------------
+      STRING='**CENTER OF MASS'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,*)NCENM,SCACEN
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)NCENM,SCACEN
+      ENDIF
+      DO 420 ICEN=1,NCENM
+        IF (INQTYP.EQ.1) THEN
+           WRITE(LFNNEQ,*)CENMAS(ICEN),SIGCEN(ICEN)
+        ELSE
+           WRITE(LFNNEQ)CENMAS(ICEN),SIGCEN(ICEN)
+        ENDIF
+420   CONTINUE
+C
+C RESONANCE TERMS DEFINITION
+C --------------------------
+      STRING='**RESONANCE TERMS DEFINITION'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,*)NHILL,SCAHIL
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)NHILL,SCAHIL
+      ENDIF
+      DO 430 IHIL=1,NHILL
+        IF (INQTYP.EQ.1) THEN
+           WRITE(LFNNEQ,*)SIGHIL(IHIL)
+        ELSE
+           WRITE(LFNNEQ)SIGHIL(IHIL)
+        ENDIF
+430   CONTINUE
+C
+C PARAMETERS OF EARTH'S POTENTIAL
+C -------------------------------
+      STRING='**PARAMETERS OF EARTH POTENTIAL'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,*)NPOT,SCAPOT
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)NPOT,SCAPOT
+      ENDIF
+      DO 440 IPOT=1,NPOT
+        IF (INQTYP.EQ.1) THEN
+           WRITE(LFNNEQ,*)SIGPOT(IPOT)
+        ELSE
+           WRITE(LFNNEQ)SIGPOT(IPOT)
+        ENDIF
+440   CONTINUE
+C
+C WRITE INFORMATION OF ANTENNA OF THE STATIONS
+C (AVAILABLE SINCE 1.1.1994)
+C --------------------------------------------
+      STRING='**ANTENNA INFORMATION'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+      ELSE
+        WRITE(LFNNEQ)STRING
+      ENDIF
+      DO 160 ISTAT=1,NSTAT
+        IF (INQTYP.EQ.1) THEN
+CC          WRITE(LFNNEQ,'(I3,I3,<3*MXCFRQ+3>(F12.4),I4,1X,2(A16))')
+          WRITE(LFNNEQ,'(I3,I3,9(F12.4),I8,1X,2(A16))')
+     1          MXCFRQ,ANTFRQ(ISTAT),((ANTPHS(K,IFRQ,ISTAT),
+     2          IFRQ=1,MXCFRQ),ANTECC(K,ISTAT),K=1,3),
+     3          ANTNUM(ISTAT),ANTSTA(ISTAT),ANTREC(ISTAT)
+        ELSE
+          WRITE(LFNNEQ)
+     1          MXCFRQ,ANTFRQ(ISTAT),((ANTPHS(K,IFRQ,ISTAT),
+     2          IFRQ=1,MXCFRQ),ANTECC(K,ISTAT),K=1,3),
+     3          ANTNUM(ISTAT),ANTSTA(ISTAT),ANTREC(ISTAT)
+        ENDIF
+160   CONTINUE
+C
+C TROPOSHERE INFORMATION (SINCE APRIL 1994)
+C -----------------------------------------
+      STRING='**TROPOSPHERE INFORMATION'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,*)NTRSTA,ITROPO,IEXTRA
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)NTRSTA,ITROPO,IEXTRA
+      ENDIF
+      DO 610 IREQ=1,NTRSTA
+        IF (INQTYP.EQ.1) THEN
+           WRITE(LFNNEQ,*)STATRP(IREQ),SIGTRS(3,IREQ),ISGTRS(IREQ),
+     1                    (TRPLMS(JJ,IREQ),JJ=1,2)
+        ELSE
+           WRITE(LFNNEQ)STATRP(IREQ),SIGTRS(3,IREQ),ISGTRS(IREQ),
+     1                  (TRPLMS(JJ,IREQ),JJ=1,2)
+        ENDIF
+610   CONTINUE
+C
+C LOCAL TROPOSHERE INFORMATION (SINCE APRIL 1994)
+C -----------------------------------------------
+      STRING='**LOCAL TROPOSPHERE INFORMATION'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,*)NTRREQ
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)NTRREQ
+      ENDIF
+      DO 910 IREQ=1,NTRREQ
+        IF (INQTYP.EQ.1) THEN
+           WRITE(LFNNEQ,*)(TRPLIM(JJ,IREQ),JJ=1,2),NPARTR(IREQ),
+     1                    (SIGTRP(KK),KK=1,NPARTR(IREQ))
+        ELSE
+           WRITE(LFNNEQ)(TRPLIM(JJ,IREQ),JJ=1,2),NPARTR(IREQ),
+     1                    (SIGTRP(KK),KK=1,NPARTR(IREQ))
+        ENDIF
+910   CONTINUE
+C
+CCCCC  ADDITIONAL INFORMATION APPEND AFTER THIS LINE
+C
+C
+C
+C ALBEDO MODEL
+C ------------
+      STRING='**ALBEDO MODEL'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,*)NALB,NALBGR,SCAALB
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)NALB,NALBGR,SCAALB
+      ENDIF
+      DO 480 IALB=1,NALBGR
+        IF (INQTYP.EQ.1) THEN
+           WRITE(LFNNEQ,*)(SIGALB(K),K=1,NALB)
+           WRITE(LFNNEQ,*)NSAALB(IALB),(SATALB(K,IALB),K=1,NSAALB(IALB))
+        ELSE
+           WRITE(LFNNEQ)(SIGALB(K),K=1,NALB)
+           WRITE(LFNNEQ)NSAALB(IALB),(SATALB(K,IALB),K=1,NSAALB(IALB))
+        ENDIF
+480   CONTINUE
+C
+C EARTH ROTATION PARAMETER
+C ------------------------
+      STRING='**POLE FILENAMES INFORMATION'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+      ELSE
+        WRITE(LFNNEQ)STRING
+      ENDIF
+C APRIORI POLE
+      CALL GTFLNA(0,'POLE   ',FILPOL,IRCPOL)
+C OUTPUT POLE
+      CALL GTFLNA(0,'POLPRS ',FILPRS,IRCPRS)
+      CALL GTFLNA(0,'IERSPOL',FILIER,IRCIER)
+      IF(IRCPOL.NE.0)FILPOL='------'
+      IF(IRCPRS.NE.0)FILPRS='------'
+      IF(IRCIER.NE.0)FILIER='------'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,'(3(A))')FILPOL,FILPRS,FILIER
+      ELSE
+        WRITE(LFNNEQ)FILPOL,FILPRS,FILIER
+      ENDIF
+C
+C PRINT A PRIORI INFORMATION FROM POLE FILE
+C -----------------------------------------
+      STRING='**POLE/NUTATION APRIORI VALUES'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,*)NCAMP
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)NCAMP
+      ENDIF
+      DO 520 I=1,NCAMP
+        CALL GTFLNA(0,'POLE   ',FILPOL,IRCPOL)
+        IF (IRCPOL.EQ.0) THEN
+C
+C CHECK FIRST IF HEADER READABLE
+C
+          CALL OPNFIL(LFNLOC,FILPOL,'OLD',' ','READONLY',' ',IOSTAT)
+          CALL OPNERR(LFNERR,LFNLOC,IOSTAT,FILPOL,'NEQSAV')
+          IEND=1
+          CALL RDPOLH(LFNLOC,1,DUMMYC,POLTYP,IFORM,IEND,NUTNAM,SUBNAM)
+          IF (IEND.EQ.0) THEN
+            CALL RDPOLI(LFNLOC,T,POLCOO,GPSUTC,REM,RMSPOL,IFORM,IEND)
+            IPOLB=0
+            IPOLE=0
+            IF (DABS(TAECMP(1,I)-T).LE.0.1D0) IPOLB=1
+            IF (DABS(TAECMP(2,I)-T).LE.0.1D0) IPOLE=1
+          ELSE
+            POLTYP(1)=1
+            POLTYP(2)=1
+          ENDIF
+C START OF POLE INFORMATION
+          IF (IEND.EQ.0) THEN
+C END OF POLE INFORMATION
+            TPOLB=T
+            DO I2=1,10000
+              CALL RDPOLI(LFNLOC,T,POLCOO,GPSUTC,REM,RMSPOL,IFORM,IEND2)
+              IF (IEND2.EQ.0) TPOLE=T
+              IF (IEND2.GT.0) GOTO 545
+              IF (DABS(TAECMP(1,I)-T).LE.0.1D0) IPOLB=1
+              IF (DABS(TAECMP(2,I)-T).LE.0.1D0) IPOLE=1
+            ENDDO
+545         CONTINUE
+c            IF (.NOT.(TPOLB.GE.TAECMP(1,I).AND.TPOLE.LE.TAECMP(2,I))
+c     1         .OR.IPOLB.EQ.0.OR.IPOLE.EQ.0) THEN
+CC            IF (IPOLB.EQ.0.OR.IPOLE.EQ.0) THEN
+CC              WRITE(LFNERR,902)
+CC902           FORMAT(/,' *** SR NEQSAV: APRIORI POLE NOT AVAILABLE ',/,
+CC     1              16X,'FOR THE ENTIRE TIME SPAN OF THE CAMPAIGN!',/,
+CC     2              16X,'POLE INFORMATION SKIPPED FOR THE NEQS',/)
+CC              IEND=1
+CC            ENDIF
+          ENDIF
+          CLOSE(UNIT=LFNLOC)
+          IF (IEND.EQ.0) THEN
+C
+C GET LARGEST TIME SMALLER THAN TAECMP(1) AND
+C SMALLEST TIME GREATER THAN TAECMP(2)
+            CALL GETPOL(TAECMP(1,I),0,THELP,RD1,RD2,RD3,RD4,RD5,RD6,
+     1                                                      POLTYP)
+            IF (THELP(2).EQ.TAECMP(1,I)) THEN
+              T1=THELP(2)
+            ELSE
+              T1=THELP(1)
+            END IF
+            CALL GETPOL(TAECMP(2,I),0,THELP,RD1,RD2,RD3,RD4,RD5,RD6,
+     1                                                      POLTYP)
+            IF (THELP(1).EQ.TAECMP(2,I)) THEN
+              T2=THELP(1)
+            ELSE
+              T2=THELP(2)
+            END IF
+          ENDIF
+        ELSE
+          POLTYP(1)=1
+          POLTYP(2)=1
+        ENDIF
+C
+C OPEN POLE FILE
+        CALL GTFLNA(0,'POLE   ',FILPOL,IRC)
+        IF (IRC.EQ.0) THEN
+          CALL OPNFIL(LFNLOC,FILPOL,'OLD',' ','READONLY',' ',IOSTAT)
+          CALL OPNERR(LFNERR,LFNLOC,IOSTAT,FILPOL,'NEQSAV')
+C
+C READ HEADER AND OF POLE FILE
+          CALL RDPOLH(LFNLOC,1,DUMMYC,POLTYP,IFORM,IEND,NUTNAM,SUBNAM)
+C
+C FIND,READ AND PRINT THE INFORMATION
+          DO 530 I2=1,10000
+            CALL RDPOLI(LFNLOC,T,POLCOO,GPSUTC,REM,RMSPOL,IFORM,IEND)
+            IF (IEND.GT.0) GOTO 540
+            IF (T.GE.T1.AND.T.LE.T2) THEN
+              IF (INQTYP.EQ.1) THEN
+                WRITE(LFNNEQ,541) T,(POLCOO(I1),I1=1,5),GPSUTC,
+     1                        (RMSPOL(I1),I1=1,5)
+541           FORMAT(' ',F15.5,2F12.5,F13.6,2F12.5,F10.0,
+     1                   2F12.5,F13.6,2F12.5)
+C OLD FORMAT:
+C 541           FORMAT(' ',F15.5,2F12.5,F13.6,F10.0,F15.5,F12.5,F13.6)
+              ELSE
+                WRITE(LFNNEQ) T,(POLCOO(I1),I1=1,5),GPSUTC,
+     1                        (RMSPOL(I1),I1=1,5)
+              ENDIF
+            END IF
+            IF (T.GT.T2) GOTO 540
+530       CONTINUE
+540       CONTINUE
+          IF (INQTYP.EQ.1) THEN
+            WRITE(LFNNEQ,*)
+          ELSE
+C
+C IDENTIFIER "RIDEND" INSTEAD OF BLANK LINE (CORRECTION FOR DOS)
+C (MR/SF)-------------------------------------------------------
+C (OLD STATMENT:  WRITE(LFNNEQ)  )
+            RIDEND=-1.D0
+            WRITE(LFNNEQ) RIDEND,(R8DUMY,I1=1,5),R8DUMY,
+     1                    (R8DUMY,I1=1,5)
+          ENDIF
+          CLOSE(LFNLOC)
+C
+        ELSE
+          IF (INQTYP.EQ.1) THEN
+            WRITE(LFNNEQ,*)
+          ELSE
+            RIDEND=-1.D0
+            WRITE(LFNNEQ) RIDEND,(R8DUMY,I1=1,5),R8DUMY,
+     1                  (R8DUMY,I1=1,5)
+          ENDIF
+          POLTYP(1)=1
+          POLTYP(2)=1
+        ENDIF
+520   CONTINUE
+C
+C STORE POLE MODEL INFORMATION
+C ----------------------------
+      STRING='**POLE MODEL 2 INFORMATION'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,*)NPOL,POLTYP(1),POLTYP(2)
+        DO 450 IPOL=1,NPOL
+          WRITE(LFNNEQ,*)(TPOL(J,IPOL),J=1,2),ISGPOL(IPOL),ISGNUT(IPOL)
+          WRITE(LFNNEQ,*)(SIGPOL(J,IPOL),J=1,5)
+450     CONTINUE
+        WRITE(LFNNEQ,*)(POLPAR(I),I=1,5)
+        WRITE(LFNNEQ,*)(NPSAVE(I),I=1,2)
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)NPOL,POLTYP(1),POLTYP(2)
+        DO 451 IPOL=1,NPOL
+          WRITE(LFNNEQ)(TPOL(J,IPOL),J=1,2),ISGPOL(IPOL),ISGNUT(IPOL)
+          WRITE(LFNNEQ)(SIGPOL(J,IPOL),J=1,5)
+451     CONTINUE
+        WRITE(LFNNEQ)(POLPAR(I),I=1,5)
+        WRITE(LFNNEQ)(NPSAVE(I),I=1,2)
+      ENDIF
+C
+C STORE CAMPAIGN INTERVALS
+C ------------------------
+      STRING='**CAMPAIGN INFORMATION'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,*)NCAMP
+        DO 460 ICAMP=1,NCAMP
+          WRITE(LFNNEQ,*)(TAECMP(I,ICAMP),I=1,2)
+460     CONTINUE
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)NCAMP
+        DO 461 ICAMP=1,NCAMP
+          WRITE(LFNNEQ)(TAECMP(I,ICAMP),I=1,2)
+461     CONTINUE
+      ENDIF
+C
+C
+C SAVE ANOR, BNOR AND LOCQ
+C ------------------------
+C
+C LOOP OVER ALL PARAMETERS
+C
+      STRING='**LOCQ,BNOR,ANOR (LINEARIZED)'
+      IF (INQTYP.EQ.1) THEN
+        WRITE(LFNNEQ,1)STRING
+        WRITE(LFNNEQ,'(I4)')NPAR
+      ELSE
+        WRITE(LFNNEQ)STRING
+        WRITE(LFNNEQ)NPAR
+      ENDIF
+C
+        DO 2000 IP=1,NPAR
+          ITYP=LOCQ(1,IP)
+C
+C WRITE LOCQ
+C ----------
+          IF (INQTYP.EQ.1) THEN
+            IF (MXCLCQ+1.LE.10)THEN
+              WRITE(LFNNEQ,'(10(I6))')LOCQ(1,IP),MXCLCQ,
+     1                      (LOCQ(K,IP),K=2,MXCLCQ)
+            ELSE
+              WRITE(LFNERR,901) MXCLCQ
+901           FORMAT(/,' *** SR NEQSAV: PARAMETER MAXLCQ TOO LARGE: ',
+     1              I3,/,
+     2              16X,'PLEASE INCREASE THE FIX FORMAT IN SR NEQSAV',/,
+     3              16X,'OR SAVE IN BINARY FORMAT',/)
+              CALL EXITRC(2)
+            ENDIF
+          ELSE
+            WRITE(LFNNEQ)LOCQ(1,IP),MXCLCQ,(LOCQ(K,IP),K=2,MXCLCQ)
+          ENDIF
+C
+C WRITE ANOR AND BNOR
+C -------------------
+          IF (INQTYP.EQ.1) THEN
+            WRITE(LFNNEQ,*)BNOR(IP)
+          ELSE
+            WRITE(LFNNEQ)BNOR(IP)
+          ENDIF
+          DO 110 J=1,IP
+            IJ=IKF(IP,J)
+            IF (INQTYP.EQ.1) THEN
+              IF (ANOR(IJ).EQ.0.D0) THEN
+                WRITE(LFNNEQ,'(F5.0)')ANOR(IJ)
+              ELSE
+                WRITE(LFNNEQ,*)ANOR(IJ)
+              ENDIF
+            ELSE
+              WRITE(LFNNEQ)ANOR(IJ)
+            ENDIF
+110       CONTINUE
+2000    CONTINUE
+C
+        CLOSE(UNIT=LFNNEQ)
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

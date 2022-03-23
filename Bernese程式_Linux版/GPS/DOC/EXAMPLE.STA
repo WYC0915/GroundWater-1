@@ -1,0 +1,55 @@
+Example for a station information file                           16-OCT-09 15:55
+--------------------------------------------------------------------------------
+
+FORMAT VERSION: 1.01
+TECHNIQUE:      GNSS
+
+TYPE 001: RENAMING OF STATIONS
+------------------------------
+
+STATION NAME          FLG          FROM                   TO         OLD STATION NAME      REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ****************      ************************
+ABMF 97103M001        001  2008 07 15 00 00 00                       ABMF*                 IGS.SNX
+QUI2 42003S003        003                                            U062 42003S003        NGA RENAMING                    
+WDC2 40451S005        003                       2006 07 16 23 59 59  U072 40451S005        NGA RENAMING                    
+WDC4 40451S008        003  2006 07 17 00 00 00                       U072 40451S005        NGA RENAMING                    
+BAHR 24901M002        001                                            BAHR*                 STN                     
+
+
+TYPE 002: STATION INFORMATION
+-----------------------------
+
+STATION NAME          FLG          FROM                   TO         RECEIVER TYPE         RECEIVER SERIAL NBR   REC #   ANTENNA TYPE          ANTENNA SERIAL NBR    ANT #    NORTH      EAST      UP      DESCRIPTION             REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ********************  ********************  ******  ********************  ********************  ******  ***.****  ***.****  ***.****  **********************  ************************
+ABMF 97103M001        001  2008 07 15 00 00 00  2009 10 15 20 00 00  ASHTECH UZ-12         UC220                 999999  AERAT2775_43    SPKE  5546                  999999    0.0000    0.0000    0.0500  LES ABYMES, FRANCE      IGS.SNX
+ABMF 97103M001        001  2009 10 15 20 00 00                       TRIMBLE NETR5         4917K                 999999  TRM55971.00     NONE  14409                 999999    0.0000    0.0000    0.0000  LES ABYMES, FRANCE      IGS.SNX
+BARH 49927S001        001                       2007 03 26 23 59 59  TRIMBLE 4000SSI                             999999  TRM29659.00     UNAV                        999999    0.0000    0.0000    0.0000  Bar Harbor, US          NEW                     
+BARH 49927S001        001  2007 03 27 00 00 00                       LEICA GRX1200GGPRO                          999999  LEIAX1202GG     NONE                        999999    0.0000    0.0000    0.0000  Bar Harbor, US          NEW                     
+ETAD                  001                                            TRIMBLE NETR5                               999999  TRM55971.00     NONE                        999999    0.0000    0.0000    0.0502  (ET)                    NEW                     
+
+
+TYPE 003: HANDLING OF STATION PROBLEMS
+--------------------------------------
+
+STATION NAME          FLG          FROM                   TO         REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ************************************************************
+ZIMM 14001M004        001  2003 08 12 00 00 00  2003 08 12 23 59 59  IGSMAIL.4541            
+
+
+TYPE 004: STATION COORDINATES AND VELOCITIES (ADDNEQ)
+-----------------------------------------------------
+                                            RELATIVE CONSTR. POSITION     RELATIVE CONSTR. VELOCITY
+STATION NAME 1        STATION NAME 2        NORTH     EAST      UP        NORTH     EAST      UP
+****************      ****************      **.*****  **.*****  **.*****  **.*****  **.*****  **.*****
+ZIMM 14001M004        ZIMJ 14001M006        99.99999  99.99999  99.99999   0.00010   0.00010   0.00010  
+
+
+TYPE 005: HANDLING STATION TYPES
+--------------------------------
+
+STATION NAME          FLG  FROM                 TO                   MARKER TYPE           REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ********************  ************************
+
+
+
+

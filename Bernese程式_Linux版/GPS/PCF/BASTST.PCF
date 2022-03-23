@@ -1,0 +1,79 @@
+#
+# ============================================================================
+# BASTST.PCF
+# ============================================================================
+#
+# Purpose:      Does GPSEST runs baseline by baseline for trouble shooting.
+#
+# ----------------------------------------------------------------------------
+#
+# A description of the BPE, the use of the BPE server variables, input and
+# output files as well as the important points to be checked in the processing
+# summary are provided in 
+#               ${U}/PCF/BASTST.README     (UNIX/Linux)
+#                %U%\PCF\BASTST.README     (Windows)
+#
+# ----------------------------------------------------------------------------
+#
+# 
+# Author     :  R. Dach
+# Created    :  10-Aug-2011               Last modified: 10-Aug-2011
+#
+# Changes    :  
+#
+# ============================================================================
+#
+#
+PID SCRIPT   OPT_DIR  CAMPAIGN CPU      P WAIT FOR....
+3** 8******* 8******* 8******* 8******* 1 3** 3** 3** 3** 3** 3** 3** 3** 3** 3**
+#
+# Compute baseline solutions and extract relevant information
+# -----------------------------------------------------------
+101 GPSESTAP BAS_GEN           ANY      1
+102 GPSEST_P BAS_GEN           ANY      1 101
+103 GPSXTR   BAS_GEN           ANY      1 102
+111 RESRMS   BAS_GEN           ANY      1 102
+112 RESCHK   BAS_GEN           ANY      1 111
+#
+# Create summary file and delete files
+# ------------------------------------
+901 BAS_SUM  BAS_GEN           ANY      1 103 112
+991 BPE_CLN  PPP_GEN           ANY      1 901
+#
+# End of BPE
+# ----------
+999 DUMMY    NO_OPT            ANY      1 991
+#
+#
+PID USER         PASSWORD PARAM1   PARAM2   PARAM3   PARAM4   PARAM5   PARAM6   PARAM7   PARAM8   PARAM9
+3** 12********** 8******* 8******* 8******* 8******* 8******* 8******* 8******* 8******* 8******* 8*******
+#
+# Compute baseline solutions and extract relevant information
+# -----------------------------------------------------------
+101                       $101     V_A
+102                       PARALLEL $101
+#
+# Create summary file and delete files
+# ------------------------------------
+#
+#
+#
+VARIABLE DESCRIPTION                              DEFAULT
+8******* 40************************************** 30****************************
+V_A      Output and residual statistics           BAS
+V_CRDINF Abbreviation filename                    EXAMPLE
+V_APRFIL A priori (coordinate) information        APR$YSS+0 
+V_ORBFIL Orbit/ERP information                    COD$YSS+0
+V_BLQINF BLQ FILE NAME, CMC CORRECTIONS           EXAMPLE
+V_ATLINF ATL FILE NAME, CMC CORRECTIONS           EXAMPLE
+V_HOIFIL Ionosphere model for higher order iono   HOI$YSS+0
+V_SATSYS Select the GNSS (GPS, GPS/GLO)           GPS/GLO
+V_SAMPL  Sampling interval                        30
+V_PCV    Absolute/relative PCV model              I08
+V_SATINF Satellite information file               SATELLIT        
+V_PCVINF PCV information file                     PCV       
+V_SATCRX Satellite problem file                   SAT_$Y+0
+#
+# DO NOT USE V_D, V_J, V_M, V_Y VARIABLES! 
+# (they are used already by the menu)
+# 

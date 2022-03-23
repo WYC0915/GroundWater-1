@@ -1,0 +1,46 @@
+package ORBAPF;
+@ISA = ("RUNBPE");
+# ----------------------------------------------------------------------------
+#
+# Name    :  ORBAPF
+#
+# Purpose :  Execute ORBGEN with a special ERP file
+#
+# PARAMs  :
+#
+# Authors :  H. Bock
+# Created :  02-Feb-2012
+#
+# Changes :
+#
+# ----------------------------------------------------------------------------
+use strict;
+
+use File::Copy;
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyssss,
+      $A, $B,
+      $dirErp,
+      $extErp) =
+  $bpe->getKeys(
+      '$YSS+0',
+      'V_A','V_B',
+      'DIR_ERP',
+      'EXT_ERP');
+
+  my $NAM="COP";
+  copy("${dirErp}$B${yyssss}.${extErp}","${dirErp}$A$NAM${yyssss}.${extErp}");
+
+# Execute ORBGEN
+# --------------
+  my $PGMNAM="ORBGEN";
+  $bpe->RUN_PGMS($PGMNAM);
+
+  unlink("${dirErp}$A$NAM${yyssss}.${dirErp}");
+
+}

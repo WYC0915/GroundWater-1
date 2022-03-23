@@ -1,0 +1,65 @@
+<html>
+<body>
+
+<center>
+<b>CONVERT SATELLITE INFORMATION FILE FROM NEW TO OLD</b>
+<p>Program: SATFCNV
+</center>
+<hr WIDTH="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+<font color="#FF0000">Text for GENERAL DESCRIPTION will be added soon.</font>
+
+<p><hr>
+
+<p><b>SATFCNV 1: Files</b>
+
+<p><a name="SATELL" default=""></a>
+<b>new SATELLIT. file:</b>
+
+<font color="#FF0000">Text for key SATELL will be added soon.</font>
+
+<p><a name="OLDFIL" default=""></a>
+<b>old SATELLIT. file:</b>
+
+<font color="#FF0000">Text for key OLDFIL will be added soon.</font>
+
+<br><br>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><a name="SYSODEF" default="1"></a>
+   <a name="SYSOUT"  default="SATFCNV"></a>
+<b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<p><a name="ERRMRG" default="0"></a>
+   <a name="SYSERR" default="ERROR"></a>
+<b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or to specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+</body>
+</html>

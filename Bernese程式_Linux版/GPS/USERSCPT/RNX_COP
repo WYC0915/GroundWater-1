@@ -1,0 +1,157 @@
+package RNX_COP;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  RNX_COP
+#
+# Purpose :  Copy the observation files for the example BPEs
+#
+# Remark  :  The observation selection procedure is implemented in this
+#            script (description in the PCFile).
+#
+# PARAMs  :  PARAM1=MEXTJOB
+#            PARAM2=Next PID if no hourly processing is done
+#                   (only hourly RINEX files must be merged)
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use File::Basename;
+use File::Copy;
+
+use lib $ENV{BPE};
+use bpe_util qw(isHourly prtErr prtGoto replaceSelLst crz2rnx);
+use lib "$ENV{X}/EXE";
+use Gps_Date qw(gps_date);
+
+sub run{
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($obsSel,  $rnxDir, $crdInf,
+      $ssss, $yy, $hourly,
+      $param2,
+      $dirRxo, $dirOrx, $dirClu, $dirAbb,
+      $extRxo, $extOrx, $extClu, $extAbb ) =
+  $bpe->getKeys
+     ('V_OBSSEL','V_RNXDIR','V_CRDINF',
+      '$S+0', '$Y', 'V_HOURLY',
+      'PARAM2',
+      'DIR_RXO','DIR_OXO','DIR_CLU','DIR_ABB',
+      'EXT_RXO','EXT_RXO','EXT_CLU','EXT_ABB');
+
+# Hourly processing: target is ORX
+# --------------------------------
+  if (isHourly($ssss)) {
+    $dirRxo = $dirOrx
+  } else {
+    prtGoto($bpe,$param2);
+  }
+
+# Init list of RINEX files for this session
+# -----------------------------------------
+  unlink(glob("${dirRxo}????${ssss}.${extRxo}"));
+  $rnxDir = "$ENV{D}/$rnxDir/";
+  my @rnxAbb = ();
+
+# Recover the original V_OBSSEL if another session is processed
+# -------------------------------------------------------------
+  $obsSel = "" if ($obsSel eq "all stations");
+  $obsSel = basename($obsSel) if ( $obsSel ne "" );
+
+
+# A cluster files is defined
+# --------------------------
+  my $cluFil = $obsSel ne "" ? $dirClu . $obsSel . ".$extClu" : "";
+  my $rnxSel = $obsSel ne "" ? $dirClu . "../" . $obsSel : "";
+
+  if ( $cluFil ne "" && -s $cluFil ) {
+    $rnxSel = ""; # We are going for the cluster file
+
+    # Reading from cluster file is only possible with an abbrev. file
+    my $abbFil = "${dirAbb}${crdInf}.${extAbb}";
+    unless (-s $abbFil) {
+      prtErr($bpe,"Abbreviation file is missing: $abbFil");
+      die("Mandatory abbreviation file is missing: $abbFil\n");
+    }
+
+    # Read the station names from the cluster file
+    my $iLine = 0;
+    my @STANAM = ();
+    open(CLU,$cluFil);
+    while(<CLU>) {
+      $iLine++;
+      if ($iLine > 5) {
+        push @STANAM,substr($_,0,16);
+      }
+    }
+    close CLU;
+
+    # Prepare the STA2ID.INP file
+    $bpe->putKey("$ENV{U}/PAN/STA2ID.INP","ABBREV","$abbFil");
+    replaceSelLst($bpe,"STA2ID","STANAM",@STANAM);
+    @rnxAbb=$bpe->RUN_PGMS("STA2ID");
+
+    # Get the 4ID-abbreviations
+    @rnxAbb = split("\n",$bpe->getKey("$ENV{U}/INP/STA2ID.INP","STA4ID"));
+
+    $bpe->setVar('OBSSEL',basename($dirClu) . '/' . $obsSel . ".$extClu");
+  }
+
+# List of RINEX abbreviations
+# ---------------------------
+  if ( $rnxSel ne "" ) {
+    unless (-s $rnxSel) {
+      prtErr($bpe,"Specified RINEX selection file (V_OBSSEL) is missing: $rnxSel");
+      die("Specified RINEX selection file (V_OBSSEL) is missing: $rnxSel\n");
+    }
+
+    open(SEL,"< $rnxSel");
+    chomp(my @help=<SEL>);
+    close SEL;
+
+    map { push @rnxAbb,split(" ",$_) } @help;
+
+    $bpe->setVar('OBSSEL',$rnxSel);
+  }
+
+
+# Select all stations of the session
+# ----------------------------------
+  if ( $obsSel eq "" ) {
+    map { push @rnxAbb,substr(basename($_),0,4) }
+                      glob( "${rnxDir}????${ssss}.${yy}[DdOo]*" );
+    $bpe->setVar('OBSSEL',"all stations");
+  }
+
+# Copy the files into the ORX-directory of the campaign
+# -----------------------------------------------------
+  my @rnxLst = ();
+
+  foreach my $rnxAbb ( @rnxAbb ) {
+    push @rnxLst,glob("${rnxDir}${rnxAbb}${ssss}.${yy}*");
+  }
+
+  # hourly processing
+  if (isHourly($ssss)) {
+    for (my $nn = -1; $nn >= -abs($hourly); $nn--) {
+      my ($mySSSS,$myYY) = gps_date("-yd $yy $ssss -h $nn","-o %j%I %a");
+      if ( $obsSel eq "" ) {
+        push @rnxLst,glob("${rnxDir}????${mySSSS}.${myYY}*");
+      } else {
+        foreach my $rnxAbb ( @rnxAbb ) {
+          push @rnxLst,glob("${rnxDir}${rnxAbb}${mySSSS}.${myYY}*");
+        }
+      }
+    }
+  }
+
+  map { print "$_ copied for processing\n" } crz2rnx(@rnxLst,${dirRxo},"-u");
+
+}

@@ -1,0 +1,68 @@
+package OBSMRGAP;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  OBSMRGAP
+#
+# Purpose :  Prepare merging of hourly files
+#
+# PARAMs  :
+#
+# Author  :  M. Meindl
+# Created :  30-Jul-2003
+#
+# Changes :  11-Aug-2011 RD: Updated for version 5.2
+#
+# ============================================================================
+use strict;
+
+use File::Basename;
+
+use lib $ENV{BPE};
+use bpe_util qw(initPar_Fl);
+
+sub run{
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyssss, $ssss,
+      $dirRxo,  $dirOrx,  $dirBpe,
+      $extRxo,  $extOrx) =
+  $bpe->getKeys
+     ('$YSS+0','$S+0',
+      'DIR_RXO','DIR_OXO','DIR_BPEPRT',
+      'EXT_RXO','EXT_RXO');
+
+# Remove the old result files
+# ---------------------------
+  unlink glob "${dirRxo}????${ssss}.$extRxo";
+
+# Get the list of files to be merged
+# ----------------------------------
+  my @rnxLst = sort glob "${dirOrx}*.??O";
+
+# Make cluster files for each starting charcters of the RIENX filenames
+# ---------------------------------------------------------------------
+  my $ch     = ' ';
+  my @cluFil = ();
+  foreach my $file ( @rnxLst ) {
+
+    # Start a new cluster
+    if ( substr( basename($file),0,1 ) ne $ch ) {
+      close CLU if ( $ch ne ' ');  # close the previous cluster file
+
+      $ch = substr( basename($file),0,1 );
+      my $cluNam = "${dirBpe}MRG${yyssss}_${ch}.BPE";
+      push @cluFil,$cluNam;
+      open(CLU,"> $cluNam");
+    }
+
+    print CLU "$file\n";
+  }
+  close CLU;
+
+# Initialize parallel run
+  initPar_Fl($bpe,@cluFil);
+
+}

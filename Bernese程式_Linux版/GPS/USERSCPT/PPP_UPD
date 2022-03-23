@@ -1,0 +1,86 @@
+package PPP_UPD;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  PPP_UPD
+#
+# Purpose :  Skip update of REFINF-CRD and -VEL files if V_UP ne "Y"
+#            Stop if no PLD file is available for NUVELO
+#
+# PARAMs  :  PARAM1=MEXTJOB
+#            PARAM2=Next PID if no update is requested
+#
+# Author  :  M. Meindl, S. Schaer
+# Created :  23-Jul-2003
+#
+# Changes :  11-Aug-2011 RD: Updated for version 5.2
+#
+# ============================================================================
+use strict;
+
+use File::Copy;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtErr prtGoto);
+
+sub run {
+  my $bpe = shift;
+
+# Get veriables
+# -------------
+  my ($yyssss,
+      $g, $upd, $crdInf, $refInf, $refEpo, $param2,
+      $dirPld, $dirCrd, $dirVel,
+      $extPld, $extCrd, $extVel) =
+    $bpe->getKeys(
+      '$YSS+0',
+      'V_G','V_UPD','V_CRDINF','V_REFINF','V_REFEPO','PARAM2',
+      'DIR_PLD','DIR_CRD','DIR_VEL',
+      'EXT_PLD','EXT_CRD','EXT_VEL');
+
+# We have also to go through this section for GCC-estimation
+# ----------------------------------------------------------
+  if ( defined $$bpe{V_G} ) {  # only defined in PPP_DEMO.PCF
+    if ("$g" ne "") {          # GCC estimation requested: a FIX-file is needed
+      $upd = "Y";
+    }
+  }
+
+
+# Skip this section if no update if requested
+# -------------------------------------------
+  if (uc $upd ne "Y" ) {
+    prtGoto($bpe,$param2)
+
+# Stop if no PLD filename is available
+# ------------------------------------
+  } elsif (!-s "${dirPld}${crdInf}.${extPld}") {
+    prtErr($bpe,"${crdInf}.${extPld} file not found") and
+      die "${crdInf}.${extPld} file not found";
+  }
+
+# Copy the reference frame file if no CRD/VEL files are available
+# ---------------------------------------------------------------
+  my $crdFil = "${dirCrd}${crdInf}.${extCrd}";
+  my $velFil = "${dirVel}${crdInf}.${extVel}";
+
+  copy("${dirCrd}${refInf}_R.${extCrd}",$crdFil) unless (-s $crdFil);
+  copy("${dirVel}${refInf}_R.${extVel}",$velFil) unless (-s $velFil);
+
+# Get the epoch of the coordinate file
+# ------------------------------------
+  open(CRD,$crdFil);
+  while(<CRD>) {
+    if ( /LOCAL GEODETIC DATUM: [ \w\d]* EPOCH: ([\d][\d][\d][\d]-[\d][\d]-[\d][\d])/) {
+      my $epoch = $1;
+      $epoch =~ s/\-/ /g;
+      unless ($epoch eq $refEpo) {
+        die("Epoch for the reference coordinate set differs between\n".
+            "the coordinate file $crdFil (Defined by BPE variable V_REFINF)\n".
+            "and the defined epoch in BPE variable V_REFEPO\n");
+      }
+      last;
+    }
+  }
+  close CRD;
+}

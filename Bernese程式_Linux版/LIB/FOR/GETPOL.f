@@ -1,0 +1,351 @@
+      MODULE s_GETPOL
+      CONTAINS
+
+C*
+      SUBROUTINE GETPOL(TREQ,ISUBFL,T,X,Y,UT1UTC,GPSUTC,DEPS,DPSI,
+     1                  POLTYP)
+CC
+CC NAME       :  GETPOL
+CC
+CC PURPOSE    :  GIVEN THE TIME TREQ, THE VALUES
+CC               XPOLE, YPOLE, UT1-UTC, GPS TIME - UTC
+CC               ARE EXTRACTED FOR  TIMES T(1), T(2) FROM
+CC               THE POLE FILE.
+CC               T(1) IS THE LARGEST TABULAR TIME
+CC               SMALLER THEN TREQ, T(2) THE SMALLEST TABULAR
+CC               TIME LARGER THEN TREQ.
+CC               IF T(2)-T(1) > 20, AN ERROR MESSAGE IS PRINTED,
+CC               PROCESSING IS STOPPED. IF A LEAP SECOND IS DE-
+CC               TECTED IN GPS TIME - UTC, THE VALUES UT1-UTC AND
+CC               GPS TIME - UTC ARE CORRECTED FOR T(2).
+CC
+CC PARAMETERS :
+CC         IN :  TREQ   : TIME OF REQUEST                       R*8
+CC               ISUBFL : 0: DO NOT PERFORM CONSISTENCY CHECK   I*4
+CC                        1: PERFORM CONSISTENCY CHECK
+CC        OUT :  T(I),I=1,2: TABULAR TIMES                      R*8
+CC               X(I),Y(I): POLE POSITIONS AT T(I)              R*8
+CC               UT1UTC(I),I=1,2 : UT1-UTC AT TIME T(I) (DAYS)  R*8
+CC               GPSUTC(I),I=1,2 : GPS TIME - UTC (DAYS)        R*8
+CC               DEPS(I),I=1,2   : NUTATION OFFSET IN OBLIQUITY R*8
+CC               DPSI(I),I=1,2   : NUTATION OFFSET IN LONGITUDE R*8
+CC               POLTYP(I): I=1 NUTATION MODEL                  I*4(*)
+CC                              1=NO, 2=OBSERVED, 3=HERRING
+CC                          I=2 SUBDAILY POLE MODEL
+CC                              1=NO, 2=RAY
+CC
+CC REMARKS    :  UNITS ARE RADIANS FOR ANGLES AND DAYS FOR TIME
+CC
+CC AUTHOR     :  G.BEUTLER, S.FANKHAUSER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/02 11:10
+CC
+CC CHANGES    :  13-SEP-91 : ??: OPEN POLE FILE WITH "OPNFIL"
+CC               11-FEB-92 : ??: CHANGES DUE TO NEW POLE FILE FORMAT
+CC               06-JUL-92 : ??: ADD CHECK OF GPS-UT1. USE "TIMSTR"
+CC               18-JUL-92 : ??: CALL OF RDPOLH CHANGED
+CC               02-AUG-92 : ??: CHANGE IF STATEMENT FOR IEND=2 FROM
+CC                               SR RDPOLI
+CC               19-APR-94 : ??: CPO-MODEL INCLUDED
+CC               25-APR-94 : MR: CHANGE CHECK FROM "LE" TO "LT"
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               04-JUN-96 : TS: SUBDAILY POLE MODEL ADDED
+CC               10-MAR-98 : MR: ADD INTERNAL BUFFER
+CC               20-MAR-98 : MR: CORRECT BUG IN BUFFERING
+CC               05-DEC-02 : PS: CONSISTENCY CHECK SUBDAILY POLE
+CC                               MODEL
+CC               04-FEB-03 : PS: ADD FLAG ISUBFL FOR CONSISTENCY
+CC                               CHECK
+CC               08-MAR-03 : HU: INTERFACE FOR SUBPOL ADDED
+CC               06-NOV-03 : HU: RETURN ALSO NUTATION OFFSETS
+CC               21-JUN-05 : MM: COMLFNUM.INC REMOVED, M_BERN ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               28-JUN-05 : MM: UNUSED VARIABLES REMOVED
+CC               26-JUL-05 : RD: NBUF MUST BE SAVED (PGF90)
+CC               28-FEB-07 : AG: USE 206264... FROM DEFCON
+CC               03-JUL-09 : SL: TIMSTR(1,.,.) CALL CORRECTED
+CC               26-MAR-12 : RD: USE TIMSTR AS MODULE NOW
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern,  ONLY: i4b, lfnloc, lfnerr
+      USE d_const, ONLY: ars
+      USE s_rdpolh
+      USE s_timstr
+      USE s_rdpoli
+      USE s_opnfil
+      USE s_subpol
+      USE s_exitrc
+      USE s_gtflna
+      USE s_opnerr
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER(i4b), SAVE :: nBuf
+      INTEGER*4 I     , IBUF  , IEND  , IFIRST, IFORM , IOSTAT, IRC   ,
+     1          IREAD , MAXBUF
+C
+      REAL*8    GPSINP, TEST  , TINP  , TREQ
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      PARAMETER (MAXBUF=200)
+C
+      CHARACTER*80 DUMMYC
+      CHARACTER*36 TSTRNG
+      CHARACTER*32 FILPOL
+      CHARACTER*17 THLP
+      CHARACTER*3  REM
+      CHARACTER*16 NUTNAM
+      CHARACTER*16 SUBNAM
+      CHARACTER*16 SUBNA2
+
+C SUBNAM is the name of the model specified in the input panel
+C SUBNA2 is the name of the model in the ERP file
+
+      REAL*8       T(2),X(2),Y(2),UT1UTC(2),GPSUTC(2),DEPS(2),DPSI(2)
+      REAL*8       TBUF(MAXBUF),XBUF(MAXBUF),YBUF(MAXBUF)
+      REAL*8       UT1BUF(MAXBUF),GPSBUF(MAXBUF)
+      REAL*8       DEPSBF(MAXBUF),DPSIBF(MAXBUF)
+      REAL*8       POLCOO(5),RMSPOL(5)
+      REAL*8       ERPSUB(3),ERPSUR(3)
+C
+      INTEGER*4    POLTYP(*),TYPTMP(2),ISUBFL
+C
+C
+      DATA IFIRST /1/
+
+C
+C CHECK WHETHER THE POLE FILE HAS TO READ
+C ---------------------------------------
+      IF (IFIRST.EQ.1) THEN
+        IREAD=1
+        IFIRST=0
+      ELSEIF (TREQ.LT.TBUF(1) .OR. TREQ.GE.TBUF(NBUF)) THEN
+        IREAD=1
+      ELSE
+        IREAD=0
+      ENDIF
+C
+C READ POLE FILE INTO BUFFER
+C --------------------------
+      IF (IREAD.EQ.1) THEN
+C
+C OPEN POLE FILE
+        CALL GTFLNA(1,'POLE   ',FILPOL,IRC)
+        CALL OPNFIL(LFNLOC,FILPOL,'OLD',' ','READONLY',' ',IOSTAT)
+        CALL OPNERR(LFNERR,LFNLOC,IOSTAT,FILPOL,'GETPOL')
+C
+C READ HEADER AND FIRST PARAMETER SET OF POLE FILE
+        CALL RDPOLH(LFNLOC,1,DUMMYC,TYPTMP,IFORM,IEND,NUTNAM,SUBNAM)
+        CALL RDPOLI(LFNLOC,TINP,POLCOO,GPSINP,REM,RMSPOL,IFORM,IEND)
+        IF (IEND.GT.0) GOTO 910
+        TBUF(2)  =TINP
+        XBUF(2)  =POLCOO(1)
+        YBUF(2)  =POLCOO(2)
+        UT1BUF(2)=POLCOO(3)
+        DEPSBF(2)=POLCOO(4)
+        DPSIBF(2)=POLCOO(5)
+        GPSBUF(2)=GPSINP
+C
+C ALLOW FOR 1 MINUTE INTERVAL BEFORE FIRST POLE RECORD
+        TBUF(1)=TBUF(2)-1/1440.D0
+        XBUF(1)=XBUF(2)
+        YBUF(1)=YBUF(2)
+        UT1BUF(1)=UT1BUF(2)
+        GPSBUF(1)=GPSBUF(2)
+        DEPSBF(1)=DEPSBF(2)
+        DPSIBF(1)=DPSIBF(2)
+C
+        NBUF=2
+C
+C CHECK IF REQUESTED TIME "TREQ" IS BEFORE FIRST POLE RECORD
+        IF (TREQ.LT.TBUF(1)) GOTO 910
+C
+C READ NEXT RECORDS
+        DO 100 I=1,100000
+          CALL RDPOLI(LFNLOC,TINP,POLCOO,GPSINP,REM,
+     1                RMSPOL,IFORM,IEND)
+          IF (IEND.GT.0) THEN
+C
+C ALLOW FOR 1 MINUTE INTERVAL AFTER LAST POLE RECORD
+            IF (NBUF.LT.MAXBUF) THEN
+              TBUF(NBUF+1)=TBUF(NBUF)+1/1440.D0
+              XBUF(NBUF+1)=XBUF(NBUF)
+              YBUF(NBUF+1)=YBUF(NBUF)
+              UT1BUF(NBUF+1)=UT1BUF(NBUF)
+              GPSBUF(NBUF+1)=GPSBUF(NBUF)
+              DEPSBF(NBUF+1)=DEPSBF(NBUF)
+              DPSIBF(NBUF+1)=DPSIBF(NBUF)
+              NBUF=NBUF+1
+            ELSEIF (TREQ.GT.TBUF(2)) THEN
+              DO IBUF=2,NBUF
+                TBUF(IBUF-1)  =TBUF(IBUF)
+                XBUF(IBUF-1)  =XBUF(IBUF)
+                YBUF(IBUF-1)  =YBUF(IBUF)
+                UT1BUF(IBUF-1)=UT1BUF(IBUF)
+                GPSBUF(IBUF-1)=GPSBUF(IBUF)
+                DEPSBF(IBUF-1)=DEPSBF(IBUF)
+                DPSIBF(IBUF-1)=DPSIBF(IBUF)
+              ENDDO
+              NBUF=NBUF-1
+C
+              TBUF(NBUF+1)=TBUF(NBUF)+1/1440.D0
+              XBUF(NBUF+1)=XBUF(NBUF)
+              YBUF(NBUF+1)=YBUF(NBUF)
+              UT1BUF(NBUF+1)=UT1BUF(NBUF)
+              GPSBUF(NBUF+1)=GPSBUF(NBUF)
+              DEPSBF(NBUF+1)=DEPSBF(NBUF)
+              DPSIBF(NBUF+1)=DPSIBF(NBUF)
+              NBUF=NBUF+1
+            ENDIF
+C
+C CHECK IF REQUESTED TIME "TREQ" IS AFTER LAST POLE RECORD
+            IF (TREQ.GE.TBUF(NBUF)) GOTO 910
+            GOTO 200
+          ENDIF
+C
+C CHECK IF BUFFER HAS BEEN COMPLETELY FILLED (TREQ IN THE FIRST BIN)
+          IF (NBUF.EQ.MAXBUF. AND. TREQ.LE.TBUF(2)) THEN
+            GOTO 200
+C
+C RE-STACK POLE RECORD (REMOVE FIRST ELEMENT AND ADD LAST)
+          ELSEIF (NBUF.EQ.MAXBUF) THEN
+            DO IBUF=2,NBUF
+              TBUF(IBUF-1)  =TBUF(IBUF)
+              XBUF(IBUF-1)  =XBUF(IBUF)
+              YBUF(IBUF-1)  =YBUF(IBUF)
+              UT1BUF(IBUF-1)=UT1BUF(IBUF)
+              GPSBUF(IBUF-1)=GPSBUF(IBUF)
+              DEPSBF(IBUF-1)=DEPSBF(IBUF)
+              DPSIBF(IBUF-1)=DPSIBF(IBUF)
+            ENDDO
+            NBUF=NBUF-1
+          ENDIF
+C
+C SAVE LATEST POLE RECORD IN BUFFER
+          NBUF=NBUF+1
+          TBUF(NBUF)  =TINP
+          XBUF(NBUF)  =POLCOO(1)
+          YBUF(NBUF)  =POLCOO(2)
+          UT1BUF(NBUF)=POLCOO(3)
+          DEPSBF(NBUF)=POLCOO(4)
+          DPSIBF(NBUF)=POLCOO(5)
+          GPSBUF(NBUF)=GPSINP
+C
+100     CONTINUE
+C
+C BUFFER UPDATED
+200     CONTINUE
+        CLOSE(UNIT=LFNLOC)
+C
+      ENDIF
+
+C CHECK IF NAME OF SUBDAILY POLE MODEL IN ERP FILE IS CONSISTENT
+C WITH CHOICE IN INPUT PANEL, IF NOT => WARNING
+C ----------------------------------------------------------------
+
+      IF(IREAD.EQ.1.AND.ISUBFL.EQ.1) THEN
+      CALL SUBPOL(0.0D0,SUBNA2,ERPSUB,ERPSUR)
+
+       IF(SUBNAM.NE.SUBNA2) THEN
+         WRITE(LFNERR,375) SUBNAM,SUBNA2
+375        FORMAT(/,' ### SR GETPOL: DIFFERENT SUBDAILY POLE MODELS ',/,
+     1           16X,'ERP FILE     : ',A,/,
+     2           16X,'INPUT PANEL  : ',A,/)
+       ENDIF
+      ENDIF
+C
+C SEARCH BUFFER FOR CORRECT INTERVAL OF POLE VALUES
+C -------------------------------------------------
+      DO IBUF=1,NBUF-1
+        IF (TREQ.GE.TBUF(IBUF) .AND. TREQ.LT.TBUF(IBUF+1)) THEN
+C
+C RETURN VALUES IN PROPER UNITS
+          DO I=1,2
+            T(I)=TBUF(IBUF+I-1)
+            X(I)=XBUF(IBUF+I-1)/ars
+            Y(I)=YBUF(IBUF+I-1)/ars
+            UT1UTC(I)=UT1BUF(IBUF+I-1)/86400.D0
+            GPSUTC(I)=GPSBUF(IBUF+I-1)/86400.D0
+            DEPS(I)=DEPSBF(IBUF+I-1)/ars
+            DPSI(I)=DPSIBF(IBUF+I-1)/ars
+            POLTYP(I)=TYPTMP(I)
+          ENDDO
+C
+C WARNING IF EPOCHS FURTHER APART THAN 10 DAYS
+          IF (DABS(T(2)-T(1)).GT.10.D0) THEN
+            CALL TIMSTR(2,T,TSTRNG)
+            WRITE(LFNERR,920) FILPOL,TSTRNG
+920         FORMAT(/,' ### SR GETPOL: POLE VALUES FURTHER APART THAN',
+     1               ' 10 DAYS',/,
+     2               16X,'INTERPOLATION ERRORS MAY RESULT',
+     3               16X,'POLE FILE: ',A,/,
+     4               16X,'EPOCHS   : ',A,/)
+          ENDIF
+
+C
+C LOOK FOR LEAP SECOND
+          TEST=DNINT((GPSUTC(2)-GPSUTC(1))*86400.D0)
+          IF (TEST.NE.0) THEN
+            CALL TIMSTR(2,T,TSTRNG)
+            IF (DABS(TEST).GT.1.D0) THEN
+              WRITE(LFNERR,140) TEST,TSTRNG
+140           FORMAT(/,' *** SR GETPOL: JUMP IN GPS-UTC',/,
+     1                             16X,'JUMP IN SEC        :',F10.0,/,
+     2                             16X,'EPOCHS IN POLE FILE: ',A,/)
+              CALL EXITRC(2)
+            ELSE
+              WRITE(LFNERR,150) TSTRNG
+150           FORMAT(/,' ### SR GETPOL: LEAP SECOND DETECTED',/,
+     1                             16X,'EPOCHS IN POLE FILE: ',A,/)
+              GPSUTC(2)=GPSUTC(2)-TEST/86400.D0
+              UT1UTC(2)=UT1UTC(2)-TEST/86400.D0
+            ENDIF
+          ENDIF
+C
+C CONSISTENCY BETWEEN UT1-UTC AND GPS-UTC
+          IF (DABS(UT1UTC(2)-UT1UTC(1)).GT.0.5) THEN
+            CALL TIMSTR(2,T,TSTRNG)
+            WRITE(LFNERR,151) TSTRNG
+151         FORMAT(/,' *** SR GETPOL: INCONSISTENCY BETWEEN UT1-UTC',
+     1               ' AND GPS-UTC',/,
+     2             16X,'PROBABLY LEAP SECOND PROBLEM',/,
+     3             16X,'EPOCHS IN POLE FILE: ',A,/)
+            CALL EXITRC(2)
+          ENDIF
+C
+C RECORDS FOUND IN BUFFER AND SET
+          GOTO 999
+        ENDIF
+      ENDDO
+C
+C NO SUITABLE RECORDS FOUND: UNEXPECTED ERROR
+C -------------------------------------------
+      WRITE(LFNERR,905) FILPOL
+905   FORMAT(/,' *** SR GETPOL: UNEXPECTED ERROR READING POLE FILE',/,
+     1         16X,'NO SUITABLE INTERVAL FOUND IN BUFFER',/,
+     2         16X,'POLE FILE: ',A,/)
+      CALL EXITRC(2)
+C
+C ERROR READING POLE FILE, STOP:
+910   CALL TIMSTR(1,(/TREQ/),THLP)
+      WRITE(LFNERR,115) THLP,FILPOL
+115   FORMAT(/,' *** SR GETPOL: NO SUITABLE EPOCHS IN POLE FILE',/,
+     1                     16X,'EPOCH    : ',A,/,
+     2                     16X,'POLE FILE: ',A,/)
+      CALL EXITRC(2)
+C
+C END, RETURN
+999   CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

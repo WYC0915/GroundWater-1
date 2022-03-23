@@ -1,0 +1,51 @@
+# ============================================================================
+# SUPERBPE.PCF
+# ============================================================================
+#
+# Description:  This is a skeleton for the SUPERBPE. The SUPERBPE runs a
+#               process control file (PCF) for several sessions in parallel
+#               (PID 101 and 102). The scripts to start the corresponding
+#               BPE-servers are SBPEAP resp. SBPE_P.
+#               The advantage to use a SUPERBPE in contrast to the "Simple 
+#               parallel multi session run" is that you can add other scripts
+#               before (e.g., PID 001) and/or after (e.g., PID 999) the 
+#               parallel processing part.
+#
+#
+# Author     :  R. Dach
+# Created    :  17-Oct-2003               Last modified: 23-Feb-2004
+#
+# Changes    :  23-Feb-2004: Prepared for release V5.0
+#
+# ============================================================================
+#
+#
+PID SCRIPT   OPT_DIR  CAMPAIGN CPU      P WAIT FOR....
+3** 8******* 8******* 8******* 8******* 1 3** 3** 3** 3** 3** 3** 3** 3** 3**
+# 
+# Insert here script(s) to be executed before the SUPERBPE
+# --------------------------------------------------------
+001 DUMMY    NO_OPT            ANY      1
+#
+# SUPERBPE: Runs a PCF for several sessions in parallel
+# -----------------------------------------------------
+101 SBPEAP   NO_OPT            ANY      1 001
+102 SBPE_P   NO_OPT            ANY      1 101
+# 
+# Insert here script(s) to be executed after the SUPERBPE
+# -------------------------------------------------------
+999 DUMMY    NO_OPT            ANY      1 102
+#
+#
+PID USER         PASSWORD PARAM1   PARAM2   PARAM3   PARAM4   PARAM5   PARAM6
+3** 12********** 8******* 8******* 8******* 8******* 8******* 8******* 8*******
+101                       $101
+102                       PARALLEL $101
+#
+#
+VARIABLE DESCRIPTION                              DEFAULT
+8******* 40************************************** 16**************
+# 
+# DO NOT USE V_D, V_J, V_M, V_Y VARIABLES!  
+#  
+# 

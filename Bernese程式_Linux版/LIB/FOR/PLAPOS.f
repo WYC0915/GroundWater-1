@@ -1,0 +1,224 @@
+      MODULE s_PLAPOS
+      CONTAINS
+
+C*
+      SUBROUTINE PLAPOS(IPLA,TMJD,SUN,GMP,POS)
+CC
+CC NAME       :  PLAPOS
+CC
+CC PURPOSE    : COMPUTE APPROXIMATE PLANETARY POSITION AT TIME TMJD
+CC              FORMULAE TAKEN FROM EXPLANATORY SUPPLEMENT
+CC              (SEIDELMANN, 1992)
+CC
+CC PARAMETERS :
+CC        IN  : IPLA    : PLANET NUMBER (MERCURY=1, VENUS=2,        I*4
+CC                        EARTH=3, MARS=4, JUPITER=5, SATURN=6,
+CC                        URANUS=7, NEPTUN=8, PLUTO=9)
+CC              TMJD    : TIME IN MODIFIED JULIAN DATE (GPS-TIME)   R*8
+CC              SUN     : GEOCENTRIC POSITION OF SUN IN M (J2000.0) R*8
+CC        OUT : GMP     : GRAVITY CONSTANT * MASS OF PLANET (MKS-SYSTEM)
+CC              POS     : GEOCENTRIC POSITION OF PLANET IN J2000.0,
+CC                        POS(4)=GEOCENTRIC DISTANCE
+CC
+CC REMARKS    :
+CC
+CC AUTHOR     :  G.BEUTLER
+CC
+CC VERSION    :  4.0
+CC
+CC CREATED    :  96/09/10
+CC
+CC CHANGES    :  27-MAY-98 : JJ: MOVE DATA TO AFTER INCLUDE
+CC               16-JUN-05 : MM: COMCONST.inc REPLACED BY d_const
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               16-Oct-06 : AG: TAKE AU FROM CONST.
+CC               28-FEB-07 : AG: USE 206264... FROM DEFCON
+CC               04-MAY-12 : RD: USE DMOD FROM MODULE; REMOVE UNUSED LABELS
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1996     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE d_const,  ONLY: PI, AU, ARS
+      USE l_basfun, ONLY: dmod
+      USE s_ephem
+      USE s_ddreh
+      USE s_dmlmav
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IELE  , IFIRST, IPLA  , K     , KPLA
+C
+      REAL*8    ANOM  , EPS   , GMP   , TDT   , TMJD  , TPER  , XN
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+C
+      REAL*8 SUN(*),POS(*)
+      REAL*8 K2,GMPLA(9),ELE(6,9),ELEDOT(6,9),ELEACT(6),VEL(3),ROT(3,3)
+C
+C
+      DATA IFIRST/1/
+C
+C INITIALIZE
+      IF(IFIRST.EQ.1)THEN
+        IFIRST=0
+        K2=.01720209895D0**2
+        GMPLA(1)=1.D0/6023600.D0 * 1.32712438D+20
+        GMPLA(2)=1.D0/408523.5D0 * 1.32712438D+20
+        GMPLA(3)=1.D0/328900.5D0 * 1.32712438D+20
+        GMPLA(4)=1.D0/3098710.D0 * 1.32712438D+20
+        GMPLA(5)=1.D0/1047.355D0 * 1.32712438D+20
+        GMPLA(6)=1.D0/3498.5D0   * 1.32712438D+20
+        GMPLA(7)=1.D0/22869.D0   * 1.32712438D+20
+        GMPLA(8)=1.D0/19314.D0   * 1.32712438D+20
+        GMPLA(9)=1.D0/3000000.D0 * 1.32712438D+20
+C
+C ELEMENTS
+        ELE(1,1)   =.38709893D0
+        ELE(2,1)   =.20563069D0
+        ELE(3,1)   = 7.00487D0
+        ELE(4,1)   =48.33167D0
+        ELE(5,1)   =77.45645D0
+        ELE(6,1)   =252.25084D0
+        ELEDOT(1,1)=.66D-6
+        ELEDOT(2,1)=.2527D-4
+        ELEDOT(3,1)=-23.51D0
+        ELEDOT(4,1)=-446.30D0
+        ELEDOT(5,1)=573.57
+        ELEDOT(6,1)=261628.29+415*360.D0*3600.D0
+        ELE(1,2)   =.72333199D0
+        ELE(2,2)   =.00677323D0
+        ELE(3,2)   =3.39471D0
+        ELE(4,2)   =76.68069D0
+        ELE(5,2)   =131.53298D0
+        ELE(6,2)   =181.97973D0
+        ELEDOT(1,2)=.92D-6
+        ELEDOT(2,2)=-.4938D-4
+        ELEDOT(3,2)=-2.86D0
+        ELEDOT(4,2)=-996.89D0
+        ELEDOT(5,2)=-108.80D0
+        ELEDOT(6,2)=712136.06D0+162*360.D0*3600.D0
+        ELE(1,3)   =1.00000011D0
+        ELE(2,3)   =.01671022D0
+        ELE(3,3)   =.5D-4
+        ELE(4,3)   =-11.26064D0
+        ELE(5,3)   =102.94719D0
+        ELE(6,3)   =100.46435D0
+        ELEDOT(1,3)=-.5D-7
+        ELEDOT(2,3)=-.3804D-4
+        ELEDOT(3,3)=-46.94D0
+        ELEDOT(4,3)=-18228.25D0
+        ELEDOT(5,3)=1198.28D0
+        ELEDOT(6,3)=1293740.63D0+99*360.D0*3600.D0
+        ELE(1,4)   =1.52366231D0
+        ELE(2,4)   =.09341233D0
+        ELE(3,4)   =1.85061D0
+        ELE(4,4)   =49.57854D0
+        ELE(5,4)   =336.04084D0
+        ELE(6,4)   =355.45332D0
+        ELEDOT(1,4)=-.7221D-4
+        ELEDOT(2,4)=.11902D-3
+        ELEDOT(3,4)=-25.47D0
+        ELEDOT(4,4)=-1020.19D0
+        ELEDOT(5,4)=1560.78D0
+        ELEDOT(6,4)=217103.78D0+53*360.D0*3600.D0
+        ELE(1,5)   =5.20336301D0
+        ELE(2,5)   =.04839266D0
+        ELE(3,5)   =1.30530D0
+        ELE(4,5)   =100.55615D0
+        ELE(5,5)   =14.75385D0
+        ELE(6,5)   =34.40438D0
+        ELEDOT(1,5)=.60737D-3
+        ELEDOT(2,5)=-.12880D-3
+        ELEDOT(3,5)=-4.15D0
+        ELEDOT(4,5)=1217.17D0
+        ELEDOT(5,5)=839.93
+        ELEDOT(6,5)=557078.35+8*360.D0*3600.D0
+        ELE(1,6)   =9.53707032D0
+        ELE(2,6)   =.05415060D0
+        ELE(3,6)   =2.48446D0
+        ELE(4,6)   =113.71504D0
+        ELE(5,6)   =92.43194D0
+        ELE(6,6)   =49.94432D0
+        ELEDOT(1,6)=-.301530D-2
+        ELEDOT(2,6)=-.36762D-3
+        ELEDOT(3,6)=6.11D0
+        ELEDOT(4,6)=-1591.05D0
+        ELEDOT(5,6)=-1948.89D0
+        ELEDOT(6,6)=513052.95D0+3*360.D0*3600.D0
+        ELE(1,7)   =19.19126393D0
+        ELE(2,7)   =.04716771D0
+        ELE(3,7)   =.76986D0
+        ELE(4,7)   =74.22988D0
+        ELE(5,7)   =170.96424D0
+        ELE(6,7)   =313.23218D0
+        ELEDOT(1,7)=.152025D-2
+        ELEDOT(2,7)=-.19150D-3
+        ELEDOT(3,7)=-2.09D0
+        ELEDOT(4,7)=1681.40D0
+        ELEDOT(5,7)=1312.56D0
+        ELEDOT(6,7)=246547.79+1*360.D0*3600.D0
+        ELE(1,8)   =30.06896348D0
+        ELE(2,8)   =.00858587D0
+        ELE(3,8)   =1.76917D0
+        ELE(4,8)   =131.72169D0
+        ELE(5,8)   =44.97135D0
+        ELE(6,8)   =304.88003D0
+        ELEDOT(1,8)=-.125196D-2
+        ELEDOT(2,8)=.2514D-4
+        ELEDOT(3,8)=-3.64D0
+        ELEDOT(4,8)=-151.25D0
+        ELEDOT(5,8)=-844.43
+        ELEDOT(6,8)=786449.21
+        ELE(1,9)   =39.48168677D0
+        ELE(2,9)   =.24880766D0
+        ELE(3,9)   =17.14175D0
+        ELE(4,9)   =110.30347D0
+        ELE(5,9)   =224.06676D0
+        ELE(6,9)   =238.92881D0
+        ELEDOT(1,9)=-.76912D-3
+        ELEDOT(2,9)=.6465D-4
+        ELEDOT(3,9)=11.07D0
+        ELEDOT(4,9)=-37.33D0
+        ELEDOT(5,9)=-132.25D0
+        ELEDOT(6,9)=522747.90D0
+C
+        DO 10 KPLA=1,9
+          DO 10 IELE=3,6
+            ELE(IELE,KPLA)=ELE(IELE,KPLA)/180*PI
+            ELEDOT(IELE,KPLA)=ELEDOT(IELE,KPLA)/180*PI/3600
+10      CONTINUE
+      END IF
+C
+C COMPUTE CORRECT G*M VALUE AND POSITION
+C --------------------------------------
+      GMP=GMPLA(IPLA)
+      TDT=TMJD+(19.D0+32.184D0)/86400.D0
+      DO 20 IELE=1,6
+        ELEACT(IELE)=ELE(IELE,IPLA)+ELEDOT(IELE,IPLA)*
+     1               (TDT-51544.5D0)/36525.D0
+20    CONTINUE
+      ANOM=DMOD(ELEACT(6)-ELEACT(5),2*PI)
+      XN=DSQRT(K2/ELEACT(1)**3)
+      TPER=-ANOM/XN
+      CALL EPHEM(K2,ELEACT(1),ELEACT(2),ELEACT(3),ELEACT(4),
+     1           ELEACT(5)-ELEACT(4),TPER,0.D0,POS,VEL)
+      EPS=84381.45
+      EPS=EPS/ARS
+      CALL DDREH(1,-EPS,ROT)
+      CALL DMLMAV(POS,ROT,POS)
+      POS(4)=0.D0
+      DO 30 K=1,3
+C        POS(K)=SUN(K)+POS(K)*1.4959787066D11
+        POS(K)=SUN(K)+POS(K)*AU
+        POS(4)=POS(4)+POS(K)**2
+30    CONTINUE
+      POS(4)=DSQRT(POS(4))
+      CONTINUE
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

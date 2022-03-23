@@ -1,0 +1,2 @@
+Version 5.2
+Release:  2013-07-18

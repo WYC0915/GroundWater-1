@@ -1,0 +1,611 @@
+======================================================================
+Bernese GNSS Software, Version 5.2              Last mod.: 12-Nov-2012
+----------------------------------------------------------------------
+Installation guide for Unix/Linux/Mac platforms
+======================================================================
+
+
+----------------------------------------------------------------------
+System requirements
+----------------------------------------------------------------------
+- Perl 5, recent version (check with 'perl -v' on a command line)
+  including the standard modules
+
+- Basic Unix tools:
+  . tar (tape archiver)
+  . gzip (file compression/decompression tool)
+  . make
+
+- Fortran 90 compiler
+  (A list of Fortran compilers we have used to test the software can
+   be found at http://www.bernese.unibe.ch/support/cmp_all_list.php).
+
+- C++ compiler (e.g., gcc-c++)
+
+- Qt 4 library
+
+  It is expected that the variable "${QTDIR}" is set before the
+  installation is started to indicate the location of the Qt libraries
+  to be used to compile the Bernese menu (e.g., QTDIR="/usr/lib/qt").
+  If you use another version of the Qt libraries for other
+  applications, the variable "${QTDIR}" has probably a different
+  value. Redefine the variable at the command line. This value will
+  then be saved in the Bernese environment variable "${QTBERN}" and
+  the Bernese menu will find the correct version of the Qt libraries
+  after the installation in any case, even if "${QTDIR}" points again
+  to another version of the Qt libraries.
+
+  Installation example (bash notation):
+
+  > VERS="4.x.y"             # Set Qt version number
+
+  > SRCDIR="${HOME}/src"     # Set path for source files
+  > mkdir $SRCDIR
+  > cd $SRCDIR
+  > SRC="http://origin.releases.qt-project.org/qt4/source"
+  > wget -N $SRC/qt-everywhere-opensource-src-$VERS.tar.gz
+  > tar -xzvf qt-everywhere-opensource-src-$VERS.tar.gz
+  > cd qt-everywhere-opensource-src-$VERS
+
+  > INSTDIR="/usr/local"     # Set installation path
+                             # (Needs write permission!)
+  > PLATFORM="linux-g++-64"  # Choose one of the available
+                             # specifications from "mkspecs/" directory
+                             # (in $SRCDIR/qt-everywhere-opensource-src-$VERS)
+                             # depending on your operating
+                             # system and the installed C++ compiler
+                             # Example for Mac OS X: macx-g++
+
+  > O1="-release -opensource -static"
+  > O2="-qt-zlib -no-gif -qt-libpng -qt-libmng -qt-libtiff -qt-libjpeg"
+  > NO="-nomake examples -nomake demos -nomake docs -nomake translations"
+  > ./configure $O1 $O2 $NO -prefix $INSTDIR/qt_$VERS -platform $PLATFORM
+                             # Confirm the license agreement
+
+  > make
+  > make install
+
+  > export QTDIR="$INSTDIR/qt_$VERS"  # Set env. variable QTDIR
+  > export QMAKESPEC="$PLATFORM"      # Set env. variable QMAKESPEC
+
+  For Mac users only
+  ******************
+  After the installation of the Qt libraries, copy the directory
+  $SRCDIR/qt-everywhere-opensource-src-$VERS/src/gui/mac/qt_menu.nib
+  to $QTDIR.
+  > cp -r $SCRDIR/qt-everywhere-opensource-src-$VERS/src/gui/mac/qt_menu.nib $QTDIR
+
+
+  Remarks:
+  - In most cases it is not enough to install the Qt library package
+    from your Linux distribution.
+  - On some Linux distributions not all libraries or C++ header files
+    needed to establish the Qt library from the source code were
+    installed with the default configuration. In all cases this could
+    be fixed by installing additional software package from the Linux
+    distribution (e.g., libXext-devel, zlib-devel).
+
+
+----------------------------------------------------------------------
+Questionnaire
+----------------------------------------------------------------------
+The default proposal from the installation/configuration tool is
+intended for single-user and single-computer environments (all is
+installed in the user's home directory).
+If you want to establish a multi-user or multi-computer environment
+you should start with establishing a concept for the installation.
+Here are some useful comments for this step:
+
+- The directory for the source code is proposed with "${HOME}/BERN52"
+  It must be accessible for reading and execution by all users who
+  will work with the software and from all hosts where the BPE will
+  run. So it might either be a home directory of a specific "Bernese
+  GNSS Software administrator" user or you relocate it on a central
+  location in your system (e.g., "/usr/local/BERN52").
+
+  The campaign list "MENU_CMP.INP" is a file common to all users. It
+  sits in the software directory "${X}/PAN" (e.g.,
+  "/usr/local/BERN52/GPS/PAN"). In order to edit this file for adding
+  a new campaign to the list, the users need also write permission for
+  this file.
+
+  The disk space requirement for the complete installation is at least
+  500MB.
+
+- The directory for the user files is specific to each user of the
+  software. It must be accessible from all hosts where the BPE will
+  run.
+  The best location of this directory is the home directory of each
+  user (e.g., "${HOME}/GPSUSER52").
+
+- The directory for temporary files is necessary to run the BPE and
+  is user-specific. This directory needs to exist on all hosts
+  accessed by the BPE (but it can be on physically different disks).
+  A fast disk with enough space is preferable.
+  If you have a local scratch disk this directory should be located
+  there, otherwise the home directory is a good choice (e.g.,
+  "/scratch/local/${USER}/GPSTEMP" or "${HOME}/GPSTEMP").
+  (Each script running simultaneously in the BPE may produce a scratch
+  file with a size of up to 2GB!)
+
+- Finally a data area is needed. It is divided into three parts:
+  - CAMPAIGN52: Processing area of the GNSS data
+  - DATAPOOL:   Location of all external input files
+  - SAVEDISK:   Archive of the result files
+  These directories must be accessible from all hosts where the BPE
+  will run. You should consider to select a disk area with a big
+  amount of storage (e.g., "/bigdisk/CAMPAIGN52").
+
+
+----------------------------------------------------------------------
+Installation of the software
+----------------------------------------------------------------------
+Now you can start the installation. Copy all installation files from
+the CD-ROM or ftp them to an installation directory (e.g.,
+"${HOME}/INST52").
+
+Remark to users with older versions of the Bernese GNSS Software:
+  To avoid potential interferences with default settings we
+  recommend that you have NOT loaded the Bernese variables from
+  an older version when you install version 5.2.
+
+Run the installation script "setup.sh" to extract the source code
+and related files to your system:
+
+  > cd ${HOME}/INST52
+  > sh ./setup.sh
+
+A line like
+
+  > Full path where the BERN52 software tree will be installed
+    [ PATH_TO_YOUR_HOME ]:
+
+appears and you are asked for the directory where the software should
+be installed. Either you accept the proposed default directory (press
+ENTER) or write your choice to the command line. You have to confirm
+your selection or the default directory.
+
+After the successful extraction of the archive file you will be asked
+for the path to the Perl interpreter:
+
+  > Perl program to be used [ /usr/bin/perl ]:
+
+The default path is the location your system returns when you type
+'which perl'. Normally you can confirm the proposed path except if you
+have different Perl installations on your system and the proposed path
+is not the correct one. The path to the Perl interpreter will be
+adapted once in all scripts of the software which use Perl.
+
+
+----------------------------------------------------------------------
+Configuration and compilation of the software
+----------------------------------------------------------------------
+The installation script "setup.sh" automatically starts the configu-
+ration tool "configure.pm". After the installation, this tool can be
+called manually, e.g., to add the user environment for another user or
+to install the Example campaign. It will be located at "${X}/EXE".
+
+The main menu of the configuration tool looks like:
+
+==========================================
+CONFIGURATION OF THE BERNESE GNSS SOFTWARE
+==========================================
+ 0 ... Complete installation (Steps 1 to 5)
+ 1 ... Update LOADGPS.setvar
+ 2 ... Install online updates
+ 3 ... Add a new user environment
+ 4 ... Compile the menu
+ 5 ... Compile the programs
+ 6 ... Install the Example campaign
+ 7 ...   ---
+
+ x ... Exit
+
+Enter option:
+
+We recommend to select '0' in order to make a full installation.
+Nevertheless, we will explain the installation according to the
+particular steps '1' to '5'. The only difference is that for selection
+'0' the installation runs automatically through steps '1' to '5'.
+
+
+Configure menu: 1 ... Update LOADGPS.setvar
+--------------
+First you get a list of supported/tested Fortran compilers where you
+have to select the one which is installed on your system:
+
+Select Compiler for OS LINUX:
+ 1: G95
+ 2: GNU -> /usr/bin/gfortran
+ 3: IFC
+ 4: PG_F90
+ 5: SUNF90
+ 6: OTHER
+
+Select  [2]:
+
+In the example above the GNU-Fortran compiler has been found on your
+system (it is indicated by the path to the compiler). Confirm the
+proposal from the confirgure.pm tool or choose another compiler (that
+possibly still needs to be installed before you are going to compile
+the Fortran programs), menu item 5.
+If your compiler is not listed, read section "Unknown Fortran
+compiler" below.
+
+
+A list with your selections and default settings for the campaign
+directories (in "${HOME}/GPSDATA") and the user-specific directories
+("${HOME}/GPSUSER52" and "${HOME}/GPSTEMP") is given:
+
+Current Values:
+--------------
+    VARIABLE DESCRIPTION           VARIABLE NAME      VARIABLE VALUE
+ 1: Path to the software           C               => /home/user/BERN52
+ 2: Path to Qt lib for Bernese     QTBERN          => /usr/local/qt_4.7.4
+ 3: Operating system group         OS              => UNIX
+ 4: Name of the operating system   OS_NAME         => LINUX
+ 5: Fortran compiler name          F_VERS          => G95
+ 6: List of additional compilers   F_VERS_LIST     =>
+ 7: Host of the BPE server         BPE_SERVER_HOST => myComputer
+ 8: Path to user environment       U               => ${HOME}/GPSUSER52
+ 9: Path to temp. user environment T               => ${HOME}/GPSTEMP
+10: Path to campaign directory     P               => ${HOME}/GPSDATA/CAMPAIGN52
+11: Path to datapool area          D               => ${HOME}/GPSDATA/DATAPOOL
+12: Path to savedisk area          S               => ${HOME}/GPSDATA/SAVEDISK
+
+Accept the values (y/n):
+
+The screen shows the list of variables with their values and a
+description.
+If the Bernese environment has been loaded before the configure tool
+was started (without the argument "--init"), the corresponding values
+from the current file "${X}/EXE/LOADGPS.setvar" are displayed here.
+
+You can accept the values as they are or you may modify the settings
+after typing 'n' (not accept) with entering the item number followed
+by the new value, e.g.
+
+  > 10 /bigdisk/GPSDATA/CAMPAIGN52
+
+If you redefine the variables for the user-specific directories for
+any reasons, make sure that they are really user dependent by using
+the system variables "${HOME}" or "${USER}" (e.g.,
+/scratch/local/${USER}) and not the full path (e.g.
+/scratch/local/user).
+
+The "${X}/EXE/LOADGPS.setvar" file is generated automatically using
+these entries. The syntax for bourne-shell or c-shell is used
+according to the value of the "${SHELL}" system variable.
+
+Note:
+  If you want to change '1: Path to the software' you have to
+  start the installation again with "setup.sh".
+
+Note:
+  The variable in '7: Host of the BPE server' must contain the
+  name of the host where the BPE server will run. Usually it is
+  detected automatically. If you are not permanently connected to the
+  Internet and the hostname changes each time for new connections, you
+  have to adapt the value in a reasonable manner (e.g., using
+  "$(hostname)" in bash notation or "`hostname`" in tcsh notation).
+  If you use the BPE locally only you can use 'localhost' in any case.
+
+Remark:
+  Any changes to the "${X}/EXE/LOADGPS.setvar" file you make
+  outside the configuration tool, e.g., adding a second campaign
+  directory, will be lost if you update the Bernese environment file
+  again with this tool.
+
+
+Configure menu: 2 ... Install online updates
+--------------
+Online updates are downloaded and installed until no further update is
+available. If this cannot be done automatically, the corresponding
+information for a manual update is prompted to the screen.
+
+Please read the file "README/UPDATE.TXT" in the installation directory
+(or "${X}/DOC/README_UPDATE.TXT") for further instructions.
+
+
+Configure menu: 3 ... Add a new user environment
+--------------
+The user area is added. At first, the directory structure for the
+Bernese user environment is created at the locations defined by the
+variables "${U}" and "${T}". They were previously set when creating
+the "${X}/EXE/LOADGPS.setvar" file during the installation:
+
+${U}/PAN   :   Program-specific input option files (initially a copy
+               of "${X}/PAN")
+    /OUT   :   Directory for campaign-independent output files
+    /OPT   :   Your set of option directories (initially a copy of
+               "${X}/OPT" containing the option directories for the
+               Example campaign)
+    /PCF   :   Directory of user-specific Process Control Files for
+               the BPE (initially a copy of "${X}/PCF" for the Example
+               BPEs)
+    /SCRIPT:   Contains the user-specific scripts necessary for the
+               PCFs  (initially a copy of "${X}/USERSCPT" for the
+               Example BPEs)
+    /WORK  :   User-specific files generated during interactive work
+
+${T}       :   directory  for temporary files used by the BPE
+
+
+If you need to create a user environment for a new user after the
+installation, the Bernese environment must be loaded by this new user
+before starting the configuration tool. The variables "${U}" and
+"${T}" should always point to the user-specific directory of the
+current user.
+
+  > source /home/user/BERN52/GPS/EXE/LOADGPS.setvar
+  > echo ${U}
+  /home/new_user/GPSUSER52
+  > ${X}/EXE/configure.pm
+
+(Adapt the commands for this operation depending on the location of
+the software and your shell.)
+
+
+Configure menu: 4 ... Compile the menu
+--------------
+The menu will be compiled. The compilation can take a while.
+After this step, the executable of the menu will be located in
+"${XQ}".
+
+If the compilation failed inspect the output log file.
+If you cannot find the reason for the failure you may find an answer
+on the Frequently Asked Questions webpage
+
+  http://www.bernese.unibe.ch/faq
+  (still under construction)
+
+or you can contact
+
+  bernese @ aiub.unibe.ch
+
+Add the output log file, the "${X}/EXE/LOADGPS.setvar" file, and all
+relevant information about your system to the e-mail.
+
+
+Configure menu: 5 ... Compile the programs
+--------------
+The Fortran source will be compiled. The compilation can take a while
+-- depending on the compiler and the performance of your system.
+
+After this step, the executables of the Bernese GNSS Software programs
+are located in "${XG}", where the directory name ends with
+"EXE_${F_VERS}" (e.g. "EXE_G95" if g95 has been used as Fortran
+compiler).
+A second set of executables is available in "${XG}c". These
+executables are compiled with the debugging options defined in
+"${X}/EXE/Makefile.template".
+
+If the compilation failed, inspect the output log file.
+If you cannot find the reason for the failure, you may find an answer
+on the Frequently Asked Questions webpage
+
+  http://www.bernese.unibe.ch/faq
+  (still under construction)
+
+or you can contact
+
+  bernese @ aiub.unibe.ch
+
+Add the output log file, the "${X}/EXE/LOADGPS.setvar" file, and all
+relevant information about your system to the e-mail.
+
+
+Configure menu: 6 ... Install the Example campaign
+--------------
+You have to execute this step also if you have selected '0' for a
+complete installation.
+
+The Example campaign will be installed on your system. The location of
+the campaign is given by the variables "${P}", "${D}" and "${S}" which
+were previously set when creating the "${X}/EXE/LOADGPS.setvar" file:
+
+${P}/EXAMPLE/ATM : Empty directory
+            /BPE : Empty directory
+            /GRD : Empty directory
+            /MSC : Empty directory
+            /OBS : Empty directory
+            /ORB : Empty directory
+            /ORX : Empty directory
+            /OUT : Empty directory
+            /RAW : Empty directory
+            /SOL : Empty directory
+            /STA : Campaign's session table ("SESSIONS.SES")
+
+${D}             : See ${D}/DATAPOOL.README
+
+${S}             : See ${S}/SAVEDISK.README
+
+If you extract the Example campaign after the installation, the
+Bernese environment must be loaded before starting the configuration
+tool.
+
+Note: to run the Example BPEs, you also have to have installed on
+your system:
+
+  - the Hatanaka RINEX file compression/decompression utilities from
+
+      http://terras.gsi.go.jp/ja/crx2rnx.html
+
+  - the planetary and lunar ephemeris from JPL
+    (see section "Installing the ephemeris from JPL")
+
+
+Configure menu: 7 ...   ---
+--------------
+This is a dummy menu item that is only relevant for windows platforms.
+It is kept to keep the configure.pm tool consistent for both
+platforms.
+
+
+Configure menu: x ... Exit
+--------------
+The installation is now finished and you can exit the configuration
+tool.
+
+
+----------------------------------------------------------------------
+Installing the ephemeris from JPL
+----------------------------------------------------------------------
+The planetary and lunar ephemeris from JPL are used to compute the
+gravitational attraction of Sun, Moon and planets for satellite orbit
+determination.
+
+You find the installation description in the "README/JPL_EPH.TXT" file
+(or "${X}/DOC/README_JPL_EPH.TXT").
+
+Remark:
+  Please be aware that you cannot use the "DE200.EPH" file from a
+  previous version of the Bernese GNSS Software ("${X}/GEN" directory)
+  because the DE number changed to 405.
+
+
+----------------------------------------------------------------------
+Include the software in X-Window desktop environment
+----------------------------------------------------------------------
+After the installation of the software you can find a directory ICONS
+in "${X}/DOC". With the files in this directory you have the
+possibility to add an icon for the Bernese GNSS Software on your
+desktop.
+Please consult the file "${X}/DOC/ICONS/README.icons" for further
+instructions.
+
+
+----------------------------------------------------------------------
+Getting started
+----------------------------------------------------------------------
+To get started with the new version of the Bernese GNSS Software,
+please consult the "FIRST_STEPS.TXT" file from the CDROM/README
+directory on your CD-ROM. The same file is available as
+"${X}/DOC/README_FIRST_STEPS.TXT".
+
+
+----------------------------------------------------------------------
+Compilation of individual modules and programs
+----------------------------------------------------------------------
+The compilation of the Fortran processing programs bases since version
+5.2 on Makefile(s). The Makefile(s) are generated by the tool
+'makemake.pl -r $C'.
+
+The Makefile is located in the directory "${C}/LIB/OBJ_xxx" where xxx
+stands for the compiler name from variable ${F_VERS} (e.g., G95).
+You can go into this directory and directly execute the "make"-command.
+
+For your convenience we have also established a script to compile the
+source code (it executes the make command internally with the correct
+options):
+
+1) 'CBERN LIB'      : This command compiles all modified Fortran
+                      modules and creates/updates the Bernese core
+                      library.
+                      Note that the programs are not compiled!
+
+2) 'CBERN ALL'      : This command also compiles the modified Fortran
+                      programs and links all programs to the Bernese
+                      core library.
+
+3) 'CBERN COMPLINK' : This command re-compiles all Fortran source
+                      files, creates the Bernese core library and
+                      links all programs.
+                      It is the same as step "5 ... Compile the
+                      programs" of the configuration tool
+                      "configure.pm".
+
+4) 'CBERN <SRNAME>' : This command compiles only the component SRNAME.
+                      If other components that are needed by SRNAME
+                      have been also changed they are also compiled.
+
+Note, that the compilation process is locked by the existence of the
+file ${C}/BERN.lock. If you have interrupted the compilation process
+for any reasons you have also to delete this file before you can
+start a new attempt to compile any routine.
+
+
+----------------------------------------------------------------------
+Changing F_VERS and multi-compilers support
+----------------------------------------------------------------------
+The environment variable "F_VERS" is the identifier for the main
+Fortran compiler used in "${X}/EXE/Makefile.template" for the
+compilation as well as a part of the path to the executables of the
+Bernese GNSS Software (variable "${XG}" which is
+"${C}/PGM/EXE_${F_VERS}").
+
+To change the default Fortran compiler, the value for "F_VERS" has to
+be changed either with the configure utility "configure.pm", step 1
+(do not accept the values displayed), or by editing
+"${X}/EXE/LOADGPS.setvar" manually.
+After loading the new environment the compilation will be done by the
+new compiler and the Bernese GNSS Software will consider the
+executables from the new directory "${XG}".
+
+
+If you have more than one Fortran compiler available (e.g., for
+comparison purposes or for software development), it is possible
+to add additional compilers to the list "F_VERS_LIST" in the Bernese
+environment. In this way, the compiler scripts "makemake.pl" and
+"CBERN" (or "cbern.pl") will consider all compilers. This is useful
+for consistency and reliability checks of the Fortran source code.
+
+Remark:
+  The processing will always be done taking the executables from the
+  path in "${XG}" or the default program path set in the panel of
+
+    Menu >Configure >Program names
+
+
+----------------------------------------------------------------------
+Unknown Fortran compiler
+----------------------------------------------------------------------
+A list of tested Fortran compilers can be found at
+
+  http://www.bernese.unibe.ch/support/cmp_all_list.php.
+
+If you wish to implement a new Fortran compiler, you will need to
+adapt the file "${X}/EXE/Makefile.template" where the compilers and
+their options are defined.
+You can use the settings of compiler "OTHER" as a template.
+
+Remark:
+  You should have your compiler manual ready to specify the individual
+  options.
+
+
+Procedure for unknown compiler:
+
+- When you are asked by the configuration tool to give the compiler
+  name select "OTHER".
+- Adapt the file "Makefile.template" in the main software tree
+  "BERN52/GPS/EXE" for your compiler filling out the options for
+  the compiler "OTHER" (part "ifeq ($(F_VERS),OTHER)").
+- After the compilation the path "${XG}" to the program executables
+  will end with "EXE_OTHER".
+
+
+----------------------------------------------------------------------
+Uninstall the Bernese GNSS Software
+----------------------------------------------------------------------
+There is no tool to uninstall the Bernese GNSS Software.
+
+If you want to uninstall the software on your system you only have to
+remove the directories:
+
+- $U (user environment)
+- $T (temporary user environment)
+
+  If more than one user has been installed, $U and $T have to be
+  removed for all users.
+
+- $P (campaign area)
+- $D (datapool area)
+- $S (savedisk area)
+
+- $C (main software tree including LOADGPS.setvar)
+
+Take care that you have archived all relevant files before you delete
+the directory tries.
+
+======================================================================

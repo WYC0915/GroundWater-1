@@ -1,0 +1,45 @@
+)A
+/*                                                                            */
+/*   Skeleton file to plot ORBGEN residual: one plot is generated for         */
+/*   each satellite containing the residuals in radial, along track, and      */
+/*   out of plane direction. Device PHASERA4.                                 */
+/*                                                                            */
+filename psfile 'orbgen.ps';
+goptions device=phasera4 gsfmode=replace gsfname=psfile
+         hsize=29.0 cm vsize=22.0 cm gunit=pct
+         handshake=none nodisplay noprompt
+         rotate=landscape
+         ftext=swissl
+         htitle=3 htext=2.5 clegend=black ctext=black cback=white;
+title1 height=4 'RESIDUALS OF PROGRAM ORBGEN';
+legend label=none
+       shape=symbol(5,2.5)
+       value=(tick=1 height=3.5 justify=left 'Radial'
+              tick=2 height=3.5 justify=left 'Along Track'
+              tick=3 height=3.5 justify=left 'Out of Plane')
+       frame;
+axis1 label=(height=3.5 'Time from Start of Arc in Days');
+axis2 label=(height=3.5 angle=90 'Residuals in Meters');
+symbol1 interpol=join value=dot height=1.0;
+symbol2 interpol=join value=triangle height=2.5;
+symbol3 interpol=join value=diamond height=2.5;
+symbol4 interpol=join value=star height=2.5;
+data residual;
+  INPUT arc iter sat comp time1 residu;
+  time=time1/1440.0;
+  if arc = 1 and iter = 2;
+  cards;
+)B
+;
+run;
+proc sort data=residual out= sorted;
+     by arc iter sat time comp;
+PROC GPLOT data=sorted;
+LABEL sat=Satellite;
+by sat;
+PLOT residu*time=comp /
+        legend=legend1
+        haxis=axis1
+        vaxis=axis2
+        vref=0.0
+        frame;

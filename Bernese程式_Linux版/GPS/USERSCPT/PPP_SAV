@@ -1,0 +1,190 @@
+package PPP_SAV;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  PPP_SAV
+#
+# Purpose :  Store PPP BPE processing result files in the archive,
+#            updates the files in the reference directory
+#
+# PARAMs  :
+#
+# Author  :  R. Dach
+# Created :  11-Sep-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use File::Basename;
+use File::Copy;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtMess check_dir copy2archive);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyssss, $yyyy, $ssss,
+      $c, $f, $g, $h, $i, $k, $l,
+      $upd, $sav, $refDir, $crdInf, $result,
+      $dirOut, $dirSum, $dirTrp, $dirTro, $dirIon, $dirInx,
+      $extOut, $extSum, $extTrp, $extTro, $extIon, $extInx,
+      $dirDcb, $dirClk, $dirNeq, $dirSnx, $dirCrd, $dirVel,
+      $extDcb, $extClk, $extNeq, $extSnx, $extCrd, $extVel,
+      $dirAbb, $dirGcc, $dirKin,
+      $extAbb, $extGcc, $extKin) =
+    $bpe->getKeys(
+      '$YSS+0','$Y+0','$S+0',
+      'V_C', 'V_F', 'V_G', 'V_H', 'V_I', 'V_K', 'V_L',
+      'V_UPD', 'V_SAV', 'V_REFDIR','V_CRDINF', 'V_RESULT',
+      'DIR_OUT', 'DIR_SUM', 'DIR_TRP', 'DIR_TRO', 'DIR_ION', 'DIR_INX',
+      'EXT_OUT', 'EXT_SUM', 'EXT_TRP', 'EXT_TRO', 'EXT_ION', 'EXT_INX',
+      'DIR_DCB', 'DIR_RXC', 'DIR_NEQ', 'DIR_SNX', 'DIR_CRD', 'DIR_VEL',
+      'EXT_DCB', 'EXT_RXC', 'EXT_NEQ', 'EXT_SNX', 'EXT_CRD', 'EXT_VEL',
+      'DIR_ABB', 'DIR_GCC', 'DIR_KIN',
+      'EXT_ABB', 'EXT_GCC', 'EXT_KIN');
+
+
+# Some directories
+# ----------------
+    my $dirSav = "$ENV{S}/" . $result . "/$yyyy/";
+    $bpe->setVar('DIRSAV',$dirSav);
+    my $outSav = "$dirSav/OUT/";
+    my $orbSav = "$dirSav/ORB/";
+    my $atmSav = "$dirSav/ATM/";
+    my $solSav = "$dirSav/SOL/";
+    my $staSav = "$dirSav/STA/";
+
+    check_dir($outSav,$orbSav,$atmSav,$solSav,$staSav) if ( $sav eq "Y" );
+
+# Extract the title of the reprocessing
+# -------------------------------------
+    my $tit = "";
+    my $repro = "$dirOut/../MSC/REPROCESSING.FLG";
+    if ( -s $repro ) {
+      open(REP,"$repro");
+      $tit = <REP>;
+      close REP;
+      chomp $tit;
+    }
+
+# Copy files to savedisk
+# ----------------------
+    my @cpyLst = (
+    "${dirOut}PPP${yyssss}.PRC        ${outSav} f ",
+    "${dirTrp}${c}${yyssss}.${extTrp} ${atmSav} f ",
+    "${dirTro}${c}${yyssss}.${extTro} ${atmSav} f ",
+    "${dirClk}${c}${yyssss}.${extClk} ${outSav} fz",
+    "${dirNeq}${c}${yyssss}.${extNeq} ${solSav} z ",
+    "${dirNeq}${f}${yyssss}.${extNeq} ${solSav} z ",
+    "${dirSnx}${f}${yyssss}.${extSnx} ${solSav} z ",
+    "${dirCrd}${c}${yyssss}.${extCrd} ${staSav} f ",
+    );
+
+# Add special solutions (if requested)
+# ------------------------------------
+# Geocenter coordinates:
+    if ( defined $$bpe{V_G} ) {  # only defined in PPP_DEMO.PCF
+      if ( "$g" ne "" ) {
+        push @cpyLst, "${dirCrd}${g}${yyssss}.${extCrd} ${staSav} f ";
+        push @cpyLst, "${dirGcc}${g}${yyssss}.${extGcc} ${staSav} f ";
+      }
+    }
+
+# Pseudo-kinematic solution:
+    if ( defined $$bpe{V_H} ) {  # only defined in PPP_DEMO.PCF
+      if ( "$h" ne "" ) {
+        foreach my $kinFil ( glob("${dirKin}${h}${ssss}????.${extKin}") ) {
+          my $filnam = basename($kinFil,".$extKin");
+
+          push @cpyLst, "${dirSum}${filnam}.${extSum} ${outSav} f ";
+          push @cpyLst, "${dirKin}${filnam}.${extKin} ${staSav} f ";
+        }
+      }
+    }
+
+
+# High-rate troposphere estimation:
+    if ( defined $$bpe{V_I} ) {  # only defined in PPP_DEMO.PCF
+      if ( "$i" ne "" ) {
+
+        # ADDDNEQ did compile the solution
+        if ( -s "${dirOut}${i}${yyssss}.${extOut}" ) {
+          push @cpyLst, "${dirCrd}${i}${yyssss}.${extCrd} ${staSav} f ";
+          push @cpyLst, "${dirTrp}${i}${yyssss}.${extTrp} ${atmSav} f ";
+          push @cpyLst, "${dirTro}${i}${yyssss}.${extTro} ${atmSav} f ";
+
+        # only the station-wise GPSEST has been executed
+        } else {
+          foreach my $trpFil ( glob("${dirTrp}${i}${ssss}????.${extTrp}") ) {
+            my $filnam = basename($trpFil,".$extTrp");
+
+            push @cpyLst, "${dirCrd}${filnam}.${extCrd} ${staSav} f ";
+            push @cpyLst, "${dirTrp}${filnam}.${extTrp} ${atmSav} f ";
+            push @cpyLst, "${dirTro}${filnam}.${extTro} ${atmSav} f ";
+          }
+        }
+      }
+    }
+
+# Ionosphere estimation:
+    if ( defined $$bpe{V_K} ) {  # only defined in PPP_DEMO.PCF
+      if ( "$k" ne "" ) {
+
+        push @cpyLst, "${dirIon}${k}${yyssss}.${extIon} ${atmSav} f ";
+        push @cpyLst, "${dirDcb}${k}${yyssss}.${extDcb} ${orbSav} f ";
+        push @cpyLst, "${dirIon}${l}${yyssss}.${extIon} ${atmSav} f ";
+        push @cpyLst, "${dirInx}${l}${yyssss}.${extInx} ${atmSav} f ";
+        push @cpyLst, "${dirDcb}${l}${yyssss}.${extDcb} ${orbSav} f ";
+      }
+    }
+
+# Distribution not allowed
+# ------------------------
+    if ( uc $sav ne "Y" ) {
+      prtMess($bpe,"FILES NOT SAVED");
+
+# Do the distribution
+# -------------------
+    } else {
+
+      my $iErr = 0;
+
+      map { $iErr += copy2archive( split(" ",$_),$tit ) } @cpyLst;
+
+      # Stop in case of errors
+      die() if $iErr;
+    }
+
+
+# Update the station related files
+# --------------------------------
+    $refDir = "$ENV{D}/" . $refDir;
+    my @updLst = (
+    "${dirCrd}${crdInf}.${extCrd}",
+    "${dirVel}${crdInf}.${extVel}",
+    "${dirAbb}${crdInf}.${extAbb}",
+    );
+
+# Distribution not allowed
+# ------------------------
+    if ( uc $upd ne "Y" ) {
+      prtMess($bpe,"REFERENCE FILES NOT UPDATED");
+
+# Do the distribution
+# -------------------
+    } else {
+
+      my $iErr = 0;
+
+      map { $iErr += copy( $_,$refDir ) } @updLst;
+
+      # Stop in case of errors
+      die() if $iErr != @updLst;
+    }
+
+}

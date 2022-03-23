@@ -1,0 +1,211 @@
+<html>
+<body>
+
+<center>
+<b>CREATE/UPDATE STATION SIGMA FILE</b>
+<p>Editor: EDITSIG
+</center>
+<hr width="100%">
+
+<a name="COORD"    default=""></a>
+<a name="SIGMARS"  default=""></a>
+<a name="NEWFILE"  default=""></a>
+<a name="RADIO_1"  default="0"></a>
+<a name="RADIO_2"  default="0"></a>
+<a name="RADIO_3"  default="1"></a>
+<a name="RADIO_4"  default="0"></a>
+<a name="RADIO_5"  default="0"></a>
+<a name="RADIO_6"  default="0"></a>
+<a name="STAHELP1" default="%% %%"></a>
+<a name="STAHELP2" default="%% %% %%"></a>
+<a name="STAHELP3" default="%% %% %% %%"></a>
+<a name="STAHELP4" default="%% %% %% %% %%"></a>
+<a name="STAHELP6" default="%% %% %% %% %% %% %%"></a>
+<a name="STALST"   default=""></a>
+<a name="FILNAM1"  default=""></a>
+<a name="FILNAM2"  default=""></a>
+<a name="FILNAM3"  default=""></a>
+<a name="FILNAM4"  default=""></a>
+<a name="FILNAM6"  default=""></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The station sigma file provides an assignment between station names and
+a number of sigmas. The file format is generic - the sigma values get
+a meaning for constraining when the file is introduced into a program.
+This input panel helps you to create or to edit this type of files.
+<br>
+To create a new station sigma file specify a new filename in the file
+selection dialogue. In this case you will be asked to select an existing
+coordinate file. Select a subset of the stations in this file to generate
+a template for the new station sigma file.
+
+<p><i>Remark:</i>
+The end of the station sigma file is indicated by a blank line. Lines
+below the blank line are ignored. If you use this input mask to edit a
+station sigma file these additional lines will be lost. If you want to
+keep them in the file you have to use an external text file editor.
+<br>
+A station sigma file may also be created by the program
+<a href="PGMLST.HLP#CCRNXC">CCRNXC</a> (see option
+<a href="CCRNXC.HLP#LINFITRS">LINFITRS</a>).
+
+<p><a href="/$X/DOC/EXAMPLE.SIG">Example</a>
+
+<p><hr>
+
+<p><b>CREATE A NEW STATION SIGMA FILE</b>
+
+<a name="STASEL"   default=""></a>
+<a name="SIGMA_0"  default=""></a>
+<a name="SIGMA_TA" default=""></a>
+<a name="SIGMA_TR" default=""></a>
+<a name="SIGMA_N"  default=""></a>
+<a name="SIGMA_E"  default=""></a>
+<a name="SIGMA_U"  default=""></a>
+<a name="SIGMA_VA" default=""></a>
+<a name="SIGMA_VR" default=""></a>
+<a name="SIGMA_GA" default=""></a>
+<a name="SIGMA_GR" default=""></a>
+<a name="SIGMA_AV" default=""></a>
+<a name="SIGMA_RV" default=""></a>
+<a name="SIGMA_AN" default=""></a>
+<a name="SIGMA_RN" default=""></a>
+<a name="SIGMA_AE" default=""></a>
+<a name="SIGMA_RE" default=""></a>
+<p><b>Station list for default a priori sigma:</b>
+Select the stations (taken from the coordinate file specified before)
+you want to add to the template of the station sigma file.
+<br>
+You may create a sigma file containing between one and four
+columns. Applications in the current version of the Bernese GNSS Software are:
+<ul>
+<li><b>2 columns:</b> used for troposphere parameters (relative and
+                      absolute constraints, no gradients)
+<li><b>3 columns:</b> used for coordinates or velocities in north, east,
+                      and up components
+<li><b>4 columns:</b> used for troposphere parameters and gradients (relative
+                      and absolute constraints)
+<li><b>6 columns:</b> used for troposphere parameters, gradients in north
+                      and in east direction (relative and absolute constraints)
+</ul>
+Select one of the options and enter the default values for the constraints
+to be assigned to the stations selected in the field "Station list for
+default a priori sigma". In a following panel you will get a template
+where you can define individual sigma values to each station.
+
+<p><hr>
+
+<a name="STALIST1" default="%% %%"></a>
+<p><b>EDIT STATION SIGMA FILE: File with one sigma value per station</b>
+
+<a name="TITLE1" default=""></a>
+<p><b>Title:</b>
+The title line is saved in the header of the station sigma file.
+
+<p><b>Station name:</b>
+Enter the station name.
+
+<p><b>Sigma 1:</b>
+Enter the a priori sigma for each station.
+<br>
+A one-column sigma file is currently not used by any program of the
+Bernese GNSS Software.
+
+<p><hr>
+
+<a name="STALIST2" default="%% %% %%"></a>
+<p><b>EDIT STATION SIGMA FILE: File with two sigma values per station</b>
+
+<a name="TITLE2" default=""></a>
+<p><b>Title:</b>
+The title line is saved in the header of the station sigma file.
+
+<p><b>Station name:</b>
+Enter the station name.
+
+<p><b>Sigma 1</b>,
+   <b>Sigma 2:</b>
+Enter the a priori sigmas for each station.
+<br>
+A two-column sigma file may be used to specify absolute and
+relative constraints for the troposphere parameters (only up
+component, units in meters). The file may be used in program
+<a href="PGMLST.HLP#GPSEST">GPSEST</a>.
+
+<p><hr>
+
+<a name="STALIST3" default="%% %% %% %%"></a>
+<p><b>EDIT STATION SIGMA FILE: File with three sigma values per station</b>
+
+<a name="TITLE3" default=""></a>
+<p><b>Title:</b>
+The title line is saved in the header of the station sigma file.
+
+<p><b>Station name:</b>
+Enter the station name.
+
+<p><b>Sigma 1</b>,
+   <b>Sigma 2</b>,
+   <b>Sigma 3:</b>
+Enter the a priori sigmas for each station.
+<br>
+A three-column sigma file may be used to specify constraints on
+station coordinates (units in meters) or station velocities (units in
+meters/year) in the north, east, and up components. The file may be
+used by programs <a href="PGMLST.HLP#GPSEST">GPSEST</a> and
+<a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a>.
+
+<p><hr>
+
+<a name="STALIST4" default="%% %% %% %% %%"></a>
+<p><b>EDIT STATION SIGMA FILE: File with four sigma values per station</b>
+
+<a name="TITLE4" default=""></a>
+<p><b>Title:</b>
+The title line is saved in the header of the station sigma file.
+
+<p><b>Station name:</b>
+Enter the station name.
+
+<p><b>Sigma 1</b>,
+   <b>Sigma 2</b>,
+   <b>Sigma 3</b>,
+   <b>Sigma 4:</b>
+Enter the a priori sigmas for each station.
+<br>
+A four-column sigma file may be
+used to specify absolute and relative constraints for the troposphere
+parameters (up component and gradients, units in meters). The file may be
+used in program <a href="PGMLST.HLP#GPSEST">GPSEST</a>.
+
+<p><hr>
+
+<a name="STALIST6" default="%% %% %% %% %% %% %%"></a>
+<p><b>EDIT STATION SIGMA FILE: File with six sigma values per station</b>
+
+<a name="TITLE6" default=""></a>
+<p><b>Title:</b>
+The title line is saved in the header of the station sigma file.
+
+<p><b>Station name:</b>
+Enter the station name.
+
+<p><b>Sigma 1</b>,
+   <b>Sigma 2</b>,
+   <b>Sigma 3</b>,
+   <b>Sigma 4:</b>,
+   <b>Sigma 5</b>,
+   <b>Sigma 6:</b>
+Enter the a priori sigmas for each station.
+<br>
+A six-column sigma file may be
+used to specify absolute and relative constraints for the troposphere
+parameters (up component and gradients in north and in east direction,
+units in meters).
+The file may be used in program <a href="PGMLST.HLP#GPSEST">GPSEST</a>.
+
+<p><hr>
+
+</body>
+</html>

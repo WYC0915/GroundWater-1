@@ -1,0 +1,99 @@
+package CLK_SAV;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  CLK_SAV
+#
+# Purpose :  Store CLKDET BPE processing result files in the archive
+#
+# PARAMs  :
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use File::Basename;
+use File::Copy;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtMess copy2archive check_dir);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyssss, $yyyy,
+      $c, $f, $i, $sav, $result,
+      $dirOut, $dirTrp, $dirNeq, $dirCrd, $dirClk, $dirRxc,
+      $extOut, $extTrp, $extNeq, $extCrd, $extClk, $extRxc,
+      $dirDcb, $dirSos,
+      $extDcb, $extSos) =
+    $bpe->getKeys(
+      '$YSS+0','$Y+0',
+      'V_C', 'V_F', 'V_I', 'V_SAV', 'V_RESULT',
+      'DIR_OUT', 'DIR_TRP', 'DIR_NEQ', 'DIR_CRD', 'DIR_CLK', 'DIR_RXC',
+      'EXT_OUT', 'EXT_TRP', 'EXT_NEQ', 'EXT_CRD', 'EXT_CLK', 'EXT_RXC',
+      'DIR_DCB', 'DIR_SOS',
+      'EXT_DCB', 'EXT_SOS');
+
+
+# Some directories
+# ----------------
+    my $dirSav = "$ENV{S}/" . $result . "/$yyyy/";
+    $bpe->setVar('DIRSAV',$dirSav);
+    my $outSav = "$dirSav/OUT/";
+    my $orbSav = "$dirSav/ORB/";
+    my $atmSav = "$dirSav/ATM/";
+    my $solSav = "$dirSav/SOL/";
+    my $staSav = "$dirSav/STA/";
+
+    check_dir($outSav,$orbSav,$atmSav,$solSav,$staSav) if ( $sav eq "Y" );
+
+# Extract the title of the reprocessing
+# -------------------------------------
+    my $tit = "";
+    my $repro = "$dirOut/../MSC/REPROCESSING.FLG";
+    if ( -s $repro ) {
+      open(REP,"$repro");
+      $tit = <REP>;
+      close REP;
+      chomp $tit;
+    }
+
+# Copy files to savedisk
+# ----------------------
+    my @cpyLst = (
+    "${dirOut}CLK${yyssss}.PRC         ${outSav} f ",
+    "${dirTrp}${i}_${yyssss}.${extTrp} ${atmSav} f ",
+    "${dirClk}${i}_${yyssss}.${extClk} ${orbSav} f ",
+    "${dirRxc}${i}_${yyssss}.${extRxc} ${outSav} z ",
+    "${dirCrd}${i}_${yyssss}.${extCrd} ${staSav} f ",
+    "${dirSos}${c}_${yyssss}.${extSos} ${staSav} f ",
+    "${dirDcb}${f}_${yyssss}.${extDcb} ${orbSav} f ",
+    "${dirNeq}${f}_${yyssss}.${extNeq} ${solSav} z ",
+    );
+
+# Distribution not allowed
+# ------------------------
+    if ( uc $sav ne "Y" ) {
+      prtMess($bpe,"FILES NOT SAVED");
+
+# Do the distribution
+# -------------------
+    } else {
+
+      my $iErr = 0;
+
+      map { $iErr += copy2archive( split(" ",$_),$tit ) } @cpyLst;
+
+      # Stop in case of errors
+      die() if $iErr;
+    }
+
+
+}

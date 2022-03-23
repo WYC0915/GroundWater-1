@@ -1,0 +1,101 @@
+      MODULE s_RDSATI
+      CONTAINS
+
+C*
+      SUBROUTINE RDSATI(LFN   ,SVN   ,TSACLK,NSACLK,SATCLK,IRCODE)
+CC
+CC NAME       :  RDSATI
+CC
+CC PURPOSE    :  READ ONE RECORD OF SATELLITE CLOCK FILE
+CC
+CC PARAMETERS :
+CC        IN  :  LFN    : LOGICAL FILE NUMBER FOR SAT.CLK FILE   I*4
+CC               SVN    : SATELLITE NUMBER                       I*4
+CC               TSACLK : SATELLITE CLOCK EPOCH (MJD)            R*8
+CC               NSACLK : NUMBER OF SATELLITE CLOCK PARAMETERS   I*4
+CC               SATCLK(I),I=1,..,NSACLK: SATELLITE CLOCK PARAM. R*8
+CC                        VALUES: OFFSET (S), DRIFT (S/D), ...)
+CC               IRCODE : OK=0, END OF FILE=1                    I*4
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  4.1
+CC
+CC CREATED    :  19-AUG-98
+CC
+CC CHANGES    :  17-FEB-03 : LM: USE M_MAXDIM
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1998     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE m_maxdim, ONLY: MAXSAC
+      USE s_dimtst
+      USE s_exitrc
+      USE f_gpsmjd
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 ICLK  , II    , IRC   , IRCODE, LFN   , NSACLK, NWEEK
+C
+      REAL*8    SECOND, TSACLK
+C
+CCC       IMPLICIT REAL*8(A-H,O-Z)
+C
+C
+      CHARACTER*80 FILCLK
+C
+      REAL*8       CLKHLP(10),SATCLK(MAXSAC)
+C
+      INTEGER*4    SVN
+C
+C
+C READ SATELLITE CLOCK FILE RECORD
+C --------------------------------
+      READ(LFN,1,END=910,ERR=920) SVN,NWEEK,SECOND,NSACLK,
+     1                            (CLKHLP(II),II=1,NSACLK)
+1     FORMAT(I3,I5,F9.0,I3,1X,10D17.9)
+C
+C CHECK MAXIMUM DIMENSION
+C -----------------------
+      CALL DIMTST(1,1,2,'RDSATI','MAXSAC','SATELLITE CLOCK COEFF.',
+     1            'INCLUDE FILE USED',NSACLK,MAXSAC,IRC)
+C
+C CONVERSION OF GPS WEEK AND SECONDS IN MJD
+C -----------------------------------------
+      TSACLK= GPSMJD(SECOND,NWEEK)
+C
+      DO ICLK=1,NSACLK
+        SATCLK(ICLK)=CLKHLP(ICLK)
+      ENDDO
+C
+      GOTO 999
+C
+C END OF FILE REACHED: CLOSE FILE
+C -------------------------------
+910   IRCODE=1
+      CLOSE(UNIT=LFN)
+      GOTO 999
+C
+C ERROR READING FILE
+C ------------------
+920   INQUIRE(UNIT=LFN,NAME=FILCLK)
+      WRITE(LFNERR,921) FILCLK, LFN
+921   FORMAT(/,' *** SR RDSATI : ERROR READING SATELLITE CLOCK FILE',/,
+     1       17X,'FILE NAME : ',A80,/,
+     2       17X,'FILE UNIT : ',I6,/)
+      CALL EXITRC(2)
+C
+C END
+C ---
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

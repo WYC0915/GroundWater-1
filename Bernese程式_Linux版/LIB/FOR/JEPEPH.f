@@ -1,0 +1,274 @@
+      MODULE s_JEPEPH
+      CONTAINS
+
+C*
+      SUBROUTINE JEPEPH(JD,TARG,CENT,RRD,*)
+CC
+CC NAME       :  JEPEPH
+CC
+CC PURPOSE    :  THIS SUBROUTINE READS THE JPL PLANETARY EPHEMERIS
+CC               AND GIVES THE POSITION AND VELOCITY OF THE POINT
+CC               'TARG' WITH RESPECT TO 'CENT'.
+CC
+CC PARAMETERS :
+CC         IN :  JD     : JULIAN EPHEMERIS DATE AT WHICH INTER-   R*8
+CC                        POLATION IS WANTED
+CC               TARG   : NUMBER OF 'TARGET' POINT                I*4
+CC               CENT   : NUMBER OF CENTER POINT                  I*4
+CC                        THE NUMBERING CONVENTION FOR 'TARG' AND
+CC                        'CENT' IS:
+CC                              1 = MERCURY
+CC                              2 = VENUS
+CC                              3 = EARTH
+CC                              4 = MARS
+CC                              5 = JUPITER
+CC                              6 = SATURN
+CC                              7 = URANUS
+CC                              8 = NEPTUNE
+CC                              9 = PLUTO
+CC                             10 = MOON
+CC                             11 = SUN
+CC                             12 = SOLAR-SYSTEM BARYCENTER
+CC                             13 = EARTH-MOON BARYCENTER
+CC                             14 = NUTATIONS (LONGITUDE AND OBLIQ)
+CC                             15 = LIBRATIONS, IF ON EPH FILE
+CC                        (IF NUTATIONS ARE WANTED, SET TARG = 14.
+CC                         FOR LIBRATIONS, SET TARG = 15.
+CC                         'CENT' WILL BE IGNORED ON EITHER CALL.)
+CC               RRD    : OUTPUT 6-WORD ARRAY CONTAINING POSITION R*8
+CC                        AND VELOCITY OF POINT 'TARG' RELATIVE
+CC                        TO 'CENT'. THE UNITS ARE AU AND AU/DAY.
+CC                        FOR LIBRATIONS THE UNITS ARE RADIANS
+CC                        AND RADIANS PER DAY. IN THE CASE OF
+CC                        NUTATIONS THE FIRST FOUR WORDS OF RRD
+CC                        WILL BE SET TO NUTATIONS AND RATES,
+CC                        HAVING UNITS OF RADIANS AND RADIANS/DAY.
+CC               *      : STATEMENT # IN CASE OF ERROR RETURN
+CC                        (EPOCH OUT OF RANGE OR REQUEST FOR
+CC                        NUTATIONS OR LIBRATIONS WHEN NOT ON FILE).
+CC
+CC REMARKS    :  IN MANY CASES THE USER WILL NEED ONLY POSITION
+CC               VALUES FOR EPHEMERIDES OR NUTATIONS. FOR
+CC               POSITION-ONLY OUTPUT, THE INTEGER VARIABLE 'IPV'
+CC               IN THE COMMON AREA /PLECOM/ SHOULD BE SET = 1
+CC               BEFORE THE NEXT CALL TO JEPEPH. (ITS DEFAULT
+CC               VALUE IS 2, WHICH RETURNS BOTH POSITIONS AND
+CC               RATES.)
+CC
+CC AUTHOR     :  JPL
+CC
+CC VERSION    :  3.4
+CC
+CC CREATED    :  22-OCT-92
+CC
+CC CHANGES    :  28-SEP-95 : JJ: DECLARE KM AS L*4 INSTEAD OF L*1
+CC               28-SEP-95 : JJ: DECLARE BARY AS L*4 INSTEAD OF L*1
+CC               28-SEP-95 : JJ: DECLARE FIRST AS L*4 INSTEAD OF L*1
+CC               28-SEP-95 : JJ: DECLARE BSAVE AS L*4 INSTEAD OF L*1
+CC               21-JUN-05 : MM: COMLFNUM.INC REMOVED, M_BERN ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               27-SEP-11 : SL: USE M_BERN WITH ONLY
+CC
+CC COPYRIGHT  :  NONE
+CC      1992
+CC
+C*
+      USE m_bern,   ONLY: lfnErr
+      USE s_jestat
+      USE s_jeopen
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I   , LME , NCMP
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      REAL*8    JD,RRD(6)
+      INTEGER*4 TARG,CENT
+C
+C     MISCELLANEOUS DECLARATIONS
+C
+      REAL*8    JED(2),PV(6,13),EMBF(2),VE(2),FAC
+C
+      LOGICAL*4 FIRST
+      LOGICAL*4 BSAVE
+C
+      INTEGER*4 LIST(12),L(2),TC(2),LLST(13),NEMB
+C
+C     COMMON AREA FOR CHARACTER DATA IN RECORD 1
+C
+      CHARACTER*6 TTL(14,3)
+      CHARACTER*6 CNAM(400)
+      COMMON/CHRHDR/TTL,CNAM
+C
+C     COMMON AREA FOR CONSTANTS AND POINTERS IN RECORD 1
+C
+      REAL*8    SS(3),CVAL(400),AU,EMRAT
+      INTEGER*4 NCON,IPT(36),DENUM,LPT(3)
+      COMMON/EPHHDR/SS,CVAL,AU,EMRAT,NCON,IPT,DENUM,LPT
+C
+C     COMMON AREA FOR 'JESTAT'
+C
+      LOGICAL*4 KM
+      LOGICAL*4 BARY
+      REAL*8    PVSUN(6)
+      COMMON/STCOMM/PVSUN,KM,BARY
+C
+C     COMMON AREA FOR POSITION/VELOCITY SWITCH
+C
+      INTEGER*4 IPV
+      COMMON/PLECOM/IPV
+C
+C
+C     DATA STATEMENTS
+C
+      DATA JED/2*0.D0/
+      DATA PV/78*0.D0/
+      DATA EMBF/-1.D0,1.D0/
+      DATA LIST/12*0/
+      DATA L/2*0/
+      DATA TC/2*0/
+      DATA LLST/1,2,10,4,5,6,7,8,9,10,11,11,3/
+      DATA FIRST/.TRUE./
+      DATA FAC/0.D0/
+      DATA NEMB/1/
+C
+C
+C     ENTRY POINT -- 1ST TIME IN, BE SURE EPHEMERIS IS INITIALIZED
+C
+      IF(FIRST) THEN
+        FIRST=.FALSE.
+        CALL JEOPEN(.TRUE.)
+        VE(1)=1.D0/(1.D0+EMRAT)
+        VE(2)=EMRAT*VE(1)
+      ENDIF
+C
+C     INITIALIZE JED FOR 'JESTAT' AND SET UP COMPONENT COUNT
+C
+      JED(1)=JD
+      NCMP=3*IPV
+C
+C     CHECK FOR NUTATION CALL
+C
+      IF(TARG.EQ.14) THEN
+        IF(IPT(35).GT.0) THEN
+          LIST(11)=IPV
+          CALL JESTAT(JED,LIST,PV,RRD,*99)
+          LIST(11)=0
+          RETURN
+        ELSE
+          RETURN 1
+        ENDIF
+      ENDIF
+C
+C     CHECK FOR LIBRATIONS
+C
+      IF(TARG.EQ.15) THEN
+        IF(LPT(2).GT.0) THEN
+          LIST(12)=IPV
+          CALL JESTAT(JED,LIST,PV,RRD,*99)
+          LIST(12)=0
+          DO 7 I=1,NCMP
+            RRD(I)=PV(I,11)
+    7     CONTINUE
+          RETURN
+        ELSE
+          RETURN 1
+        ENDIF
+      ENDIF
+C
+C     CHECK FOR TARGET POINT = CENTER POINT
+C
+      IF(TARG.EQ.CENT) THEN
+        DO 1 I=1,NCMP
+          RRD(I)=0.D0
+    1   CONTINUE
+        RETURN
+      ENDIF
+C
+C     FORCE BARYCENTRIC OUTPUT BY 'JESTAT'
+C
+      BSAVE=BARY
+      BARY=.TRUE.
+C
+C     SET UP PROPER ENTRIES IN 'LIST' ARRAY FOR JESTAT CALL
+C
+      TC(1)=TARG
+      TC(2)=CENT
+      LME=0
+C
+      DO 2 I=1,2
+        L(I)=LLST(TC(I))
+        IF(L(I).LT.11) LIST(L(I))=IPV
+        IF(TC(I).EQ.3) THEN
+          LME=3
+          FAC=-VE(1)
+        ELSEIF(TC(I).EQ.10) THEN
+          LME=10
+          FAC=VE(2)
+        ELSEIF(TC(I).EQ.13) THEN
+          NEMB=I
+        ENDIF
+    2 CONTINUE
+C
+      IF(LIST(10).EQ.IPV .AND. L(1).NE.L(2)) LIST(3)=IPV-LIST(3)
+C
+C     MAKE CALL TO JESTAT
+C
+      CALL JESTAT(JED,LIST,PV,RRD,*99)
+C
+C     CASE: EARTH-TO-MOON
+C
+      IF(TARG.EQ.10 .AND. CENT.EQ.3) THEN
+        DO 3 I=1,NCMP
+          RRD(I)=PV(I,10)
+    3   CONTINUE
+C
+C     CASE: MOON-TO-EARTH
+C
+      ELSEIF(TARG.EQ.3 .AND. CENT.EQ.10) THEN
+        DO 4 I=1,NCMP
+          RRD(I)=-PV(I,10)
+    4   CONTINUE
+C
+C     CASE: EMBARY TO MOON OR EARTH
+C
+      ELSEIF((TARG.EQ.13 .OR. CENT.EQ.13) .AND. LIST(10).EQ.IPV) THEN
+        DO 5 I=1,NCMP
+          RRD(I)=PV(I,10)*FAC*EMBF(NEMB)
+    5   CONTINUE
+C
+C     OTHERWISE, GET EARTH OR MOON VECTOR AND THEN GET OUTPUT VECTOR
+C
+      ELSE
+        DO 6 I=1,NCMP
+          PV(I,11)=PVSUN(I)
+          PV(I,13)=PV(I,3)
+          IF(LME.GT.0) PV(I,LME)=PV(I,3)+FAC*PV(I,10)
+          RRD(I)=PV(I,TARG)-PV(I,CENT)
+    6   CONTINUE
+C
+      ENDIF
+C
+C     CLEAR 'JESTAT' BODY ARRAY AND RESTORE BARYCENTER FLAG
+C
+      LIST(3)=0
+      LIST(L(1))=0
+      LIST(L(2))=0
+      BARY=BSAVE
+C
+C     THAT'S ALL
+C
+      RETURN
+C
+C     ERROR EXIT
+C
+   99 WRITE(LFNERR,100)
+  100 FORMAT(/,' *** SR JEPEPH: ERROR RETURN FROM CALL TO JESTAT',/,
+     1                     16X,'EPOCH OUT OF RANGE',/)
+      RETURN 1
+C
+      END SUBROUTINE
+
+      END MODULE

@@ -1,0 +1,146 @@
+      MODULE s_MONEFF
+      CONTAINS
+
+C*
+      SUBROUTINE MONEFF(IORSYS,TABINT,T,MONPOS)
+CC
+CC NAME       :  MONEFF
+CC
+CC PURPOSE    :  EFFICIENT COMPUTATION OF SOLAR POSITION
+CC               USING QUADRATIC INTERPOLATION
+CC
+CC PARAMETERS :
+CC         IN :  IORSYS : INERTIAL SYSTEM                     I*4
+CC                        =1: B1950.0
+CC                        =2: J2000.0
+CC               TABINT : TABULAR INTERVAL(IN HOURS)          R*8
+CC               T      : TIME OF REQUEST                     R*8
+CC        OUT :  MONPOS(K),K=1,2,3:  POSITION OF MOON         R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.3
+CC
+CC CREATED    :  87/11/16 11:02
+CC
+CC CHANGES    :  31-MAY-92 : ??: OPTION J2000.0
+CC               27-MAR-93 : ??: OPTION JPL EPHEMERIS DE200
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               28-SEP-95 : JJ: DECLARE KM AS L*4 INSTEAD OF L*1
+CC               28-SEP-95 : JJ: DECLARE BARY AS L*4 INSTEAD OF L*1
+CC               11-JUN-03 : HU: NEW CALL FOR NUTEFF
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               08-JUL-05 : HB: ADD BIAS TO PARAMETER LIST OF SR NUTEFF
+CC               16-OCT-06 : AG: Take AU from CONST.
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE d_const, ONLY: AU
+      USE s_qitpol
+      USE s_exitrc
+      USE s_nuteff
+      USE s_dmlmtv
+      USE s_moon20
+      USE s_gtflna
+      USE s_moon
+      USE s_prceff
+      USE s_jepeph
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IDE200, IFIRST, IORSYS, IRC   , K     , L     , LEFT
+C
+      REAL*8    BB    , DE    , EQEQUI, PAR   , RA    , RMOON , RR    ,
+     1          T     , T0    , TABEFF, TABINT, XJD   , XLL
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+C
+      CHARACTER*32 FILEPH
+      REAL*8 TABTIM(3),MONPOS(4),MONTAB(4,3),PREMAT(3,3),NUTMAT(3,3)
+      REAL*8 BIAS(3,3)
+C
+C
+C COMMON BLOCKS FOR JPL EPHEMERIS DE200
+C
+      LOGICAL*4 KM
+      LOGICAL*4 BARY
+      REAL*8    PVSUN(6)
+      COMMON/STCOMM/PVSUN,KM,BARY
+C
+      INTEGER*4 IPV
+      COMMON/PLECOM/IPV
+C
+      DATA IFIRST/1/
+C
+C INITIALIZATION
+      IF(IFIRST.EQ.1)THEN
+        IFIRST=0
+        T0=T
+        TABTIM(1)=0.D0
+        TABTIM(3)=-1.D0
+C
+C JPL EPHEMERIS INITIALIZATION
+        CALL GTFLNA(0,'JPLEPH ',FILEPH,IRC)
+        IF (IRC.EQ.0) THEN
+          IDE200=1
+          IPV=1
+          KM=.FALSE.
+        ELSE
+          IDE200=0
+        ENDIF
+      END IF
+C
+C NEW TIME INTERVAL?
+      IF (T.LT.TABTIM(1).OR.T.GT.TABTIM(3)) THEN
+        TABEFF=TABINT
+        LEFT=DABS(T-T0)/(TABEFF/24.D0)
+        IF (T.LT.T0) LEFT=-LEFT-1
+        DO 10 K=1,3
+          TABTIM(K)=T0+(LEFT+K-1)*TABEFF/24.D0
+          IF (IORSYS.EQ.1) THEN
+            CALL MOON(TABTIM(K),XLL,BB,PAR,RA,DE)
+            RMOON=6378137.D0/DSIN(PAR)
+            MONTAB(1,K)=RMOON*DCOS(RA)*DCOS(DE)
+            MONTAB(2,K)=RMOON*DSIN(RA)*DCOS(DE)
+            MONTAB(3,K)=RMOON*DSIN(DE)
+            MONTAB(4,K)=RMOON
+            CALL PRCEFF(IORSYS,TABEFF,TABTIM(K),PREMAT)
+            CALL NUTEFF(IORSYS,TABEFF,TABTIM(K),NUTMAT,EQEQUI,BIAS)
+            PREMAT = MATMUL(PREMAT,BIAS)
+            CALL DMLMTV(MONTAB(1,K),NUTMAT,MONTAB(1,K))
+            CALL DMLMTV(MONTAB(1,K),PREMAT,MONTAB(1,K))
+          ELSEIF (IDE200.EQ.0) THEN
+            CALL MOON20(TABTIM(K),MONTAB(1,K),RR,XLL,BB,PAR)
+            MONTAB(4,K)=RR
+          ELSE
+            XJD=2400000.5D0+TABTIM(K)
+            CALL JEPEPH(XJD,10,3,MONTAB(1,K),*901)
+            MONTAB(4,K)=DSQRT(MONTAB(1,K)**2+MONTAB(2,K)**2
+     1                                      +MONTAB(3,K)**2)
+            DO 5 L=1,4
+C              MONTAB(L,K)=1.49597870D11*MONTAB(L,K)
+              MONTAB(L,K)=AU*MONTAB(L,K)
+5           CONTINUE
+          ENDIF
+10      CONTINUE
+      END IF
+C
+C COMPUTE RESULT BY LINEAR INTERPOLATION
+      CALL QITPOL(3,4,TABTIM,MONTAB,T,MONPOS)
+      GOTO 999
+C
+C ERROR DETECTED
+901   CALL EXITRC(2)
+C
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

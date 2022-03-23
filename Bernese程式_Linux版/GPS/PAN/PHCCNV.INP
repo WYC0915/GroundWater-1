@@ -1,0 +1,273 @@
+
+! Some keywords for automatic output
+! ----------------------------------
+CAMPAIGN     0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! -------------------------------------------------------------------------
+! General Constants
+! -----------------
+SHOWGEN     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+CONST     1  "CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_CONST 1  "General constants"
+
+! Satellite Information
+! ---------------------
+SATELL     1  "SATELLIT.REL"
+  ## widget = selwin; path = PTH_GEN; maxfiles = 1
+
+DESCR_SATELL 1  "Satellite information"
+
+! Title
+! -----
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+! Input File: External Phase Center File
+! --------------------------------------
+PHASEXT     0
+  ## widget = selwin; path = DIR_OUT; ext = NO_EXT
+
+DESCR_PHASEXT 1  "External phase center offsets"
+
+! Conversion abs2rel
+! ------------------
+ABS2REL 1  "0"
+  ## widget = checkbox
+
+MSG_ABS2REL 1  "Conversion of absolute phase patterns"
+
+! Input File: Bernese phase file
+! ------------------------------
+PHASOLD     0
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; emptyallowed = true
+
+DESCR_PHASOLD 1  "input Bernese phase file"
+
+! Input File: Station information file
+! ------------------------------------
+STAENLA     0
+  ## widget = selwin; path = DIR_STA; ext = EXT_STA; emptyallowed = true
+  ## maxfiles = 1
+
+DESCR_STAENLA 1  "Station information file"
+
+! Conversion
+! ----------
+CONVERT     1  "0"
+  ## widget = checkbox; activeif = PHASOLD /= _ AND ABS2REL /= 1
+
+MSG_CONVERT 1  "Conversion of relativ Phase pattern"
+
+! Bernese Phase Center File
+! -------------------------
+PHASRSG     0
+  ## widget = lineedit; path = DIR_PHG; ext = EXT_PHG
+
+DESCR_PHASRSG 1  "Bernese phase center offsets"
+
+! Program Output File
+! -------------------
+SYSODEF     1  "1"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "PHCCNV"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG     1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR     1  "ERROR"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+
+DESCR_SYSERR 1  "Error message"
+
+! Do not write zero patterns
+! --------------------------
+NOZERO     1  "1"
+  ## widget = checkbox
+
+MSG_NOZERO 1  "Do not write zero patterns"
+
+! Consider antennas without radome code
+! -------------------------------------
+RADCOD     1  "0"
+  ## widget = checkbox; activeif = PHASOLD /= _
+
+MSG_RADCOD 1  "Consider antennas without radome code"
+
+! ANTEX Conversion
+! ================
+!
+! Fill Pattern
+! ------------
+ATXFIL     1  "1"
+  ## widget = checkbox
+
+MSG_ATXFIL 1  "Special handling of missing values"
+
+! Maximum zenith angle
+! --------------------
+MXFZEN     1  "90"
+  ## widget = spinbox; range = 0 90 5; activeif = ATXFIL = 1
+
+MSG_MXFZEN 1  "Fill missing values up to a MAXIMUM ZENITH ANGLE of"
+
+! with zeros
+! ----------
+RADIO1_1     1  "0"
+  ## widget = radiobutton; group = RADIO1; activeif = ATXFIL = 1
+
+MSG_RADIO1_1 1  "with ZEROS"
+
+! with last value available
+! -------------------------
+RADIO1_2     1  "1"
+  ## widget = radiobutton; group = RADIO1; activeif = ATXFIL = 1
+
+MSG_RADIO1_2 1  "with LAST VALUE available"
+
+! with AOAD/M_T values
+! --------------------
+RADIO1_3     1  "0"
+  ## widget = radiobutton; group = RADIO1; activeif = ATXFIL = 1
+
+MSG_RADIO1_3 1  "with AOAD/M_T values"
+
+! Maximum nadir angle
+! -------------------
+MXFNAD     1  "15"
+  ## widget = spinbox; range = 0 20 1; activeif = ATXFIL = 1
+
+MSG_MXFNAD 1  "Fill missing values up to a MAXIMUM NADIR ANGLE of"
+
+! with zeros
+! ----------
+RADIO2_1     1  "0"
+  ## widget = radiobutton; group = RADIO2; activeif = ATXFIL = 1
+
+MSG_RADIO2_1 1  "with ZEROS"
+
+! with last value available
+! -------------------------
+RADIO2_2     1  "1"
+  ## widget = radiobutton; group = RADIO2; activeif = ATXFIL = 1
+
+MSG_RADIO2_2 1  "with LAST VALUE available"
+
+! ONLY ELEVATION DEPENDENT PATTERNS
+! ---------------------------------
+ONLYELE     1  "0"
+  ## widget = checkbox
+
+MSG_ONLYELE 1  "Only elevation dependent patterns required"
+
+! SET ANTENNA NUMBER TO 999999
+! ----------------------------
+ANTNUM     1  "0"
+  ## widget = checkbox
+
+MSG_ANTNUM 1  "Set number of generic antennas to 999999"
+
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CONVERT ANTENNA PHASE CENTER CORRECTIONS TO BERNESE FORMAT - PHCCNV 1: Input #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files             > % <                                   # SHOWGEN
+#                                                                              #
+# INPUT FILENAME                                                               #
+#   External phase center offsets      > %%%%%%%%%%%% <                        # PHASEXT
+#   Bernese phase center offsets file  > %%%%%%%%%%%% <                        # PHASOLD
+#   Station information file           > %%%%%%%%%%%% <                        # STAENLA
+#                                                                              #
+# OPTIONS FOR BERNESE INPUT FILE                                               #
+#   Conversion from relative to absolute PCV  > % <   abs to rel for ATX > % < # CONVERT ABS2REL
+#   Consider antennas without radome code     > % <                            # RADCOD
+#                                                                              #
+# RESULT FILE                                                                  #
+#   Bernese phase center offsets    > %%%%%%%% <                               # PHASRSG
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output          > % < use PHCCNV.Lnn            or    > %%%%%%%% < # SYSODEF SYSOUT
+#   Error messages          > % < merged to program output  or    > %%%%%%%% < # ERRMRG SYSERR
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1  #####################################################
+# PHCCNV 1.1: General Files                                                    #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants       > %%%%%%%%%%%% <                                   # CONST
+#   Satellite information   > %%%%%%%%%%%% <                                   # SATELL
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# PHCCNV 2: ANTEX Conversion                                                   #
+#                                                                              #
+# MISSING RECEIVER AND SATELLITE ANTENNA PATTERNS                              #
+#   Special handling of missing values                    > % <                # ATXFIL
+#                                                                              #
+#   Fill missing values up to a MAXIMUM ZENITH ANGLE of   > %% <  degrees      # MXFZEN
+#   > % < with ZEROS                                                           # RADIO1_1
+#   > % < with LAST VALUE available                                            # RADIO1_2
+#   > % < with AOAD/M_T values                                                 # RADIO1_3
+#                                                                              #
+#   Fill missing values up to a MAXIMUM NADIR ANGLE of    > %% <  degrees      # MXFNAD
+#   > % < with ZEROS                                                           # RADIO2_1
+#   > % < with LAST VALUE available                                            # RADIO2_2
+#                                                                              #
+# OPTIONS                                                                      #
+#   Do not write zero patterns                            > % <                # NOZERO
+#   Set number of generic receiver antennas to 999999     > % <                # ANTNUM
+#   Elevation dependent receiver patterns only            > % <                # ONLYELE
+#                                                                              #
+################################################################################

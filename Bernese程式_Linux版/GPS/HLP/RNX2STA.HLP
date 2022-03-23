@@ -1,0 +1,175 @@
+<html>
+<body>
+
+<center>
+<b>EXTRACT STATION INFORMATION FROM RINEX HEADERS</b>
+<p>Program: RNX2STA
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The purpose of the program RNX2STA is to extract the information from
+a set of observation RINEX headers and to write them into a station information
+file. This station information file may be used later to verify the header
+information of observation RINEX files when they are imported into the
+Bernese format using the program <a href="PGMLST.HLP#RXOBV3">RXOBV3</a>.
+<br>
+The program is intended for generating a skeleton of a station
+information file. The content has to be verified,
+adapted, and complemented manually by the user (e.g., using <b>Menu &gt;
+Campaign &gt; Edit station files &gt; station information</b>).
+<br>
+The information extracted from the header of the RINEX observation files are:
+<ul>
+<li>station name (from <tt>MARKER NAME</tt> and, optionally,
+    from <tt>MARKER NUMBER</tt> record)
+<li>receiver name (from <tt>REC # / TYPE /VERS</tt> record)
+<li>antenna name (from <tt>ANT # / TYPE</tt> record)
+<li>receiver unit number (from <tt>REC # / TYPE / VERS</tt> record)
+<li>antenna serial number (from <tt>ANT # / TYPE</tt> record)
+<li>antenna eccentricity (north, east, up) (from
+    <tt>ANTENNA: DELTA H/E/N</tt> record)
+</ul>
+
+<p><hr>
+
+<p><b>RNX2STA 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+If you check this box, the currently
+active campaign, session and session table are displayed.
+
+<br><br>
+
+<a name="RADIO_O" default="1"></a>
+<a name="RXOFILE" default="????$S+0"></a>
+<p><b>INPUT FILES </b>
+<p>Either original or smoothed RINEX observation files can be used to extract the
+header information for a station information file.
+
+<p><b>Original RINEX observation files:</b>
+Specify a list of RINEX observation files. The header of these files are
+read to extract the station information.
+
+<a name="RADIO_S" default="0"></a>
+<a name="SMTFILE" default=""></a>
+<p><b>Smoothed RINEX observation files:</b>
+Specify a list of smoothed RINEX observation files. The header of these
+files are read to extract the station information.
+
+<br><br>
+
+<a name="RNXINFO" default=""></a>
+<p><b>RESULT FILES </b>
+<p><b>Station information from RINEX files:</b>
+Specify the name of the station information file to be created from the RINEX
+observation headers in this input field.
+
+<p><i>Warning:</i>
+An existing file will be overwritten. Specify a new
+filename and merge the file with an existing file manually.
+
+<p><a href="/$X/DOC/EXAMPLE.STA">Example</a>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="RNX2STA"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>RNX2STA 2: Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+and will be saved in all the result files to document the program run.
+The title should characterize the program run.
+
+<br><br>
+
+<a name="FLG1" default="001"></a>
+<p><b>OPTIONS FOR STATION INFORMATION FILE</b>
+<p><b>Flag for TYPE 001: Renaming of stations:</b>
+Specify the flag to be used for entries written to the section
+<tt>TYPE 001: RENAMING OF STATIONS</tt> of the station information file.
+
+<p><i>Default value:</i> 001
+
+<a name="FLG2" default="001"></a>
+<p><b>Flag for TYPE 002: Station information:</b>
+Specify the flag to be used for entries written to the section
+<tt>TYPE 002: STATION INFORMATION</tt> of the station information file.
+If applicable, this flag will also be used for the section
+<tt>TYPE 005: HANDLING STATION TYPES</tt>.
+
+<p><i>Default value:</i> 001
+
+<a name="RADOME" default="0"></a>
+<p><b>Consider radome code:</b>
+According to the IGS standards the radome code is given in the RINEX files in
+characters 17 to 20 of the antenna name. You can specify whether you want to
+use the radome code or not. If the box is unmarked the characters 17 to 20 of
+the antenna name from RINEX is set to blank before writing to the station
+information file.
+
+<p><i>Default value:</i> unmarked
+
+<a name="MRKNUM" default="0"></a>
+<p><b>Add marker number to station name:</b>
+If available, the station name can be extended by the marker number.
+
+<p><i>Default value:</i> unmarked
+
+<a name="RECSER" default="0"></a>
+<p><b>Convert receiver serial number to REC #:</b>
+Marking this box will convert the receiver serial number in the RINEX header
+to <tt>REC #</tt> for processing individual receivers.
+
+<p><i>Default value:</i> unmarked
+
+<a name="ANTSER" default="0"></a>
+<p><b>Convert antenna serial number to ANT #:</b>
+Marking this box will convert the antenna serial number in the RINEX header
+to <tt>ANT #</tt> for processing individually calibrated antennas.
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+</body>
+</html>

@@ -1,0 +1,20 @@
+Example for station abbreviation table                           05-AUG-11 12:40
+--------------------------------------------------------------------------------
+
+Station name             4-ID    2-ID    Remark
+****************         ****     **     ***************************************
+AUCK 50209M001           AUCK     AU
+FAIR 40408M001           FAIR     FA
+OHIG 66008M001           OHIG     OH
+THU1 43001M001           THU1     TH
+WTZR 14201M010           WTZR     WT
+CHAM L06                 CHAM     L6     LEO
+JASO L08                 JASO     L8     LEO
+GRCA L09                 GRCA     L9     LEO
+GRCB L10                 GRCB     L0     LEO
+7501 30302M003           7501            SLR
+7810 14001S001           7810            SLR
+7810 14001S007           7810            SLR
+7840 13212S001           7840            SLR
+8834 14201S018           8834            SLR
+

@@ -1,0 +1,55 @@
+<html>
+<body>
+
+<center>
+<b>EDIT LIST OF CAMPAIGNS</b>
+<p>Menu: MENU_CMP
+</center>
+<hr width="100%">
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+This panel provides the list of campaigns. You can select the <tt>active
+campaign</tt> for the processing (<b>Menu &gt; Campaign &gt; Select active
+campaign</b>) only from this list. Therefore, all campaigns you want to
+process have to be contained in this list.
+<p>
+To create a new campaign follow these steps:
+<ol>
+<li>Add the new campaign to the list below
+<li>Select the campaign under
+    <b>Menu &gt; Campaign &gt; Select active campaign</b>
+<li>Create the corresponding directory tree under
+    <b>Menu &gt; Campaign &gt; Create new campaign</b>
+</ol>
+<p>
+To remove an obsolete campaign follow these steps:
+<ol>
+<li>Remove the campaign from the list below.
+<li>Archive and remove the campaign directory structure outside the menu.
+</ol>
+
+<p><hr>
+
+<a name="CAMPAIGN" default="%%"></a>
+<p><b>LIST OF CAMPAIGNS</b>
+<p><b>Campaign directory:</b>
+Maintain the list of campaign directories. Each line should consist of the
+campaign drive (e.g., <tt>${P}/</tt>) and the name of the campaign (e.g.,
+<tt>DOCU50</tt>).
+For this example the full campaign directory reads <tt>${P}/DOCU50</tt>.
+
+<p><i>Remark:</i>
+Filenames are unfortunately limited to 32 characters
+in the Bernese GNSS Software. The name of the campaign should, therefore,
+not exceed 8 characters. It is in addition
+recommended to use environment variables to specify the campaign drive,
+instead of the complete path name. The environment
+variables used have to be contained in the corresponding list in
+<b>Menu &gt; Configure &gt; Menu variables</b>. Curly brackets enclosing
+the environment variables are mandatory.
+
+<p><hr>
+
+</body>
+</html>

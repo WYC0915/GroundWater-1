@@ -1,0 +1,33 @@
+#!/bin/sh
+# ==============================================================================
+#
+# Name:       G
+#
+# Authors:
+#
+# Created:    __-___-____
+#
+# Changes:    19-Oct-2010 SL: file not zero size for back-copy
+#             17-Jan-2011 SL: shebang line added
+#             10-Feb-2012 RD: Relocate MENU.INP_(pid) from PAN to WORK
+#
+# ==============================================================================
+
+if [ -d $U/WORK ]; then
+  :
+else
+  mkdir $U/WORK
+fi
+
+if [ -f $U/PAN/MENU.INP ]; then
+  cp $U/PAN/MENU.INP $U/WORK/MENU.INP_$$
+  $XQ/menu.sh $U/WORK/MENU.INP_$$
+  if [ -s $U/WORK/MENU.INP_$$ ]; then
+    cp $U/WORK/MENU.INP_$$ $U/PAN/MENU.INP
+  fi
+  rm -f $U/WORK/MENU.INP_$$
+else
+  echo "$U/PAN/MENU.INP not found!"
+fi
+
+# ==============================================================================

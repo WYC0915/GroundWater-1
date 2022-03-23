@@ -1,0 +1,62 @@
+<html>
+<body>
+
+<center>
+<b>EXTERNAL LINKS AND RESOURCES</b>
+<p>Table: LINKS
+</center>
+<hr width="100%">
+
+<a name="EUREF"></a>
+<p><b>Reference Frame Sub-Commission for Europe (EUREF):</b>
+<ul>
+<li>http://lareg.ensg.ign.fr/EUREF
+</ul>
+
+<br>
+
+<a name="IGS"></a>
+<p><b>International GNSS Service (IGS):</b>
+<ul>
+<li>http://www.igs.org
+</ul>
+
+<br>
+
+<a name="SP1"></a>
+<p><b>Standard Product 1 Orbit Format (SP1):</b>
+<ul>
+<li>http://igscb.jpl.nasa.gov/igscb/data/format/sp1.pdf
+</ul>
+
+<br>
+
+<a name="SP3"></a>
+<p><b>Standard Product 3 Orbit Format (SP3):</b>
+<ul>
+<li>http://igscb.jpl.nasa.gov/igscb/data/format/sp3_docu.txt
+<li>http://igscb.jpl.nasa.gov/igscb/data/format/sp3_glon.txt
+<li>http://igscb.jpl.nasa.gov/igscb/data/format/sp3.txt
+</ul>
+
+<br>
+
+<a name="SP3c"></a>
+<p><b>Extended Standard Product 3 Orbit Format (SP3c):</b>
+<ul>
+<li>http://igscb.jpl.nasa.gov/igscb/data/format/sp3c.txt
+</ul>
+
+<br>
+
+<a name="VMF1"></a>
+<p><b>Vienna Mapping Functions 1 (VMF1):</b>
+<ul>
+<li>http://mars.hg.tuwien.ac.at/~ecmwf1
+<li>http://mars.hg.tuwien.ac.at/~ecmwf1/VMFG
+</ul>
+
+<p><hr>
+
+</body>
+</html>

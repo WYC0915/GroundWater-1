@@ -1,0 +1,284 @@
+#!/usr/bin/perl -w
+# -------------------------------------------------------------------------
+# Bernese GPS Software Version 5.0
+# -------------------------------------------------------------------------
+#
+# Script:     NPUTFIL
+#
+# Purpose:    Store/Add Value(s) into a Bernese Data File
+#
+# Author:     R. Dach
+#
+# Created:    04-Sep-2001
+#
+# Changes:    12-Mar-2002 RD: Adapt MENUAUX keywords ACTION and LIST
+#             22-May-2002 RD: Adapt to new MENUAUX keywords
+#             31-Oct-2003 RD: General review, don't use gpsutil from $X/AUTO
+#             16-Mar-2004 RD: Error handling if BPE-server failed
+#             05-Jun-2012 SL: Use specific subroutines from modules
+#
+# Copyright:  Astronomical Institute
+#             University of Bern
+#             Switzerland
+# -------------------------------------------------------------------------
+
+use strict;
+use File::Copy qw(copy);
+use File::Basename qw(basename);
+use lib "$ENV{BPE}";
+use RUNBPE;
+
+# Check the number of arguments
+# -----------------------------
+  my ($fileName, $whatToDo, $action, $selFile);
+  if ($#ARGV == 3) {
+
+    ($fileName, $whatToDo, $action, $selFile) = @ARGV;
+
+  } else {
+    die "\nUsage: NPUTFIL fileName whatToDo action selFile\n"               .
+          "\n"                                                              .
+          "         fileName: name of the Bernese Data File\n"              .
+          "         whatToDo: type of file to be modified\n"                .
+          "         action:   REPLACE to replace all entries in the file\n" .
+          "                   APPEND  to append new entries to the file\n"  .
+          "         selFile:  file with the new entries\n\n"                ;
+  }
+
+
+  # Station selection file
+  my %FIX=("ID" => "FIX",
+           "keyEdit"  => "FIX_EDIT",    "keySave" => "FIX_SAVE",
+           "inpPanel" => "EDITFIX_INP", "lstKeyw" => "STALIST");
+
+  # Station sigma file
+  my %SIG1=("ID" => "SIG1",
+            "keyEdit"  => "SIG_EDIT",    "keySave" => "SIG_SAVE",
+            "inpPanel" => "EDITSIG_INP", "lstKeyw" => "STALIST1");
+
+  # Station sigma file
+  my %SIG2=("ID" => "SIG2",
+            "keyEdit"  => "SIG_EDIT",    "keySave" => "SIG_SAVE",
+            "inpPanel" => "EDITSIG_INP", "lstKeyw" => "STALIST2");
+
+  # Station sigma file
+  my %SIG3=("ID" => "SIG3",
+            "keyEdit"  => "SIG_EDIT",    "keySave" => "SIG_SAVE",
+            "inpPanel" => "EDITSIG_INP", "lstKeyw" => "STALIST3");
+
+  # Station sigma file
+  my %SIG4=("ID" => "SIG4",
+            "keyEdit"  => "SIG_EDIT",    "keySave" => "SIG_SAVE",
+            "inpPanel" => "EDITSIG_INP", "lstKeyw" => "STALIST4");
+
+  my @actType = ();
+     $actType[0]=\%FIX;
+     $actType[1]=\%SIG1;
+     $actType[2]=\%SIG2;
+     $actType[3]=\%SIG3;
+     $actType[4]=\%SIG4;
+
+# Windows system?
+# ---------------
+  my $win32 = (uc($ENV{'OS_NAME'}) =~ /^WIN/);
+
+# Check what to do
+# ----------------
+  my $ii = 0;
+  my $allTypes = "";
+  while ($ii <= $#actType && $whatToDo ne $actType[$ii]->{"ID"}) {
+    $allTypes = $allTypes . " " . $actType[$ii]->{"ID"};
+    $ii++;
+  }
+
+# Unknown file type
+# -----------------
+  if ($ii > $#actType) {
+    die "\nNPUTFIL: Unknown file type for \"whatToDo\" specified.\n" .
+        "         Valid file types are: ".$allTypes."\n\n";
+  }
+
+# SelFile and OutputFile can not be identical
+# -------------------------------------------
+  my $outFile = $fileName;
+  if ( $fileName eq $selFile) {
+    $outFile = "$ENV{U}/WORK/".&basename($fileName) ."_$$";
+  }
+
+# Get at first the basic entries from $U/PAN/MENU.INP
+# ---------------------------------------------------
+  my $menInp = "$ENV{U}/PAN/MENU.INP";
+  my @vars = qw(XG OS_NAME);
+
+  my (%menu);
+  $menu{MJD} = eval { RUNBPE->new(map { $_ => $ENV{$_} } @vars)->
+               getKey( $menInp,"MODJULDATE" ) };
+
+  $menu{SESSION} = eval { RUNBPE->new(map { $_ => $ENV{$_} } @vars)->
+                   getKey( $menInp,"SESSION_CHAR" ) };
+
+  $menu{CAMP_DRV} = eval { RUNBPE->new(map { $_ => $ENV{$_} } @vars)->
+                    getKey( $menInp,"ACTIVE_CAMPAIGN" ) };
+
+  $menu{CAMPAIGN} = &basename($menu{CAMP_DRV});
+  $menu{CAMP_DRV} =~ s/$menu{CAMPAIGN}//;
+
+
+# Create a new BPE client object from a small set of environment variables.
+# Use this object to call the 'getKeys' routine
+# -------------------------------------------------------------------------
+  @vars = qw(XQ XG U MJD SESSION CAMP_DRV CAMPAIGN);
+
+  my     ($inputName  ,$scratchName,$errorName  ,
+          $constName  ,$datumName  ,$debug      ,
+          $workDir    ,$genDir     ,
+          $editFile) =
+
+  eval { RUNBPE->new(map { if (defined($ENV{$_})) { $_ => $ENV{$_} }
+                                       else { $_ => $menu{$_}} } @vars)->
+
+  getKeys("MENUAUX_INP"   ,  "MENUAUX_SCR"   ,  "MENUAUX_ERR"  ,
+          "GEN_CONST_FILE",  "GEN_DATUM_FILE",  "MENUAUX_DEBUG",
+          "PTH_SCR"       ,  "PTH_GEN"       ,
+          $actType[$ii]->{"inpPanel"}) };
+
+# Generate all filenames
+# ----------------------
+  my $menuInp = "${workDir}/${inputName}_$$";   # $U/WORK/MENUAUX.INP_$$
+  my $menuScr = "${workDir}/${scratchName}_$$"; # $U/WORK/MENUAUX.SCR_$$
+  my $menuErr = "${workDir}/${errorName}_$$";   # $U/WORK/MENUAUX.ERR_$$
+
+# Is the edit panel available?
+# ----------------------------
+  my $editName = &basename($editFile);
+  my $thisEdit = "$ENV{'U'}/WORK/${editName}_$$";
+
+  &copy("$ENV{'X'}/PAN/$editName", $thisEdit);
+
+# Prepare the skeleton of MENUAUX.INP
+# -----------------------------------
+  open( INPFIL, "> $menuInp");
+  print INPFIL "ENVIRONMENT 0\n";
+  print INPFIL "  ## widget = initmenu; pointer = ENVIR_LIST\n\n";
+
+  print INPFIL "CONST  1 $constName\n";
+  print INPFIL "  ## widget = selwin; path = PTH_GEN\n\n";
+
+  print INPFIL "DATUM  1 $datumName\n";
+  print INPFIL "  ## widget = selwin; path = PTH_GEN\n\n";
+
+  print INPFIL "SYSOUT  0\n\n";
+
+  print INPFIL "SYSERR  1  $menuErr\n\n";
+
+  print INPFIL "MENUAUX_ACTION  1 ".$actType[$ii]->{"keyEdit"}."\n\n";
+
+  print INPFIL "FILE_EDIT  1  $outFile\n\n";
+
+  print INPFIL "FILE_SKELETON  1  $thisEdit\n\n";
+
+  print INPFIL "FILE_SCRATCH  1  $menuScr\n\n";
+
+  print INPFIL "MENUAUX_RESULT  0\n\n";
+
+  print INPFIL "FILE_OUTPUT  1  $outFile\n\n";
+
+  print INPFIL "FILE_INPUT  1  $thisEdit\n\n";
+
+  close(INPFIL);
+
+
+# Update this file in the menu
+# ----------------------------
+  open( INPFIL, "> $menuScr");
+  print INPFIL "INP_FILE_NAME 1  $menuInp\n\n";
+  print INPFIL "OUT_FILE_NAME 1  $menuInp\n\n";
+  close(INPFIL);
+
+  die() if (RUNBPE::startMenu(" ",$menInp,$menuScr));
+
+  RUNBPE::putKey(" ",$menuInp,"SYSOUT"," ");
+
+
+# Prepare the panel for edit the file
+# -----------------------------------
+  if ($win32) {
+    system("$ENV{'XG'}/MENUAUX $menuInp");
+  } else {
+    system("echo $menuInp | $ENV{'XG'}/MENUAUX");
+  }
+
+  # Show error message
+  if (-s $menuErr) {
+    open(EDTFIL,"< $menuErr");while(<EDTFIL>){print $_};close(EDTFIL);
+    die();
+  }
+
+
+# "Edit" the menu panel
+# ---------------------
+  RUNBPE::putKey(" ",$thisEdit,$actType[$ii]->{"lstKeyw"},"SELECTED",$action,$selFile);
+
+  if ($actType[$ii]->{"ID"} eq "SIG1") {
+    RUNBPE::putKey(" ",$thisEdit,"RADIO_1","1");
+    RUNBPE::putKey(" ",$thisEdit,"RADIO_2","0");
+    RUNBPE::putKey(" ",$thisEdit,"RADIO_3","0");
+    RUNBPE::putKey(" ",$thisEdit,"RADIO_4","0");
+    RUNBPE::putKey(" ",$thisEdit,"TITLE1","Created by NPUTFIL");
+
+  } elsif ($actType[$ii]->{"ID"} eq "SIG2") {
+    RUNBPE::putKey(" ",$thisEdit,"RADIO_1","0");
+    RUNBPE::putKey(" ",$thisEdit,"RADIO_2","1");
+    RUNBPE::putKey(" ",$thisEdit,"RADIO_3","0");
+    RUNBPE::putKey(" ",$thisEdit,"RADIO_4","0");
+    RUNBPE::putKey(" ",$thisEdit,"TITLE2","Created by NPUTFIL");
+
+  } elsif ($actType[$ii]->{"ID"} eq "SIG3") {
+    RUNBPE::putKey(" ",$thisEdit,"RADIO_1","0");
+    RUNBPE::putKey(" ",$thisEdit,"RADIO_2","0");
+    RUNBPE::putKey(" ",$thisEdit,"RADIO_3","1");
+    RUNBPE::putKey(" ",$thisEdit,"RADIO_4","0");
+    RUNBPE::putKey(" ",$thisEdit,"TITLE3","Created by NPUTFIL");
+
+  } elsif ($actType[$ii]->{"ID"} eq "SIG4") {
+    RUNBPE::putKey(" ",$thisEdit,"RADIO_1","0");
+    RUNBPE::putKey(" ",$thisEdit,"RADIO_2","0");
+    RUNBPE::putKey(" ",$thisEdit,"RADIO_3","0");
+    RUNBPE::putKey(" ",$thisEdit,"RADIO_4","1");
+    RUNBPE::putKey(" ",$thisEdit,"TITLE4","Created by NPUTFIL");
+
+  } else {
+    RUNBPE::putKey(" ",$thisEdit,"TITLE","Created by NPUTFIL");
+  }
+
+# Store the edited file
+# ---------------------
+  RUNBPE::putKey(" ",$menuInp,"MENUAUX_ACTION",$actType[$ii]->{"keySave"});
+
+  if ($win32) {
+    system("$ENV{'XG'}/MENUAUX $menuInp");
+  } else {
+    system("echo $menuInp | $ENV{'XG'}/MENUAUX");
+  }
+
+  # Show error message
+  if (-s $menuErr) {
+    open(EDTFIL,"< $menuErr");while(<EDTFIL>){print $_};close(EDTFIL);
+    die();
+  }
+
+# Copy file to its final location
+# -------------------------------
+  if($outFile ne $fileName) { &copy($outFile,$fileName); }
+
+# Delete temporary file
+# ---------------------
+  if (! $debug) {
+    unlink($menuInp);
+    unlink($menuScr);
+    unlink($menuErr);
+    unlink($thisEdit);
+    if ($outFile ne $fileName) { unlink($outFile); }
+  }
+
+__END__

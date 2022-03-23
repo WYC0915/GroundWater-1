@@ -1,0 +1,120 @@
+      MODULE s_IONOS1
+      CONTAINS
+
+C*
+      SUBROUTINE IONOS1(F,E0,E1,XSTAT,XSAT,SZ,XMJD,Z,D)
+CC
+CC NAME       :  IONOS1
+CC
+CC PURPOSE    :  THE DISTANCE CORRECTION DUE TO IONOSPHERIC REFRACTION
+CC               IS COMPUTED FOR AN OBSERVATION MADE WITH FREQUENCY F
+CC               FROM A STATION WITH GEOCENTRIC COORDINATES XSTAT(I),
+CC               I=1,2,3 AT A ZENITH DISTANCE Z. THE SINGLE LAYER MODEL
+CC               IS ADOPTED FOR THE DISTRIBUTION OF THE FREE ELECTRONS
+CC               (LAYER AT HEIGHT H=350 KM). THE ELECTRON DENSITY IN THE
+CC               LAYER IS COMPUTED AS FOLLOWS:
+CC
+CC LET : TLOC = T + LONGITUDE = LOCAL TIME
+CC
+CC                   H               H
+CC       FOR TLOC < 8   AND TLOC > 20  :  E = E0
+CC
+CC            H            H                              TLOC-14
+CC       FOR 8  < TLOC < 20            :  E = E0 + E1*COS -------*PI
+CC                                                           12
+CC PARAMETERS :
+CC         IN : F       : FREQUENCY (HZ)                      R*8
+CC              E0      : NIGHT ELECTRON CONTENT (IN 10**16)  R*8
+CC              E1      : AMPLITUDE OF DIURNAL TERM.
+CC              XSTAT   : STATION COORDINATES
+CC                        XSTAT(I),I=1,3                      R*8(*)
+CC              XSAT    : SATELLITE COORDINATES
+CC                        XSAT(I),I=1,9                       R*8(*)
+CC              SZ      : SIDERIAL TIME                       R*8
+CC              XMJD    : MODIFIED JULIAN DATE OF OBS.        R*8
+CC              Z       : TOPOCENTRIC ZENIT DISTANCE          R*8
+CC        OUT : D       : IONOSPH. DIST. CORRECTION (METERS)  R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  88/02/26 07:59
+CC
+CC CHANGES    :  05-MAY-98 : ??: USE CONSTANTS "FACTEC" AND "CONRE"
+CC               16-JUN-05 : MM: COMCONST.inc REPLACED BY d_const
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1988     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE d_const, ONLY: CONRE, FACTEC, PI
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I
+C
+      REAL*8    CSZ  , D    , DIST , E0   , E1   , ECV  , F    , H0   ,
+     1          RPH  , RST  , SINZP, SSZ  , SZ   , TLOC , XL   , XMJD ,
+     2          XXX  , Z    , ZION
+C
+CCC       IMPLICIT REAL*8    (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+      REAL*8             XSE(3),Y(3),XSTAT(3),XSAT(9)
+C
+C HEIGHT OF IONOSPHERIC LAYER H0
+C ------------------------------
+      H0=350000.
+C
+C COMPUTATION OF LOCAL SOLAR TIME (APPROX.)
+C -----------------------------------------
+C TRANSFORM SATELLITE INTO EARTH-FIXED SYSTEM
+      SSZ=DSIN(SZ)
+      CSZ=DCOS(SZ)
+      XSE(1)= CSZ*XSAT(1)+SSZ*XSAT(2)
+      XSE(2)=-SSZ*XSAT(1)+CSZ*XSAT(2)
+      XSE(3)=                         XSAT(3)
+C
+C RADIUS VECTOR OF RECEIVER
+      RST=DSQRT(XSTAT(1)**2+XSTAT(2)**2+XSTAT(3)**2)
+C
+C GEOCENTRIC DISTANCE OF IONOSPHERE LAYER
+      RPH=CONRE+H0
+C
+C ZENIT DISTANCE OF SATELLITE FROM INTERSECTION WITH IONOSPHERE
+      SINZP=RST/RPH*DSIN(Z)
+      ZION=DATAN(SINZP/DSQRT(1.D0-SINZP**2))
+C
+C COMPUTATION OF COORDINATES OF INTERSECTION OF LINE RECEIVER-SATELLITE
+C WITH IONOSPHERE-LAYER
+      XXX=DSQRT(RPH**2+RST**2-2.D0*RPH*RST*DCOS(Z-ZION))
+      DIST=0.D0
+      DO 5 I=1,3
+5     DIST=DIST+(XSE(I)-XSTAT(I))**2
+      DIST=DSQRT(DIST)
+      DO 10 I=1,3
+10    Y(I)=XSTAT(I)+XXX*(XSE(I)-XSTAT(I))/DIST
+      XL=DATAN2(Y(2),Y(1))
+C
+      TLOC=(XMJD-DINT(XMJD))*24+XL*12/PI
+      IF(TLOC.LT.0)TLOC=TLOC+24
+      IF(TLOC.GT.24)TLOC=TLOC-24
+C
+C VERTICAL ELECTRON CONTENT
+C -------------------------
+      ECV=E0
+      IF(TLOC.GT.8.AND.TLOC.LT.20.)
+     1      ECV=ECV+E1*COS((TLOC-14.)/12.*PI)
+C
+C DISTANCE CORRECTION IN ZENITH DISTANCE Z
+C ----------------------------------------
+      D=FACTEC/F**2*ECV/COS(ZION)
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

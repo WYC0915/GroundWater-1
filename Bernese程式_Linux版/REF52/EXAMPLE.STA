@@ -1,0 +1,114 @@
+EXAMPLE STATION INFORMATION FILE                                 14-JAN-13 14:21
+--------------------------------------------------------------------------------
+
+FORMAT VERSION: 1.01
+TECHNIQUE:      GNSS
+
+TYPE 001: RENAMING OF STATIONS
+------------------------------
+
+STATION NAME          FLG          FROM                   TO         OLD STATION NAME      REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ********************  ************************
+GANP 11515M001        001                                            GANP*                 NEW (EUREF)
+HERT 13212M010        001                                            HERT*                 STN (IGLOS)
+JOZ2 12204M002        001                                            JOZ2*                 STN
+LAMA 12209M001        001                                            LAMA*                 STN
+MATE 12734M008        001                                            MATE*                 STN
+ONSA 10402M004        001                                            ONSA*                 STN
+PTBB 14234M001        001                                            PTBB*                 STN
+TLSE 10003M009        001                                            TLSE*                 STN
+WSRT 13506M005        001                                            WSRT*                 STN
+WTZR 14201M010        001                                            WTZR*                 STN
+WTZZ 14201M014        001                                            WTZZ*                 STN (IGLOS)
+ZIM2 14001M008        001                                            ZIM2*                 STN (AGNES)
+ZIMM 14001M004        001                                            ZIMM*                 STN
+
+
+TYPE 002: STATION INFORMATION
+-----------------------------
+
+STATION NAME          FLG          FROM                   TO         RECEIVER TYPE         RECEIVER SERIAL NBR   REC #   ANTENNA TYPE          ANTENNA SERIAL NBR    ANT #    NORTH      EAST      UP      DESCRIPTION             REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ********************  ********************  ******  ********************  ********************  ******  ***.****  ***.****  ***.****  **********************  ************************
+GANP 11515M001        001                       2006 08 24 11 29 59  TRIMBLE 4700                                999999  TRM29659.00     NONE                        999999    0.0000    0.0000    0.2860  Ganovce, SK             NEW (EUREF)
+GANP 11515M001        001  2006 08 24 16 09 00  2009 08 19 09 30 59  TRIMBLE NETR5                               999999  TRM55971.00     NONE  37385                  37385    0.0000    0.0000    0.3830  Ganovce, SK             NEW (EUREF)
+GANP 11515M001        001  2009 08 19 09 45 00                       TRIMBLE NETR8                               999999  TRM55971.00     NONE  37385                  37385    0.0000    0.0000    0.3830  Ganovce, SK             NEW (EUREF)
+HERT 13212M010        001                       2007 12 03 23 59 59  ASHTECH Z18                                 999999  ASH701946.2     NONE                        999999    0.0000    0.0000    0.0000  Hailsham, GB            HTR+TRN
+HERT 13212M010        001  2007 12 04 12 30 00                       LEICA GRX1200GGPRO                          999999  LEIAT504GG      NONE                        999999    0.0000    0.0000    0.0000  Hailsham, GB            IGSSTATION.1942x
+JOZ2 12204M002        001                       2008 03 14 10 00 59  ASHTECH Z18                                 999999  ASH701941.B     SNOW                        999999    0.0000    0.0000    0.0000  Jozefoslaw, PL          HTR+TRN
+JOZ2 12204M002        001  2008 03 14 10 10 00                       LEICA GRX1200GGPRO                          999999  LEIAT504GG      NONE                        999999    0.0000    0.0000    0.0000  Jozefoslaw, PL          joz2_20080220.log
+LAMA 12209M001        001                       1996 02 25 23 59 59  ROGUE SNR-8000                              999999  AOAD/M_T        NONE                        999999    0.0000    0.0000    0.0610  Olsztyn, PL             HTR
+LAMA 12209M001        001  1996 04 17 00 00 00  1996 07 22 23 59 59  ASHTECH Z-XII3                              999999  AOAD/M_T        NONE                        999999    0.0000    0.0000    0.0610  Olsztyn, PL             HTR
+LAMA 12209M001        001  1996 07 23 00 00 00  1998 04 25 23 59 59  ROGUE SNR-8000                              999999  AOAD/M_T        NONE                        999999    0.0000    0.0000    0.0610  Olsztyn, PL             HTR
+LAMA 12209M001        001  1998 04 26 00 00 00  2000 10 05 23 59 59  ASHTECH Z-XII3                              999999  AOAD/M_T        NONE                        999999    0.0000    0.0000    0.0610  Olsztyn, PL             HTR+TRN
+LAMA 12209M001        001  2000 10 06 00 00 00  2007 11 17 18 59 59  ASHTECH Z-XII3                              999999  ASH700936F_C    SNOW                        999999    0.0000    0.0000    0.0610  Olsztyn, PL             HTR+TRN
+LAMA 12209M001        001  2007 11 17 19 00 00  2011 02 02 06 00 59  LEICA GRX1200GGPRO                          999999  LEIAT504GG      LEIS                        999999    0.0000    0.0000    0.0600  Olsztyn, PL             HTR+TRN
+LAMA 12209M001        001  2011 02 09 08 30 00                       LEICA GRX1200+GNSS                          999999  LEIAT504GG      LEIS                        999999    0.0000    0.0000    0.0600  Olsztyn, PL             HTR+TRN
+MATE 12734M008        001                       1996 07 08 23 59 59  ROGUE SNR-8                                 999999  AOAD/M_B        NONE                        999999    0.0000    0.0000    0.1350  Matera, IT              HTR
+MATE 12734M008        001  1996 07 09 00 00 00  1999 06 17 23 59 59  ROGUE SNR-8100                              999999  AOAD/M_T        NONE                        999999    0.0000    0.0000    0.1010  Matera, IT              HTR
+MATE 12734M008        001  1999 06 18 00 00 00  2008 11 20 23 59 59  TRIMBLE 4000SSI                             999999  TRM29659.00     NONE                        999999    0.0000    0.0000    0.1010  Matera, IT              HTR+TRN
+MATE 12734M008        001  2008 11 21 00 00 00  2008 11 23 23 59 59  LEICA GRX1200GGPRO                          999999  TRM29659.00     NONE                        999999    0.0000    0.0000    0.1010  Matera, IT              HTR+TRN
+MATE 12734M008        001  2008 11 24 00 00 00                       LEICA GRX1200GGPRO                          999999  LEIAT504GG      NONE                        999999    0.0000    0.0000    0.1010  Matera, IT              HTR+TRN
+ONSA 10402M004        001                       1999 02 01 23 59 59  ROGUE SNR-8000                              999999  AOAD/M_B        DUTD                        999999    0.0000    0.0000    0.9950  Onsala, SE              HTR+TRN
+ONSA 10402M004        001  1999 02 02 00 00 00  2003 08 18 23 59 59  ASHTECH Z-XII3                              999999  AOAD/M_B        OSOD                        999999    0.0000    0.0000    0.9950  Onsala, SE              HTR+TRN
+ONSA 10402M004        001  2003 08 19 00 00 00  2004 03 10 15 59 59  JPS LEGACY                                  999999  AOAD/M_B        OSOD                        999999    0.0000    0.0000    0.9950  Onsala, SE              IGSMAIL.4545
+ONSA 10402M004        001  2004 03 10 16 00 00                       JPS E_GGD                                   999999  AOAD/M_B        OSOD                        999999    0.0000    0.0000    0.9950  Onsala, SE              IGSMAIL.4880
+PTBB 14234M001        001                       2002 03 18 23 59 59  ROGUE SNR-8000                              999999  AOAD/M_T        NONE                        999999    0.0000    0.0000    0.0580  Braunschweig, DE        HTR+TRN
+PTBB 14234M001        001  2002 03 19 00 00 00  2006 07 25 08 34 59  ASHTECH Z-XII3T                             999999  ASH700936E      SNOW                        999999    0.0000    0.0000    0.0562  Braunschweig, DE        HTR+TRN
+PTBB 14234M001        001  2006 07 25 08 35 00  2006 11 13 13 14 59  SEPT POLARX2                                999999  ASH700936E      SNOW                        999999    0.0000    0.0000    0.0562  Braunschweig, DE        IGSSTATION.1037
+PTBB 14234M001        001  2006 11 13 13 15 00                       ASHTECH Z-XII3T                             999999  ASH700936E      SNOW                        999999    0.0000    0.0000    0.0562  Braunschweig, DE        IGSSTATION.1691
+TLSE 10003M009        001                       2003 09 15 07 30 59  ROGUE SNR-12 RM                             999999  AOAD/M_T        NONE                        999999    0.0000    0.0000    1.0530  Toulouse, FR            HTR+TRN
+TLSE 10003M009        001  2003 09 15 12 00 00  2003 12 01 12 59 59  TRIMBLE 4000SSI                             999999  AOAD/M_T        NONE                        999999    0.0000    0.0000    1.0530  Toulouse, FR            HTR+TRN
+TLSE 10003M009        001  2003 12 01 13 00 00  2009 12 10 15 00 00  TRIMBLE 4000SSI                             999999  TRM29659.00     NONE                        999999    0.0000    0.0000    1.0530  Toulouse, FR            HTR+TRN
+TLSE 10003M009        001  2009 12 10 16 00 00  2010 02 24 14 15 00  TRIMBLE NETR5                               999999  TRM29659.00     NONE                        999999    0.0000    0.0000    1.0530  Toulouse, FR            HTR+TRN
+TLSE 10003M009        001  2010 02 24 14 25 00  2011 04 18 12 59 59  TRIMBLE NETR5                               999999  TRM59800.00     NONE                        999999    0.0000    0.0000    1.0530  Toulouse, FR            HTR+TRN
+TLSE 10003M009        001  2011 04 18 13 00 00                       TRIMBLE NETR9                               999999  TRM59800.00     NONE                        999999    0.0000    0.0000    1.0530  Toulouse, FR            HTR+TRN (log file)
+WSRT 13506M005        001                       1998 03 17 09 14 59  ROGUE SNR-12 RM                             999999  AOAD/M_T        DUTD                        999999    0.0000    0.0000    0.3795  Westerbork, NL          HTR+TRN
+WSRT 13506M005        001  1998 03 17 15 09 00  2000 01 04 23 59 59  ROGUE SNR-12 RM                             999999  AOAD/M_T        DUTD                        999999    0.0000    0.0000    0.3888  Westerbork, NL          HTR+TRN
+WSRT 13506M005        001  2000 01 05 14 46 00                       AOA SNR-12 ACT                              999999  AOAD/M_T        DUTD                        999999    0.0000    0.0000    0.3888  Westerbork, NL          HTR+TRN
+WTZR 14201M010        001                       1999 06 17 07 59 59  ROGUE SNR-8000                              999999  AOAD/M_T        NONE                        999999    0.0000    0.0000    0.0710  Koetzting, DE           HTR+TRN
+WTZR 14201M010        001  1999 06 17 08 00 00  2002 07 08 03 29 59  AOA SNR-8000 ACT                            999999  AOAD/M_T        NONE  00404                    404    0.0000    0.0000    0.0710  Koetzting, DE           HTR+TRN
+WTZR 14201M010        001  2002 07 02 08 04 00  2005 05 04 06 29 59  AOA SNR-8000 ACT                            999999  AOAD/M_T        NONE  00404                    404    0.0000    0.0000    0.0710  Koetzting, DE           HTR+TRN
+WTZR 14201M010        001  2005 05 04 06 30 00  2007 05 29 12 59 59  TPS E_GGD                                   999999  AOAD/M_T        NONE  00404                    404    0.0000    0.0000    0.0710  Koetzting, DE           IGSSTATION.464
+WTZR 14201M010        001  2007 05 29 13 00 00  2008 01 25 07 59 59  TPS NETG3                                   999999  AOAD/M_T        NONE  00404                    404    0.0000    0.0000    0.0710  Koetzting, DE           IGSSTATION.1586
+WTZR 14201M010        001  2008 01 25 08 00 00  2009 01 19 09 02 59  LEICA GRX1200GGPRO                          999999  AOAD/M_T        NONE  00404                    404    0.0000    0.0000    0.0710  Koetzting, DE           IGSSTATION.2039
+WTZR 14201M010        001  2009 01 19 09 48 00  2010 06 30 07 59 59  LEICA GRX1200GGPRO                          999999  LEIAR25         LEIT  0830019                30019    0.0000    0.0000    0.0710  Koetzting, DE           IGSSTATION.2788
+WTZR 14201M010        001  2010 06 30 08 00 00  2011 04 14 06 59 59  LEICA GRX1200GGPRO                          999999  LEIAR25.R3      LEIT  10020031               20031    0.0000    0.0000    0.0710  Koetzting, DE           IGSSTATION.3853
+WTZR 14201M010        001  2011 04 14 07 00 00                       LEICA GRX1200+GNSS                          999999  LEIAR25.R3      LEIT  10020031               20031    0.0000    0.0000    0.0710  Koetzting, DE           wtzr_20110414.log
+WTZZ 14201M014        001                       2003 06 10 10 59 59  ASHTECH Z18                                 999999  ASH701073.1     SNOW                        999999    0.0000    0.0000    0.0640  Koetzting, DE           HTR+TRN
+WTZZ 14201M014        001  2003 06 10 11 00 00  2003 11 06 05 59 59  JPS LEGACY                                  999999  TPSCR3_GGD      CONE                        999999    0.0000    0.0000    0.2150  Koetzting, DE           HTR+TRN
+WTZZ 14201M014        001  2003 11 06 06 00 00  2005 05 04 09 59 59  JPS E_GGD                                   999999  TPSCR3_GGD      CONE                        999999    0.0000    0.0000    0.2150  Koetzting, DE           HTR+TRN
+WTZZ 14201M014        001  2005 05 04 10 00 00  2011 02 04 09 59 59  TPS E_GGD                                   999999  TPSCR3_GGD      CONE                        999999    0.0000    0.0000    0.2150  Koetzting, DE           HTR+TRN
+WTZZ 14201M014        001  2011 02 04 10 00 00  2011 02 15 14 59 59  TPS E_GGD                                   999999  LEIAR25.R3      LEIT                        999999    0.0000    0.0000    0.0450  Koetzting, DE           HTR+TRN
+WTZZ 14201M014        001  2011 02 15 15 00 00                       JAVAD TRE_G3TH DELTA                        999999  LEIAR25.R3      LEIT                        999999    0.0000    0.0000    0.0450  Koetzting, DE           HTR+TRN
+ZIM2 14001M008        001                       2009 05 12 07 00 59  TRIMBLE NETR5                               999999  TRM55971.00     NONE  30318066               18066    0.0000    0.0000    0.0000  Zimmerwald, CH          NEW
+ZIM2 14001M008        001  2009 05 12 07 30 00                       TRIMBLE NETR5                               999999  TRM59800.00     NONE  60369                  60369    0.0000    0.0000    0.0000  Zimmerwald, CH          IGSSTATION.3041
+ZIMM 14001M004        001                       1997 08 05 23 59 59  TRIMBLE 4000SSE                             999999  TRM14532.00     NONE                        999999    0.0000    0.0000    0.0000  Zimmerwald, CH          HTR+TRN
+ZIMM 14001M004        001  1997 08 06 00 00 00  1998 11 05 23 59 59  TRIMBLE 4000SSI                             999999  TRM14532.00     NONE                        999999    0.0000    0.0000    0.0000  Zimmerwald, CH          HTR+TRN
+ZIMM 14001M004        001  1998 11 05 00 00 00  2003 08 12 13 59 59  TRIMBLE 4000SSI                             999999  TRM29659.00     NONE                        999999    0.0000    0.0000    0.0000  Zimmerwald, CH          HTR+TRN
+ZIMM 14001M004        001  2003 08 12 14 00 00  2006 02 22 08 00 59  TRIMBLE 4700                                999999  TRM29659.00     NONE                        999999    0.0000    0.0000    0.0000  Zimmerwald, CH          IGSMAIL.4541
+ZIMM 14001M004        001  2006 02 22 14 00 00                       TRIMBLE NETRS                               999999  TRM29659.00     NONE                        999999    0.0000    0.0000    0.0000  Zimmerwald, CH          IGSMAIL.4541
+
+
+TYPE 003: HANDLING OF STATION PROBLEMS
+--------------------------------------
+
+STATION NAME          FLG          FROM                   TO         REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ************************************************************
+
+
+TYPE 004: STATION COORDINATES AND VELOCITIES (ADDNEQ)
+-----------------------------------------------------
+                                            RELATIVE CONSTR. POSITION     RELATIVE CONSTR. VELOCITY
+STATION NAME 1        STATION NAME 2        NORTH     EAST      UP        NORTH     EAST      UP
+****************      ****************      **.*****  **.*****  **.*****  **.*****  **.*****  **.*****
+
+
+TYPE 005: HANDLING STATION TYPES
+--------------------------------
+
+STATION NAME          FLG  FROM                 TO                   MARKER TYPE           REMARK
+****************      ***  YYYY MM DD HH MM SS  YYYY MM DD HH MM SS  ********************  ************************
+
+
+
+

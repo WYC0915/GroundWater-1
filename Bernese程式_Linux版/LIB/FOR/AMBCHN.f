@@ -1,0 +1,190 @@
+      MODULE s_AMBCHN
+      CONTAINS
+
+C*
+      SUBROUTINE AMBCHN(NP,NPN,NREF,NUMAMB,LOCQ,AMBWLF,
+     1                  IAMB1,XXX,AMBIGU,AMBCLS)
+CC
+CC NAME       :  AMBCHN
+CC
+CC PURPOSE    :  CHAIN RESOLVED AMBIGUITIES ACCORDING TO CLUSTERS,
+CC               PREPARE THE SAVING OF AMBIGUITIES
+CC
+CC PARAMETERS :
+CC         IN :  NP     : TOTAL NUMBER OF PARAMETERS          I*4
+CC               NPN    : NUMBER OF PARAMETERS WITHOUT AMBI-  I*4
+CC                        GUITIES
+CC               NREF   : NUMBER OF REFERENCE AMBIGUITIES     I*4
+CC               NUMAMB(I),I=1,..,NFTOT: NUMBER OF AMBIGU.    I*4
+CC               LOCQ(I,J) : PARAMETER CHARACTERIZATION       I*4
+CC               AMBWLF(K,J,I),K=1,..,J=1,2,I=1,..,NFTOT:     I*4
+CC                        WAVELENGTH FACTORS
+CC                        K: AMBIGUITY
+CC                        J: FREQUENCY
+CC                        I: FILE
+CC     IN/OUT :  IAMB1(I),I=1,...NPAR !!! FLAG FOR RESOLVED   I*4
+CC                              AMBIGUITIES
+CC                          =0: ALREADY RESOLVED
+CC                          =1: NOT YET RESOLVED
+CC                          =2: NOT RESOLVED REFERENCE
+CC               XXX(I),I=1,...NPAR
+CC               AMBIGU(I,K,L),I=1,..,NUMAMB,K=1,..,NSATEL,   R*8
+CC                        L=1,2,3: AMBIGUITIES
+CC               AMBCLS(L,K,I),L=1,..,NUMAMB(I), K=1,2,3,     I*4
+CC                        I=1,..,NFTOT: AMBIGUITY CLUSTERS
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  L.MERVART
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  02-MAY-93
+CC
+CC CHANGES    :  04-AUG-99 : MR: ADD GLONASS MODIFICATIONS
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IA    , IA1   , IAMGB1, IAMGBR, IAR   , ICARR , IFIL  ,
+     1          IFLAG , IFREQ , IFRRED, MXCAMB, MXCLCQ, NAMB  , NP    ,
+     2          NPN   , NREF
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      CHARACTER*6 MXNAMB,MXNLCQ
+      REAL*8      XXX(*),AMBIGU(MXCAMB,3,*)
+      INTEGER*4   IAMB1(*),NUMAMB(*),AMBCLS(MXCAMB,3,*)
+      INTEGER*4   LOCQ(MXCLCQ,*),AMBWLF(MXCAMB,2,*)
+C
+      COMMON/MCMAMB/MXCAMB,MXNAMB
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+C
+      NAMB=NP-NPN
+C
+C FIND THE UNRESOLVED REFERENCE AMBIGUITIES
+      DO 100 IAMGBR=NPN+1,NP
+        IF (IAMB1(IAMGBR).EQ.1) THEN
+          DO 110 IAMGB1=NPN+1,NP
+            IF (LOCQ(7,IAMGB1).EQ.IAMGBR .AND.
+     1          IAMGB1.NE.IAMGBR) THEN
+              IAMB1(IAMGBR)=2
+            END IF
+110       CONTINUE
+        END IF
+100   CONTINUE
+C
+      DO 150 IAMGBR=NP+1,NP+NREF
+        IAMB1(IAMGBR) = 2
+150   CONTINUE
+C
+C FIND THE NEXT GENERATION
+200   CONTINUE
+        IFLAG=0
+        DO 210 IAMGB1=NPN+1,NP
+          IAMGBR = LOCQ(7,LOCQ(7,IAMGB1))
+          IF (IAMGBR                .NE. LOCQ(7,IAMGB1) .AND.
+     1        LOCQ(7,IAMGB1)        .NE. IAMGB1         .AND.
+     2        IAMB1(IAMGB1)         .EQ. 0              .AND.
+     3        IAMB1(LOCQ(7,IAMGB1)) .EQ. 0              .AND.
+     4        IAMB1(IAMGBR)         .EQ. 2)             THEN
+            XXX(IAMGB1)=XXX(IAMGB1)+XXX(LOCQ(7,IAMGB1))
+            LOCQ(7,IAMGB1) = IAMGBR
+            IFLAG=1
+          END IF
+210     CONTINUE
+      IF (IFLAG.EQ.1) GO TO 200
+C
+C INITIALIZE REFERENCE AMBIGUITIES
+C --------------------------------
+      DO 250 IAMGB1=NP+1,NP+NREF
+        XXX(IAMGB1)=0.D0
+250   CONTINUE
+C
+C CORRECT AMBIGUTIES CLOSE TO ABSOLUTE VALUES (GLONASS OR MIXED)
+C --------------------------------------------------------------
+      IF (NREF.EQ.0) THEN
+        DO 255 IAMGB1=NPN+1,NP
+          IF (IAMGB1.NE.LOCQ(7,IAMGB1)) THEN
+            XXX(IAMGB1)=XXX(IAMGB1)+DNINT(XXX(LOCQ(7,IAMGB1)))
+          END IF
+255     CONTINUE
+C
+C CORRECT NOW THE REFERENCE AMBIGUITIES (GLONASS OR MIXED)
+C --------------------------------------------------------
+        DO IAMGB1=NPN+1,NP
+          IFIL=LOCQ(2,IAMGB1)
+          IFRRED=LOCQ(4,IAMGB1)
+          ICARR=LOCQ(5,IAMGB1)
+C RELEVANT FREQUENCY IN ARRAY 'AMBCLS'
+          IF (ICARR.EQ.2) THEN
+            IFREQ=2
+          ELSE IF (ICARR.EQ.5) THEN
+            IFREQ=3
+          ELSE
+            IFREQ=1
+          END IF
+          IF (IAMGB1.EQ.LOCQ(7,IAMGB1)) THEN
+            DO 315 IA=1,NUMAMB(IFIL)
+              IF (AMBCLS(IA,IFREQ,IFIL).EQ.LOCQ(3,IAMGB1)) THEN
+                AMBIGU(IA,IFREQ,IFIL)=AMBIGU(IA,IFREQ,IFIL)
+     1                                +DNINT(XXX(IAMGB1))
+              ENDIF
+315         CONTINUE
+          END IF
+        ENDDO
+      ENDIF
+C
+C SET THE AMBIGUITY CLUSTERS
+C --------------------------
+      DO 300 IAMGB1=NPN+1,NP+NREF
+        IFIL=LOCQ(2,IAMGB1)
+        IFRRED=LOCQ(4,IAMGB1)
+        ICARR=LOCQ(5,IAMGB1)
+C RELEVANT FREQUENCY IN ARRAY 'AMBCLS'
+        IF (ICARR.EQ.2) THEN
+          IFREQ=2
+        ELSE IF (ICARR.EQ.5) THEN
+          IFREQ=3
+        ELSE
+          IFREQ=1
+        END IF
+C
+C FIND THE REFERENCE AMBIGUITY INDEX
+        IAMGBR=LOCQ(7,IAMGB1)
+        DO 320 IAR=1,NUMAMB(IFIL)
+          IF (AMBCLS(IAR,IFREQ,IFIL).EQ.LOCQ(3,IAMGBR)) GO TO 321
+320     CONTINUE
+321     CONTINUE
+C LOOP OVER ALL AMBIGUITIES FROM THE SAME CLUSTER
+        DO 310 IA1=1,NUMAMB(IFIL)
+          IF (AMBCLS(IA1,IFREQ,IFIL).NE.LOCQ(3,IAMGB1).AND.
+     1        IA1.NE.IAR) GO TO 310
+          IF (IAMB1(IAMGB1).EQ.0) THEN
+            IF (IAR.NE.IA1) THEN
+              AMBIGU(IA1,IFREQ,IFIL)=AMBIGU(IA1,IFREQ,IFIL)+
+     1          XXX(IAMGB1)
+              AMBCLS(IA1,IFREQ,IFIL)=AMBCLS(IAR,IFREQ,IFIL)
+            END IF
+          END IF
+          IF (LOCQ(6,IAMGB1).GT.1         .OR.
+     1        (IA1.EQ.IAR .AND. ICARR.NE.IFRRED)) THEN
+            AMBIGU(IA1,2,IFIL)=(AMBIGU(IA1,1,IFIL)
+     1                         *AMBWLF(IA1,2,IFIL)
+     2                   -AMBIGU(IA1,3,IFIL)) / AMBWLF(IA1,1,IFIL)
+            AMBCLS(IA1,2,IFIL)=AMBCLS(IA1,1,IFIL)
+          END IF
+310     CONTINUE
+300   CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

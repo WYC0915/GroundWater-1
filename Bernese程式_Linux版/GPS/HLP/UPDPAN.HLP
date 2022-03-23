@@ -1,0 +1,144 @@
+<html>
+<body>
+
+<center>
+<b>UPDATE PROGRAM INPUT FILES</b>
+<p>Program: UPDPAN
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The program UPDPAN allows to update program input files without loosing the
+user settings for the keywords. The main purpose of the program is the
+distribution to all users of a new release of program input files. If you
+receive a new set of Bernese program input files, place them into the master
+panel directory (default: <tt>${X}/PAN</tt>) and update the panels in your
+private panel directory (default: <tt>${U}/PAN</tt> and <tt>${U}/OPT/*</tt>).
+The list of keywords, their characteristics, and the format of your panels
+will adapt to a new layout. New keywords will be placed into your program
+input files with theirs default value, but already existing keywords will
+retain their original user value!
+<br>
+It is important to know that only user values for keywords will be retained
+if the keywords have input fields that can be edited by the user. The values of
+keywords without widgets or with 'non-editable' widgets (e.g., 'comment',
+'initmenu') will be replaced in any case by the default value. Therefore,
+be careful updating the basic menu input files. The only exception is the
+<tt>${U}/PAN/MENU.INP</tt> file where all user values will retained.
+
+<p><hr>
+
+<p><b>UPDPAN 1: Input files and options</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+This program does not need general files. If you check this box, the currently
+active campaign, session and session table are displayed.
+
+<br><br>
+
+<a name="OLDPAN" default=""></a>
+<a name="DEFPATH" default="${X}/PAN"></a>
+<p><b>PROGRAM INPUT MASTER FILES</b>
+<p>
+Specify a list of program input files which you want to update in other
+directories. The program will process all files in this list step by step.
+<br>
+The master file of this program input file has to be present in
+the directory which is displayed in the field <b>Default path</b>.
+You may modify the default value (option 'Program input master files' under
+<b>Menu &gt; Configure &gt; Paths and extensions</b> in the 'Other Files and
+Directories' panel).
+
+<br><br>
+
+<a name="RADIO_UPDDIR" default="1"></a>
+<a name="UPDDIR" default="${U}/PAN"></a>
+<p><b>PROGRAM INPUT FILES TO BE UPDATED</b>
+<p><b>Panel directory:</b>
+Select this option if you want to update all program input files in a
+directory. Specify the directory in the corresponding field. You may use
+wildcards to select individual directories (Examples: <tt>${U}/PAN</tt>,
+<tt>${U}/OPT/*</tt>, or <tt>${U}/OPT/PPP_???</tt>).
+
+<a name="RADIO_UPDLST" default="0"></a>
+<a name="UPDLST" default=""></a>
+<p><b>File with directory list:</b>
+Select this option if you want to update all program input files in several
+directories and specify the file containing the list of directories.
+
+<p><a href="/$X/DOC/EXAMPLE.UPD">Example</a>
+
+<br><br>
+
+<a name="UPDOPT" default="UPDATE"></a>
+<p><b>UPDATE OPTIONS</b>
+<p><b>Update / copy:</b>
+You have the choice between two possibilities:
+<ul>
+<li><b>UPDATE</b>: The program input files are updated and the values of
+    already existing and editable options are retained.
+<li><b>COPY</b>: The master panel is copied into the specified directories.
+    You should use this option with care because all option settings in the
+    program input files in the specified directories will be lost.
+    This option may be used only to reset program input files to factory
+    defaults.
+</ul>
+
+<p><i>Remark:</i>
+Always check this option! Copy will <u>overwrite</u> your
+program input files.
+
+<p><i>Default value:</i> <tt>UPDATE</tt>
+
+<a name="EXIOPT" default="EXISTING"></a>
+<p><b>Existing / all:</b>
+You have the choice between two possibilities:
+<ul>
+<li><b>EXISTING</b>: The previous option "Update / copy" is applied only
+    in directories where the specified program input file
+    already exists.
+<li><b>ALL</b>: The previous option "Update / copy" is applied to all specified
+    directories. At the end you will have all selected "PROGRAM INPUT MASTER
+    FILES" in all directories specified above (in option "PROGRAM INPUT FILES TO
+    BE UPDATED").
+</ul>
+
+<p><i>Default value:</i> <tt>EXISTING</tt>
+
+<br><br>
+
+<a name="SYSODEF" default="0"></a>
+<a name="SYSOUT"  default="UPDPAN"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You have to specify a name for the program
+output file. This allows to characterize the program run.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output.
+
+<p><hr>
+
+</body>
+</html>

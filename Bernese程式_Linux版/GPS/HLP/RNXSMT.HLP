@@ -1,0 +1,622 @@
+<html>
+<body>
+
+<center>
+<b>CLEAN/SMOOTH OBSERVATION FILES</b>
+<p>Program: RNXSMT
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<!-- Some hidden printing options -->
+<a name="PLTFLG" default="0"></a>
+<a name="DEVICE" default=""></a>
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+The program checks the phase observations for cycle slips based on the
+phase L1 and L2 observations and the pseudo-range observations P1 and P2.
+Under AS regime C1 is used if P1 is not available.
+<br>
+The program does not need geometry information (neither station coordinates,
+satellite orbits, nor clock information). It compares only the four
+observations per epoch to each satellite (code and phase for both frequencies)
+using different linear combinations. The screening procedure handles the
+data independently for each satellite arc.
+
+<p><i>Remark:</i>
+The algorithm does not allow to use the program for single frequency or code
+only receivers.
+<br>
+First the Melbourne-Wuebbena linear combination of phase and code
+observations is screened for outliers and jumps (cycle slips).
+If cycle slips were detected the phase observations are checked in the
+geometry free linear combination (L4) to determine
+the size of the cycle slip. Finally a screening of the ionosphere-free
+linear combination (<nobr>L3-P3</nobr>) is performed to detect
+remaining outliers which are caused by 'blunders' in the code observations.
+<br>
+After having obtained a clean data set in this way the code observations are
+smoothed using the phase observations. In principle the code observations are
+replaced by the phase observations correcting for the opposite sign of the
+ionosphere and using the absolute value of the code.
+<br>
+Cycle slips will be flagged in the resulting RINEX file. Cycle slips may be
+repaired only in code observations but never in phase observations.
+<br>
+If an outlier was detected in the procedure described above all four
+observations (code and phase on both frequencies) are flagged by
+setting the signal to noise ratio (SNR) in the resulting smoothed
+RINEX file to '1'. Epochs where a cycle slip was detected are indicated
+by a SNR of '5' and the loss of lock (LLI) indicator is set to one.
+All other epochs are flagged with an SNR of '9'. If the user decides to
+copy the code or phase observations from the input RINEX observation file
+all corresponding measurements will be marked with a SNR of '2'.
+In <a href="PGMLST.HLP#RXOBV3">RXOBV3</a>
+bad observations may be excluded by selecting an appropriate minimal SNR level.
+
+<p><hr>
+
+<p><b>RNXSMT 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RNXFIL" default="????$S+0"></a>
+<p><b>INPUT FILES</b>
+<p><b>Original RINEX observation files:</b>
+Select the original RINEX observation files to be processed. Several files may
+be processed in the same program run. The resulting smoothed RINEX files will
+have the same names but with a different extension (default extension SMT).
+<br>
+Select the value for the two digit year in the extension for original RINEX
+observation files using the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>.
+
+<p><i>Default value:</i> <tt>????$S+0</tt>
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="RNXSMT"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in <b>Menu &gt; Configure &gt; Program Names</b>,
+option "Maximum program output file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="ESTDCB" default="NO"></a>
+<p><b>DIRECT ESTIMATION OF DIFFERENTIAL CODE BIAS VALUES</b>
+<p><b>Estimate P1-C1 and P2-C2 DCB values:</b>
+Estimate <nobr>P1-C1</nobr> and <nobr>P2-C2</nobr> DCB values, depending on
+the availability of both P1 and C1, or both P2 and C2 observation data.
+DCB result files are output with respect to each considered RINEX input file
+(using the same filename). If this option is marked, no SMT files are generated.
+
+<p><i>Default value:</i> NO
+
+<p><hr>
+
+<p><b>RNXSMT 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">CONST.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p><i>Remark:</i>
+If the information record for a satellite is missing in
+this file for the measurement epoch the corresponding observations are
+skipped. Consequently they are not in the resulting smoothed RINEX file.
+A warning message is issued in that case.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">SATELLIT.I08</a>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems concerning modeling.
+It is used for exclusion of misbehaving satellites
+(and for orbit arc splitting).
+It may also contain (mean) epochs of GPS repositioning events.
+
+<p><i>Note:</i>
+Corresponding year-specific files are maintained by AIUB/CODE.
+You can get the latest version of the current file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SAT_2011.CRX">SAT_2011.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<a name="GEOSFILE" default=""></a>
+<p><b>Giove observation types:</b>
+This optional file allows to explicitly define a satellite-specific observation
+type selection (e.g., if different observation types should be used for GIOVE or
+Galileo IOV satellites or if the same observation types shall be used for all
+satellites or a group of satellites). Observations of satellites not listed
+in the file will be skipped. The code and phase observations
+for two frequencies are expected to be written in RINEX3 notation. This option
+works only for RINEX3 observation files and is deactivated if P1-C1 DCBs are
+estimated. This option deactivates the keyword "OBSSEL" (observation type
+priority file).
+
+<p>Example: <a href="/$X/DOC/OBSEXAMP.GFS">OBSEXAMP.GFS</a>
+
+<a name="OBSSEL" default=""></a>
+<p><b>Observation types priority:</b>
+This file defines the priority of the GNSS observation types available in the
+RINEX observation files. BSW 5.x supports dual-frequency GNSS data processing
+(i.e., phase observations for two frequency channels L1 and L2 and code
+observations for two channels C1 and C2). If this file is defined the
+program will select those observation types with the highest priority (defined
+in this file) and the best availability (according to a satellite-wise
+availability statistics computed by the program). The observation type priority
+may be defined in a system-specific, satellite-specific, and/or
+receiver-(group)-specific way. If a certain receiver type is not listed in this
+file, the program will use the settings for the "DEFAULT" receiver. The use of
+this file is optional for RINEX2, and mandatory for RINEX2.12 observation files.
+When using RINEX3 observation files either this observation type priority file
+or a satellite-specific observation selection file (keyword "GEOSFILE") must be
+defined. The observation types in this file are expected to be in RINEX3 notation.
+This option is deactivated if P1-C1 DCBs are estimated or a satellite-specific
+observation selection file (keyword "GEOSFILE") is used.
+
+<p>Example: <a href="/$X/DOC/OBSEXAMP.SEL">OBSEXAMP.SEL</a>
+
+<a name="PRTOSTAT" default="0"></a>
+<p><b>Print selection:</b>
+If an observation type priority file (keyword "OBSSEL") is used, an observation
+type availability statistics and a list of the selected observation types can
+be printed into the output file by activating this checkbox.
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+<p><b>RNXSMT 2.1: Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+and saved in the resulting smoothed RINEX observation files
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<br><br>
+
+<a name="MAXREC" default="3000"></a>
+<p><b>OBSERVATION ARC DEFINITION</b>
+<p><b>Maximum number of records in a RINEX file:</b>
+This number is used to allocate arrays to buffer the observations from each
+input RINEX file. Each observation epoch in the RINEX file is counted as
+one record.
+
+<p><i>Note:</i> The sampling interval and the observation window that may be
+defined below as user input is considered when counting the records.
+
+<p><i>Default value:</i> 3000 for a RINEX file containing 24&nbsp;hours with a
+30&nbsp;seconds sampling
+
+<a name="SAMPL" default="30.0"></a>
+<p><b>Sampling interval for RINEX data:</b>
+Each RINEX file is completely read into the computer memory. Therefore,
+the number of epochs processed simultaneously is limited to the "Maximum
+number of records in a RINEX file" specified above. If you
+have too many epochs you may either sample the data or cut the RINEX
+observation file using the program <a href="PGMLST.HLP#CCRINEXO">CCRINEXO</a>.
+<br>
+The sampling interval cannot be longer than the sampling for the processing
+you want to use in the following processing steps. For the data screening,
+the cycle slip correction, and the code smoothing the sampling interval should
+not be selected much longer than a few minutes.
+
+<p><i>Default value:</i> <tt>30.0 seconds</tt>
+
+<a name="USEWIN" default="0"></a>
+<p><b>Use observation window:</b>
+Usually all observations in the original RINEX files are processed.
+Mark this checkbox to enter a time window for the observations to be processed.
+
+<p><i>Default value:</i> unmarked
+
+<a name="RMSTON" default="1"></a>
+<p><b>Skip observations with S1 and S2=0.000:</b>
+If a RINEX file contains signal-to-noise ratio as observations (data types:
+S1/S2) and both values are zero in the observation record this indicates
+a potential problem when tracking the corresponding satellite. If this
+checkbox is marked the corresponding observations are not considered for
+further processing in program RNXSMT.
+<br>
+As a verification for the reliability of this observation type it is
+required that at least one S1 or S2 measurement per epoch has to be different
+from zero.
+
+<p><i>Default value:</i> marked
+
+<a name="USEC2" default="0"</a>
+<p><b>Use C2 if P2 unavailable:</b>
+Marking this checkbox will allow the program to use C2&nbsp;observations if
+P2&nbsp;observations are not available.
+
+<p><i>Default value:</i> unmarked
+
+<a name="GAPARC" default="180.0"></a>
+<p><b>Maximum gap in data to start a new arc:</b>
+If the observations have a time gap larger than the specified value,
+a new arc is started for the screening (a new ambiguity is set up for the phase
+observations).
+
+<p><i>Default value:</i> <tt>180.0 seconds</tt>
+
+<a name="MINOBS" default="10"></a>
+<p><b>Minimum number of observations per arc:</b>
+The minimum number of observations per arc is used to remove short arcs.
+The reason for a short arc are either some isolated observations or some
+remaining observations of a bad arc. The data screening and the code
+smoothing algorithm are not reliable for a few epochs only.
+
+<p><i>Default value:</i> <tt>10</tt>
+
+<br><br>
+
+<a name="EPOFLAG" default="SKIP"></a>
+<p><b>EVENT FLAG HANDLING</b>
+<p><b>What to do in case of event flags:</b>
+RINEX observation files may contain event flags. A flag 4 means that an
+additional RINEX header (or a part of a RINEX header) follows. All other
+flags (e.g., start moving antenna, or new site occupation) are not handled
+by RNXSMT. If such an event flag is found in the input RINEX file the selection
+for this option specifies:
+<ul>
+<li><b>WARNING:</b> to ignore the record of the epoch flag and to continue the
+        processing of the RINEX file.</li>
+<li><b>SKIP:</b> to skip the RINEX file in the processing and to continues
+        the processing with the next RINEX input file in the list.</li>
+<li><b>ERROR:</b> to stop the program with an error.</li>
+</ul>
+The program issues a warning resp. an error message in any case.
+
+<br><br>
+
+<a name="CLKEVT" default="50.0"></a>
+<p><b>DETECT CLOCK EVENTS</b>
+<p><b>Minimum size of a clock event:</b>
+Before the program starts to analyze the satellite arcs the consistency of
+the code and phase measurements for all epochs is checked. We can
+assume that the mean change of the ionospheric-free linear combination
+from one epoch to the next is the same for code and phase measurements
+(as far as the satellite constellation does not change). Satellites may be
+excluded if they exceed a threshold of four times
+the "RMS of an arc in ionosphere free LC (L3-P3)"
+(specified on panel 4 in section "IONOSPHERE-FREE LINEAR COMBINATION:
+OUTLIER DETECTION").
+<br>
+If the epoch-to-epoch difference for the code and phase measurements
+exceed the value specified in this input field an event in the receiver
+clock is assumed which shows a different magnitude for the code and phase
+measurements (this is not consistent with the RINEX standards but
+unfortunately it happens from time to time). The handling of this receiver
+clock event for the processing is defined with the option "Tolerance for
+ms-jump detection" below.
+<br>
+An empty input field disables the detection of clock events. As a
+consequence the entire satellite arc may be removed as bad.
+
+<p><i>Default value:</i> <tt>50 nanoseconds</tt>
+
+<a name="CYCEVT" default="0.001"></a>
+<p><b>Tolerance for ms-jump detection:</b>
+The algorithm how a receiver clock event is detected is described for the option
+"Minimum size of a clock event" above. If the magnitude of the clock event is
+an integer number of milliseconds (within the tolerance defined in this
+input field) the phase measurements starting with this epoch are corrected
+for this integer number of milliseconds to recover the consistency of code
+and phase measurements. If a clock event of a different magnitude has been
+detected new phase ambiguities for all satellites need to be setup. RNXSMT
+breaks all satellite arcs at the particular epoch.
+<br>
+If the input field remains empty the arcs are broken for all clock events.
+
+<p><i>Default value:</i> <tt>0.001 milliseconds</tt>
+
+<a name="MAXEVT" default="50">
+<p><b>Maximum number of events allowed per file:</b>
+The algorithm how a receiver clock event is detected is described for the option
+"Minimum size of a clock event". A huge number of clock events may indicate
+a malfunction of the receiver (or the RINEX converter). If the number of
+detected receiver clock events exceeds the limit specified in this input
+field the processing of the RINEX input file is stopped, a warning message is
+issued, and no smoothed output RINEX file is generated.
+
+<p><i>Default value:</i> <tt>50</tt> (assuming 24 hour RINEX files)
+
+<p><hr>
+
+<p><b>RNXSMT 2.2: Observation Window</b>
+
+<a name="RADIO_1" default="1"></a>
+<a name="RADIO_2" default="0"></a>
+<p><b>OBSERVATION WINDOW</b>
+<p>
+This panel allows to specify a time window. Only observations within this time
+window will be used for processing.
+<br>
+You may define the time window either by using session definitions, or by
+explicitly specifying start and end times.
+
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the observation window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the observation window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: <tt>00&nbsp;00&nbsp;00</tt>, end date: <tt>$YMD_STR+0</tt>,
+end time: <tt>23&nbsp;59&nbsp;59</tt>
+
+<p><hr>
+
+<p><b>RNXSMT 3: Screening Options</b>
+
+<a name="RMSL5" default="0.60"></a>
+<p><b>MELBOURNE-WUEBBENA LINEAR COMBINATION: SCREENING, CYCLE SLIP DETECTION</b>
+<p><b>RMS of a clean arc for Melbourne-Wuebbena:</b>
+The Melbourne-Wuebbena linear combination is screened both for outliers
+and jumps (cycle slips). For this purpose the RMS of the observation arc
+is determined.
+Here you can specify the maximum RMS for a 'clean' arc. If this RMS is
+exceeded a cycle slip search is started. After all cycle slips have been
+detected the observations will be screened for outliers until the RMS is
+lower than the specified value.
+<br>
+Note that the noise of the Melbourne-Wuebbena linear combination is
+dominated by the code observation noise. For receivers with good code
+observation and/or non-AS conditions a value of <tt>0.4</tt> L5 cycles is
+reasonable.
+For other receivers the value should be increased (note that using a larger
+noise level some cycle slips may not be detected.
+<br>
+If the program is used to smooth the code observations a higher value
+is not critical. However, if clean phase data is desired a high value might
+result in undetected cycle slips. A low value may result in many deleted
+observations. For smoothed code a value of up to <tt>0.8</tt> L5 cycles may be used.
+
+<p><i>Default value:</i> <tt>0.60</tt> L5 cycles
+
+<a name="SLPMIN" default="1.0"></a>
+<p><b>Minimum size of detectable cycle slips:</b>
+Due to code observation noise (e.g., under AS conditions) it might be difficult
+to reliably detect small cycle slips. Therefore the minimum size can be set
+here.
+
+<p><i>Default value:</i> <tt>1.0</tt> L5 cycles
+
+<a name="SLPOUT" default="5.0"></a>
+<p><b>Minimum size of detectable outliers:</b>
+Specify the outlier detection level for the first Melbourne-Wuebbena screening
+step. However this level is not fix. The size will be dynamically reduced by
+the program until the specified "RMS of a clean arc for Melbourne-Wuebbena"
+level has been reached.
+
+<p><i>Default value:</i> <tt>5.0</tt> L5 cycles
+
+<br><br>
+
+<a name="GAPL4" default="180.0"></a>
+<p><b>GEOMETRY-FREE LINEAR COMBINATION: CYCLE SLIP CORRECTION</b>
+<p><b>Maximum gap for cycle slip correction:</b>
+If cycle slips are detected in the Melbourne-Wuebbena linear combination
+the geometry free linear combination (L4) is used to estimate the size of
+the cycle slip. Here you specify how large the gap between the last
+observation before the cycle slip and the epoch of the cycle slip may be.
+If the gap is larger than the specified value no cycle slip repair will
+be attempted.
+
+<p><i>Default value:</i> <tt>180.0 seconds </tt>
+
+<a name="MINL4" default="10"></a>
+<p><b>Number of L4 observations for fit:</b>
+For the cycle slip correction using the geometry free linear combination (L4)
+two linear fits are made (before and after the cycle slip event). Specify
+the number of observations which should be fitted.
+
+<p><i>Default value:</i> <tt>10</tt>
+
+<a name="RMSL4" default="0.01"></a>
+<p><b>RMS of L4 for fit and cycle slip correction:</b>
+If cycle slips are detected the geometry free linear combination (L4) will
+be used to determine their sizes. For this purpose a linear fit is computed
+for a certain number (specified under "Number of L4 observations for fit")
+of observations before and after the cycle slip event. The RMS of this linear
+fit has to be lower than the specified RMS to accept the fit for the cycle
+slip correction.
+<br>
+In a second step the difference of the two linear polynomials at the
+cycle slip epoch is computed. This difference must be lower than the
+specified RMS value as well. Otherwise the cycle slip size is not computed.
+
+<p><i>Default value:</i> <tt>0.01 meters</tt>
+
+<a name="FIXSLP" default="1"></a>
+<p><b>Fix cycle slips in code observations:</b>
+If a cycle slip is detected the corresponding observation epoch will be
+flagged in the resulting RINEX file. Using this option one may choose whether
+to fix the cycle slip for the smoothed code or not (cycle slips in phase
+observations are never fixed).
+<br>
+The advantage of fixing cycle slips is a longer observation arc.
+The obvious disadvantage is that the determined size of the cycle slip
+may be wrong. If cycle slips are not corrected the observation arc is
+divided in two parts at the corresponding epoch.
+
+<p><i>Default value:</i> marked
+
+<br><br>
+
+<a name="RMSL3" default="2.0"></a>
+<p><b>IONOSPHERE-FREE LINEAR COMBINATION: OUTLIER DETECTION</b>
+<p><b>RMS of an arc in ionosphere free LC (L3-P3):</b>
+After screening the Melbourne-Wuebbena and geometry free (L4) linear
+combinations everything should be fine. However, due to severe code
+observation 'blunders' a few outliers may still remain. Therefore an additional
+outlier screening is performed using the ionosphere free combination
+(<nobr>L3-P3</nobr>).
+Outliers are removed until the RMS of the observation arc is lower than the
+specified value.
+<br>
+Again the noise of this combination is determined by the code observations.
+To get sound smoothed code observations use a value somewhere between
+<tt>1.2</tt> and <tt>2.4</tt>&nbsp;meters. A good 'rule of thumb' is to set this
+value to a factor four times larger than the "RMS of a clean arc for
+Melbourne-Wuebbena".
+
+<p><i>Default value:</i> <tt>2.0 meters</tt>
+
+<p><hr>
+
+<p><b>RNXSMT 4: Output Options</b>
+
+<a name="FLGPHS" default="1"></a>
+<p><b>OUTPUT OPTIONS</b>
+<p><b>Preprocess phase observations:</b>
+The program RNXSMT tends to throw away quite a lot of data. About 10% more
+than, e.g., program <a href="PGMLST.HLP#MAUPRP">MAUPRP</a> does.
+<br>
+This option allows to copy the original phase data into the resulting
+smoothed RINEX file (checkbox unmarked). This is useful if you want to use
+smoothed code but original
+phase observations. An example might be the use of smoothed code for ambiguity
+resolution using a Melbourne-Wuebbena strategy.
+<br>
+Note that bad observations are flagged by setting the signal to noise
+code to '1'. If phase observations are copied from the input file this code is set
+to '2' for all phase observations.
+
+<p><i>Default value:</i> marked for zero difference applications using phase
+measurements; unmarked if only the smoothed code will be used
+
+<a name="FLGCOD" default="1"></a>
+<p><b>Use smoothed instead of raw code:</b>
+Specify if the smoothed or raw code observations should be saved in the
+resulting RINEX files.
+<br>
+In the case of smoothed code the signal to noise ratio is used to indicate
+bad observations ('1'), applied cycle slip corrections ('5'), and good
+observations ('9'). The raw code observations are a copy from the input
+RINEX observation file indicated by a signal to noise ratio flag of '2'.
+<br>
+If you want to process code and phase data together you should use
+raw code measurements. If you want to use only code observations the smoothed
+code measurements may provide better results.
+<br>
+Because the noise level of the code measurements of different receiver
+types may be different the use of station observation sigma factors is
+recommended if you are going to use the raw code observations for the data
+analysis in program <a href="PGMLST.HLP#GPSEST">GPSEST</a>.
+
+<p><i>Default value:</i> marked
+
+<a name="PRTFLG" default="SUM"></a>
+<p><b>Output detail:</b>
+Choose if only a summary should be written to the program output file
+or if a detailed output should be printed.
+
+<p><i>Default value:</i> <tt>SUM</tt>
+
+<br><br>
+
+<a name="GLOFRQ" default="0"></a>
+<p><b>SPECIAL OPTION</b>
+<p><b>Verify GLONASS frequency number:</b>
+If you are not sure that the frequency number for the GLONASS
+measurements in the satellite information file is correct or if you want to
+verify the frequency really used by the receiver you may check this box.
+<br>
+The program runs through the screening procedure trying all GLONASS
+frequency numbers from <tt>-7</tt> to <tt>24</tt>. It assumes that the
+frequency number with the biggest number of valid observations after the
+screening procedure has been used by the receiver. It is compared in the
+program output to the default frequency number given in the satellite
+information file.
+
+<p><i>Remark:</i>
+The resulting smoothed RINEX file is generated in any case
+with the default frequency number from the satellite information file.
+
+<p><i>Default value:</i> unchecked
+
+<p><hr>
+
+</body>
+</html>

@@ -1,0 +1,298 @@
+<html>
+<body>
+
+<center>
+<b>TRANSFER SINEX FILES TO NORMAL EQUATION FILES</b>
+<p>Program: SNX2NQ0
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="DELETE_FILES"  default="AUXFIL"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The program converts SINEX (Software INdependent EXchange) files into
+normal equation files used by the program
+<a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a>. It also allows to store coordinates
+and velocity from the SINEX files in the Bernese format.
+
+<p><hr>
+
+<p><b>SNX2NQ0 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="INPFIL" default=""></a>
+<p><b>INPUT FILES</b>
+<p><b>SINEX files:</b>
+Select the SINEX files you want to convert to normal equation files. The
+normal equation files will have the same filename as the SINEX files but with
+another extension (default: NQ0).
+<br>
+A format description may be downloaded from the
+ftp server of the IGS Central Bureau.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="SNX2NQ0"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<br><br>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output.
+The title should characterize the program run by, e.g., giving the most
+important options used and the session.
+
+<p><hr>
+
+<p><b>SNX2NQ0 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="GPSUTC" default="GPSUTC."></a>
+<p><b>GPS-UTC seconds:</b>
+Select the file with GPS-UTC values here. You have to update this file each
+time a leap second is introduced.
+
+<p>Example: <a href="/$X/GEN/GPSUTC.">$X/GEN/GPSUTC.</a>
+
+<a name="RECEIVR" default="RECEIVER."></a>
+<p><b>Receiver information:</b>
+This file provides the satellite systems that can be tracked for the
+individual receivers. This information is necessary to read the SINEX files.
+
+<p>Example: <a href="/$X/GEN/RECEIVER.">$X/GEN/RECEIVER.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Important:</i>
+The SATELLITE file contains corrections referring to a relative antenna
+model (e.g. IGS_01) or an absolute antenna model (e.g. IGS08). Take care to
+stay consistent with the relative or absolute phase pattern file you may
+introduce later on in <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a> together with
+your NQ0 files.
+
+<p><i>Note:</i>
+The files $X/GEN/SATELLIT.??? are maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<a name="NUTMOD" default="IAU2000R06"></a>
+<p><b>Nutation model:</b>
+This file contains the parameters for the nutation model. It has to be
+identical to the one used for the computation of the corresponding standard
+orbit, which has been used in the processing before generating the SINEX
+file. The nutation model file is needed to know the correct model for the
+correction of UT1 (in subroutine UT1RED).
+
+<p>Example: <a href="/$X/GEN/IAU2000R06.NUT">$X/GEN/IAU2000R06.NUT</a>
+
+<br><br>
+
+<a name="AUXFIL" default="SNX2NQ0$J"></a>
+<p><b>TEMPORARY FILES</b>
+<p><b>Scratch file:</b>
+Enter the name of the scratch file used by this program. The scratch file
+needs to be named differently for different programs running
+simultaneously. This may be achieved, e.g., by adding the job ID
+<tt>$J</tt> to the program name (define the job ID in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>).
+
+<p><i>Default values:</i> <tt>SNX2NQ0$J</tt>
+
+<p><hr>
+
+<p><b>SNX2NQ0 2: Options</b>
+
+<p><b>EXTRACT STATION COORDINATES AND VELOCITIES</b>
+<p>
+You may extract coordinates and velocities from the SINEX file and write
+Bernese files containing the corresponding information. The following
+options specify some of the required information. To extract station
+information from a SINEX file use the program
+<a href="PGMLST.HLP#SNX2STA">SNX2STA</a>.
+
+<a name="CRDFIL" default="1"></a>
+<p><b>Generate CRD and VEL:</b>
+Check this box if you want to get Bernese coordinate and velocity file(s)
+with information extracted from the SINEX file(s). The filenames will be the
+same as that of the SINEX file(s) but with a different extension. For each
+input SINEX file corresponding files are generated.
+
+<a name="NONEQ" default="0"></a>
+<p><b>No NEQ:</b>
+Mark this option if no NEQ shall be written.
+
+<a name="FIXFIL" default="YES"></a>
+<p><b>Generate FIX file:</b>
+Use this option if a FIX file shall be written. The filename will correspond
+to the SINEX file with extension FIX. The resulting file will contain all
+stations of the SINEX file when using <tt>ALL</tt>.
+Stations with a particular SINEX constraint code may be selected using
+<tt>FIXED</tt> (0), <tt>CONSTRAINED</tt> (1), or <tt>UNCONSTRAINED</tt> (2).
+Using <tt>YES</tt>, all stations with either 0 or 1 are considered.
+
+<p><a href="/$X/DOC/EXAMPLE.FIX">Example</a>
+
+<a name="DATUMSTR" default="IGS08"></a>
+<p><b>Datum for coordinate/velocity file:</b>
+If you want to generate coordinate and velocity files you have to specify the
+datum for the coordinates which will be stored in the header of the output
+files.
+
+<p><i>Remark:</i>
+Use a datum name listed in your Geodetic datum file.
+
+<a name="FLAG" default="I"></a>
+<p><b>Flag for coordinate/velocity file:</b>
+Specify the flag to be saved together with coordinates and velocities. Only
+a single character flag is supported. Use, e.g., <tt>I</tt> for coordinates and
+velocities extracted from an ITRF SINEX file.
+
+<p><i>Default value:</i> <tt>I</tt>
+
+<a name="RADIO_1" default="1"></a>
+<a name="RADIO_2" default="0"></a>
+<p><b>Content of resulting coordinate/velocity file:</b>
+The set of coordinates/velocities that are to be stored in the CRD/VEL file
+must be selected.
+<ul>
+<li><b>Latest set of CRD/VEL:</b>
+    The resulting CRD and VEL file will contain only the latest coordinate set.
+<li><a name="CRDEPOCH" default="$YMD_STR+0"></a>
+    <b>Set of CRD/VEL valid at epoch:</b>
+    The resulting CRD and VEL file will contain only the coordinate set valid at
+    the epoch specified in the next field.
+</ul>
+
+<br>
+
+<a name="BERNEQ" default="1"></a>
+<p><b>OPTIONS</b>
+<p><b>Reconstruct original NEQ info from Bernese SINEX data:</b>
+Check this box to reconstruct the original NEQ information from Bernese SINEX
+files. The SINEX files have to have a complete and correct
+<tt>SOLUTION/STATISTICS</tt> block.
+Otherwise the statistical information might not be extracted correctly. The
+<tt>SOLUTION/STATISTICS</tt> block is used for Bernese SINEX files written by
+the program <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a>.
+The SINEX header information is used for Bernese SINEX files
+written by the old program version ADDNEQ1.
+
+<p><i>Default value:</i> marked
+
+<a name="SIGMA0" default="0.001"></a>
+<p><b>A priori sigma of unit weight:</b>
+Here you may specify the a priori sigma of unit weight, where the unit weight
+usually corresponds to the weight of the zero-difference L1 phase observable
+(at zenith).
+If you reconstruct the original NEQ information from Bernese SINEX files, this
+a priori sigma is not used but extracted from the SINEX data.
+
+<p><i>Default value:</i> <tt>0.001</tt>
+
+<a name="ADDROT" default="0"></a>
+<p><b>Additional rotation:</b>
+Check this box if you want to remove the influence of rotational constraints
+on the normal equations.
+
+<p><i>Default value:</i> unmarked
+
+<a name="FLG_NEQ" default="NEQ"></a>
+<p><b>SOLUTION block for generating normal equation system:</b>
+In case the SINEX files contain both, a covariance block (<tt>COVA</tt>) and
+a normal equation block (<tt>NEQ</tt>, SINEX 2.x) you have to specify which
+block should be used to generate the normal equation files.
+If the blocks necessary for your selection are not available in the SINEX file,
+the program automatically tries the other option.
+A corresponding message is written to the error file.
+
+<a name="STEP2"  default="0"></a>
+<a name="STEP2A" default=""></a>
+<a name="STEP2B" default=""></a>
+<p><b>Compensate for effect of step-2 tide SW bug between:</b>
+Version 4.2 as well as Version 5.0 of the BSW contained a bug in the
+implementation of the step 2 correction of the station motion due to
+solid Earth tides according to IERS Conventions 1996. This bug was
+corrected with release number B09 (07-Jul-2004), see BSW Mail 190.
+<br>
+If you want to process archived SINEX files that are affected by the bug
+you may enable this option and specify the time window within which
+the bug should be corrected. The correction is performed by integrating
+the difference between wrong and correct tidal displacement over the
+validity time interval of each input SINEX file and correcting the
+value of the station coordinates.
+<br>
+SINEX files delivered by CODE to the IGS resp. EUREF were affected
+in the time intervals
+<table>
+<tr><td>files</td><td>from</td><td></td><td></td>
+             </td><td>to  </td><td></td><td></td></tr>
+<tr><td>IGS  </td><td>1996 09 29</td><td>273/1996</td><td>0873</td>
+             </td><td>2004 07 11</td><td>193/2004</td><td>1279</td></tr>
+<tr><td>EUREF</td><td>1996 09 23</td><td>267/1996</td><td>0872</td>
+             </td><td>2004 06 20</td><td>172/2004</td><td>1276</td></tr>
+</table>
+There is no way to identify affected SINEX files. Therefore, carefully check
+which of your files are contaminated and use the option with care.
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+</body>
+</html>

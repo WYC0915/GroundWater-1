@@ -1,0 +1,65 @@
+PPP_102080: Regional ionosphere model - RIM                      18-JUL-13 09:00
+--------------------------------------------------------------------------------
+MODEL NUMBER / STATION NAME                    : 2080-00         
+MODEL TYPE (1=LOCAL,2=GLOBAL,3=STATION)        :    2
+MAXIMUM DEGREE OF SPHERICAL HARMONICS          :    5
+MAXIMUM ORDER                                  :    5
+DEVELOPMENT WITH RESPECT TO                     
+  GEOGRAPHICAL (=1) OR GEOMAGNETIC (=2) FRAME  :    2
+  MEAN (=1) OR TRUE (=2) POSITION OF THE SUN   :    1
+MAPPING FUNCTION (0=NONE,1=COSZ,2=MSLM,3=ESM)  :    2
+HEIGHT OF SINGLE LAYER AND ITS RMS ERROR (KM)  :  450.00     0.00
+COORDINATES OF EARTH-CENTERED DIPOLE AXIS       
+  LATITUDE OF NORTH GEOMAGNETIC POLE (DEGREES) :   79.00
+  EAST LONGITUDE (DEGREES)                     :  -71.00
+PERIOD OF VALIDITY                              
+  FROM EPOCH / REFERENCE EPOCH (Y,M,D,H,M,S)   : 2010 07 27 00 00 00
+  TO EPOCH                                     : 2010 07 28 00 00 00
+LATITUDE BAND COVERED                           
+  MINIMUM LATITUDE (DEGREES)                   :   27.22
+  MAXIMUM LATITUDE (DEGREES)                   :   70.21
+ADDITIONAL INFORMATION                          
+  NUMBER OF CONTRIBUTING STATIONS              :   13
+  NUMBER OF CONTRIBUTING SATELLITES            :   33
+  ELEVATION CUT-OFF ANGLE (DEGREES)            :   10
+  MAXIMUM TEC AND ITS RMS ERROR (TECU)         :    4.52     0.17
+COMMENT / WARNING                              :
+COEFFICIENTS                                    
+DEGREE  ORDER    VALUE (TECU)   RMS (TECU)      
+   0       0   -11925.69431289   677.9154
+   1       0    15806.66253920   890.0342
+   1       1      466.23163592    54.5676
+   1      -1      629.61830199    54.3698
+   2       0   -11735.29507719   648.0458
+   2       1     -599.76961046    69.0519
+   2      -1     -800.96455503    68.9104
+   2       2       23.88634983     6.0419
+   2      -2       -5.22026021     5.8726
+   3       0     5746.08200747   307.7015
+   3       1      416.90995184    46.6176
+   3      -1      544.93924152    46.6375
+   3       2      -23.38116070     6.4854
+   3      -2        4.44888613     6.3013
+   3       3        7.73318217     0.7882
+   3      -3        0.60427265     0.7919
+   4       0    -1761.91281188    90.2894
+   4       1     -166.67682605    17.7957
+   4      -1     -210.04953280    17.8657
+   4       2       10.44980490     3.3492
+   4      -2       -1.60104164     3.2523
+   4       3       -6.15115968     0.6195
+   4      -3       -0.29222955     0.6214
+   4       4       -0.81735821     0.1101
+   4      -4       -1.68540100     0.0995
+   5       0      266.78778554    12.8464
+   5       1       31.76340784     3.1373
+   5      -1       37.26146373     3.1658
+   5       2       -1.83541582     0.7462
+   5      -2        0.25553879     0.7239
+   5       3        1.85451914     0.1799
+   5      -3        0.03111814     0.1800
+   5       4        0.29716116     0.0468
+   5      -4        0.75182697     0.0426
+   5       5        0.08671984     0.0124
+   5      -5        0.10648178     0.0122
+

@@ -1,0 +1,71 @@
+package RNXSMT_H;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  RNXSMT_H
+#
+# Purpose :  Execute RNXSMT (parallel mode)
+#
+# Remark  :  Consider range of sessions for hourly processing
+#
+# PARAMs  :  PARAM1 - temporary file for parallel processing
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtMess isHourly setMinusPlus getWarn setUserVar
+                replaceSel prtBPEfile);
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($ssss , $ddd , $yyssss ,
+      $param1 , $subPid  , $clu   ,  $hourly  , $dirOut) =
+   $bpe->getKeys
+     ('$S+0', '$+0', '$YSS+0',
+      'PARAM1', 'SUB_PID', 'V_CLU', 'V_HOURLY', 'DIR_OUT');
+
+# Set cluster number and input files
+# ----------------------------------
+  my $cluster = $clu eq "" ? "$ssss$param1" : "$ssss$subPid";
+  my $ffff    = $clu eq "" ? $param1        : "____";
+
+  setUserVar($bpe,"CLUSTER",$cluster,"FFFF",$ffff,"CCC",$subPid);
+
+  if ($clu eq "") {
+    prtMess($bpe,"PROCESSING FILE $param1$ssss");
+    $bpe->putKey("$ENV{U}/PAN/RNXSMT.INP","RNXFIL","$param1$ssss");
+  } else {
+    replaceSel($bpe,"RNXSMT","RNXFIL",$param1);
+  }
+
+# Hourly processing
+# -----------------
+  if (isHourly($ssss)) {
+    setMinusPlus($bpe,-$hourly,0);
+  } else {
+    setMinusPlus($bpe,0,0);
+  }
+
+# Run program
+# -----------
+  my $PGMNAM = "RNXSMT";
+  $bpe->RUN_PGMS($PGMNAM);
+
+# Extract warning/error messages from protocol file
+# -------------------------------------------------
+  getWarn($bpe,"${dirOut}RNX${yyssss}.ERR");
+
+# Print processed stations BPE file
+# ---------------------------------
+  prtBPEfile($param1,0) if ($clu ne "");
+
+}

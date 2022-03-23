@@ -1,0 +1,141 @@
+      MODULE s_APLSTC
+      CONTAINS
+
+C*
+      SUBROUTINE APLSTC(NSTC,INT,INTSTC,NSTCEP,STCPAR,FRCTYP,
+     2                  XSUN,XSAT,VSAT)
+CC
+CC NAME       :  APLSTC
+CC
+CC PURPOSE    :  APPLY STOCHASTIC VARIATION OF ORBIT AT ONE PARTICULAR
+CC               EPOCH. NEW SIMLIFIED VERSION OF SR STCAPL.
+CC
+CC PARAMETERS :
+CC        IN  :  NSTC   : NUMBER OF STOCHASTIC EPOCHS           I*4
+CC               INT    : INTERVAL NUMBER OF INTEGRATION        I*4
+CC               INTSTC : DESCRIPTION OF EPOCHS AT WHICH STOCH. I*4(*)
+CC                        IMPULSES TAKE PLACE
+CC               NSTCEP : NUMBER OF IMPULSES PER EPOCH          I*4(*)
+CC               STCPAR : VALUES FOR STOCHASTIC PARAMETERS      R*8(*,*)
+CC                     (K,I) K = FORCE TYPE, I = PERT. NUMBER
+CC               FRCTYP : FORCE TYPE, K=1,2,3                   I*4(*)
+CC                     (K,I) = 1 : RADIAL
+CC                     (K,I) = 2 : PERP. TO RADIAL IN ORB PLANE
+CC                     (K,I) = 3 : NORMAL TO ORB. PLANE
+CC                     (K,I) = 4 : DIRECTION SUN --> SAT
+CC                     (K,I) = 5 : Y AXIS OF SATELLITE
+CC                     (K,I) = 6 : X AXIS OF SATELLITE
+CC                           I = PERT. NUMBER
+CC     IN/OUT :  XSAT   : UPDATED COORDINATES OF SATELLITE      R*8(*)
+CC               VSAT   : UPDATED VELOCITY OF SATELLITE         R*8(*)
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G. BEUTLER
+CC
+CC VERSION    :  3.4 (JAN 93)
+CC
+CC CREATED    :  96/01/07
+CC
+CC CHANGES    :  04-APR-05 : AJ: VARYING NUMBER OF PULSES PER EPOCH ALLOWED
+CC               16-JUN-05 : MM: UNUSED COMCONST.inc REMOVED
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               22-JUL-05 : HB: Declare NSTCEP with (*)
+CC               10-FEB-10 : HB: BUG FIXED FOR DYX-PULSES
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1996     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE s_vprod
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IFRC  , INT   , IP    , ISTC  , K     , NSTC
+C
+      REAL*8    DEW   , DEY   , RSAT  , RSUN
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      INTEGER*4   INTSTC(*),FRCTYP(3,*),NSTCEP(*)
+      REAL*8      STCPAR(3,*),XSUN(*),XSAT(*),VSAT(*)
+C
+C LOCAL DECLARATIONS
+      REAL*8      ESUN(3),ES(3),ER(3),EY(3),EX(3),EW(3)
+C
+C
+C CHECK WHETHER CURRENT EPOCH IS A PERTURBATION EPOCH
+C ---------------------------------------------------
+      ISTC=0
+      DO 1 IP=1,NSTC
+        IF(INTSTC(IP).EQ.INT)THEN
+          ISTC=IP
+        END IF
+1     CONTINUE
+      IF(ISTC.EQ.0)GO TO 999
+C
+C COMPUTE RELEVANT UNIT VECTORS (UVs):
+C ER: UV IN RADIAL DIRECTION
+C EW: UV NORMAL TO ORBITAL PLANE
+C ES: UV IN S-DIRECTION (ES=EW*ER)
+C ESUN: UV IN DIRECTION TO THE SUN
+C EY: UV IN SPACE VEHICLE'S Y-DIRECTION
+C EX: UV IN SPACE VEHICLE'S X-DIRECTION
+C -------------------------------------
+      RSAT=DSQRT(XSAT(1)**2+XSAT(2)**2+XSAT(3)**2)
+      RSUN=DSQRT((XSAT(1)-XSUN(1))**2+(XSAT(2)-XSUN(2))**2+
+     1           (XSAT(3)-XSUN(3))**2)
+      DO 10 K=1,3
+        ER(K)=XSAT(K)/RSAT
+        ESUN(K)=(XSUN(K)-XSAT(K))/RSUN
+10    CONTINUE
+      CALL VPROD(ER,ESUN,EY)
+      DEY=DSQRT(EY(1)**2+EY(2)**2+EY(3)**2)
+      CALL VPROD(XSAT,VSAT,EW)
+      DEW=DSQRT(EW(1)**2+EW(2)**2+EW(3)**2)
+      DO 20 K=1,3
+        EY(K)=EY(K)/DEY
+        EW(K)=EW(K)/DEW
+20    CONTINUE
+      CALL VPROD(EW,ER,ES)
+      CALL VPROD(ESUN,EY,EX)
+C
+C LOOP OVER ALL FORCES PER EPOCH
+C ------------------------------
+      DO 100 IFRC=1,NSTCEP(ISTC)
+C
+C COMPUTE COMPONENTS R, S, AND W FOR EACH INDIVIDUAL FORCE
+        IF(FRCTYP(IFRC,ISTC).EQ.1)THEN
+          DO 21 K=1,3
+            VSAT(K)=VSAT(K)+STCPAR(IFRC,ISTC)*ER(K)
+21        CONTINUE
+        ELSE IF(FRCTYP(IFRC,ISTC).EQ.2)THEN
+          DO 22 K=1,3
+            VSAT(K)=VSAT(K)+STCPAR(IFRC,ISTC)*ES(K)
+22        CONTINUE
+        ELSE IF(FRCTYP(IFRC,ISTC).EQ.3)THEN
+          DO 23 K=1,3
+            VSAT(K)=VSAT(K)+STCPAR(IFRC,ISTC)*EW(K)
+23        CONTINUE
+        ELSE IF(FRCTYP(IFRC,ISTC).EQ.4)THEN
+          DO 24 K=1,3
+            VSAT(K)=VSAT(K)+STCPAR(IFRC,ISTC)*ESUN(K)
+24        CONTINUE
+        ELSE IF(FRCTYP(IFRC,ISTC).EQ.5)THEN
+          DO 25 K=1,3
+            VSAT(K)=VSAT(K)+STCPAR(IFRC,ISTC)*EY(K)
+25        CONTINUE
+        ELSE IF(FRCTYP(IFRC,ISTC).EQ.6)THEN
+          DO 26 K=1,3
+            VSAT(K)=VSAT(K)+STCPAR(IFRC,ISTC)*EX(K)
+26        CONTINUE
+        END IF
+100   CONTINUE
+C
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

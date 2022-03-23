@@ -1,0 +1,255 @@
+<html>
+<body>
+
+<center>
+<b>CREATE PSEUDO-GRAPHICS OF THE OBSERVATIONS</b>
+<p>Program: SATGRA
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<p><b>GENERAL DESCRIPTION:</b>
+<p>
+The program SATGRA displays the contents of a Bernese observation
+file using an ASCII character pseudo graphics.
+<br>
+The vertical axis of the plot contains the list of PRN numbers for the
+satellites together with the frequency and the total number of observations for
+the particular satellite. The horizontal axis is the time axis (unit: epoch
+numbers) exactly covering the length of the file or an user specified time
+window. The time period in which the receiver tracked each
+satellite is represented on the specific satellite lines: '<tt>*</tt>' for
+valid observations, '-' for marked observations, or '&nbsp;' for no
+observations within the time bin.
+
+<p><hr>
+
+<p><b>SATGRA 1: Input and Output Files</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of all general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="OBSTYPE" default="GNSS"</a>
+<a name="CZHFIL" default=""></a>
+<p><b>OBSERVATION FILES</b>
+
+<p><b>Observation type:</b>
+Select whether microwave (<b>GNSS</b>) or SLR (<b>Range</b>) observation files
+should be considered.
+
+<p><i>Default value:</i> <tt>GNSS</tt>
+
+<p><b>Zero diff.</b> <b>code:</b>
+Select a list of headers from code zero difference files.
+All the observations of the corresponding observation files
+will be displayed. If you want to use other types of observation
+files only this field has to remain empty.
+
+<a name="PZHFIL" default=""></a>
+<p><b>Zero diff.</b> <b>phase:</b>
+Select a list of headers from phase zero difference files.
+All the observations of the corresponding observation files
+will be displayed. If you want to use other types of observation
+files only this field has to remain empty.
+
+<a name="BOTHZERO" default=""></a>
+<p><b>Zero diff.</b> <b>both:</b>
+Check this box if you have code and phase zero difference files with identical
+names that you like to display in one run. The selection lists from the code
+and phase zero difference files will be merged and the files for both types
+of observations will be displayed.
+
+<a name="CSHFIL" default=""></a>
+<p><b>Single diff.</b> <b>code:</b>
+Select a list of headers from code single difference files.
+All the observations of the corresponding observation files
+will be displayed. If you want to use other types of observation
+files only this field has to remain empty.
+
+<a name="PSHFIL" default=""></a>
+<p><b>Single diff.</b> <b>phase:</b>
+Select a list of headers from phase single difference files.
+All the observations of the corresponding observation files
+will be displayed. If you want to use other types of observation
+files only this field has to remain empty.
+
+<a name="BOTHSING" default=""></a>
+<p><b>Single diff.</b> <b>both:</b>
+Check this box if you have code and phase single difference files with
+identical names that you like to display in one run. The selection lists
+from the code and phase zero difference files will be merged and the files
+for both types of observations will be displayed.
+
+<a name="RZHFIL" default=""></a>
+<p><b>Range:</b>
+Select a list of headers of range observation files. All the observations of the
+corresponding observation files will be displayed.
+
+<br><br>
+
+<a name="REPOSSUM" default=""></a>
+<p><b>RESULT FILE</b>
+<p><b>Repositioning summary:</b>
+If the "Satellite problems" file indicates a repositioning event for a
+satellite within the time interval that is plotted a repositioning
+summary file may be generated. It contains an extraction of the graphic
+from all selected observation files for the maneuver satellite. Usually
+one character corresponds to one epoch. So ,the time interval plotted before
+and after the repositioning event depends on the "Number of characters"
+selected for the width of the plot in the "DISPLAY OPTIONS".
+
+<p><i>Remark:</i>
+If no repositioning event is indicated for one of
+the observed satellites or no satellite problem file was specified an
+existing repositioning summary file with the specified name is deleted.
+The existence of this file may be used as an indicator for a repositioning
+event.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="SATGRA"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>SATGRA 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file $X/GEN/SATELLIT.I08 is maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems concerning modeling.
+The program SATGRA uses only the information on the (mean) epochs of GPS
+repositioning events. If an entry is found for the time interval to display
+for at least one of the observed satellites a special repositioning section
+is added to the program output or in addition a repositioning summary file
+can be generated.
+
+<p><i>Note:</i>
+Corresponding year-specific files are maintained by AIUB/CODE.
+You can get the latest version of the current file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SAT_2003.CRX">$X/GEN/SAT_2003.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<p><hr>
+
+<p><b>SATGRA 2.1: Display Options</b>
+
+<a name="TITLE" default="">
+<p><b>TITLE</b></a>
+<p>
+This title line will be printed as header comment in the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<br><br>
+
+<a name="FREQ" default="L3"></a>
+<p><b>DISPLAY OPTIONS</b>
+<p><b>Frequency:</b>
+Whenever L1 (option <b>L1</b>), L2 (option <b>L2</b>), or L1 and L2 (option
+<b>L3</b>) data from a satellite have been collected, a '<tt>*</tt>' is placed in the
+appropriate place of the plot. To indicate a reasonable number of marked
+observations a '-' is used instead.
+Option <b>L1&amp;L2</b> will produce a separate line for L1 and L2
+data. The numbers along the horizontal axis are epoch numbers
+whenever the scenario changes.
+
+<p><i>Default value:</i> <tt>L3</tt>
+
+<a name="NCHAR" default="255"></a>
+<p><b>Number of characters:</b>
+You can select the width of the plot, depending on the screen used for the
+requested resolution. The width of an individual character will be adapted
+accordingly. A maximum of 255 characters is allowed.
+
+<p><i>Default value:</i> <tt>255</tt>
+
+<a name="PLOTAMB" default="1"></a>
+<p><b>Plot ambiguities:</b>
+If you check this box, an 'A' is placed in the appropriate location
+of the plot for each phase ambiguity. If the ambiguity was resolved to
+its integer value in a single difference phase observation file a lower
+case 'a' is written instead. The option has no effect for
+code observation files.
+
+<p><i>Default value:</i> marked for phase observation files
+
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Observation window:</b>
+You may specify date and time for the begin and the end of the observation
+window you want to display. If the fields remain empty all observations in
+the file(s) are displayed. You can also specify either a start or an end epoch
+for the display.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: <tt>00&nbsp;00&nbsp;00</tt>, end date: <tt>$YMD_STR+0</tt>,
+end time: <tt>23&nbsp;59&nbsp;59</tt>
+
+<p><hr>
+
+</body>
+</html>

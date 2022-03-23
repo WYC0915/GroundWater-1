@@ -1,0 +1,208 @@
+      MODULE s_WTRESI
+      CONTAINS
+
+C*
+      SUBROUTINE WTRESI(NDIM  ,MAXEQN,MXESNG,NPAR  ,WEIGHT,SVNOBS,
+     1                  IFLOBS,OBSNUM,IFRSES,FILNUM,DTFIL ,XXX0  ,
+     2                  AOBS  ,INDA  ,BOBS  ,LOCQ  ,IZEROD,NPAEPO,
+     3                  MAXFLS,IPHSEP,MEATYP)
+CC
+CC NAME       :  WTRESI
+CC
+CC PURPOSE    :  WRITE INFORMATION ON AUXILIARY FILE TO ALLOW
+CC               COMPUTATION OF RESIDUALS
+CC
+CC PARAMETERS :
+CC         IN :  NDIM   : NUMBER OF OBS. EQNS OF EPOCH        I*4
+CC               MAXEQN : MAXIMUM NUMBER OF OBS EQNS          I*4
+CC               MXESNG : NUMBER OF NON-ZERO ELEMENTS IN      I*4
+CC                        FIRST DESIGN MATRIX AOBS
+CC               NPAR   : NUMBER OF PARAMETERS THIS  EPOCH    I*4
+CC                        INCLUDING EPOCH PARAMETERS
+CC               WEIGHT(I),I=1,..,NDIM*(NDIM+1)/2: WEIGHT     R*8
+CC                        MATRIX
+CC               SVNOBS(K,I),K=1,2, I=1,..,NDIM: SVN NUMBERS  I*4
+CC               IFLOBS(I),I=1,..,NDIM: ASSOCIATED FILE       I*4
+CC                        NUMBERS
+CC               OBSNUM(I),I=1,.. : FILE SPECIFIC OBS. NUMBERS I*4
+CC               IFRSES : FREQUENCY                           I*4
+CC               FILNUM(I),I=1,.. : FILE NUMBERS              I*4
+CC               DTFIL(2,I),I=1,..: DIFFERENCES TO            R*8
+CC                        NOMINAL EPOCH IN SECONDS FOR BOTH
+CC                        RECEIVERS
+CC               XXX0(I),I=1,...NPAEPO, APRIORI VALUES FOR    R*8
+CC                       EPOCH PARAMETERS
+CC               AOBS(I),I=1,...: NON ZERO ELEMENTS OF FIRST  R*8
+CC                        DESIGN MATRIX
+CC               INDA(I),I=1,.. : CORRESPONDING INDEX ARRAY   I*2
+CC               BOBS(I),I=1,..,NDIM: TERMS OBS-COMP          R*8
+CC               LOCQ(I,J),I=1,..,MXCLCQ,J,..                 I*4
+CC               IZEROD : FLAG TO IDENTIFY ZERO DIFFERENCE    I*4
+CC                        RESIDUAL SCRATCH FILE FORMAT
+CC               NPAEPO : NUMBER OF EPOCH PARAMETERS          I*4
+CC               IPHSEP : ONLY PHASE FOR RESUBST OF EPO-PARAM. I*4
+CC               MEATYP(I),I=1,..,NFTOT: MEASUREMENT TYPE     I*4
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/10/26 10:42
+CC
+CC CHANGES    :  11-JAN-93 : ??: USE OF SR "OPNFIL" TO OPEN FILES
+CC               13-NOV-96 : HM: PASS "IFRSES" AS ARRAY TO HANDLE
+CC                               PROPERLY CORRELATION STRATEGY 3
+CC               21-MAY-97 : TS: ADDED NPAR, MEA AND LOCQ: FOR EPOCH PARAMETERS
+CC               30-MAR-98 : TS: SIMULTANEOUS CODE AND PHASE ZD PROCESSING
+CC               27-JAN-00 : TS: CHANGES FOR CLOCK RINEX OUTPUT
+CC               09-FEB-02 : RD: WEIGHT REAL*4->REAL*8
+CC               23-JUN-02 : MR: ADD NPAEPO TO PARAMETER LIST
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               02-SEP-05 : HB: SPLIT SCRATCH FILE INTO FOUR FILES
+CC                               (ONLY QUICK SOLUTION, NOT GENERALLY SOLVED)
+CC               14-SEP-05 : HB: SCRATCH FILE SPLITTING GENERALLY SOLVED
+CC               06-OCT-05 : HB: COUNTER FOR SCRATCH FILE SAVED
+CC               23-FEB-06 : RD: WRITE DTFIL TO A SEPARATE RECORD
+CC               11-JUN-06 : HB: WRITE A PRIORI VALUES FOR EPOCH PARAMETERS
+CC                               INTO SCRATCH FILE (21: KIN, 23:RCLK, 24:SCLK)
+CC               17-JUN-07 : RD: ONLY PHASE FOR RESUBSTITUTION OF EPO-PARAM.
+CC               06-MAY-08 : LP: IN CASE OF "PHASE-ONLY" BACKSUBST. DO NOT TRY
+CC                               TO WRITE A RECORD IF NO PHASE OBS IS
+CC                               AVAILABLE FOR THE EPOCH
+CC               25-MAY-09 : RD: MORE THAN 10 SCRATCH FILES
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE s_opnfil
+      USE s_opnerr
+      USE s_gtflna
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IF    , IFIRST, ILCQ  , IOBS  , IOSTAT, IRC   ,
+     1          IREC  , IZEROD, K     , MAXEQN, MXCLCQ, MXESNG, NDIM  ,
+     2          NITEM , NPAEPO, NPAR  , NREC  , MAXFLS, IPHSEP, NDIM2
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+C
+      CHARACTER*255 NEWFIL
+      CHARACTER*32 FILNAM
+      CHARACTER*6  MXNLCQ
+      CHARACTER*2  CCNT
+C
+      INTEGER*4 SVNOBS(2,*),IFLOBS(*),OBSNUM(*),FILNUM(*)
+      INTEGER*4 IFRSES(*),LOCQ(MXCLCQ,*),MEATYP(*)
+C
+      INTEGER*4 INDA(*)
+      INTEGER(i4b),SAVE :: iCnt,nByte
+C
+      REAL*8 WEIGHT(*)
+C
+      REAL*8 AOBS(*),BOBS(*),DTFIL(2,*)
+      REAL*8 XXX0(*)
+C
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+C
+C COMMON FOR LOGICAL UNIT NUMBERS
+      DATA IFIRST/1/
+C
+C RECOUNT THE RECORDS IN THE CASE OF "PHASE-ONLY" BACKSUBST.
+      IF (IPHSEP.NE.1) THEN
+        NDIM2 = NDIM
+      ELSE
+        NDIM2 = 0
+        DO IOBS = 1,NDIM
+          IF (MEATYP(FILNUM(IFLOBS(IOBS))) .EQ. 1) NDIM2 = NDIM2 + 1
+        ENDDO
+      ENDIF
+
+C NDIM=0 or NDIM2=0 : NOTHING TO WRITE
+      IF((NDIM.EQ.0) .OR. (NDIM2.EQ.0)) RETURN
+
+C
+C OPEN AUXILIARY FILE
+      IF(IFIRST.EQ.1)THEN
+        IFIRST=0
+        CALL GTFLNA(1,'AUXFIL ',FILNAM,IRC)
+        CALL OPNFIL(LFNRES,FILNAM,'UNKNOWN','UNFORMATTED',
+     1              ' ',' ',IOSTAT)
+        CALL OPNERR(LFNERR,LFNRES,IOSTAT,FILNAM,'WTRESI')
+        iCnt = 0
+        nByte = 0
+      END IF
+
+C COUNT BYTES
+C -----------
+      NREC=(NDIM2+1)/2
+      NITEM=NDIM2*(NDIM2+1)/2/NREC
+      nByte = nByte + 20 + NREC*NITEM*8 + NDIM2*(36+MXESNG*12)
+      IF (izerod /= 0) THEN
+        nByte = nByte + mxclcq*(npar+1)*4
+      ENDIF
+      IF (nByte > 2000000000) THEN
+       WRITE(lfnRes) -1,0,0,0,0
+       newFil = ' '
+       iCnt = iCnt + 1
+       IF (iCnt.EQ.100) THEN
+         WRITE(lfnerr,'(/,2(A,/))')
+     1        ' *** SR WTRESI: TOO MANY SCRATCH FILES REQUESTED',
+     2        '                100 FILES ARE SUPPORTED IN MAXIMUM'
+         CALL EXITRC(2)
+       ENDIF
+       WRITE(cCnt,'(I2.2)')iCnt
+       newFil = trim(filnam)//'_'//cCnt
+       WRITE(lfnRes) newFil
+       CLOSE(unit=lfnRes)
+       CALL OPNFIL(LFNRES,NEWFIL,'UNKNOWN','UNFORMATTED',
+     1              ' ',' ',IOSTAT)
+       CALL OPNERR(LFNERR,LFNRES,IOSTAT,NEWFIL,'WTRESI')
+       nByte = 20 + NREC*NITEM*8 + NDIM2*(36+MXESNG*12)
+       IF (izerod /= 0) THEN
+         nByte = nByte + mxclcq*(npar+1)*4
+       ENDIF
+      ENDIF
+C
+C WRITE FIRST RECORD
+      WRITE(LFNRES) NDIM2,MAXEQN,MXESNG,NPAR,MXCLCQ
+      NREC=(NDIM2+1)/2
+      NITEM=NDIM2*(NDIM2+1)/2/NREC
+C
+C WRITE WEIGHT MATRIX
+      DO 10 IREC=1,NREC
+        WRITE(LFNRES) (WEIGHT((IREC-1)*NITEM+I),I=1,NITEM)
+10    CONTINUE
+C
+C WRITE MATRIX AOBS, INDA AND BOBS
+      DO 20 IOBS=1,NDIM
+        IF=FILNUM(IFLOBS(IOBS))
+        IF (IPHSEP.EQ.1 .AND. MEATYP(IF).NE.1) GOTO 20
+        WRITE(LFNRES) IF,IFRSES(IOBS),OBSNUM(IFLOBS(IOBS)),
+     1                (SVNOBS(K,IOBS),K=1,2),
+     2                (AOBS(IOBS+(K-1)*MAXEQN),INDA(IOBS+(K-1)*MAXEQN),
+     3                 K=1,MXESNG),BOBS(IOBS)
+20    CONTINUE
+C
+C WRITE LOCQ MATRIX (IN CASE IZEROD.NE.0)
+C ---------------------------------------
+      IF (IZEROD.NE.0) THEN
+        DO 30 ILCQ=1,MXCLCQ
+          WRITE(LFNRES)(LOCQ(ILCQ,I),I=1,NPAR)
+30      CONTINUE
+        WRITE(LFNRES) NPAEPO
+        WRITE(LFNRES) XXX0(NPAR-NPAEPO+1:NPAR)
+      ENDIF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

@@ -1,0 +1,137 @@
+      MODULE s_PRIECC
+      CONTAINS
+
+C*
+      SUBROUTINE PRIECC(PRIOPT,TITLES,NFTOT,HEADER,CAMPG1,NUMSAT,NUMOBS,
+     1                  NUMMRK,NUMAMB,AMBSAT,AMBIEP,AMBWLF,AMBIGU,
+     2                  AMBCLS)
+CC
+CC NAME       :  PRIECC
+CC
+CC PURPOSE    :  PRINT POSITIONING ECCENTRICITIES AND RECEIVER INFOR-
+CC               MATION
+CC
+CC PARAMETERS :
+CC         IN :  PRIOPT : PRINT OPTION (=1: PRINT ELSE =0)    I*4
+CC               TITLES(I),I=1,2: TITLE LINES                 CH*132
+CC               NFTOT  : TOTAL NUMBER OF FILES               I*4
+CC               HEADER(I),I=1,..,NFTOT: HEADER FILE NAMES    CH*(*)
+CC               CAMPG1 : CAMPAIGN NAME TO BE PRINTED         CH*16
+CC      LOCAL :  NUMSAT : SATELLITE NUMBERS                   I*4(*)
+CC               NUMOBS : NUMBER OF OBSERVATIONS              I*4(*,2)
+CC               NUMMRK : NUMBER OF MARKED OBSERVATIONS       I*4(*,2)
+CC               NUMAMB : NUMBER OF AMBIGUITIES               I*4
+CC               AMBSAT : AMBIGUITY SATELLITES                I*4(*)
+CC               AMBIEP : AMBIGUITY EPOCH NUMBERS             I*4(*)
+CC               AMBWLF : AMBIGUITY FLAGS                     I*4(*,3)
+CC               AMBIGU : AMBIGUITIES                         R*8(*,3)
+CC               AMBWLF : WAVELENGTH FACTORS                  I*4(*,2)
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/18 09:32
+CC
+CC CHANGES    :  27-MAY-91 : ??: DON'T PRINT TRAILING BLANKS
+CC               09-NOV-93 : MR: HEADER COMMENT
+CC               12-AUG-94 : MR: FORMAT 4: SESSION AS CHARACTER*4
+CC               28-APR-00 : SS: CONSIDER "NDIFF"
+CC               05-MAR-03 : CU: REMOVE USE OF SKELETON FILE
+CC               15-APR-03 : CU: BUG FIXED (FORMAT STATEMENTS)
+CC               08-SEP-03 : HU: ANTNAM, RECNAM CHR16 -> CHR20,
+CC                               FILENAMES CHR(*)
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               26-JAN-11 : LP: CHANGED CALL TO RDHEAD
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE s_rdhead
+      USE f_lengt1
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IDELTT, IF    , IFRMAT, IRMARK, MEATYP,
+     1          MXCAMB, MXCSAT, NDIFF , NEPFLG, NEPOCH, NFREQ , NFTOT ,
+     2          NSATEL, NUMAMB
+C
+      REAL*8    TIMREF
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      CHARACTER*132 TITLES(2)
+      CHARACTER*53  TITLE
+      CHARACTER*(*) HEADER(*)
+      CHARACTER*16  CAMPGN,CAMPG1,STANAM(2)
+      CHARACTER*20  ANTTYP(2),RECTYP(2),OPRNAM(2)
+      CHARACTER*9   CRDATE(2)
+      CHARACTER*6   MXNSAT,MXNAMB
+      CHARACTER*5   CRTIME(2)
+      CHARACTER*4   CSESS(2)
+C
+      REAL*8        AMBIGU(MXCAMB,3)
+      REAL*8        POSECC(3,2)
+C
+      INTEGER*4     PRIOPT,NUMSAT(*),NUMOBS(MXCSAT,2),NUMMRK(MXCSAT,2)
+      INTEGER*4     AMBIEP(MXCAMB),AMBSAT(MXCAMB)
+      INTEGER*4     IRUNIT(2),IANTEN(2),ICLOCK(2)
+      INTEGER*4     AMBWLF(MXCAMB,2),AMBCLS(MXCAMB,3),READGEOS
+C
+      COMMON/MCMSAT/MXCSAT,MXNSAT
+      COMMON/MCMAMB/MXCAMB,MXNAMB
+C
+C PRINT TITLE LINES
+C -----------------
+      IF(PRIOPT.NE.0) THEN
+        WRITE(LFNPRT,2) TITLES(1)(1:LENGT1(TITLES(1))),
+     1                  TITLES(2)(1:LENGT1(TITLES(2)))
+2       FORMAT(//,A,/,A,/,' ',131('-'),//)
+C
+        WRITE(LFNPRT,"(
+     1       ' RECEIVER INFORMATION AND POSITIONING ECCENTRICITIES:'
+     2    ,/,' ---------------------------------------------------'
+     3    ,/,108X,' POSITIONING ECCENT.(M)'
+     4    ,/,' FILE  STATION NAMES     RECEIVER TYPES       REC.NR    '
+     4      ,'ANTENNA TYPES        ANT.NR    OPERATOR NAMES         '
+     4      ,'NORTH   EAST     UP'
+     5    ,/,1X,131('-')
+     6    ,/,1X)")
+C
+C PRINT RECEIVER INFO AND POS.ECCENTRICITIES
+C ------------------------------------------
+        READGEOS=0
+        DO 50 IF=1,NFTOT
+          CALL RDHEAD(HEADER(IF),MEATYP,NDIFF,NFREQ,NEPOCH,NSATEL,
+     1                CSESS,IDELTT,TIMREF,CAMPGN,TITLE,CRDATE,
+     2                CRTIME,IRMARK,NEPFLG,IFRMAT,
+     3                STANAM,RECTYP,ANTTYP,IRUNIT,IANTEN,
+     4                OPRNAM,POSECC,ICLOCK,NUMSAT,NUMOBS,NUMMRK,
+     5                NUMAMB,AMBSAT,AMBIEP,AMBWLF,
+     6                AMBIGU,AMBCLS,READGEOS)
+          IF(CAMPGN.NE.CAMPG1) GOTO 50
+          WRITE(LFNPRT,1001) IF,STANAM(1),RECTYP(1),IRUNIT(1),
+     1                       ANTTYP(1),IANTEN(1),OPRNAM(1)(1:16),
+     2                       (POSECC(I,1),I=1,3)
+          IF (NDIFF.EQ.1) THEN
+            WRITE(LFNPRT,1002) STANAM(2),RECTYP(2),IRUNIT(2),
+     1                         ANTTYP(2),IANTEN(2),OPRNAM(2)(1:16),
+     2                         (POSECC(I,2),I=1,3)
+          ENDIF
+          WRITE(LFNPRT,'( )')
+1001      FORMAT(I5,2X,A16,2X,2(A20,I6,5X),A16,4X,3F8.4)
+1002      FORMAT(5X,2X,A16,2X,2(A20,I6,5X),A16,4X,3F8.4)
+50      CONTINUE
+      ENDIF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

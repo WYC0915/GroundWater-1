@@ -1,0 +1,902 @@
+<html>
+<body>
+
+<center>
+<b>CODE-BASED CLOCK SYNCHRONIZATION</b>
+<p>Program: CODSPP
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+<a name="DELETE_FILES"  default="%AUXFIL%\n%AUXFIL1%\n%AUXFIL2%"></a>
+
+<p><b>GENERAL DESCRIPTION</b>
+<p>
+The main purpose of the program CODSPP is the synchronization of receiver
+clocks with GPS time and the determination of approximate station
+coordinates using code zero-difference measurements. In addition the program
+can be used to mark code outliers in the observation files.
+
+<p><hr>
+
+<p><b>CODSPP 1: Filenames</b>
+
+<a name="SHOWGEN" default="1"></a>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br><br>
+
+<a name="RADIO_B" default="0"></a>
+<a name="RADIO_S" default="1"></a>
+<p><b>INPUT ORBITS</b>
+<p>
+For the point positioning using code observations either a broadcast
+orbit or a standard orbit can be used (selected by the radio buttons). The
+satellite clocks will either be taken from the broadcast orbit or from a
+satellite clock file in Bernese format, if a standard orbit is used. Note
+that only the input fields corresponding to the radio button settings are
+active.
+
+<a name="BRDEPH" default=""></a>
+<p><b>Broadcast orbits:</b>
+Select a broadcast orbit file (Bernese format). Only one file
+may be selected. Therefore, only code observations covered by the
+broadcast message in this file may be processed.
+<br>
+If a broadcast file is specified, the satellite clock
+information is taken from the broadcast file.
+
+<a name="STDORB" default=""></a>
+<p><b>Standard orbits:</b>
+Select a GNSS standard orbit file. Only one file may be selected. Therefore,
+only code observations covered by the standard orbit may be processed.
+If you use a standard orbit file, you will also have to specify a
+satellite clock file.
+
+<a name="SATCLK" default=""></a>
+<p><b>Satellite clocks:</b>
+Select the satellite clock file generated during the creation of
+the standard orbit file chosen above.
+<br>
+Usually this file should contain a polynomial model of the satellite
+clocks to make sure that values are available for all epochs.
+Observations to satellites without a clock value are ignored. If there are
+no clock values for all observed satellites at a certain epoch, this epoch will be
+excluded from the further processing!
+
+<p>Example: <a href="/$X/DOC/EXAMPLE1.CLK">Example</a>
+
+<br><br>
+
+<a name="CODEFILE" default="????$S+0"></a>
+<p><b>INPUT FILES</b>
+<p><b>Code observation files:</b>
+Selection of zero-difference code files to be processed. Several files
+may be processed in the same program run.
+
+<p><i>Default value:</i> <tt>????$S+0</tt>
+
+<a name="TROPEST" default=""></a>
+<p><b>Estimated tropo.values:</b>
+Here a troposphere estimates file from <a href="PGMLST.HLP#GPSEST">GPSEST</a>
+or <a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a> can be
+selected. This is only reasonable when using accurate clock information.
+To activate the troposphere values set the atmosphere model in option
+"Troposphere" in the section "ATMOSPHERE MODELS" to ESTIMATED.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.TRP">Example</a>
+
+<p><i>Default value:</i> blank
+
+<a name="VMF1_FILES" default=""></a>
+<p><b>Maps of VMF1 coeff.:</b>
+For the continued fraction of the troposphere mapping function, the
+Vienna Mapping Functions 1 (VMF1, <a href="REFERENCES.HLP#Boehm_etal_2006">
+B&ouml;hm et al., 2006</a>) rely on global grids of the a, b, and c coefficients,
+partly based on the ray-tracing of the European Centre for Medium-Range
+Weather Forecasts (ECMWF) numerical weather models output. For more details
+on the VMF1 or to download VMF1 grids, please visit the
+<a href="LINKS.HLP#VMF1">VMF1 website</a>.
+
+<a name="POLE" default=""></a>
+<p><b>Pole file:</b>
+This file contains the Earth rotation parameters (ERPs). It is used for
+the transformations between the International Celestial Reference Frame
+(ICRF) and the International Terrestrial Reference Frame (ITRF). This
+file has to be identical to the one used for the computation of the standard
+orbit.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.ERP">Example</a>
+
+<a name="STAWGT" default=""></a>
+<p><b>Station sigma factors:</b>
+You may specify a file containing station observation sigma factors which
+will be used for rescaling the outlier detection threshold individually for
+each station (see options in "OUTLIER DETECTION" below).
+This becomes important if you use the program CODSPP to screen the code
+observations because the noise level of the pseudo-range measurements from
+different receiver types may be significantly different. If you are using
+smoothed code from program <a href="PGMLST.HLP#RNXSMT">RNXSMT</a> rescaling
+of the outlier threshold is not required.
+<br>
+Because the outlier rejection threshold for some of the stations is
+rescaled by the sigma factors the same scaling factors have to be used for
+all further processing of these observation files (e.g., parameter estimation
+in <a href="PGMLST.HLP#GPSEST">GPSEST</a>).
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.SOS">Example</a>
+
+<p><i>Default value:</i> blank
+
+<a name="COORD" default=""></a>
+<p><b>A priori coordinates:</b>
+Selection of an a priori coordinate file. This coordinate file must
+contain all the sites you are processing.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="ECCENT" default=""></a>
+<p><b>Site eccentricities:</b>
+Optionally, a site coordinate eccentricity file, containing local ties
+between markers, may be specified.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.ECC">Example</a>
+
+<a name="KININP" default=""></a>
+<p><b>Kin. input coordinates:</b>
+Optionally, you may introduce kinematic coordinates.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.KIN">Example</a>
+
+<a name="DCBINP" default=""></a>
+<p><b>Code bias input files:</b>
+Selection of a code bias input file containing differential
+(P1-P2 or P1-C1) code biases of satellites (and receivers) is
+generally recommended. These biases are irrelevant only when
+processing the L3 linear combination of code measurements from
+P1/P2 (not C1/X2 or C1/P2) receivers.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.DCB">Example</a>
+
+<a name="LEOPROC" default="0">
+<p><b>LEO files:</b>
+Check this box to specify LEO specific files (standard orbit, attitude file).
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+<p><b>CODSPP 1.1: General Files</b>
+
+<a name="CONST" default="CONST."></a>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used
+in the Bernese GNSS Software. Most probably you will never have to
+modify this file.
+
+<p>Example: <a href="/$X/GEN/CONST.">CONST.</a>
+
+<a name="SUBMOD" default="IERS2010XY"></a>
+<p><b>Subdaily pole model:</b>
+This file contains the parameters for the subdaily pole model. It
+has to be identical to the one used for the computation of the
+standard orbit.
+
+<p>Example: <a href="/$X/GEN/IERS2010XY.SUB">IERS2010XY.SUB</a>
+
+<a name="NUTMOD" default="IAU2000R06"></a>
+<p><b>Nutation model:</b>
+This file contains the parameters for the nutation model. It
+has to be identical to the one used for the computation of the
+standard orbit.
+
+<p>Example: <a href="/$X/GEN/IAU2000R06.NUT">IAU2000R06.NUT</a>
+
+<a name="SATELL" default="SATELLIT.I08"></a>
+<p><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed,
+each satellite has to appear once in this file
+within a corresponding time window.
+
+<p><i>Note:</i>
+The file <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a> is maintained
+by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>
+
+<a name="RECEIVR" default="RECEIVER."></a>
+<p><b>Receiver information:</b>
+This file contains in essence the code measurement types for a list of
+receivers. These specifications are relevant when considering so-called
+differential (P1-P2 or P1-C1) code biases.
+
+<p>Example: <a href="/$X/GEN/RECEIVER.">$X/GEN/RECEIVER.</a>
+
+<a name="SATCRUX" default="SAT_$Y+0"></a>
+<p><b>Satellite problems:</b>
+This file contains information on satellite problems concerning modeling.
+It is used for exclusion of misbehaving satellites
+(and for orbit arc splitting).
+It may also contain (mean) epochs of GPS repositioning events.
+
+<p><i>Note:</i>
+Corresponding year-specific files are maintained by AIUB/CODE.
+You can get the latest version of the current file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+
+<p>Example: <a href="/$X/GEN/SAT_2011.CRX">$X/GEN/SAT_2011.CRX</a>
+
+<p><i>Default value:</i> <tt>SAT_$Y+0</tt>
+
+<a name="STAINFO" default=""></a>
+<p><b>Station information:</b>
+This file contains station specific information. The program only considers
+the marker types (TYPE 005) contained in this file.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.STA">Example</a>
+
+<a name="DATUM" default="DATUM."></a>
+<p><b>Geodetic datum:</b>
+This file contains the definition of the geodetic datum and of the
+ellipsoid to be used to compute ellipsoidal coordinates. It is used
+to apply antenna heights and for the printing of coordinates in the
+local system (north, east, up). You only have to modify this file
+when you want to introduce a new reference ellipsoid.
+
+<p><i>Caution:</i>
+This file has no effect on Cartesian coordinates.
+
+<p>Example: <a href="/$X/GEN/DATUM.">$X/GEN/DATUM.</a>
+
+<a name="PHASECC" default="PCV.I08"></a>
+<p><b>Phase center eccentricities:</b>
+This file contains receiver antenna phase center offsets and optionally
+elevation-dependent phase center patterns.
+In addition, the file may contain satellite-specific antenna
+phase center patterns (dependent on nadir angle) as well as offset values.
+Corresponding offset (correction) values, however, are not yet considered
+by the software.
+The satellite antenna offset values applied correspond to
+those given in <a href="/$X/GEN/SATELLIT.I08">$X/GEN/SATELLIT.I08</a>.
+<br>
+You have to modify this file when you use a new antenna type
+or when you wish to consider your own PCV calibrations.
+The program <a href="PGMLST.HLP#ATX2PCV">ATX2PCV</a> allows to convert
+PCV information given in ANTEX format into Bernese-formatted PCV tables.
+
+<p><i>Important note:</i>
+The file $X/GEN/PHAS_IGS.REL contains PCV values
+for most of the receiver antenna types commonly used
+within IGS (and EUREF).
+These PCV values are addressed as 'relative' values
+as they are generally referred to
+a specific receiver antenna type (AOAD/M_T).
+For this reference antenna type
+(as well as implicitly all GNSS antenna types),
+PCV patterns are assumed to be nonexistent.
+Sooner or later, it will become common to consider 'absolutely' calibrated
+receiver and satellite antenna PCV values.
+A corresponding file ($X/GEN/PHAS_IGS.ABS) will be made available
+as soon as this is the case.
+
+<p>Example: <a href="/$X/GEN/PCV.I08">$X/GEN/PCV.I08</a>.
+
+<a name="FRQINFO" default="">
+<p><b>Frequency information:</b></a>
+This file contains the frequency information (frequency value, measurement
+type, frequency number) for all observation types. Entries are specified by the
+measurement type, the satellite or station name, and the duration of validity.
+Currently, it is used for range measurements (SLR) only.
+The frequency value is needed for the MARINI-MURRAY troposphere model,
+used for SLR data analysis.
+
+<p>Example: <a href="/$X/GEN/FREQINFO.FRQ">FREQINFO.FRQ</a>
+
+<a name="GPSUTC" default="GPSUTC."></a>
+<p><b>GPS-UTC file:</b>
+Select the file with GPS-UTC values here. You have to update this file each
+time a leap second is introduced. Only necessary with JASON attitude  file.
+
+<p>Example: <a href="/$X/GEN/GPSUTC.">GPSUTC.</a>
+
+<br><br>
+
+<a name="AUXFIL"  default="CODSPP$J"></a>
+<a name="AUXFIL1" default="CODSPP$J"></a>
+<a name="AUXFIL2" default="CODSPP$J"></a>
+<p><b>TEMPORARY FILES</b>
+<p>
+Enter the names of the scratch files used by this program. The scratch files need
+to be named differently for different programs running simultaneously. This
+may be achieved, e.g., by adding the job ID
+<tt>$J</tt> to the program name (define the job ID in the dialogue
+<a href="SETDATE.HLP">Menu &gt; Configure &gt; Set session/compute day</a>).
+
+<p><i>Default values:</i> <tt>CODSPP$J</tt>
+
+<p><hr>
+
+<p><b>CODSPP 1.2: LEO Files</b>
+
+<a name="LEOSTD" default=""></a>
+<p><b>LEO FILES</b>
+<p><b>LEO standard orbit:</b>
+Select the standard orbit file for the LEO here.
+
+<a name="ATTIT" default=""></a>
+<p><b>LEO attitude:</b>
+Select the LEO attitude file here.
+
+<p><hr>
+
+<p><b>CODSPP 1.3: Output Files</b>
+
+<a name="COORDRS" default=""></a>
+<p><b>RESULT FILES</b>
+<p><b>Coordinate results:</b>
+To save the coordinates estimated using code observations (single
+point positioning) enter a coordinate filename. If the field is
+blank, coordinates are not saved.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.CRD">Example</a>
+
+<a name="KINOUT" default=""></a>
+<p><b>Kinematic coordinates: </b>
+To save kinematic coordinates enter a filename here. If the field is blank,
+kinematic coordinates are not saved.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE.KIN">Example</a>
+
+<a name="RESIDRS" default=""></a>
+<p><b>Residual file:</b>
+The residuals of the single point positioning solutions are saved if
+you enter a filename here. The content of the binary file may be viewed using
+the program <a href="PGMLST.HLP#REDISP">REDISP</a> or analyzed using the
+program <a href="PGMLST.HLP#RESRMS">RESRMS</a>.
+<br>
+Residuals may also be printed to the program output file by using the
+print option "Residuals" below.
+
+<a name="SACLKRS" default=""></a>
+<p><b>Satellite clock results:</b>
+Save satellite clock file with all GLONASS satellite clock offsets
+corrected for the difference in GLONASS and GPS system time estimated
+in the program run. Satellite clocks are saved only if both GLONASS
+and GPS satellites are present and if an input satellite clock file has
+been specified (see option "Satellite clocks" in "INPUT ORBITS" section).
+
+<p>Example: <a href="/$X/DOC/EXAMPLE1.CLK">Example</a>
+
+<a name="CLKRNXRS" default=""></a>
+<p><b>Clock RINEX results:</b>
+The estimates for the receiver clocks can be stored in the clock RINEX
+format. Because this program performs a single point positioning all
+satellite clocks are written as reference into this file.
+If  dual GPS/GLONASS receivers are used to estimate the difference
+between GPS and GLONASS time scales,  only the GPS satellites are given as
+reference. The clocks of the GLONASS satellites are transformed into the
+GPS time scale.
+
+<p>Example: <a href="/$X/DOC/EXAMPLE3.CLK">Example</a>
+
+<a name="DCBOUT" default=""></a>
+<p><b>GNSS receiver LC DCB values:</b>
+Specify a DCB output file name to save GLONASS-GPS system time offsets
+computed for each combined receiver.
+
+<br><br>
+
+<a name="SMCINO" default=""></a>
+<a name="SMEINO" default=""></a>
+<p><b>OUTPUT FILES</b>
+<p><b>Output summary (XYZ coord.)</b> and <b>Output summary (Ell.coord.):</b>
+The resulting site coordinates may be saved in two special summary
+files (one with the default extension .SMC and one with the default
+extension .SME).
+In the first file a line containing the estimated geocentric coordinates
+(x,y,z), their formal errors, and the most important processing
+options are appended for each input observation file processed in
+this program run.
+In the second file the ellipsoidal coordinates and RMS errors are
+saved. If the summary files do not yet exist, they will be created.
+
+<br><br>
+
+<a name="SYSODEF" default="1"></a>
+<a name="SYSOUT"  default="CODSPP"></a>
+<p><b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each
+program run (checkbox marked), or specify a common name for all program runs.
+<br>
+If you mark the checkbox, the filename will correspond to the program name
+with an extension containing a counter (Lnn), which is automatically
+incremented for each program run. If the counter reaches the maximum value, it
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output
+file number".
+<br>
+If the checkbox is unmarked, you have to specify a name for the program
+output file. This allows to characterize the program run, e.g., by using the
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<a name="ERRMRG" default="0"></a>
+<a name="SYSERR" default="ERROR"></a>
+<p><b>Error messages:</b>
+You can choose to have error messages written into the program's output
+file (see above), or specify a separate file to which error messages are
+written.
+
+<p><hr>
+
+<p><b>CODSPP 2: Input Options</b>
+
+<a name="TITLE" default=""></a>
+<p><b>TITLE</b>
+<p>
+This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by,
+e.g., giving the most important options used and the session.
+
+<br><br>
+
+<a name="FREQ" default="L3"></a>
+<b>PARAMETERS</b>
+<p><b>Frequency:</b>
+The code observations of the L1 or L2 frequency or the ionosphere-free
+linear combination (L3) may be processed. When L3 is selected, the
+program will automatically switch to L1, if no or only few L2 observations
+are available. Whenever possible L3 should be used to eliminate
+the ionospheric refraction.
+
+<p><i>Default value:</i> <tt>L3</tt>
+
+<a name="CLKPOLY" default="E"></a>
+<p><b>Clock polynomial degree:</b>
+With this option you specify the polynomial degree of the receiver
+clock corrections you are estimating. The entire time interval of a
+code observation file will be represented by a polynomial of the
+specified degree. The maximum degree is 7. If you enter the option
+<b>E</b>, a receiver clock offset will be determined for each observation
+epoch. Some receivers produce millisecond jumps and may therefore only be
+processed using the option <b>E</b>. You should use polynomials only, if
+the receiver was driven by an excellent external oscillator (e.g., a
+hydrogen maser).
+
+<p><i>Default value:</i> <tt>E</tt>
+
+<a name="CLKSAVE" default="BOTH"></a>
+<p><b>Save clock estimates:</b>
+In normal operation the most important results of this program are
+the receiver clock corrections with respect to GPS time. These
+receiver clock corrections have to be saved in the code and phase
+zero-difference observation files for later use!
+<br>
+For some special applications you can specify here the zero-difference
+file type (code and/or phase) into which the clock corrections
+shall be written.
+With <b>NO</b> the receiver clock corrections will NOT be saved in any
+of the zero-difference observation files.
+<br>
+In the case of a phase observation file it is assumed, that the code
+and phase zero-difference observation files have corresponding
+names.
+<br>
+Usually <b>BOTH</b> has to be entered to save the results in both code and phase
+observation files. This is in most cases indispensable if you want to
+continue the processing of the observation files. If code and phase will be
+processed together the clock corrections in both observation files need to
+be equal. Be careful if you insert another value for this option!
+
+<p><i>Default value:</i> <tt>BOTH</tt>
+
+<a name="COORDEST" default="NO"></a>
+<p><b>Estimate coordinates:</b>
+Specify whether static or kinematic coordinates shall be estimated or
+whether coordinates shall not be estimated at all:
+<ul>
+<li><b>NO:</b>
+    Do not estimate coordinates. If the results have very large residuals and
+    you know to have good a priori coordinates available, it might help to fix
+    the coordinates to their a priori values (leave checkbox unmarked) in order
+    to identify the problem (e.g., a bad satellite). The a priori coordinates
+    will be used as true values for the receiver clock estimation.
+<li><b>STATIC:</b>
+    Estimate one set of coordinates for all stations.
+<li><b>KINEMATIC:</b>
+    Select this option, if you wish to estimate kinematic coordinates
+    (epoch-wise). This option is only allowed if the option
+    "Clock polynomial degree" is set to E (clock
+    offsets for each epoch). In case of mixed GPS/GLONASS files only GPS
+    observations are considered for the estimation of kinematic
+    coordinates.
+</ul>
+
+<p><i>Default value:</i> <tt>NO</tt>
+
+<br><br>
+
+<a name="TROPOS" default="GMF"></a>
+<p><b>ATMOSPHERE MODELS</b>
+<p><b>Troposphere:</b>
+There are several possibilities to model the tropospheric delay.
+<ul>
+<li><b>NONE:</b>
+    No tropospheric correction is applied. This option should only be
+    used for test purposes (e.g., to demonstrate the biases resulting
+    when troposphere delays are neglected).
+<li><b>VMF:</b>
+    Vienna troposphere model by
+<!--ref>REFERENCES.HLP#Boehm_etal_2006<-->
+    <a href="REFERENCES.HLP#Boehm_etal_2006">B&ouml;hm et al. (2006)</a>
+<!--end of ref><-->
+    coefficients for the zenith
+    delay and the mapping functions are taken from grid files that need
+    to be specified in option "Maps of VMF1 coeff." panel "CODSPP 1: Filenames".
+    These grids have to cover the  network for the complete session you
+    are going to process.
+<li><b>GMF:</b>
+    Troposphere model by <a href="REFERENCES.HLP#Boehm_etal_2007">
+    B&ouml;hm et al. (2007)</a>. Pressure and temperature (computed
+    from an empirical model (GPT) using station coordinates and day of the year)
+    are used to compute the sum of the wet and dry zenith delays.
+    The global mapping function (GMF, <a href="REFERENCES.HLP#Boehm_etal_2006b">
+    B&ouml;hm et al. (2006b)</a>) is used to map the zenith delay to
+    other elevations.
+<li><b>NIELL:</b>
+    Troposphere model by <a href="REFERENCES.HLP#Niell_1996">Niell (1996)</a>.
+    The zenith delay is computed as described below under SAASTAMOINEN. The NIELL
+    mapping function is used to map the zenith delay to other elevations.
+<li><b>SAASTAMOINEN:</b>
+    Troposphere model by <a href="REFERENCES.HLP#Saastamoinen_1973">Saastamoinen
+    (1973)</a>. Pressure, temperature, and relative humidity (extrapolated from
+    sea level values given in the constant file) are used to compute the sum of
+    the wet and dry delays.
+<li><b>HOPFIELD:</b>
+    <a href="REFERENCES.HLP#Hopfield1969">Hopfield (1969)</a> model for
+    tropospheric refraction. Pressure, temperature, and humidity are generated
+    as above.
+<li><b>ESSEN-FROOME:</b>
+    Troposphere model by <a href="REFERENCES.HLP#Essen_Froome_1951">Essen & Froome
+    (1951)</a>.
+<li><b>MARINI-MUR:</b>
+    The <a href="REFERENCES.HLP#Marini_Murray_1973">Marini-Murray (1973)</a>
+    tropospheric refraction model. This model is especially developed for SLR
+    analysis.
+<li><b>ESTIMATED:</b>
+    If you introduce a troposphere estimates input file (input file
+    option "Estimated tropo.values") then the ESTIMATED
+    option MUST be selected here. For stations without
+    troposphere estimates in the  file the model indicated in the estimates
+    file will be selected.
+</ul>
+There is no possibility to use measured surface meteorological data.
+
+<p><i>Default value:</i> <tt>GMF</tt>
+
+<a name="IONOS" default="0"></a>
+<p><b>Ionosphere:</b>
+If this checkbox is marked, a very simple ionosphere model will be
+applied. This model has hardwired values for the day- and night-time
+mean electron content in the atmosphere and is therefore not really
+representative for the actual ionospheric conditions.
+When processing L3 you obviously do not need to specify an ionosphere
+model.
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+<p><b>CODSPP 3: Input Options</b>
+
+<a name="MINEL" default="3"></a>
+<p><b>OBSERVATION SELECTION</b>
+<p><b>Minimum elevation:</b>
+Only code observations above the elevation cut-off angle specified
+here will be used. The residuals for observations below the cut-off
+angle will be printed (if residual printing is activated)
+with a flag <b>E</b> indicating that such observations were not
+used for the estimation itself.
+
+<p><i>Default value:</i> <tt>3</tt> degrees
+
+<a name="SAMPLE" default="1"></a>
+<p><b>Sampling rate: </b>
+Under special circumstances you may wish to only process every n-th
+code observation epoch, which you can specify by this option.
+If you use the epoch-wise receiver clock estimation (option <b>E</b> described
+above) you should always process all observations, because epochs without a
+receiver clock correction will produce problems in the
+phase processing.
+
+<p><i>Default value:</i> <tt>1</tt>
+
+<a name="SECIPL" default="0"></a>
+<p><b>Interpolation of clocks: </b>
+The interpolation of the satellite clocks may be applicable if you process data
+with a higher sampling than the available satellite clocks, e.g. LEO data with
+10 seconds sampling, satellite clocks with 30 seconds sampling. Then you can
+linearly interpolate the clocks by selecting a value, which is larger than the
+sampling of the clocks.
+
+<p><i>Default value:</i> <tt>0</tt>
+
+<a name="WINDOW" default="0"></a>
+<p><b>Observation window:</b>
+Usually all observations in the code files are processed.
+Mark this checkbox to enter a time window for the observations to be processed.
+
+<p><i>Warning:</i>
+Clock corrections in the observation files will only be available
+for the specified window.
+
+<p><i>Default value:</i> unmarked
+
+<a name="USEMRK" default="0"></a>
+<p><b>Use mark flags from observation files:</b>
+Some of the code observations in the Bernese observation file may have a
+'mark' flag. This flag could stem  either from a previous run of CODSPP
+(see "Mark outliers in obs. files" in section "OUTLIER DETECTION") or from
+another program like, e.g., <a href="PGMLST.HLP#SATMRK">SATMRK</a>.
+If you are sure about the origin of
+these mark flags you may use them. Otherwise you may ignore them by
+unmarking this checkbox.
+
+<p><i>Default value:</i>  unmarked
+
+<br><br>
+
+<a name="PRTRES" default="0"></a>
+<p><b>PRINT OPTIONS</b>
+<p><b>Residuals:</b>
+If this checkbox is marked, the residuals of the single point positioning
+are printed into the program output together with a flag indicating the
+status of the observation (marked, no orbits, ...).
+<br>
+If you would like to save the residuals in a special residual
+file, you should specify a residual output file in the output file options.
+
+<p><i>Default value:</i> unmarked
+
+<a name="PRTELE" default="0"></a>
+<p><b>Elevations:</b>
+If the checkbox is marked the satellite elevation angles are
+included in the program output.
+
+<p><i>Default value:</i> unmarked
+
+<p><hr>
+
+<p><b>CODSPP 3.1: Observation Window</b>
+
+<a name="RADIO_1" default="1"></a>
+<a name="RADIO_2" default="0"></a>
+<p><b>OBSERVATION WINDOW</b>
+<p>
+This panel allows to specify a time window. Only observations
+within this time window will be used for processing.
+<br>
+You may define the time window either by using session definitions, or by
+explicitly specifying start and end times.
+
+<a name="SESSION_YEAR" default="$Y+0"></a>
+<a name="SESSION_STRG" default="$S+0"></a>
+<p><b>Year and Session identifier:</b>
+You may specify one session from the <a href="SESSIONS.HLP">session table</a>.
+The boundaries of this session define the observation window. If you use an
+open session table the year has to be specified in addition to the session
+identifier. If you use a fixed session table the year is read from the session
+definition and the value in the panel is ignored.
+<br>
+It is possible to specify a range of sessions using the corresponding
+menu variable (<tt>$S+-</tt>). In this case the time window starts at the
+beginning of the first session of the range and stops at the end of the last
+session of the range. If you use an open session table the year should also
+be given with the range variable (<tt>$Y+-</tt>).
+
+<p><i>Default values:</i> Year: <tt>$Y+0</tt> session: <tt>$S+0</tt>
+
+<a name="STADAT" default="$YMD_STR+0"></a>
+<a name="STATIM" default="00 00 00"></a>
+<a name="ENDDAT" default="$YMD_STR+0"></a>
+<a name="ENDTIM" default="23 59 59"></a>
+<p><b>Start and End times:</b>
+Specify date and time for the begin and the end of the observation window.
+<br>
+To specify a time window which is open on one side of the interval,
+leave the corresponding input field for the start/end date empty. The
+associated start/end time is then ignored.
+
+<p><i>Default values for daily processing:</i> Start date: <tt>$YMD_STR+0</tt>,
+start time: 00&nbsp;00&nbsp;00, end date: <tt>$YMD_STR+0</tt>,
+end time: 23&nbsp;59&nbsp;59
+
+<p><hr>
+
+<p><b>CODSPP 4: Screening Options</b>
+
+<a name="ITRMAX" default="10"></a>
+<p><b>ITERATIONS</b>
+<p><b>Max. number of iterations:</b>
+Coordinates and receiver clock errors are estimated iteratively. This
+is necessary in particular if the a priori coordinates are of bad
+quality. With this option you may set the number of iterations to 1
+if you already have very good coordinates to speed up the processing.
+The clock corrections are then computed from the observed-computed
+(o-c) values and the residuals will be set to the o-c values, too.
+The iterative process is stopped, if the coordinate changes are below
+half a meter even if the maximum number of iterations is not yet
+reached. The actual number of iterations performed is given in the
+output file.
+
+<p><i>Default value:</i> <tt>10</tt>
+
+<br><br>
+
+<a name="OUTDET" default="1"></a>
+<p><b>OUTLIER DETECTION</b>
+<p><b>Outlier detection:</b>
+The checkbox allows to switch the outlier detection algorithm on or off.
+Depending on whether you are working in the kinematic mode or not different
+outlier detection algorithms with different options will be applied.
+<p>
+In the non-kinematic mode an
+observation will be considered as an outlier and not be used in the
+parameter estimation, if the observed-computed value (o-c) differs (a)
+by more than the value specified in the field "Max. residual allowed"
+from the mean o-c value of all satellites of this epoch and (b) by more
+than n times the RMS of the o-c values of one epoch or more than n times
+the RMS a posteriori from the previous iteration, where the value for n is
+entered in the field "Confidence interval". If only a few satellites (e.g., 2
+or 3) are available most of the time or if the a priori coordinates are very
+bad, the outlier detection might not work in a reliable way.
+<br>
+If you use CODSPP to get a priori clocks for a baseline processing using
+phase data only you should work with a weak outlier rejection threshold
+because you have to keep in mind that an epoch where CODSPP could not
+compute an a priori clock value for the station will be lost for all
+further processing.
+<br>
+On the other hand you may use CODSPP as a screening tool for the
+pseudo-range observations. Because the noise level of the raw code
+measurements from various receiver types may be very different
+the use of "Station sigma factors" in section "INPUT FILES" is
+highly recommended in this case. If you are using smoothed code from program
+<a href="PGMLST.HLP#RNXSMT">RNXSMT</a> the use of the sigma factors for the
+rescaling of the outlier rejection threshold is not required.
+<br>
+A sigma factor larger than 1.000 is multiplied with the threshold
+specified in the field "Max. residual allowed" to obtain
+the effective outlier rejection threshold for the respective station.
+A sigma factor below 1.000 is set to 1.000. For stations not
+included in the station sigma file the sigma factor is set to 1.000.
+<br>
+In the kinematic mode outlier detection is performed epoch by epoch.
+In a first step an epoch-solution is computed iteratively.
+If the RMS of this solution is larger
+than the value specified in the field "Max. RMS of kin. solution" a
+search for the worst satellite is initiated. The satellite is identified
+which leads to the maximum improvement of the solution if its observation is
+not contributing. This procedure is repeated until an
+acceptable solution is found or the redundancy becomes smaller than the value
+specified in the field "Min. degree of freedom". If the latter case no
+epoch-solution is computed and all observations of the corresponding epoch
+are marked.
+<br>
+If you unmark this checkbox, the following options are of no importance.
+
+<p><i>Default value:</i> marked
+
+<a name="RESMAX" default="30.0"></a>
+<p><b>Max. residual allowed: </b>
+This option defines the maximum absolute value for a residual (more
+precisely the o-c level, see above). Observations with residuals exceeding
+this threshold undergo additional tests based on the value for n specified
+in the following option "Confidence interval". When you are going to
+analyze old data (with SA is turned on), the outlier detection level might
+be set to a higher value (e.g., 100 meters).
+<br>
+If you are using CODSPP as a screening tool for pseudo-range
+observations you can decrease this value to 3.0 meter.
+<br>
+By introducing a file in the field "Station sigma
+factors" the threshold value may be adapted to the code noise of the
+receivers at individual stations.
+
+<p><i>Default value:</i> <tt>30.0 </tt>meters
+
+<a name="CONFIN" default="5.0"></a>
+<p><b>Confidence interval:</b>
+This option makes sure that observations are not eliminated because
+of satellite clock, site coordinate, and orbit errors (see option
+"Outlier detection" above).
+<br>
+If you are going to use CODSPP as a screening tool for pseudo-range
+observations you can decrease this value to 3.0.
+
+<p><i>Default value:</i> <tt>5.0</tt>
+
+<a name="KINDOF" default="1"></a>
+<p><b>Min. degree of freedom</b>
+This option defines the minimal redundancy which must be given in order
+to compute an epoch-solution in the kinematic mode. A value
+of 0 means that epoch solutions are calculated even without any
+redundancy, i.e., with only 4 satellites available.
+
+<p><i>Default value:</i> <tt>1</tt>
+
+<a name="KINSIG" default="5.0"></a>
+<p><b>Max. RMS of kin. solution</b>
+This option defines the screening threshold for outlier detection when
+estimating kinematic coordinates. Because the noise level of the raw
+code measurements from different receiver types may be very different
+the use of "Station sigma factors" (see "INPUT FILES" section)
+is highly recommended as long as you do not use
+smoothed code observations obtained from the program
+<a href="PGMLST.HLP#RNXSMT">RNXSMT</a>.
+
+<p><i>Default value:</i> <tt>5.0</tt>
+
+<a name="OUTLSAVE" default="CODE"></a>
+<p><b>Mark outliers in obs. files:</b>
+If an outlier detection was done the bad observations may be marked in the
+code (<b>CODE</b>), phase (<b>PHASE</b>), or code as well as phase (<b>BOTH</b>)
+observation files. Specify "NO" to prevent marking of the bad observations
+in the files.
+<br>
+Usually only the code observations should be marked because the outlier
+detection is done for this observation type only. If you don't use the
+code observation files in further processing it is not necessary to
+mark the bad observation; you may specify <b>NO</b>. Marking bad code observations
+also in the phase observation files may be helpful if you want to use
+a combination between the code and phase observations in your processing
+(e.g., Melbourne-Wuebbena-linear combination).
+
+<p><i>Default value:</i> <tt>CODE</tt>
+
+<p><hr>
+
+<p><b>CODSPP 5: Header For Clock RINEX Files</b>
+
+<a name="RUNBY" default=""></a>
+<p><b>ENTRIES FOR THE CLOCK RINEX FILE</b>
+<p><b>Run by:</b> Enter the name of the operator of this program run.
+
+<a name="AC" default=""></a>
+<p><b>AC:</b> Enter the acronym of the analysis center here.
+
+<a name="ACNAME" default=""></a>
+<p><b>AC name:</b> Enter the name of the analysis center here.
+
+<a name="TIMESYS" default="GPS"></a>
+<p><b>Time system:</b>
+Content of TIME SYSTEM in the header of the CLOCK RINEX output file.
+
+<a name="DCBLINE" default=""></a>
+<p><b>DCBs applied:</b>
+Last 40 characters of DCBS APPLIED in the header of the CLOCK RINEX output
+file.
+
+<a name="COMMENT" default="%%"></a>
+<p><b>Comment lines:</b>
+Enter any comment lines here.
+
+<p><hr>
+
+</body>
+</html>

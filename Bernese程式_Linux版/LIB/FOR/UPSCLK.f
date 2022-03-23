@@ -1,0 +1,128 @@
+      MODULE s_UPSCLK
+      CONTAINS
+
+C*
+      SUBROUTINE UPSCLK(TITLE,MIXED,TIMOFF,SIGOFF)
+CC
+CC NAME       :  UPSCLK
+CC
+CC PURPOSE    :  SAVE UPDATED SATELLITE CLOCKS IN SATELLITE CLOCK FILE
+CC
+CC PARAMETERS :
+CC        IN  :  TITLE  : TITLE OF OUTPUT FILE                  CH*80
+CC               MIXED  : SATELLITE SYSTEM                       I*4
+CC                        =0: GPS ONLY
+CC                        =1: MIXED (GPS AND GLONASS)
+CC                        =2: GLONASS ONLY
+CC              TIMOFF : TIME OFFSET BETWEEN GLONASS AND GPS    R*8
+CC                       TIME SYSTEM (S)
+CC              SIGOFF : RMS ERROR OF TIME OFFSET
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  4.1
+CC
+CC CREATED    :  19-AUG-98
+CC
+CC CHANGES    :  15-AUG-99 : JJ: RM UNUSED VARS MXNCLK, MXNFIL
+CC               17-FEB-03 : LM: USE M_MAXDIM
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1998     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE m_maxdim, ONLY: MAXSAC
+      USE s_wtsath
+      USE s_wtsati
+      USE s_rdsath
+      USE s_rdsati
+      USE s_gtflna
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IRC   , MIXED , NSACLK
+C
+      REAL*8    SIGOFF, TIMOFF, TSACLK
+C
+CCC       IMPLICIT REAL*8(A-H,O-Z)
+C
+C
+      CHARACTER*80 TITLE,TITINP
+      CHARACTER*32 FILCLK,FILCL2
+C
+      REAL*8       SATCLK(MAXSAC)
+C
+      INTEGER*4    SVN
+C
+C
+C SAVE SATELLITE CLOCIKS ?
+C ------------------------
+      CALL GTFLNA(0,'SACLKRS',FILCL2,IRC)
+      IF (IRC.NE.0) RETURN
+C
+C CHECK IF GLONASS AND GPS SATELLITES PRESENT
+C -------------------------------------------
+      IF (MIXED.NE.1) THEN
+        WRITE(LFNERR,901) FILCL2
+901     FORMAT(/,' ### SR UPSCLK: ONLY GPS OR ONLY GLONASS SATELLITES',
+     1           ' PROCESSED',/,
+     2           16X,'NO SYSTEM TIME OFFSET ESTIMATED',/,
+     3           16X,'NO SATELLITE CLOCK OUTPUT FILE WRITTEN !',/,
+     4           16X,'SATELLITE CLOCK FILE NAME: ',A,/)
+        RETURN
+      ENDIF
+C
+C CHECK FOR A PRIORI SATELLITE CLOCK FILE
+C ---------------------------------------
+      CALL GTFLNA(0,'SATCLK ',FILCLK,IRC)
+      IF (IRC.NE.0) THEN
+        WRITE(LFNERR,902) FILCL2
+902     FORMAT(/,' ### SR UPSCLK: NO A PRIORI SATELLITE CLOCK FILE',
+     1           ' SPECIFIED',/,
+     2           16X,'NO SATELLITE CLOCK OUTPUT FILE WRITTEN !',/,
+     4           16X,'SATELLITE CLOCK FILE NAME: ',A,/)
+
+        RETURN
+      ENDIF
+C
+C READ A PRIORI SATELLITE CLOCK HEADER, WRITE OUTPUT HEADER
+C ---------------------------------------------------------
+      CALL RDSATH(FILCLK,LFN001,TITINP)
+C
+      CALL WTSATH(FILCL2,LFN002,TITLE)
+C
+C LOOP OVER ALL SATELLITE CLOCK RECORDS
+C -------------------------------------
+100   CONTINUE
+        CALL RDSATI(LFN001,SVN   ,TSACLK,NSACLK,SATCLK,IRC)
+        IF (IRC.NE.0) GOTO 110
+C
+C ADD SYSTEM TIME OFFSET TO GLONASS SATELLITE CLOCK OFFSETS
+C ---------------------------------------------------------
+        IF (SVN.GT.100) SATCLK(1)=SATCLK(1)-TIMOFF
+C
+C WRITE SATELLITE CLOCK RECORD TO OUTPUT FILE
+C -------------------------------------------
+        CALL WTSATI(LFN002,SVN   ,TSACLK,NSACLK,SATCLK,IRC)
+C
+C NEXT RECORD
+C -----------
+        GOTO 100
+C
+C CLOSE OUTPUT FILE
+C -----------------
+110   CLOSE(UNIT=LFN002)
+C
+C END
+C ---
+999   RETURN
+      END SUBROUTINE
+
+      END MODULE

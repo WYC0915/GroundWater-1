@@ -1,0 +1,129 @@
+      MODULE s_COVSV1
+      CONTAINS
+
+C*
+      SUBROUTINE COVSV1(TITLE,SIGMA,NOBS,NPARMS,NPAR,COV,LOCQ,STNAME,
+     1                  TIMISB)
+CC
+CC NAME       :  COVSV1
+CC
+CC PURPOSE    :  PRINT COMPLETE COVARIANCE MATRIX
+CC               *** MODIFICATION OF COVSAV ***
+CC               *** TO GIVE ENTIRE MATRIX  ***
+CC
+CC PARAMETERS :
+CC         IN :  TITLE  : GENERAL TITLE                       CH*80
+CC               SIGMA  : MEAN ERROR OF UNIT WEIGHT           R*8
+CC               NOBS   : NUMBER OF OBSERVATIONS              R*8
+CC               NPARMS : NUMBER OF PARAMETERS FOR RMS COMP.  R*8
+CC               NPAR   : NUMBER OF PARAMETERS                I*4
+CC               COV    : UPPER TRIANGULAR PART OF COVARI-    R*8
+CC                        ANCE MATRIX
+CC               LOCQ(K,I),K=1,.,MAXLCQ,I=1,NPAR: PARAMETER   I*4
+CC                        TION
+CC               STNAME(I),I=1,..: STATION NAMES              CH*16
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  G.BEUTLER, M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  87/11/02 17:38
+CC
+CC CHANGES    :  27-APR-92 : ??: INTERNAL NAME 'COVTTRS'
+CC               28-DEC-92 : ??: USE OF SR "OPNFIL" TO OPEN FILES
+CC                9-JUN-93 : EB: PRINT NUMBER OF OBERVATIONS AND NUMBER
+CC                               OF UNKNOWNS
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               08-FEB-07 : RD: NOBS/NPARMS -> I*4->R*8
+CC               21-NOV-09 : RD: INTER-SYSTEM BIAS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE s_opnfil
+      USE s_pripr1
+      USE s_gtflna
+      USE s_opnerr
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IND   , IND0  , IOSTAT, IPAR  , IRC   , KPAR  , MXCLCQ,
+     1          NPAR
+C
+      REAL*8    NOBS  , NPARMS, SIGMA
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      INTEGER*4    LOCQ(MXCLCQ,*)
+      REAL*8       COV(*),TIMISB(3,*)
+      CHARACTER*6  MXNLCQ
+      CHARACTER*16 STNAME(*)
+      CHARACTER*32 FILCOV
+      CHARACTER*80 TITLE
+C
+      COMMON/MCMLCQ/MXCLCQ,MXNLCQ
+C
+C GET COVARIANCE OUTPUT FILE NAME ( = BLANK : NO SAVE)
+C ----------------------------------------------------
+      CALL GTFLNA(0,'COVTTRS',FILCOV,IRC)
+      IF(IRC.NE.0) RETURN
+C
+C OPEN OUTPUT FILE
+C ----------------
+      CALL OPNFIL(LFNLOC,FILCOV,'UNKNOWN','FORMATTED',
+     1            ' ',' ',IOSTAT)
+      CALL OPNERR(LFNERR,LFNLOC,IOSTAT,FILCOV,'COVSV1')
+C
+C PRINT TITLE LINE
+C ----------------
+      WRITE(LFNLOC,5) TITLE
+5     FORMAT(A80,/,80('-'),/)
+C
+C PRINT PARAMETER CHARACTERIZATION LIST
+C -------------------------------------
+      CALL PRIPR1(1,LFNLOC,NPAR,LOCQ,STNAME,TIMISB)
+C
+C PRINT UPPER TRIANGLE OF VAR./COVAR. MATRIX
+C ------------------------------------------
+      IF (NPARMS.GT.99999999d0) THEN
+        WRITE(LFNLOC,10) SIGMA,NOBS,NPARMS
+10      FORMAT(//,'UPPER TRIANGULAR PART OF VARIANCE-COVARIANCE ',
+     1               'MATRIX:',/,51('-'),//,'RMS OF UNIT WEIGHT:',F8.4,
+     2               2X,'# OBS:',E11.4,2X,'# UNKNOWNS:',E9.4,/)
+      ELSE
+        WRITE(LFNLOC,11) SIGMA,NINT(NOBS),NINT(NPARMS)
+11      FORMAT(//,'UPPER TRIANGULAR PART OF VARIANCE-COVARIANCE ',
+     1             'MATRIX:',/,51('-'),//,'RMS OF UNIT WEIGHT:',F8.4,
+     2             2X,'# OBS:',I11,2X,'# UNKNOWNS:',I9,/)
+      ENDIF
+      WRITE(LFNLOC,20)
+20    FORMAT(/,'  ROW  COL      MATRIX ELEMENT',/)
+C
+C LOOP OVER ALL PARAMETERS
+      DO 100 IPAR=1,NPAR
+C
+C LOOP OVER ALL LINES OF UPPER TRIANGULAR PART OF MATRIX
+        IND0=IPAR*(IPAR-1)/2
+        DO 50 KPAR=1,IPAR
+          IND=IND0+KPAR
+          WRITE(LFNLOC,30) IPAR,KPAR,COV(IND)
+30        FORMAT(2I5,D22.10)
+50      CONTINUE
+100   CONTINUE
+C
+      WRITE(LFNLOC,'( )')
+C
+C CLOSE FILE
+      CLOSE(UNIT=LFNLOC)
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

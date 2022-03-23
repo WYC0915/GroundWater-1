@@ -1,0 +1,27 @@
+package CCRNXC;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  CCRNXC
+#
+# Purpose :  Execute CCRNXC
+#
+# PARAMs  :
+#
+# Author  :  M. Meindl
+# Created :  23-Jul-2003
+#
+# Changes :  11-Aug-2011 RD: Updated for version 5.2
+#
+# ============================================================================
+use strict;
+
+sub run {
+  my $bpe = shift;
+
+# Run program
+# -----------
+  my $PGMNAM = "CCRNXC";
+  $bpe->RUN_PGMS($PGMNAM);
+
+}

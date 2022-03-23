@@ -1,0 +1,38 @@
+package GOTO;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  GOTO
+#
+# Purpose :  Jump to specified PID
+#
+# PARAMs  :  PARAM2...PARAMn - PID where to go when the script will be
+#                              restarted (n)th time
+#
+# Author  :  R. Dach
+# Created :  22-Sep-2003
+#
+# Changes :  11-Aug-2011 RD: Updated for version 5.2
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(prtGoto);
+
+sub run {
+  my $bpe = shift;
+
+
+# Get variables
+# -------------
+  my $iRun = $$bpe{STARTCOUNT} - 1;
+
+  my @nextJob = ($$bpe{PARAM2},$$bpe{PARAM3},$$bpe{PARAM4},$$bpe{PARAM5},
+                 $$bpe{PARAM6},$$bpe{PARAM7},$$bpe{PARAM8},$$bpe{PARAM9});
+
+# Write the "next jobs" statement
+# -------------------------------
+  if (defined($nextJob[$iRun])) { prtGoto($bpe,$nextJob[$iRun]) }
+
+}

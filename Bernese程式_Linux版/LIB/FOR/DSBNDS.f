@@ -1,0 +1,286 @@
+      MODULE s_DSBNDS
+      CONTAINS
+
+C*
+      SUBROUTINE DSBNDS(NSAT,SVNNUM,IRCTOT,DTPI,
+     1                  MAXMAN,NMAN,SATMAN,TIMMAN,
+     2                  NSATOK,SVNOK,TBNDS,XBNDS)
+CC
+CC NAME       :  DSBNDS
+CC
+CC PURPOSE    :  FIND REASONABLE BOUNDARY VALUES ON AUXILIARY FILE
+CC               (WITH TAB. ORBIT POSITIONS) FOR THE BOUNDARY VALUE
+CC               PROBLEM OF ALL SATELLITES. LEFT BOUNDARY IS (USUALLY)
+CC               FIRST POSITION FOUND. SELECT RIGHT BOUNDARY ONE
+CC               HOUR APART IF POSSIBLE.
+CC
+CC PARAMETERS :
+CC         IN :  NSAT   : NUMBER OF SATELLITES                I*4
+CC               SVNNUM(I),I=1,..,NSAT: SATELLITE NUMBERS     I*4
+CC               IRCTOT : TOTAL NUMBER OF RECORDS ON FILE     I*4
+CC               DTPI   : LENGTH OF PARTIAL INTERVAL          R*8
+CC               MAXMAN: MAXIMUM NUMBER OF MANOEUVRES          I*4
+CC               NMAN  : NUMBER OF MANOEUVRES                  I*4
+CC               SATMAN(I),I=1,..,NMAN: NUMBERS OF THE SHIFTED I*4
+CC                       SATELLITES
+CC               TIMMAN(I),I=1,..,NMAN: TIME OF MANOEUVRE IN   R*8
+CC                       MODIFIED JULIAN DATE
+CC        OUT :  NSATOK : NUMBER OF SATELLITES WITH           I*4
+CC                        ACCEPTABLE BOUNDARY VALUES FOUND
+CC               SVNOK(I),I=1,..,NSATOK: SATELLITE NUMBERS    I*4
+CC                        OF ACCEPTED SATELLITES
+CC               TBNDS(J,I),J=1,2,I=1,..,NSATOK: BOUNDARY     R*8
+CC                        TIMES FOR BOUNDARY VALUE PROBLEM
+CC                        (MJD)
+CC               XBNDS(K,J,I),K=1,2,3,J=1,2,I=1,..,NSATOK:    R*8
+CC                        BOUNDARY POSITIONS (X,Y,Z IN METERS)
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  90/07/27 10:48
+CC
+CC CHANGES    :  12-DEC-91 : ??: CORRECT LOGIC FOR BOUNDARY VALUE
+CC                               SELECTION
+CC               11-JUL-92 : ??: ORDER SATELLITES FOR PRINT. NUMBER OF
+CC                               SATELLITES PRINTED
+CC               28-DEC-92 : ??: USE OF SR "OPNFIL" TO OPEN FILES
+CC               24-AUG-93 : LM: MANOEUVRES
+CC               13-NOV-93 : MR: SEARCH FOR NEXT POSITION PAIR, IF
+CC                               ONLY ONE POSITION WITHIN 3 HOURS
+CC               23-NOV-93 : SF: SET MAXSAT TO 30
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               28-MAR-95 : MR: WRITE WARNING IF INITIALIZATION NOT OK
+CC               29-APR-97 : HH: INCLUDE FILE FOR MAXSAT
+CC               13-AUG-97 : MR: ADD ONE SECOND TO "DTBND" TO AVOID SMALL
+CC                               NUMERICAL DIFFERENCES
+CC               27-AUG-98 : MR: USE FUNCTION "MODSVN"
+CC               10-MAY-99 : MR: READ VARIABLE "IFIL" FROM AUX. FILE
+CC               17-FEB-03 : LM: USE M_MAXDIM
+CC               16-JUN-05 : MM: UNUSED COMCONST.inc REMOVED
+CC               21-JUN-05 : MM: COMLFNUM.INC REMOVED, M_BERN ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               10-AUG-10 : RD: USE TIMST2 INSTEAD OF TIMSTR
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1990     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE m_maxdim, ONLY: MAXSAT
+      USE s_timst2
+      USE s_iordup
+      USE s_opnfil
+      USE f_modsvn
+      USE s_exitrc
+      USE s_gtflna
+      USE s_opnerr
+      USE s_maxtst
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IBND  , IBOUND, IFIL  , IMAN  , IOSTAT, IRC   ,
+     1          IRCFIL, IRCTOT, IREC  , ISAT  , ISTAT , JSAT  , MAXMAN,
+     2          MXCSAT, NEND  , NMAN  , NSAT  , NSATOK
+C
+      REAL*8    DTBND , DTPI  , T0ARC , TXXX
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+CCC       IMPLICIT INTEGER*4 (I-N)
+C
+C
+      CHARACTER*40 TSTRNG
+      CHARACTER*32 FILNAM
+      CHARACTER*6  MXNSAT
+      REAL*8       TBNDS(2,*),XBNDS(3,2,*),X(3),TBNDS0(2)
+      REAL*8       TIMMAN(MAXMAN)
+      INTEGER*4    SATMAN(MAXMAN)
+      INTEGER*4    SVNNUM(*),SVNOK(*),ISTATS(MAXSAT),SVNFIL
+      INTEGER*4    IDXSAT(MAXSAT)
+C
+C COMMON BLOCKS
+C -------------
+      COMMON/TORIGO/T0ARC
+      COMMON/MCMSAT/MXCSAT,MXNSAT
+C
+C CHECK MAXIMUM DIMENSIONS
+C ------------------------
+      CALL MAXTST(1,'DSBNDS',MXNSAT,MAXSAT,MXCSAT,IRC)
+      IF (IRC .NE. 0) CALL EXITRC(2)
+C
+C OPEN AUX. FILE WITH OBSERVATIONS (TAB. ORBIT POSITIONS)
+C -------------------------------------------------------
+      CALL GTFLNA(1,'TABAUX ',FILNAM,IRCFIL)
+      CLOSE(UNIT=LFN001)
+      CALL OPNFIL(LFN001,FILNAM,'UNKNOWN','UNFORMATTED',
+     1            'READONLY',' ',IOSTAT)
+      CALL OPNERR(LFNERR,LFN001,IOSTAT,FILNAM,'DSBNDS')
+C
+C INITIALIZE SATELLITE STATUS:
+C   =0: NO BOUNDARIES FOUND YET
+C   =1: LEFT BOUNDARY FOUND
+C   =2: LEFT AND RIGHT BOUNDARY FOUND, BUT OPTIMAL TIME INTERVAL NOT
+C       REACHED YET
+C   =3: LEFT AND RIGHT BOUNDARY OK
+C ------------------------------------------------------------------
+      DO 10 ISAT = 1,NSAT
+        ISTATS(ISAT) = 0
+10    CONTINUE
+C
+C OPTIMAL TIME INTERVAL BETWEEN LEFT AND RIGHT BOUNDARY
+C -----------------------------------------------------
+      IF (DTPI .LT. 1.D0) THEN
+        DTBND = .85*DTPI/24.D0
+      ELSE
+        DTBND = 1.D0/24.D0+1.D0/86400.D0
+      END IF
+C
+C LOOP OVER ALL RECORDS OF AUXILIARY FILE
+C ---------------------------------------
+      NEND = 0
+      DO 100 IREC = 1,IRCTOT
+        READ(LFN001) IFIL,SVNFIL,TXXX,X
+C
+C FIND SATELLITE INDEX
+        DO 20 ISAT = 1,NSAT
+          IF ( SVNNUM(ISAT) .EQ. SVNFIL) THEN
+            DO 24 IMAN=1,NMAN
+              IF (SVNFIL.EQ.SATMAN(IMAN)      .AND.
+     1            TXXX+T0ARC.GE.TIMMAN(IMAN)  .AND.
+     2            T0ARC.LT.TIMMAN(IMAN))      GO TO 20
+24          CONTINUE
+            GO TO 30
+          ELSE IF (MODSVN(SVNNUM(ISAT)).EQ.SVNFIL) THEN
+            DO 25 IMAN=1,NMAN
+              IF (SVNFIL.EQ.SATMAN(IMAN)      .AND.
+     1            TXXX+T0ARC.GE.TIMMAN(IMAN)  .AND.
+     2            T0ARC.LT.TIMMAN(IMAN))      GO TO 30
+25          CONTINUE
+          END IF
+20      CONTINUE
+        GOTO 100
+C
+C SAVE NEW POSITION ACCORDING TO STATUS "ISTATS"
+C ----------------------------------------------
+30      ISTAT = ISTATS(ISAT)
+C
+        IF     (ISTAT .EQ. 0) THEN
+            IBOUND = 1
+            ISTAT  = 1
+        ELSEIF (ISTAT .EQ. 1) THEN
+          IF (TXXX-TBNDS(1,ISAT) .LE. DTBND) THEN
+            IBOUND = 2
+            ISTAT  = 2
+          ELSEIF (TXXX-TBNDS(1,ISAT) .LE. 3.D0/24.D0) THEN
+            IBOUND = 2
+            ISTAT  = 3
+          ELSE
+            IBOUND = 1
+            ISTAT  = 1
+          ENDIF
+        ELSEIF (ISTAT .EQ. 2) THEN
+          IF (TXXX-TBNDS(1,ISAT) .LE. DTBND) THEN
+            IBOUND = 2
+            ISTAT  = 2
+          ELSE
+            IBOUND = 3
+            ISTAT  = 3
+          ENDIF
+        ELSE
+          GOTO 100
+        ENDIF
+C
+C UPDATE BOUNDARY INFO
+C --------------------
+        ISTATS(ISAT) = ISTAT
+        IF (IBOUND .EQ. 1 .OR. IBOUND .EQ. 2) THEN
+          TBNDS(IBOUND,ISAT) = TXXX
+          DO 40 I = 1,3
+            XBNDS(I,IBOUND,ISAT) = X(I)
+40        CONTINUE
+        ENDIF
+        IF ( ISTAT .EQ. 3) THEN
+          NEND = NEND + 1
+C
+C ALL SATELLITES OK ?
+          IF (NEND .EQ. NSAT) GOTO 110
+        ENDIF
+C
+C NEXT RECORD
+100   CONTINUE
+C
+C WRITE LIST OF BOUNDARIES FOUND
+C ------------------------------
+110   NSATOK=0
+      DO 115 ISAT=1,NSAT
+        IF (ISTATS(ISAT) .GE. 2) NSATOK = NSATOK + 1
+115   CONTINUE
+      WRITE(LFNPRT,1001) NSAT,NSATOK
+1001  FORMAT(1X,79('-'),/,' BOUNDARY VALUE PROBLEM',/,1X,79('-'),//,
+     1       ' TOTAL NUMBER OF SATELLITES   :',I4,/,
+     2       ' SATELLITES WITH BOUNDARIES OK:',I4,//,
+     1       ' SAT  LEFT BOUNDARY        RIGHT BOUNDARY       COMMENT',
+     2       /,' ---',2(2X,19('-')),2X,32('-'),/)
+C
+C ORDER SATELLITES
+      CALL IORDUP(SVNNUM,NSAT,IDXSAT)
+C
+      DO 120 ISAT = 1,NSAT
+        JSAT=IDXSAT(ISAT)
+        IF (ISTATS(JSAT) .EQ. 0) THEN
+          WRITE(LFNPRT,1002) SVNNUM(JSAT)
+1002      FORMAT(I4,9X,'---',18X,'---',11X,'NO SATEL. POSITIONS FOR',
+     1           ' THIS ARC')
+          WRITE(LFNERR,1021) SVNNUM(JSAT)
+1021      FORMAT(/,' ### SR DSBNDS: NO SATELLITE POSITIONS FOUND',
+     1           /,16X,'SATELLITE:',I3,
+     2           /,16X,'SATELLITE EXCLUDED FROM THIS ARC',/)
+        ELSEIF (ISTATS(JSAT) .EQ. 1) THEN
+          TBNDS0(1) = TBNDS(1,JSAT) + T0ARC
+          CALL TIMST2(1,1,TBNDS0(1),TSTRNG)
+          WRITE(LFNPRT,1003) SVNNUM(JSAT),TSTRNG(1:17)
+1003      FORMAT(I4,2X,A19,9X,'---',11X,'NO TWO POSIT. FOUND < ',
+     1           '3 HOURS APART')
+          WRITE(LFNERR,1031) SVNNUM(JSAT)
+1031      FORMAT(/,' ### SR DSBNDS: NO TWO SATELLITE POSITIONS FOUND',
+     1             ' < 3 HOURS APART',
+     2           /,16X,'SATELLITE:',I3,
+     3           /,16X,'SATELLITE EXCLUDED FROM THIS ARC',/)
+        ELSE
+          TBNDS0(1) = TBNDS(1,JSAT) + T0ARC
+          TBNDS0(2) = TBNDS(2,JSAT) + T0ARC
+          CALL TIMST2(1,2,TBNDS0,TSTRNG)
+          WRITE(LFNPRT,1004) SVNNUM(JSAT),TSTRNG
+1004      FORMAT(I4,2X,A40,2X,'BOUNDARIES OK')
+        ENDIF
+120   CONTINUE
+      WRITE(LFNPRT,1005)
+1005  FORMAT(/,' ',79('-'),//)
+C
+C COMPOSE LIST WITH SATELLITES THAT ARE OK
+C ----------------------------------------
+      NSATOK=0
+      DO 150 ISAT = 1,NSAT
+        IF (ISTATS(ISAT) .GE. 2) THEN
+          NSATOK = NSATOK + 1
+          SVNOK(NSATOK) = SVNNUM(ISAT)
+          DO 140 IBND = 1,2
+            TBNDS(IBND,NSATOK) = TBNDS(IBND,ISAT)
+            DO 130 I = 1,3
+              XBNDS(I,IBND,NSATOK) = XBNDS(I,IBND,ISAT)
+130         CONTINUE
+140       CONTINUE
+        ENDIF
+150   CONTINUE
+C
+C END
+C ---
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

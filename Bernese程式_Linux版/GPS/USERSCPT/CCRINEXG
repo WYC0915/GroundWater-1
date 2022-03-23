@@ -1,0 +1,50 @@
+package CCRINEXG;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  CCRINEXG
+#
+# Purpose :  Copy all GLONASS navigation files for the session
+#            from RAW to ORX and execute CCRINEXG
+#
+# PARAMs  :
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use File::Copy;
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($ssss, $satsys,
+      $dirRxg,  $dirOrx,
+      $extRxg,  $extOrx) =
+  $bpe->getKeys
+     ('$S+0','V_SATSYS',
+      'DIR_RXG','DIR_OXG',
+      'EXT_RXG','EXT_RXG');
+
+# Do nothing if no GLONASS is requested
+# -------------------------------------
+  if (uc $satsys =~ /GLO/) {
+
+# Move the input files from RAW to ORX
+# ------------------------------------
+    unlink glob "${dirOrx}????${ssss}.$extOrx";
+    map { move($_, $dirOrx) } glob "${dirRxg}????${ssss}.$extRxg";
+
+# Run program
+# -----------
+    my $PGMNAM = "CCRINEXG";
+    $bpe->RUN_PGMS($PGMNAM);
+
+  }
+}

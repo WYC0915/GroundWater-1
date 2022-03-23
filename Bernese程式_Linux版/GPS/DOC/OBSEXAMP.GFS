@@ -1,0 +1,66 @@
+Signal selection file for GIOVE, Galileo, and SBAS
+--------------------------------------------------
+Satellite   Code-  Code-  Phase- Phase- Receiver
+Number      obs 1  obs 2  obs 1  obs 2
+***         ***    ***    ***    ***    ********************
+
+G01         C1C    C5X    L1C    L5X                        
+G02         C1C    C2P    L1C    L2P                        
+G03         C1C    C2P    L1C    L2P                        
+G04         C1C    C2P    L1C    L2P                        
+G05         C1C    C2P    L1C    L2P                        
+G06         C1C    C2P    L1C    L2P                        
+G07         C1C    C2P    L1C    L2P                        
+G08         C1C    C2P    L1C    L2P                        
+G09         C1C    C2P    L1C    L2P                        
+G10         C1C    C2P    L1C    L2P                        
+G11         C1C    C2P    L1C    L2P                        
+G12         C1C    C2P    L1C    L2P                        
+G13         C1C    C2P    L1C    L2P                        
+G14         C1C    C2P    L1C    L2P                        
+G15         C1C    C2P    L1C    L2P                        
+G16         C1C    C2P    L1C    L2P                        
+G17         C1C    C2P    L1C    L2P                        
+G18         C1C    C2P    L1C    L2P                        
+G19         C1C    C2P    L1C    L2P                        
+G20         C1C    C2P    L1C    L2P                        
+G21         C1C    C2P    L1C    L2P                        
+G22         C1C    C2P    L1C    L2P                        
+G23         C1C    C2P    L1C    L2P                        
+G24         C1C    C2P    L1C    L2P                        
+G25         C1C    C5X    L1C    L5X                        
+G26         C1C    C2P    L1C    L2P                        
+G27         C1C    C2P    L1C    L2P                        
+G28         C1C    C2P    L1C    L2P                        
+G29         C1C    C2P    L1C    L2P                        
+G30         C1C    C2P    L1C    L2P                        
+G31         C1C    C2P    L1C    L2P                        
+G32         C1C    C2P    L1C    L2P                        
+R01         C1C    C2P    L1C    L2P                        
+R02         C1C    C2P    L1C    L2P                        
+R03         C1C    C2P    L1C    L2P                        
+R04         C1C    C2P    L1C    L2P                        
+R05         C1C    C2P    L1C    L2P                        
+R06         C1C    C2P    L1C    L2P                        
+R07         C1C    C2P    L1C    L2P                        
+R08         C1C    C2P    L1C    L2P                        
+R09         C1C    C2P    L1C    L2P                        
+R10         C1C    C2P    L1C    L2P                        
+R11         C1C    C2P    L1C    L2P                        
+R12         C1C    C2P    L1C    L2P                        
+R13         C1C    C2P    L1C    L2P                        
+R14         C1C    C2P    L1C    L2P                        
+R15         C1C    C2P    L1C    L2P                        
+R16         C1C    C2P    L1C    L2P                        
+R17         C1C    C2P    L1C    L2P                        
+R18         C1C    C2P    L1C    L2P                        
+R19         C1C    C2P    L1C    L2P                        
+R20         C1C    C2P    L1C    L2P                        
+R21         C1C    C2P    L1C    L2P                        
+R22         C1C    C2P    L1C    L2P                        
+R23         C1C    C2P    L1C    L2P                        
+R24         C1C    C2P    L1C    L2P                        
+E01         C1X    C5X    L1X    L5X                        
+E11         C1X    C5X    L1X    L5X                        
+E12         C1X    C5X    L1X    L5X                        
+E16         C1X    C5X    L1X    L5X                        

@@ -1,0 +1,42 @@
+package COD_SUM;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  COD_SUM
+#
+# Purpose :  Store preprocessing summary from code observations into a
+#            separate file
+#
+# PARAMs  :
+#
+# Author  :  R. Dach
+# Created :  11-Aug-2011
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use File::Copy;
+
+sub run {
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyssss,
+      $dirOut
+      ) =
+    $bpe->getKeys(
+      '$YSS+0',
+      'DIR_OUT');
+
+# Copy the file
+# -------------
+  my $resSum = "${dirOut}RES${yyssss}.PRC";
+  my $codSum = "${dirOut}COD${yyssss}.PRC";
+
+  copy($resSum,$codSum);
+
+
+}

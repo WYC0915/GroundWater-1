@@ -1,0 +1,117 @@
+<html>
+<body>
+
+<center>
+<b>CREATE NEW CAMPAIGN</b>
+<p>Program: NEWCAMP
+</center>
+<hr width="100%">
+
+<a name="CAMPAIGN"     default=""></a>
+<a name="LIST_SUBDIRS" default="%ATM%\n%BPE%\n%GRD%\n%OBS%\n%ORB%\n%ORX%\n%OUT%\n%RAW%\n%SOL%\n%STA%"></a>
+<a name="LIST_FILES"   default="%${X}/SKL/SESSIONS.SES% %STA%">
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+This panel specifies the list of campaign subdirectories that have to be
+created for a new campaign. Additionally a list of files to be copied from
+any directory of your system into the specified campaign subdirectories may
+be defined.
+
+<p><i>Remark:</i>
+If a campaign directory already exists, only the
+subdirectories are created. A warning message <tt>Error creating
+directory</tt> is issued for already existing subdirectories which remain
+untouched. The files specified in the list
+are, however, copied into the campaign and <i>overwrite</i> already
+existing files.
+
+<p><i>Remark for UNIX:</i>
+You need - of course - write permission to create
+the campaign directory and the subdirectories.
+<br>
+To create a new campaign follow these steps:
+<ol>
+  <li>Add the new campaign to the list under
+      <b>Menu &gt; Campaign &gt; Edit list of campaigns</b>.
+  <li>Select the campaign under
+      <b>Menu &gt; Campaign &gt; Select active campaign</b>.
+  <li>Create the corresponding directory tree using this program.
+</ol>
+
+<p><hr>
+
+<p><b>CREATE NEW CAMPAIGN</b>
+
+<p><b>Selected campaign:</b> Select the campaign using the dialogue under
+<b>Menu &gt; Campaign &gt; Select active campaign</b>.
+
+<p><b>Create campaign:</b>
+The list specifies the campaign subdirectories. The names have to be consistent
+with those specified under <b>Menu &gt; Configure &gt; Paths and extensions</b>.
+The following directories are required (default names):
+<table width="100%">
+<tr>
+  <td width="10%">ATM</td>
+  <td width="90%">Atmosphere related files</td>
+</tr>
+<tr>
+  <td width="10%">BPE</td>
+  <td width="90%">Files created by the Bernese Processing Engine</td>
+</tr>
+<tr>
+  <td width="10%">GRD</td>
+  <td width="90%">Grid files, e.g., with VMF1-Coefficients</td>
+</tr>
+<tr>
+  <td width="10%">OBS</td>
+  <td width="90%">Bernese observation files</td>
+</tr>
+<tr>
+  <td width="10%">ORB</td>
+  <td width="90%">Orbit and pole information files</td>
+</tr>
+<tr>
+  <td width="10%">ORX</td>
+  <td width="90%">Original RINEX files</td>
+</tr>
+<tr>
+  <td width="10%">OUT</td>
+  <td width="90%">Program and miscellaneous output files</td>
+</tr>
+<tr>
+  <td width="10%">RAW</td>
+  <td width="90%">RINEX files</td>
+</tr>
+<tr>
+  <td width="10%">SOL</td>
+  <td width="90%">Solution files</td>
+</tr>
+<tr>
+  <td width="10%">STA</td>
+  <td width="90%">Station related files</td>
+</tr>
+</table>
+
+<p><b>Copy files into the campaign:</b>
+This list specifies the files which are copied into the campaign
+after the creation of the tree. The filenames are specified including the source
+path. The target subdirectory in the campaign structure needs also be
+specified. Already existing files are overwritten. The following
+files are required:
+<table width="100%">
+<tr>
+  <td width="30%">${X}/SKL/SESSIONS.SES</td><td width="8%">STA</td>
+  <td width="62%">Session table. The master file contains a wildcard session
+                  covering 24 hours. For details see
+                  <a href="SESSIONS.HLP">session table</a>.</td>
+</tr>
+</table>
+
+<p><i>Remark:</i>
+To specify the files to be copied, wildcards are allowed.
+
+<p><hr>
+
+</body>
+</html>

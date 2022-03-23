@@ -1,0 +1,185 @@
+      MODULE s_GTKEYW
+      CONTAINS
+
+C*
+      SUBROUTINE GTKEYW(PANNAM,KEYWRD,VALKEY,IRCODE)
+CC
+CC NAME       :  GTKEYW
+CC
+CC PURPOSE    :  GET VALUE OF KEYWORD FROM DATA PANELS
+CC
+CC PARAMETERS :
+CC         IN :  PANNAM : PANEL FILENAME                         CH*(*)
+CC               KEYWRD : KEYWORD WHICH VALUE IS LOOKED FOR      CH*(*)
+CC        OUT :  VALKEY : VALUE OF KEYWORD                       CH*(*)
+CC               IRCODE : RETURN CODE                             I*4
+CC                        2: ERROR DETECTED, '=X' IN INPUT FIELD
+CC                        1:                 '=Q' IN INPUT FIELD
+CC                        3: END OF 'FOLLOW-UP' ENTRIES
+CC
+CC REMARKS    : 1. IF "PANNAM" SAME AS PREVIOUS: PANEL IS NOT READ
+CC                                         (VALUES USED FROM FIRST CALL)
+CC                 TO FORCE TO READ PANEL ANEW : CALL WITH A BLANK
+CC                                               "PANNAM" FIRST
+CC                 IF "PANNAN" = 'FOLLOW-UP': SEARCH EXISTING LIST FROM
+CC                                            CURRENT POSITION
+CC                 IF "KEYWRD" STARTS WITH '?' REST OF "KEYWRD" WILL BE
+CC                 LOOKED FOR IN ANY POSITION OF THE KEYWORDS
+CC               COMMON /CGTPAN/ :
+CC               NKEYWD : NUMBER OF KEYWORDS FOUND             I*4
+CC               VALSTR(1:8) : LIST OF KEYWORDS                CH*8(N)
+CC               VALSTR(9:88): LIST OF CORRESPONDING INPUT     CH*80(N)
+CC                             FIELDS
+CC
+CC AUTHOR     :  W. GURTNER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  17-AUG-89
+CC
+CC CHANGES    :  06-NOV-92 : ??: USE INPCCH TO READ VALKEY. DECODE NUMERIC
+CC                               MENUPARAMETERS, TOO
+CC               28-OCT-93 : ??: UPDATE HEADER INFORMATION
+CC               06-APR-94 : MR: COMMON DECLARATION AS IN SR GETPAN
+CC               27-AUG-94 : MR: NO PROMP1 FOR NON-INTERACTIVE MODE
+CC               01-SEP-99 : TS: ADD OLDPAN TO COMMON
+CC               07-DEC-01 : HU: USE INCL_P.inc INSTEAD OF I:INCL_P
+CC               17-FEB-03 : LM: NOINTR=1 HARD-WIRED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               27-MAR-12 : RD: USE PROMP1 AS MODULE NOW
+CC               29-OCT-12 : RD: REMOVE #ifdef OS_VMS
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1989     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE s_promp1
+      USE s_getpan
+      USE f_inpcch
+      USE s_opnfil
+      USE f_lengt0
+      USE f_lengt1
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IFIRST, IKEY  , IOSTAT, IRC   , ISTART, K     ,
+     1          LFNLOC, LK    , MXCKEY, NINP  ,
+     2          NOINTR
+C
+C  GLOBAL PARAMETERS
+      INTEGER*4    IRCODE
+      CHARACTER    PANNAM*(*),KEYWRD*(*),VALKEY*(*)
+C
+C  LOCAL PARAMETERS
+      CHARACTER    OLDPAN*80,PROCID*80,CHR1*1,CHMENU*1,STRING*80
+      INTEGER*4    NRMENU(5)
+
+      CHARACTER FILMEN*80
+      CHARACTER*80 STRG(1)
+C
+C  COMMON PARAMETERS
+      PARAMETER (MXCKEY=2000)
+      INTEGER*4 NKEYWD,MAXKEY
+      CHARACTER*88 VALSTR(MXCKEY)
+      COMMON /CGTPAN/ MAXKEY,NKEYWD,OLDPAN,VALSTR
+C
+      SAVE IKEY
+      SAVE ISTART
+C
+      DATA IFIRST/1/
+      MAXKEY=MXCKEY
+C
+C GET INTERACTION MODE
+      IF (IFIRST.EQ.1) THEN
+        OLDPAN=' '
+cccc        CALL GTINTM(NOINTR)
+        nointr = 1
+        IFIRST=0
+      ENDIF
+C
+      IF(PANNAM.EQ.' ') THEN
+        GOTO 900
+C
+      ELSEIF(PANNAM.EQ.'FOLLOW-UP') THEN
+        ISTART=IKEY+1
+C
+      ELSEIF(PANNAM.NE.OLDPAN) THEN
+        CALL GETPAN(PANNAM,IRC)
+        IF(IRC.NE.0) GOTO 920
+        ISTART=1
+      END IF
+C
+      LK=LENGT0(KEYWRD)
+      DO 10 IKEY=ISTART,NKEYWD
+        IF(KEYWRD.EQ.VALSTR(IKEY)(1:8)) THEN
+          VALKEY=VALSTR(IKEY)(9:88)
+          NINP=INPCCH(-LEN(VALKEY),0,5,VALKEY,
+     1                CHR1,CHMENU,NRMENU,IRC)
+          GOTO (900,900,930,920,910) IRC
+          GOTO 900
+        END IF
+        IF(KEYWRD(1:1).EQ.'?'.AND.
+     1     INDEX(VALSTR(IKEY)(1:8),KEYWRD(2:LK)).NE.0) THEN
+          VALKEY=VALSTR(IKEY)(9:88)
+          NINP=INPCCH(-LEN(VALKEY),0,5,VALKEY,
+     1                CHR1,CHMENU,NRMENU,IRC)
+          GOTO (900,900,930,920,910) IRC
+          GOTO 900
+        END IF
+10    CONTINUE
+C
+      IF(PANNAM.NE.'FOLLOW-UP') THEN
+        WRITE(*,911) KEYWRD,PANNAM
+911     FORMAT(/,' *** SR GTKEYW: KEYWORD NOT FOUND IN PANEL'
+     1         /,16X,'KEYWORD   : ',A,
+     2         /,16X,'PANEL NAME: ',A,/)
+        IF (NOINTR.NE.1) THEN
+          STRG(1)='PRESS <ENTER> TO CONTINUE'
+          CALL PROMP1(1,STRG)
+          READ(*,'(A)') CHR1
+        ENDIF
+        IRCODE=2
+      ELSE
+        IRCODE=3
+      END IF
+      GOTO 999
+C
+910   IRCODE=1
+      GOTO 999
+C
+920   IRCODE=2
+      GOTO 999
+C
+C  NUMERIC MENU PARAMETERS
+930   IF(NINP.NE.0) THEN
+cccc        CALL GTPRID(PROCID)
+        procid = 'x'
+
+#ifdef OS_UNIX
+        FILMEN = 'U:/WORK/MENU.AUX'
+#endif
+#ifdef OS_WIN32
+        FILMEN = 'U:\WORK\MENU.AUX'
+#endif
+
+        FILMEN=FILMEN(1:LENGT1(FILMEN))//PROCID
+        LFNLOC=99
+        CALL OPNFIL(LFNLOC,FILMEN,'UNKNOWN',' ',' ',' ',IOSTAT)
+        WRITE(STRING,931,IOSTAT=IOSTAT) (NRMENU(K),K=1,NINP)
+931     FORMAT(5(I1.1,'.'))
+        STRING(2*NINP:)=' '
+        WRITE(LFNLOC,'(A)') STRING(1:LENGT1(STRING))
+        CLOSE(UNIT=LFNLOC)
+      END IF
+      IRCODE=2
+      GOTO 999
+C
+900   IRCODE=0
+C
+999   OLDPAN=PANNAM
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

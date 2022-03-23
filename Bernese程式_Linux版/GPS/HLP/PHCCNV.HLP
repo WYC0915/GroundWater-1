@@ -1,0 +1,233 @@
+<html>
+<body>
+<center>
+<b>CONVERT ANTENNA PHASE CENTER CORRECTIONS TO BERNESE FORMAT</b>
+<p>Program: PHCCNV</p>
+</center>
+<hr WIDTH="100%">
+
+<a name="ENVIRONMENT"   default="%% %%"></a>
+<a name="CAMPAIGN"      default=""></a>
+<a name="SESSION_TABLE" default="SESSIONS"></a>
+<a name="YR4_INFO"      default="$Y+0"></a>
+<a name="SES_INFO"      default="$S+0"></a>
+<a name="USR_INFO"      default="${USER}"></a>
+
+<br>
+<br>
+<p>
+<b>GENERAL DESCRIPTION</b>
+<p>The program converts external phase center offsets and patterns (format 
+from NGS or ANTEX up to version 1.3) into the internal Bernese format for 
+phase center offsets. 
+
+<br>
+<br>
+<p><hr><a name="SHOWGEN" default="1"></a>
+<b>PHCCNV 1: Input</b>
+<br>
+<br>
+<p><b>GENERAL FILES</b>
+<p><b>Show all general files:</b>
+Check this box to get a list of the general input files used by this program
+as well as the currently active campaign, session, and session table.
+
+<br>
+<br>
+<p><a name="PHASEXT" default=""></a>
+<b>INPUT FILENAMES</b>
+<p><b>External phase center offsets:</b>
+Select the file with the phase center offsets in the official ANTEX format 
+(up to version 1.3) or is in the NGS-format. The program automatically
+recognizes the correct format. But note that the NGS-format can be only 
+converted to Bernese format and none of the following options is active.
+
+<br>
+<p><a name="PHASOLD" default=""></a>
+<p><b>Bernese phase center offsets file:</b>
+Select a Bernese PCV file. The Bernese PCV file may be converted from
+relative to absolute and/or updated by adding new antennas from ANTEX or 
+updating existing antennas with new antenna information from ANTEX.
+<br>Example: <a href="/$X/GEN/PHAS_COD.REL">$X/GEN/PHAS_COD.REL</a> 
+
+<br>
+<p><a name="STAENLA" default=""></a>
+<p><b>Station information file:</b>
+The program extends the Bernese PCV file with all antennas that are given 
+in the station information file but not available in the external PCV file.
+Values are taken from the NONE antenna of the same antenna type.
+<br><a href="/$X/DOC/EXAMPLE.STA">Example</a>
+
+<br>
+<br>
+<p><a name="CONVERT" default="0">
+<p><a name="ABS2REL" default="0">
+<p><a name="RADCOD" default="0">
+<b>OPTIONS FOR BERNESE INPUT FILE</b></a>
+<p><b>Conversion from relative to absolute PCV:</b>
+This option may be activated to convert the existing relative Bernese PCV file
+to an absolute Bernese PCV file. A relative PCV file and an absolute 
+ANTEX file are required as input.
+An additional option is the conversion from absolute calibrated antennas in 
+ANTEX back to relative values. In that case the "AOAD/M_T......NONE" antenna 
+has to be included in the asolute ANTEX file as well as in the relative 
+Bernese input file.
+<p><i>Default values:</i> <tt>unmarked</tt>
+<br>
+<p><b>Consider antennas without radome code:</b>
+With this option activated antennas from the input Bernese PCV file without 
+radome code are written to the output Bernese PCV file. Missing radome codes
+are replaced by the string "????" to remind the user that he should insert
+proper radome codes.
+<p><i>Default value:</i> <tt>unmarked</tt>
+
+<br>
+<br>
+<p><a name="PHASRSG" default=""></a>
+<b>RESULT FILE</b>
+<p><b>Bernese phase center offsets:</b>
+Specify the filename for the output file for the phase center offsets in the
+internal Bernese format.
+<br>Example: <a href="/$X/GEN/PHAS_COD.REL">$X/GEN/PHAS_COD.REL</a>.
+
+<br>
+<br>
+<p><a name="SYSODEF" default="1"></a>
+   <a name="SYSOUT"  default="PHCCNV"></a>
+
+<b>GENERAL OUTPUT FILES</b>
+<p><b>Program output:</b>
+You can choose to have the program output written to a separate file for each 
+program run (checkbox marked), or specify a common name for all program runs.
+
+<br>If you mark the checkbox, the filename will correspond to the program name 
+with an extension containing a counter (Lnn), which is automatically 
+incremented for each program run. If the counter reaches the maximum value, it 
+is automatically reset, and existing files will be overwritten.
+The maximum value can be set in 
+<b>Menu &gt; Configure &gt; Program Names</b>, option "Maximum program output file number".
+
+<br>If the checkbox is unmarked, you have to specify a name for the program 
+output file. This allows to characterize the program run, e.g., by using the 
+day and year (<tt>$YD+0</tt>) in the filename.
+
+<p><a name="ERRMRG" default="0"></a>
+   <a name="SYSERR" default="ERROR"></a>
+<b>Error messages:</b>
+You can choose to have error messages written into the program's output 
+file (see above), or specify a separate file to which error messages are 
+written.
+
+<br>
+<br>
+<p><a name="TITLE" default=""><b>TITLE</b></a>
+<p>This title line will be printed as header comment into the program output
+to document the program run. The title should characterize the program run by, 
+e.g., giving the most important options used and the session.
+
+<br>
+<br>
+<p><hr><a name="CONST" default="CONST."></a>
+    <b>PHCCNV 1.1: General Files</b>
+<br>
+<br>
+<p><b>GENERAL INPUT FILES</b>
+<p><b>General constants:</b>
+This file contains all the physical and astronomical constants used 
+in the Bernese GNSS Software. Most probably you will never have to 
+modify this file. 
+<br>Example: <a href="/$X/GEN/CONST.">$X/GEN/CONST.</a>
+
+<p><a name="SATELL" default="SATELLIT.REL"></a><b>Satellite information:</b>
+This file contains general information on GNSS (and LEO/GEO) satellites.
+For the session to be processed, 
+each satellite has to appear once in this file 
+within a corresponding time window. 
+<br><i>Important:</i>
+There are two types of satellite information files, one consistent with
+relative satellite antenna patterns (SATELLIT.REL), the other consistent with
+absolute satellite antenna patterns (SATELLIT.ABS). Make sure to always use
+the correct file in conjunction with a relative or absolute phase pattern file!
+<br><i>Note:</i>
+The files $X/GEN/SATELLIT.??? are maintained by AIUB/CODE.
+It includes a complete history concerning the GPS satellite constellation
+(and newly launched satellites are regularly added).
+You can get the latest version of this file from the
+<a href="/$X/DOC/README_AIUB_AFTP.TXT">anonymous ftp</a> account of AIUB.
+<br>Example: <a href="/$X/GEN/SATELLIT.REL">$X/GEN/SATELLIT.REL</a> 
+
+<br>
+<br>
+<p><hr><a name="ATXFIL" default="1"></a>
+    <b>PHCCNV 2: ANTEX Conversion</b>
+<br>
+<br>
+<p><b>MISSING RECEIVER AND SATELLITE ANTENNA PATTERNS</b>
+
+<p>The input file may contain only measured pattern values. Depending on 
+the measurement technique pattern values close to the limiting zenith or nadir
+angle may thus be missing. The following options allow for a default treatment
+of such "missing" values.
+<br><i>Remark:</i> The options are only available for the conversion of ANTEX
+format to Bernese format.
+
+<p><b>Special handling of missing values:</b>
+Check this box to activate the special handling of missing values for both,
+receiver and satellite antenna phase patterns.
+
+<a name="MXFZEN" default="90"></a>
+<a name="RADIO1_1" default="0"></a>
+<a name="RADIO1_2" default="1"></a>
+<a name="RADIO1_3" default="0"></a>
+<p><b>Fill missing values up to a MAXIMUM ZENITH ANGLE of:</b>
+Specify the maximum zenith angle for which you wish to write phase patterns
+for receiver antennas. Specify one of the following options:
+<ul>
+<li><b>with ZEROS:</b> Extrapolate the phase pattern up to the specified
+       angle by zeroes.</li>
+<li><b>with LAST VALUE available:</b> Extrapolate the phase pattern up to the
+       specified angle using the last available value.</li>
+<li><b>with AOAD/M_T values:</b> Extrapolate the phase pattern up to the
+       specified angle using the values for the AOAD/M_T antenna.</li>
+</ul>
+
+<a name="MXFNAD" default="15"></a>
+<a name="RADIO2_1" default="0"></a>
+<a name="RADIO2_2" default="1"></a>
+<p><b>Fill missing values up to a MAXIMUM NADIR ANGLE of:</b>
+Specify the maximum nadir angle for which you wish to write phase patterns
+for satellite antennas. Specify one of the following options:
+<ul>
+<li><b>with ZEROS:</b> Extrapolate the phase pattern up to the specified
+       angle by zeroes.</li>
+<li><b>with LAST VALUE available:</b> Extrapolate the phase pattern up to the
+       specified angle using the last available value.</li>
+</ul>
+
+<a name="NOZERO"        default="1"></a>
+<a name="ANTNUM"        default="0"></a>
+<a name="ONLYELE"       default="0"></a>
+<br>
+<b>OPTIONS</b></a>
+<p><b>Do not write zero patterns:</b>
+This option may be activated to suppress the writing of phase center variations
+to the output file if all individual values are equal to zero.
+<p><i>Default value:</i> <tt>marked</tt>
+<br>
+<p><b>Set number of generic receiver antennas to 999999:</b>
+This option may be activated to set the number of generic receiver antennas 
+from 999999 to 999999. In unmarked case from 0 to 999999 will be set .
+<p><i>Default value:</i> <tt>unmarked</tt>
+<br>
+<p><b>Elevation dependent receiver patterns only:</b>
+Check this box to activate the writing of only elevation dependent antenna 
+phase patterns in the Bernese PCV file.
+<p><i>Default value:</i> <tt>unmarked</tt>
+
+
+
+<br>
+<br>
+<br>
+</body>
+</html>

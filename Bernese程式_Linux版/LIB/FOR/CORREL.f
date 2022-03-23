@@ -1,0 +1,297 @@
+      MODULE s_CORREL
+      CONTAINS
+
+C*
+      SUBROUTINE CORREL(NDIM  ,NSASES,NSTAT ,COVSAT,COVELV,CIND  ,
+     1                  FIND  ,DIFF  ,WGTGEN,CINDO ,FINDO ,WEIGHT)
+CC
+CC NAME       :  CORREL
+CC
+CC PURPOSE    :  COMPUTE CORRELATION MATRIX OF ALL SIMULTANEOUSLY OB-
+CC               SERVED GPS DOUBLE DIFFERENCE PHASE/CODE OBSERVATIONS
+CC               STARTING FROM MATRIX C.
+CC
+CC               STRUCTURE OF MATRIX C:
+CC
+CC                              |  P1| |
+CC                  DDP|  = C * |      |
+CC                              |  P2| |
+CC
+CC               DDP| : VECTOR OF THE ALL DOUBLE DIFFERENCES AT EPOCH
+CC               P1|  : VECTOR OF ALL L1 ZERO DIFF. OBSERVATIONS
+CC               P2|  : VECTOR OF ALL L2 ZERO DIFF. OBSERVATIONS
+CC
+CC               EACH LINE OF MATRIX C CONTAINS FOUR NONZERO ELEMENTS
+CC               IF IFREQ=1,2 AND EIGHT IF IFREQ=3,4,5.
+CC               FOR THE LINEAR COMBINATION K1*L1+K2*L2 OF L1 AND L2
+CC               THE EIGHT NON-ZERO ELEMENTS HAVE THE FOLLOWING
+CC               VALUES:  K1,-K1,-K1, K1, K2,-K2,-K2, K2
+CC
+CC               "CIND" CONTAINS THE POSITIONS OF THE FOUR NON-ZERO
+CC               ELEMENTS OF THE C-MATRIX AS IF L1 OBSERVATIONS WERE
+CC               PRESENT. THE REMAINING NON-ZERO
+CC               ELEMENTS (FOUR MORE IN THE CASE OF L3,L4, OR L5) OR THE
+CC               SHIFT IN POSITION FOR L2 OBSERVATIONS IS THEN EASILY
+CC               DERIVED FROM "NSASES" AND "NSTAT" AND THE FREQUENCY
+CC               INDICATOR "FIND". "FIND(I)" CONTAINS THE FREQUENCY OF
+CC               THE OBSERVATIONS IN ROW I OF THE C-MATRIX.
+CC
+CC               THE WEIGHT MATRIX IS COMPUTED FROM THE C-MATRIX:
+CC                                                 T
+CC                          COV(DDP|) = C*COV(P|)*C
+CC
+CC                           | P1| |
+CC               WITH   P| = |     |
+CC                           | P2| | .
+CC
+CC               WE ASSUME, THAT USUALLY
+CC
+CC                    COV(P|) = SIGMA**2 * E (E=UNIT MATRIX)
+CC
+CC               IF SATELLITE SPECIFIC WEIGHTS ARE SET, THESE ARE
+CC               CONTAINED IN "COVSAT" (I=1,..,NSASES) AND COV(P|)
+CC               IS THEN A DIAGONAL MATRIX CONTAINING THE VALUES
+CC               FROM "COVSAT" TIMES SIGMA**2.
+CC                                                  T
+CC               THEREFORE: COV(DDP|) =  C*COV(P|)*C
+CC
+CC               THE WEIGHT MATRIX IS THEN COMPUTED AS
+CC                                  -1
+CC               WEIGHT =  COV(DDP|)
+CC
+CC               THIS SUBROUTINE ASSUMES THAT SIGMA=1. MOREOVER ONLY THE
+CC               UPPER TRIANGULAR PART OF THE WEIGHT MATRIX IS RETURNED.
+CC               A NEW WEIGHT MATRIX IS COMPUTED ONLY IF THE SCENARIO
+CC               HAS CHANGED SINCE THE LATEST EPOCH.
+CC
+CC PARAMETERS :
+CC         IN :  NDIM   : NUMBER OF OBSERVATIONS CORRELATED   I*4
+CC                        IN THIS EPOCH ( = DIMENSION OF THE
+CC                        WEIGHT MATRIX)
+CC               NSASES : NUMBER OF SATELLITES IN THE SESSION I*4
+CC               NSTAT  : TOTAL NUMBER OF STATIONS
+CC               COVSAT(I),I=1,..,NSASES: SIGMA**2 FOR SPEC.  R*8
+CC                        SATELLITES (COMPARED TO 1.D0)
+CC               COVELV(4,I),I=1,..,NDIM: ELEVATION-DEPENDENT R*8
+CC                        VARIANCES FOR ZERO-DIFFERENCE OBS.
+CC               CIND(4,I),I=1,..,NDIM: POSITIONS OF NON-     I*4
+CC                        ZERO ELEMENTS OF THE I-TH ROW OF THE
+CC                        CORRELATION MATRIX (AS IF L1 OBSERV-
+CC                        ATIONS PRESENT !)
+CC               FIND(I),I=1,..,NDIM: FREQUENCY OF OBSERV-    I*4
+CC                        ATION CORRESPONDING TO ROW I
+CC               DIFF(I),I=1,..,NDIM: DIFFERENCE TYPE OF      I*4
+CC                        OBSERVATION CORRESPONDING TO ROW I
+CC                        DIFF(I)=0: ZERO DIFFERENCE
+CC                        DIFF(I)=1: SINGLE DIFFERENCE
+CC               WGTGEN(I)                                    R*8
+CC      LOCAL :  CINDO(4,I),I=1,..,NDIM: POSITIONS OF NON-    I*4
+CC                        ZERO ELEMENTS OF THE I-TH ROW OF THE
+CC                        CORRELATION MATRIX (AS IF L1 OBSERV-
+CC                        ATIONS PRESENT !) SAVED FROM THE
+CC                        LATEST EPOCH
+CC               FINDO(I),I=1,..,NDIM: FREQUENCY OF OBSERV-   I*4
+CC                        ATION CORRESPONDING TO ROW I. SAVED
+CC                        FROM THE LATEST EPOCH
+CC        OUT :  WEIGHT(I),I=1,2,..,NDIM*(NDIM+1)/2: UPPER    R*8
+CC                        TRIANGULAR PART OF WEIGHT MATRIX
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  3.4  (JAN 93)
+CC
+CC CREATED    :  89/06/19 11:10
+CC
+CC CHANGES    :  27-JUL-92 : ??: ADD SATELLITE SPECIFIC WEIGHTS IN
+CC                               WEIGHT MATRIX. ADD PARAMETER "COVSAT".
+CC               10-AUG-94 : MR: CALL EXITRC
+CC               19-JUL-96 : TS: HANDLE ZERO DIFFERENCES CORRECTLY
+CC               29-JAN-97 : SS: ELEVATION-DEPENDENT OBS. WEIGHTING
+CC               03-SEP-97 : JJ/SS: ADJUST CALCULATION OF INDEX VALUES
+CC               30-MAR-98 : TS: SIMULTANEOUS CODE AND PHASE ZD PROCESSING
+CC               17-APR-00 : RD: ASSUME CODE AND PHASE AS INDEPENDENT OBS.
+CC               09-FEB-02 : RD: WEIGHT REAL*4->REAL*8
+CC               28-JAN-03 : RS: LCCI,LCCK,LCCOEF REAL*4 -> REAL*8
+CC               28-JAN-03 : RS: COVSAT,CHELP,COVELV,WGT REAL*4 -> REAL*8
+CC               16-JUN-05 : MM: COMCONST.inc REPLACED BY d_const
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               18-JUN-07 : RD: COMPUTE A NEW SCENARIO IN ANY CASE
+CC               19-JUL-10 : SL: TAB CHARACTERS REMOVED
+CC               10-JUL-12 : RD: USE SYMINVG INSTEAD OF SYMIN8
+CC               10-JUL-12 : RD: USE M_BERN WITH ONLY
+CC               10-JUL_12 : RD: REMOVE UNUSED PARAMETERS/VARIABLES
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1989     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern,  ONLY: LFNERR
+      USE d_const, ONLY: FREQ, WLGTH
+      USE s_syminvg
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , IAAA  , IBBB  , ICIND , ICINDI, ICINDK,
+     1          IEQN  , IFRQ  , IIND  , IK    , IKX   , IND   , INDSAT,
+     2          ISING , J     , K     , KAAA  , KBBB  , KFRQ  , L     ,
+     3          NCOLUM, NDIM  , NSASES, NSTAT , IFIRST
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      REAL*8      WGTGEN(*),WEIGHT(*)
+      REAL*8      LCCI,LCCK,LCCOEF(2,5)
+      REAL*8      COVSAT(*),CHELP(4,2),COVELV(4,*),WGT
+C
+      INTEGER*4   CIND(4,*),FIND(*),DIFF(*),CINDO(4,*),FINDO(*)
+      INTEGER*4   CSGN(4),IBOUND(2,5),FINDI,FINDK,CINDLK,CINDJI
+C
+      DATA IFIRST/1/,CSGN/1,-1,-1,1/,IBOUND/1,1,2,2,1,2,1,2,1,2/
+C
+C INITIALIZE COEFFICENTS FOR DIFFERENT LINEAR COMBINATIONS
+C --------------------------------------------------------
+      IF(IFIRST.EQ.1) THEN
+        IFIRST=0
+        LCCOEF(1,1)=1.
+        LCCOEF(2,1)=0.
+        LCCOEF(1,2)=0.
+        LCCOEF(2,2)=1.
+        LCCOEF(1,3)=+FREQ(1)**2/(FREQ(1)**2-FREQ(2)**2)
+        LCCOEF(2,3)=-FREQ(2)**2/(FREQ(1)**2-FREQ(2)**2)
+        LCCOEF(1,4)=1.
+        LCCOEF(2,4)=-1.
+        LCCOEF(1,5)=+WLGTH(5)/WLGTH(1)
+        LCCOEF(2,5)=-WLGTH(5)/WLGTH(2)
+      ENDIF
+C
+C                    T
+C COMPUTE C*COV(P|)*C (UPPER TRIANGULAR PART ONLY)
+C --------------------------------------------------------------------
+      NCOLUM=NSASES*NSTAT
+C
+      IKX=1
+      DO 200 K=1,NDIM
+C
+C FREQUENCY AND LOOP BOUNDARIES FOR K-LOOP
+        FINDK=FIND(K)
+        KAAA=IBOUND(1,FINDK)
+        KBBB=IBOUND(2,FINDK)
+C
+C DIFFERENCE TYPE FOR CIND LOOP
+        IF (DIFF(K).EQ.1) THEN
+          ICINDK=4
+          WGT=1.0
+        ELSE IF (DIFF(K).EQ.0) THEN
+          ICINDK=1
+          WGT=1.0
+        ELSE IF (DIFF(K).LT.0) THEN
+          ICINDK=1
+          IND=-DIFF(K)
+          WGT=1/WGTGEN(IND)
+        ENDIF
+C                        T
+C COMPUTE CHELP=COV(P|)*C FOR ONE LINE (ONLY NON-ZERO ELEMENTS)
+        DO 120 KFRQ=KAAA,KBBB
+C
+C LINEAR COMBINATION COEFFICIENT FOR K-LOOP
+          LCCK=LCCOEF(KFRQ,FINDK)
+          DO 110 L=1,ICINDK
+            INDSAT=MOD(CIND(L,K)-1,NSASES)+1
+            CHELP(L,KFRQ)=LCCK*CSGN(L)*COVSAT(INDSAT)*COVELV(L,K)
+110       CONTINUE
+120     CONTINUE
+C
+C COMPUTE C*CHELP
+        IK=IKX
+        DO 190 I=1,K
+C
+C FREQUENCY AND LOOP BOUNDARIES FOR I-LOOP
+          FINDI=FIND(I)
+          IAAA=IBOUND(1,FINDI)
+          IBBB=IBOUND(2,FINDI)
+C
+C DIFFERENCE TYPE FOR CIND LOOP
+          IF (DIFF(I).EQ.1) THEN
+            ICINDI=4
+          ELSE
+            ICINDI=1
+          ENDIF
+C
+C INITIALIZE ELEMENT WEIGHT(I,K)
+          WEIGHT(IK)=0.
+C
+          DO 180 KFRQ=KAAA,KBBB
+C
+            DO 170 L=1,ICINDK
+C
+C POSITION OF NON-ZERO ELEMENT (L2 OBSERVATIONS ARE SHIFTED BY
+C NSTAT*NSASES ELEMENTS)
+              CINDLK=CIND(L,K)+(KFRQ-1)*NCOLUM
+C
+              DO 160 IFRQ=IAAA,IBBB
+C
+C LINEAR COMBINATION COEFFICIENT FOR I-LOOP
+                LCCI=LCCOEF(IFRQ,FINDI)
+C
+                DO 150 J=1,ICINDI
+C
+C POSITION OF NON-ZERO ELEMENT (L2 OBSERVATIONS ARE SHIFTED BY
+C NSTAT*NSASES ELEMENTS)
+                  CINDJI=CIND(J,I)+(IFRQ-1)*NCOLUM
+C
+C C*CHELP MATRIX MULTIPLICATION (ONLY NON-ZERO ELEMENTS)
+                  IF(CINDJI.EQ.CINDLK) THEN
+                    IF (I.EQ.K) THEN
+                      WEIGHT(IK)=WEIGHT(IK)
+     1                          +CSGN(J)*LCCI*CHELP(L,KFRQ)*WGT
+                    ELSE
+                      IF ((DIFF(I).GE.0) .AND. (DIFF(K).GE.0))
+     1                  WEIGHT(IK)=WEIGHT(IK)+CSGN(J)*LCCI*CHELP(L,KFRQ)
+                    END IF
+                  END IF
+C
+150             CONTINUE
+160           CONTINUE
+170         CONTINUE
+180       CONTINUE
+          IK=IK+1
+190     CONTINUE
+        IKX=IKX+K
+200   CONTINUE
+C
+C INVERT WEIGHT MATRIX
+C --------------------
+      CALL SYMINVG(NDIM,WEIGHT,1,ISING)
+      IF(ISING.NE.0) THEN
+        WRITE(LFNERR,901)
+901     FORMAT(/,' *** SR CORREL: CORRELATION MATRIX IS SINGULAR',/,
+     1                       16X,'PROBABLY DUE TO REDUNDANT BASELINE',/)
+        CALL EXITRC(2)
+      END IF
+C
+C SAVE OLD CORRELATION SCENARIO (C-MATRIX AND F-ARRAY)
+C ----------------------------------------------------
+      DO 310 IEQN=1,NDIM
+        FINDO(IEQN)=FIND(IEQN)
+C
+C DIFFERENCE TYPE FOR CIND LOOP
+        IF (DIFF(IEQN).EQ.1) THEN
+          ICIND=4
+        ELSE
+          ICIND=1
+        ENDIF
+C
+        DO 300 IIND=1,ICIND
+          CINDO(IIND,IEQN)=CIND(IIND,IEQN)
+300     CONTINUE
+310   CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

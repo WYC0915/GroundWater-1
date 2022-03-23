@@ -1,0 +1,443 @@
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! General Setup: Title
+! --------------------
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1  "Specify a title"
+
+! Some title information
+! ----------------------
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+! Active Campaign
+! ---------------
+CAMPAIGN     0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+! General Constants
+! -----------------
+! Show general files
+! ------------------
+SHOWGEN     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+CONST     1  "CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_CONST 1  "General constants"
+
+! Local Geodetic Datum
+! --------------------
+DATUM     1  "DATUM."
+  ## widget = selwin; path = PTH_GEN; maxfiles = 1
+
+DESCR_DATUM 1  "Geodetic datum"
+
+! Pole File
+! ---------
+POLE     0
+  ## widget = selwin; path = DIR_ERP; ext = EXT_ERP; maxfiles = 1
+
+DESCR_POLE 1  "A priori pole file"
+
+! Subdaily Pole Model
+! -------------------
+SUBMOD     1  "IERS2010XY"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_SUB; maxfiles = 1
+
+DESCR_SUBMOD 1  "Subdaily pole model"
+
+! Nutation Model
+! -------------------
+NUTMOD     1  "IAU2000R06"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_NUT; maxfiles = 1
+
+DESCR_NUTMOD 1  "Nutation model"
+
+! Difference of GPS-TIME - UTC-TIME
+! ---------------------------------
+GPSUTC     1  "GPSUTC."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_GPSUTC 1  "GPS-UTC seconds"
+
+! Satellite Information
+! ---------------------
+SATELL     1  "SATELLIT.I08"
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_SATELL 1  "Satellite information"
+
+! Satellite Problems
+! ------------------
+SATCRUX     1  "SAT_$Y+0"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_CRX; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_SATCRUX 1  "Satellite problems"
+
+! Input File: IRV files
+! ---------------------
+RADIO_I     1  "0"
+  ## widget = radiobutton; group = INPFIL
+
+MSG_RADIO_I 1  "IRV files"
+
+IRVFIL     0
+  ## widget = selwin; activeif = RADIO_I = 1; path = DIR_IRV; ext = EXT_IRV
+  ## maxfiles = 999
+
+MSG_IRVFIL 1  "IRV files"
+
+IRVFIL_TXT_COL_1 1  "IRV files"
+
+! Input File: PRE files
+! ---------------------
+RADIO_P     1  "1"
+  ## widget = radiobutton; group = INPFIL
+
+MSG_RADIO_P 1  "Precise orbit files"
+
+PREFIL     0
+  ## widget = selwin; activeif = RADIO_P = 1; path = DIR_PRE; ext = EXT_PRE
+  ## maxfiles = 999
+
+MSG_PREFIL 1  "Precise orbit files"
+
+PREFIL_TXT_COL_1 1  "Precise orbit files"
+
+! Extension of the ERP Files
+! --------------------------
+PREFIL_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_ERP
+
+! Extension of the ERP Files
+! --------------------------
+PREFIL_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_ERP
+
+! State vector file
+! -----------------
+RADIO_V     1  "1"
+  ## widget = checkbox; group = INPFIL
+
+MSG_RADIO_V 1  "State vector file"
+
+STVFIL     0
+  ## widget = lineedit; activeif = RADIO_V = 1; path = DIR_STV
+  ## ext = EXT_STV; emptyallowed = true
+
+DESCR_STVFIL 1  "State vector file"
+
+! ELE file
+! -----------------
+RADIO_E     1  "0"
+  ## widget = checkbox; activeif = RADIO_I = 1; group = INPFIL
+
+MSG_RADIO_E 1  "ELE file"
+
+ELEFIL     0
+  ## widget = lineedit; activeif = RADIO_E = 1; path = DIR_ELE
+  ## ext = EXT_ELE; emptyallowed = true
+
+DESCR_ELEFIL 1  "Orbital elements"
+
+! Program Output File
+! -------------------
+SYSODEF     1  "1"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "IRV2STV"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG     1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR     1  "ERROR"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+
+DESCR_SYSERR 1  "Error messages"
+
+! Use Observ. Window
+! ------------------
+WINDOW     1  "1"
+  ## widget = checkbox
+
+MSG_WINDOW 1  "Observation window selection"
+
+! Observation Window
+! ------------------
+RADIO_1     1  "1"
+  ## widget = radiobutton; group = DUMMY
+  ## radiokeys = SESSION_YEAR SESSION_STRG
+
+MSG_RADIO_1 1  "Observation window defined by year and session identifier"
+
+RADIO_2     1  "0"
+  ## widget = radiobutton; activeif = RADIO_P = 1; group = DUMMY
+
+MSG_RADIO_2 1  "Observation window defined by start and end times"
+
+! Observation Window: defined by session
+! --------------------------------------
+SESSION_YEAR     1  "$Y+0"
+  ## widget = lineedit; multilineallowed = true; emptyallowed = false
+
+MSG_SESSION_YEAR 1  "Year"
+
+SESSION_STRG     1  "$S+0"
+  ## widget = lineedit; multilineallowed = true; emptyallowed = false
+
+MSG_SESSION_STRG 1  "Session"
+
+! Observation Window: defined by date
+! -----------------------------------
+STADAT     1  "$YMD_STR+0"
+  ## widget = lineedit; activeif = RADIO_2 = 1; check_type = date
+
+MSG_STADAT 1  "Start time(year month day)"
+
+STATIM     1  "00 00 00"
+  ## widget = lineedit; emptyallowed = false
+  ## activeif = RADIO_2 = 1 AND STADAT / _; check_type = time
+
+MSG_STATIM 1  "Start time(hour minutes seconds)"
+
+ENDDAT     1  "$YMD_STR+0"
+  ## widget = lineedit; activeif = RADIO_2 = 1; check_type = date
+
+MSG_ENDDAT 1  "End time(year month day)"
+
+ENDTIM     1  "23 59 59"
+  ## widget = lineedit; emptyallowed = false
+  ## activeif = RADIO_2 = 1 AND ENDDAT / _; check_type = time
+
+MSG_ENDTIM 1  "End time(hour minutes seconds)"
+
+! List of satellites
+! ------------------
+RADIO_A     1  "1"
+  ## widget = radiobutton; group = SATSEL
+
+MSG_RADIO_A 1  "All satellites from precise orbits"
+
+RADIO_L     1  "0"
+  ## widget = radiobutton; group = SATSEL
+
+MSG_RADIO_L 1  "All satellites from list"
+
+SATLST     1  ""
+  ## widget = uniline; activeif = RADIO_L = 1; check_type.1 = integer
+  ## check_min.1 = 1; check_max.1 = 999
+  ## numlines = 20
+
+! ----------------------
+! ELE header description
+! ----------------------
+POLDEGR     1  "10"
+  ## widget = spinbox; range = 1 20 1; check_type = integer; check_min = 1
+
+MSG_POLDEGR 1  "EQUATION OF MOTION: Polynomial degree"
+
+LENINTER     1  "00 02 00"
+  ## widget = lineedit; emptyallowed = false; check_type = time
+
+MSG_LENINTER 1  "EQUATION OF MOTION: Length of interval"
+
+VARPOLDG     1  "12"
+  ## widget = spinbox; range = 1 20 1; check_type = integer; check_min = 1
+
+MSG_VARPOLDG 1  "VARIATIONAL EQUATIONS: Polynomial degree"
+
+VARLNINT     1  "00 12 00"
+  ## widget = lineedit; emptyallowed = false; check_type = time
+
+MSG_VARLNINT 1  "VARIATIONAL EQUATIONS: Length of interval"
+
+POTCOE     1  "EGM2008_SMALL."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_POTCOE 1  "Coeff. of Earth potential"
+
+MXPOTDEG     1  "70"
+  ## widget = spinbox; range = 2 150 1; check_type = integer; check_min = 2
+
+MSG_MXPOTDEG 1  "Earth potential degree"
+
+OCNLOAD     0
+  ## widget = selwin; path = DIR_BLQ; ext = EXT_BLQ; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_OCNLOAD 1  "Ocean loading tables"
+
+OTIDES     1  "OT_FES2004"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_TID; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_OTIDES 1  "Ocean tides file"
+
+MXOCTI     1  "8"
+  ## widget = spinbox; range = 2 150 1
+
+MSG_MXOCTI 1  "Degree of ocean tides"
+
+SETIDES     1  "TIDE2000"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_TPO; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_SETIDES 1  "Solid Earth tides"
+
+JPLEPH     1  "DE405"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_EPH; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_JPLEPH 1  "Planetary ephemeris file"
+
+EMPIRI     1  "DRSW"
+  ## widget = combobox; editable = false; cards = DRSW DYX RSW
+
+MSG_EMPIRI 1  "Empirical orbit parameters"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# CONVERT IRV OR PRE FILES TO STATE VECTORS - IRV2STV 1: Files                 #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files   > % <                                             # SHOWGEN
+#                                                                              #
+#   Use observation window   > % <                                             # WINDOW
+#                                                                              #
+# INPUT FILES                                                                  #
+#   > % < IRV file           > %%%%%%%% <                                      # RADIO_I IRVFIL
+#   > % < Precise orbit file > %%%%%%%% <                                      # RADIO_P PREFIL
+#                                                                              #
+# OUTPUT FILES                                                                 #
+#   > % < State vector file  > %%%%%%%% <                                      # RADIO_V STVFIL
+#   > % < ELE file           > %%%%%%%% <                                      # RADIO_E ELEFIL
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output           > % < use IRV2STV.Lnn           or > %%%%%%%% <   # SYSODEF SYSOUT
+#   Error messages           > % < merged to program output  or > %%%%%%%% <   # ERRMRG SYSERR
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <      # TITLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# IRV2STV 1.1: General Files                                                   #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants       > %%%%%%%%%%%% <                                   # CONST
+#   Geodetic datum          > %%%%%%%%%%%% <                                   # DATUM
+#   A priori pole file      > %%%%%%%%%%%% <                                   # POLE
+#   Subdaily pole model     > %%%%%%%%%%%% <                                   # SUBMOD
+#   Nutation model          > %%%%%%%%%%%% <                                   # NUTMOD
+#   Satellite information   > %%%%%%%%%%%% <                                   # SATELL
+#   Satellite problems      > %%%%%%%%%%%% <                                   # SATCRUX
+#   GPS-UTC seconds         > %%%%%%%%%%%% <                                   # GPSUTC
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL WINDOW = 1 #######################################################
+# IRV2STV 2: Observation Window                                                #
+#                                                                              #
+# OBSERVATION WINDOW                                                           #
+#                                                                              #
+#   > % < Defined by Year and Session identifier                               # RADIO_1
+#         Year  > %%%% <   Session > %%%% <                                    # SESSION_YEAR SESSION_STRG
+#                                                                              #
+#                                                                              #
+#   > % < Defined by Start and End times                                       # RADIO_2
+#                 yyyy mm dd     hh mm ss           yyyy mm dd     hh mm ss    #
+#         Start > %%%%%%%%%% < > %%%%%%%% <   End > %%%%%%%%%% < > %%%%%%%% <  # STADAT STATIM ENDDAT ENDTIM
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL RADIO_P = 1 ######################################################
+# IRV2STV 3: Input Options                                                     #
+#                                                                              #
+#   > % < Use all satellites available in precise orbit file                   # RADIO_A
+#                                                                              #
+#   > % < Use all satellites from the following list                           # RADIO_L
+#         (Satellite number according to Satellite information file)           #
+#        > PRN         < e.g.   5 ... GPS 35                                   # SATLST
+#                               6 ... GPS 36                                   #
+#                             105 ... GLONASS-118                              #
+#                             108 ... GLONASS-115                              #
+#                             901 ... TOPEX/Poseidon                           #
+#                             906 ... CHAMP                                    #
+#                             908 ... Jason                                    #
+#                             909 ... Grace A                                  #
+#                             910 ... Grace B                                  #
+#                             951 ... LAGEOS-1                                 #
+#                             952 ... LAGEOS-2                                 #
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL RADIO_E = 1 AND RADIO_I = 1 ######################################
+# IRV2STV 4: ELE Header Information                                            #
+#                                                                              #
+# EQUATION OF MOTION                                                           #
+#   Polynomial degree       > %%% <                                            # POLDEGR
+#   Length of interval      > %%%%%%%% <  (hh mm ss)                           # LENINTER
+#                                                                              #
+# VARIATIONAL EQUATIONS                                                        #
+#   Polynomial degree       > %%% <                                            # VARPOLDG
+#   Length of interval      > %%%%%%%% <  (hh mm ss)                           # VARLNINT
+#                                                                              #
+# ORBIT PARAMETERS                                                             #
+#   System for empirical orbit parameters   > %%%%%%%% <                       # EMPIRI
+#                                                                              #
+# EARTH GRAVITY FIELD                                                          #
+#   Coeff. of Earth potential               > %%%%%%%%%%%% <                   # POTCOE
+#   Earth potential degree                  > %%%% <                           # MXPOTDEG
+#                                                                              #
+# OCEAN TIDES                                                                  #
+#   Ocean tides file                        > %%%%%%%%%%%% <                   # OTIDES
+#   Maximum degree of ocean tides           > %%% <                            # MXOCTI
+#                                                                              #
+# OTHER MODELS                                                                 #
+#   Ocean loading corrections (for CMC)     > %%%%%%%%%%%% <                   # OCNLOAD
+#   Solid Earth tides                       > %%%%%%%%%%%% <                   # SETIDES
+#   Planetary ephemeris                     > %%%%%%%%%%%% <                   # JPLEPH
+#                                                                              #
+# END_PANEL ####################################################################

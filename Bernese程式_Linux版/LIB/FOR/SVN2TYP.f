@@ -1,0 +1,91 @@
+      MODULE s_SVN2TYP
+      CONTAINS
+
+C*
+      SUBROUTINE SVN2TYP(NSAT,SATNUM,SATMOD,SATTYP)
+CC
+CC NAME       :  SVN2TYP
+CC
+CC PURPOSE    :  CONVERSION FROM SV NUMBER TO 1-CHARACTER
+CC               IDENFTIFICATION ACCORDING TO VARIABLE g_svnsys
+CC               IN MODULE M_GLOBAL, E.G. "G", "R" OR "L"
+CC               AND SUBNUMBER (0-99)
+CC               E.G.  901-->"L",01 FOR LEO CHAMP
+CC
+CC PARAMETERS :
+CC         IN :  NSAT   : NUMBER OF SATELLITES                I*4
+CC               SATNUM : SV NUMBERS (1-999?)                 I*4(*)
+CC        OUT :  SATMOD : SV NUMBERS (0-99)                   I*4(*)
+CC               SATTYP : 1-CHARACTER IDENFTIFICATION        CH*1(*)
+CC                        (" " OR "G":GPS, "R":GLONASS,
+CC                        "L":LEO) (SEE M_GLOBAL)
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  D. SVEHLA
+CC
+CC VERSION    :  5.0
+CC
+CC CREATED    :  09-FEB-01
+CC
+CC CHANGES    :  23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               28-MAR-12 : RD: USE SVN2CHR AS MODULE NOW
+CC               28-MAR-12 : RD: USE SVNSYS AS MODULE NOW
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC               UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+
+C
+C DECLARATIONS
+C ------------
+      USE M_BERN,  ONLY: LFNERR
+
+      USE s_svn2chr
+      USE f_svnsys
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I   , NSAT
+C
+CCC       IMPLICIT INTEGER*4 (I-N)
+
+      INTEGER*4   SATNUM(NSAT), SATMOD(NSAT)
+C
+      CHARACTER*1 SATTYP(NSAT)
+C
+      LOGICAL     FLGGPS
+C
+C CHECK, IF GPS SATELLITES ONLY (ALL CHARS ARE SET TO BLANK THEN)
+C -----------------------------
+      FLGGPS = SVNSYS(0,NSAT,SATNUM).AND.(.NOT.SVNSYS(10,NSAT,SATNUM))
+C
+C ASSIGN 1-CHARACTER IDENTIFICATION AND SV NUMBER
+C ------------------------------------------------
+      DO I=1,NSAT
+        IF (SATNUM(I).LT.1 .OR. SATNUM(I).GT.999) GOTO 90
+        CALL SVN2CHR(SATNUM(I),SATMOD(I),SATTYP(I))
+        IF (FLGGPS) SATTYP(I)=' '
+      END DO
+
+      RETURN
+
+C
+C ERROR: NO 1-CHARACTER IDENFTIFICATION FOUND
+C -------------------------------------------
+90    WRITE(LFNERR,100) SATNUM(I)
+100   FORMAT(/,' *** SR SVN2TYP: INVALID SATELLITE NUMBER',/,
+     2       17X,'SV NUMBER: ',I4,/,
+     3       17X,'SUBROUTINE SVN2TYP MUST STOP PROGRAM',/)
+      CALL EXITRC(2)
+
+C
+C END OF SUBROUTINE
+C -----------------
+      END SUBROUTINE
+
+      END MODULE

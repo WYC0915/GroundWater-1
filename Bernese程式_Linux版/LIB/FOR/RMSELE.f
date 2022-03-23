@@ -1,0 +1,120 @@
+      MODULE s_RMSELE
+      CONTAINS
+
+C*
+      SUBROUTINE RMSELE(IARC,SVN,IUPD,DU)
+CC
+CC NAME       :  RMSELE
+CC
+CC PURPOSE    :  READ THE RMS OF UPDATED ORBITAL PARAMETER A
+CC               IF AN ARC- OR A SATELLITE NUMBER OR A OSCULATION
+CC               EPOCH IS NOT FOUND, IUPD IS SET =0, OTHERWISE IUPD=1.
+CC               IF NO ORBITAL ELEMENT FILE AVAILABLE IUPD=-1.
+CC
+CC PARAMETERS :
+CC         IN :  IARC   : ARC NUMBER IN STD-ORBIT FILE        I*4
+CC               SVN    : SVN-NUMBER OF REQ. SAT.             I*4
+CC       OUT  :  IUPD   : UPDATE INDICATOR                    I*4
+CC                        =-1: NO ORBITAL ELEMENT FILE
+CC                        = 0: UPDATE INFO NOT FOUND
+CC                        = 1: UPDATE INFO FOUND
+CC               DU     : RMS OF OSC. ELEMENT "ARG OF LAT"    R*8
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  L.MERVART
+CC
+CC VERSION    :  3.4
+CC
+CC CREATED    :  09-JUN-92
+CC
+CC CHANGES    :  05-MAY-93 : ??: IUPD=-1 IF NO ORBITAL ELEMENT FILE
+CC               26-MAY-93 : ??: STOCHASTICS
+CC               02-JUN-93 : ??: DETECT END OF FILE (ALSO WITH STOCH.)
+CC               29-SEP-95 : JJ: DECLARE SVN AS I*4 INSTEAD OF I
+CC               26-JAN-96 : GB: ACCOMODATE NEW ORBIT MODEL, TOO
+CC               06-AUG-03 : HU: NEW STD FORMAT
+CC               16-JUN-05 : MM: UNUSED COMCONST.inc REMOVED
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               06-AUG-26 : JD: RESULT FROM LAST AVAILABLE ARC
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1987     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE s_opnfil
+      USE s_gtflna
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IARC  , IELE  , IIARC , III   , IISS  , IOSTAT, IRC   ,
+     1          IUPD
+C
+      REAL*8    DU
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      INTEGER*4     SVN
+      CHARACTER*32  FILNAM
+      CHARACTER*132 LINE
+C
+C
+C DEFINE IUPD
+      IUPD=0
+C
+C LOOK FOR CORRECT ARC-INFORMATION
+C
+C OPEN INPUT FILE
+      CALL GTFLNA(0,'IMPELE ',FILNAM,IRC)
+      IF (IRC.NE.0) THEN
+        IUPD=-1
+        RETURN
+      ENDIF
+      CALL OPNFIL(LFNLOC,FILNAM,'OLD','FORMATTED',
+     1            ' ',' ',IOSTAT)
+C
+C SKIP FIRST RECORD
+      READ(LFNLOC,1)
+1     FORMAT(10X)
+      DO
+        READ(LFNLOC,"(A)",END=40) LINE
+        IF (LINE(1:10).EQ.'ARC-NUMBER') EXIT
+      ENDDO
+C
+C LOOK FOR CORRECT ARC/SATELLITE/EPOCH COMBINATION
+C ------------------------------------------------
+      DO 30 IIARC=1,1000000
+        IF (IIARC.GT.1) READ(LFNLOC,'(A)',END=31) LINE
+        IF (LINE(1:3).EQ.'***') GO TO 31
+        IF (LINE(1:10).NE.'ARC-NUMBER') GO TO 30
+        READ(LINE,10)III,IISS
+10      FORMAT(21X,I3,22X,I3)
+        READ(LFNLOC,1)
+        IF(IISS.NE.SVN) GO TO 30
+C
+C READ ARC-INFO
+        DO 20 IELE=1,16
+          READ(LFNLOC,'(A)',END=999) LINE
+          IF(LINE(1:11).EQ.'ARG. OF LAT')THEN
+            READ(LINE,21)DU
+21          FORMAT(56X,F12.7)
+            IUPD=1
+            IF (III.EQ.IARC) GOTO 999
+          END IF
+20      CONTINUE
+30    CONTINUE
+31    IF (IUPD.EQ.1) GOTO 999
+40    WRITE(LFNERR,41) IARC,SVN
+41    FORMAT(/,' ### SR RMSELE: ARC OR SATELLITE NOT FOUND',/,
+     1                     16X,'ARC      :',I3,/,
+     2                     16X,'SATELLITE:',I3,/)
+C
+999   CLOSE(UNIT=LFNLOC)
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

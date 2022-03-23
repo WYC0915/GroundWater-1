@@ -1,0 +1,353 @@
+      MODULE s_GIMARG
+      CONTAINS
+
+C*
+      SUBROUTINE GIMARG(XST   ,XSAT  ,TOBS  ,SZ    ,ZEN   ,XHGT  ,
+     1                  POLE  ,ICARR ,IFLG1 ,IFLG2 ,IMF   ,IORSYS,
+     2                  SVN   ,XLAT  ,XSFL  ,NAMSTA,FACSLM,ALFXMF,
+     3                  XSL   )
+CC
+CC NAME       :  GIMARG
+CC
+CC PURPOSE    :  COMPUTES THE GEOCENTRIC LATITUDE AND THE MEAN OR
+CC               TRUE SUN-FIXED LONGITUDE OF THE INTERSECTION POINT
+CC               BETWEEN THE LINE RECEIVER-SATELLITE AND THE SINGLE
+CC               LAYER. THE IONOSPHERIC REDUCTION FACTOR FOR THE
+CC               OBSERVED FREQUENCY IS RETURNED, TOO.
+CC
+CC PARAMETERS :
+CC         IN :  XST(I),I=1,2,3: EARTH-FIXED RECEIVER         R*8(3)
+CC                        COORDINATES
+CC               XSAT(I),I=1,2,3: SATELLITE COORDINATES IN    R*8(3)
+CC                        SYSTEM OF EPOCH
+CC               TOBS   : OBSERVATION TIME IN MJD             R*8
+CC               SZ     : SIDERAL TIME (GREENWICH)            R*8
+CC               ZEN    : ZENITH DISTANCE (WITH RESPECT TO    R*8
+CC                        REFERENCE ELLIPSOID)
+CC               XHGT   : SINGLE-LAYER HEIGHT IN M            R*8
+CC               POLE   : (1): LATITUDE OF GEOMAGNETIC POLE   R*8(2)
+CC                        (2): EAST LONGITUDE
+CC               ICARR  : FREQUENCY                           I*4
+CC               IFLG1  : FLAG FOR REFERENCE FRAME            I*4
+CC                        =1: GEOGRAPHICAL
+CC                        =2: GEOMAGNETIC
+CC               IFLG2  : FLAG FOR POSITION OF THE SUN        I*4
+CC                        =1: MEAN
+CC                        =2: TRUE
+CC               IMF      MAPPING FUNCTION                    I*4
+CC                        =0: NONE
+CC                        =1: COSZ (SINGLE-LAYER MODEL)
+CC                        =2: MSLM (MODIFIED SLM)
+CC                        =3: ESM (EXTENDED SLAB MODEL)
+CC               IORSYS : ORBIT SYSTEM                        I*4
+CC                        =1: B1950.0
+CC                        =2: J2000.0
+CC               SVN    : SATELLITE NUMBER                    I*4
+CC               NAMSTA : STATION NAME                        CH*16
+CC        OUT :  XLAT   : LAT. OF IONOSPHERIC PIERCE POINT    R*8
+CC                        (IN SPECIFIC REFERENCE FRAME)
+CC               XSFL   : MEAN OR TRUE SUN-FIXED LONGITUDE    R*8
+CC               FACSLM : (1): IONOSPHERIC REDUCTION FACTOR   R*8(3)
+CC                        (2): FACTOR FOR PARTIAL DERIVATIVE
+CC                             OF SINGLE-LAYER HEIGHT
+CC                        (3): FACTOR FOR DTEC ESTIMATION
+CC               ALFXMF : PRODUCT OF ALF AND XMF              R*8
+CC               XSL    : GEOCENTRIC COORDINATES OF           R*8(3)
+CC                        INTERSECTION POINT IN FRAME OF IFLG1
+CC
+CC REMARKS    :  USE FLAG "IFLG3" TO SWITCH BETWEEN GEOCENTRIC (=1) AND
+CC               GEODETIC (=2) ZENITH DISTANCE ARGUMENT
+CC
+CC AUTHOR     :  S.SCHAER
+CC
+CC VERSION    :  3.6
+CC
+CC CREATED    :  01-MAY-95
+CC
+CC CHANGES    :  02-MAY-95 : SS: FLAG FOR LOCAL TIME INTRODUCED
+CC               07-JUN-95 : SS: TRANSFORM ARGUMENTS INTO GEOMAGNETIC
+CC                               REFERENCE FRAME
+CC               06-NOV-95 : SS: FLAG FOR REFERENCE FRAME INTRODUCED
+CC               08-NOV-95 : SS: USE GEOCENTRIC INSTEAD OF ELLIPSOIDAL
+CC                               ZENITH DISTANCE (SEE "IFLG3")
+CC               14-NOV-95 : SS: RETURN "FACSLM(2)"
+CC               28-NOV-95 : SS: CHECK "ARG1" (NEGATIVE "XHGT")
+CC               19-JUN-96 : SS: HANDLE MEAN GEOMAGNETIC FRAME CORRECTLY
+CC               24-OCT-97 : SS: CALL OF SR SUNEFF
+CC               29-APR-98 : SS: DTEC LC
+CC               04-MAY-98 : SS: "FACTEC" VIA 'I:COMCONST'
+CC               04-MAY-98 : SS: INCLUDE 'COMFREQ.inc' FOR GLONASS
+CC               29-JUL-01 : DS: NEW PARAMETER NAMSTA
+CC               29-JUL-01 : DS: STAFLG: HANDLE STATION TYPES
+CC               29-JUL-01 : DS: VTEC REDUCTION WITH HEIGHT (LEO)
+CC               20-SEP-01 : SS: NEW TEC MAPPING FUNCTIONS
+CC               23-JUN-03 : HB: INTERFACE FOR SR STAFLG
+CC               19-JAN-03 : SS/MM: REVISION OF GPSEST INPUT PANELS
+CC               16-JUN-05 : MM: COMCONST.inc REPLACED BY d_const
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC               30-MAY-07 : AG: USE s_suneff
+CC               04-JAN-10 : CK/SL: RETURN "ALFXMF" AND "XSL"
+CC               01-OCT-10 : CR: NEW CALL OF SUNEFF
+CC               04-MAY-12 : RD: USE DMOD FROM MODULE, USE M_BERN WITH ONLY
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1995     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern,   ONLY: lfnerr
+      USE d_stacrx, ONLY: MTypeSPACE
+      USE d_const,  ONLY: CONRE, FACTEC, PI
+      USE l_basfun, ONLY: dmod
+
+      USE s_cootra
+      USE s_truearth
+      USE s_staflg
+      USE s_eccell
+      USE s_suneff
+      USE s_exitrc
+      USE s_ddreh
+      USE s_dmlmav
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 I     , ICARR , IFLG1 , IFLG2 , IFLG3 , IMF   , IORSYS
+C
+      REAL*8    ALF   , ARG1  , DSAT  , DSL   , FSL   , HGTLEO, HI    ,
+     1          RSL   , RST   , SECHI , SUNLAT, SUNLON, SZ    , SZ1   ,
+     2          TOBS  , UT1GPS, XALPMF, XHGT  , XHGTMF, XHGTNW, XLAT  ,
+     3          XLON  , XMF   , XPOL  , XSFL  , YPOL  , ZEN   , ZEN1  ,
+     4          ZEN1MF, ZEN2  , ZEN2MF, ZS    , ALFXMF
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      CHARACTER*16  NAMSTA
+      CHARACTER*20  MARTYP
+      REAL*8 XST(3),XSAT(3),FACGIM(5),XSE(3),XSL(3),SUNPOS(4),SUNEFX(3)
+      REAL*8 RMAT(3,3),XSUN(3),POLE(2),DUM3(3)
+      REAL*8 XSTELL(3),XSTECC(3),LOCECC(3),FACSLM(3)
+C
+      INTEGER*4 SVN,IFLAG
+C
+      INCLUDE 'COMFREQ.inc'
+C
+      DATA IFLG3/2/
+C
+C HANDLING STATION TYPES
+C ---------------------------
+      CALL STAFLG(NAMSTA,TOBS,IFLAG,MARTYP)
+C
+C DEFINE FACTORS FOR GLOBAL IONOSPHERE MODEL
+C ------------------------------------------
+      FACGIM(1)=-FACTEC/FRQ(1,SVN)**2
+      FACGIM(2)=-FACTEC/FRQ(2,SVN)**2
+      FACGIM(3)= 0.D0
+      FACGIM(4)= FACGIM(1)-FACGIM(2)
+      FACGIM(5)= FACTEC/(FRQ(1,SVN)*FRQ(2,SVN))
+C
+C TRANSFORM SATELLITE INTO EARTH-FIXED SYSTEM
+C -------------------------------------------
+      CALL DDREH(3,SZ,RMAT)
+      CALL DMLMAV(XSAT,RMAT,XSE)
+C
+C RADIUS VECTOR OF STATION
+C ------------------------
+      RST=DSQRT(XST(1)**2+XST(2)**2+XST(3)**2)
+C
+      XHGTNW=XHGT
+C
+C REDUCTION OF THE TEC FOR LEO, COMPUTE SCALING FACTOR
+C ====================================================
+      IF (MARTYP.EQ.MTypeSPACE) THEN
+C
+C J2000 -> TRUE POSITION -> EARTH FIXED POSITION OF THE SUN
+C
+        CALL SUNEFF(IORSYS,2.D0,TOBS,SUNPOS,DUM3)
+        CALL COOTRA(IORSYS,0,TOBS,SUNPOS,SZ1,XPOL,YPOL,UT1GPS)
+        CALL TRUEARTH(SUNPOS(1:3),SUNEFX,0,0,SZ1,XPOL,YPOL)
+C
+C ZENITH ANGLE WITH RESPECT TO THE SUN
+C
+        XSTELL(1)=DATAN2(XST(3),DSQRT(XST(1)**2+XST(2)**2))
+        XSTELL(2)=DATAN2(XST(2),XST(1))
+        XSTELL(3)=0.D0
+C
+        XSTECC(1:3)=SUNEFX(1:3)-XST(1:3)
+C
+        CALL ECCELL(XSTELL,XSTECC,LOCECC)
+C        HI=DATAN2(DSQRT(LOCECC(1)**2+LOCECC(2)**2),LOCECC(3))
+        HI=0.D0
+        SECHI=1.D0/DCOS(HI)
+C
+C LEO HEIGHT ABOVE THE MEAN SPHERE
+C --------------------------------
+        HGTLEO=RST-CONRE
+C
+C INTEGRATION OF CHAPMAN FUNCTION
+C -------------------------------
+        ZS=(HGTLEO-XHGT)/100000.D0
+        HGTLEO=XHGT-100000.D0*DLOG((1.D0-
+     1    DLOG(0.5D0*(DEXP(1.D0)+DEXP(1.D0-SECHI*DEXP(-ZS)))))*DCOS(HI))
+        ZS=(HGTLEO-XHGT)/100000.D0
+        ALF=(DEXP(1.D0)-DEXP(1.D0-SECHI*DEXP(-ZS)))/
+     1    (DEXP(1.D0)-DEXP(1.D0-SECHI*DEXP(XHGT/100000.D0)))
+        XHGTNW=HGTLEO
+      ELSE
+        ALF=1.D0
+      END IF
+C
+C ZENITH DISTANCE (WITH RESPECT TO GEOCENTER)
+C -------------------------------------------
+      XSTELL(1)=DATAN2(XST(3),DSQRT(XST(1)**2+XST(2)**2))
+      XSTELL(2)=DATAN2(XST(2),XST(1))
+      XSTELL(3)=0.D0
+C
+      DO 210 I=1,3
+        XSTECC(I)=XSE(I)-XST(I)
+210   CONTINUE
+C
+      CALL ECCELL(XSTELL,XSTECC,LOCECC)
+      ZEN1=DATAN2(DSQRT(LOCECC(1)**2+LOCECC(2)**2),LOCECC(3))
+C
+C GEOCENTRIC RADIUS OF SINGLE LAYER
+C ---------------------------------
+      RSL=CONRE+XHGTNW
+C
+C REDUCED ZENITH DISTANCE AT IONOSPHERIC PIERCE POINT
+C ---------------------------------------------------
+      ARG1=RST/RSL*DSIN(ZEN1)
+C
+      IF (ARG1.LT.1.D0) THEN
+        ZEN2=DASIN(ARG1)
+      ELSE
+        WRITE(LFNERR,910)
+910     FORMAT(/,' *** SR GIMARG: ILLEGAL ARGUMENT',/)
+        CALL EXITRC(2)
+      END IF
+C
+C COMPUTATION OF GEOCENTRIC COORDINATES OF INTERSECTION POINT
+C -----------------------------------------------------------
+      DSL=DSQRT(RSL**2+RST**2-2.D0*RSL*RST*DCOS(ZEN1-ZEN2))
+C
+      DSAT=0.D0
+      DO 110 I=1,3
+        DSAT=DSAT+(XSE(I)-XST(I))**2
+110   CONTINUE
+      DSAT=DSQRT(DSAT)
+C
+      FSL=DSL/DSAT
+      DO 120 I=1,3
+        XSL(I)=XST(I)+FSL*(XSE(I)-XST(I))
+120   CONTINUE
+C
+C ROTATION INTO GEOMAGNETIC SYSTEM
+      IF (IFLG1.EQ.2) THEN
+        CALL DDREH(3,POLE(2),RMAT)
+        CALL DMLMAV(XSL,RMAT,XSL)
+        CALL DDREH(2,PI/2.D0-POLE(1),RMAT)
+        CALL DMLMAV(XSL,RMAT,XSL)
+      END IF
+C
+      XLON=DATAN2(XSL(2),XSL(1))
+      XLAT=DATAN(XSL(3)/DSQRT(XSL(1)**2+XSL(2)**2))
+C
+C COMPUTE MEAN OR TRUE LONGITUDE AND LATITUDE OF SUN
+C --------------------------------------------------
+      IF (IFLG2.EQ.1) THEN
+C
+C MEAN POSITION
+        SUNLON=PI*(1.D0-2.D0*DMOD(TOBS,1.D0))
+C
+        XSUN(1)=DCOS(SUNLON)
+        XSUN(2)=DSIN(SUNLON)
+        XSUN(3)=0.D0
+      ELSE
+C
+C TRUE POSITION
+        CALL SUNEFF(IORSYS,2.D0,TOBS,SUNPOS,DUM3)
+        CALL COOTRA(IORSYS,0,TOBS,SUNPOS,SZ1,XPOL,YPOL,UT1GPS)
+C
+        XSUN(1)=SUNPOS(1)
+        XSUN(2)=SUNPOS(2)
+        XSUN(3)=SUNPOS(3)
+C
+        CALL DDREH(3,SZ1,RMAT)
+        CALL DMLMAV(XSUN,RMAT,XSUN)
+      ENDIF
+C
+C ROTATION INTO GEOMAGNETIC SYSTEM
+      IF (IFLG1.EQ.2) THEN
+        CALL DDREH(3,POLE(2),RMAT)
+        CALL DMLMAV(XSUN,RMAT,XSUN)
+        CALL DDREH(2,PI/2.D0-POLE(1),RMAT)
+        CALL DMLMAV(XSUN,RMAT,XSUN)
+      END IF
+C
+      SUNLON=DATAN2(XSUN(2),XSUN(1))
+      SUNLAT=DATAN(XSUN(3)/DSQRT(XSUN(1)**2+XSUN(2)**2))
+C
+C MEAN OR TRUE SUN-FIXED LONGITUDE OF IONOSPHERIC PIERCE POINT
+C ------------------------------------------------------------
+      XSFL=XLON-SUNLON
+      XSFL=DATAN2(DSIN(XSFL),DCOS(XSFL))
+C
+C ZENITH DISTANCE ARGUMENT FOR IONOSPHERIC MAPPING FUNCTION
+C ---------------------------------------------------------
+      IF (IFLG3.EQ.1) THEN
+        ZEN1MF=ZEN1
+      ELSE
+        ZEN1MF=ZEN
+      ENDIF
+C
+C IONOSPHERIC REDUCTION FACTOR
+C ----------------------------
+      IF (IMF.EQ.0) THEN
+C - NONE:
+        XMF=1.D0
+      ELSEIF (IMF.EQ.1) THEN
+C - COSZ (SINGLE-LAYER MODEL):
+        ARG1=CONRE/RSL*DSIN(ZEN1MF)
+        IF (ARG1.LT.1.D0) THEN
+          ZEN2MF=DASIN(ARG1)
+        ELSE
+          WRITE(LFNERR,910)
+          CALL EXITRC(2)
+        ENDIF
+        XMF=1.D0/DCOS(ZEN2MF)
+      ELSEIF (IMF.EQ.2 .OR. IMF.EQ.3) THEN
+C - MSLM (MODIFIED SLM):
+        XHGTMF=506.7D3
+        XALPMF=0.9782D0
+CC        XHGTMF=509.8D3
+CC        XALPMF=0.9791D0
+        ARG1=CONRE/(CONRE+XHGTMF)*DSIN(XALPMF*ZEN1MF)
+        IF (ARG1.LT.1.D0) THEN
+          ZEN2MF=DASIN(ARG1)
+        ELSE
+          WRITE(LFNERR,910)
+          CALL EXITRC(2)
+        ENDIF
+        XMF=1.D0/DCOS(ZEN2MF)
+      ELSE
+        WRITE(LFNERR,920)
+920     FORMAT(/,' *** SR GIMARG: MAPPING FUNCTION UNKNOWN',/)
+        CALL EXITRC(2)
+      ENDIF
+C
+      FACSLM(1)=ALF*FACGIM(ICARR)*XMF
+      ALFXMF   =ALF*XMF
+C
+C FACTOR FOR PARTIAL DERIVATIVE WITH RESPECT TO SINGLE-LAYER HEIGHT
+C -----------------------------------------------------------------
+      FACSLM(2)=-FACSLM(1)*DTAN(ZEN2MF)**2/RSL
+C
+C FACTOR FOR DTEC ESTIMATION
+C --------------------------
+      FACSLM(3)=(ALF*FACGIM(4))**2*XMF
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

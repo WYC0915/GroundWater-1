@@ -1,0 +1,68 @@
+package QLRSUM_1;
+@ISA = ("RUNBPE");
+# ============================================================================
+#
+# Name    :  QLRSUM_1
+#
+# Purpose :  Generate statistics for SLR residuals
+#            Program QLRSUM
+#
+# PARAMs  :
+#
+# Author  :  D. Thaller
+# Created :  10-Feb-2012
+#
+# Changes :
+#
+# ============================================================================
+use strict;
+
+use lib $ENV{BPE};
+use bpe_util qw(replaceSelLst);
+
+
+sub run{
+  my $bpe = shift;
+
+# Get variables
+# -------------
+  my ($yyssss,
+      $dirFix,
+      $SatSel,
+      $LEO, $LSTD) =
+  $bpe->getKeys
+     ('$YSS+0',
+      'DIR_FIX',
+      'V_SATSEL',
+      'V_LEO','V_LSTD');
+
+# Satellite selection list
+# ------------------------
+  my $selFil = "${dirFix}${SatSel}.FIX";
+  print "\n Satellite selection file: ${selFil}\n";
+
+  my $iLine = 0;
+  my @SatLst = ();
+
+  open(FIX,$selFil);
+  while(<FIX>) {
+    $iLine++;
+    if ($iLine > 5) {
+      push(@SatLst, substr($_,0,3));
+    }
+  }
+  close FIX;
+
+  my $PGMNAM = "QLRSUM";
+  replaceSelLst($bpe,"${PGMNAM}","SATLST",@SatLst);
+
+# Settings for LEO processing
+# ---------------------------
+  if (uc $LEO eq "Y") {
+    $bpe->putKey("$ENV{U}/PAN/QLRSUM.INP","STDORB","${LSTD}${yyssss}");}
+
+# Run program
+# -----------
+  $bpe->RUN_PGMS($PGMNAM);
+
+}

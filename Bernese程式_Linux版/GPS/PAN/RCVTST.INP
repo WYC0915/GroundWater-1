@@ -1,0 +1,230 @@
+
+! -------------------------------------------------------------------------
+! Bernese GPS Software Version 5.0
+!
+! Input Panel: Testing receiver performance
+!
+! Program: RCVTST
+!
+! Created:
+!
+! Copyright: Astronomical Institute
+! University of Berne
+! Switzerland
+! --------------------------------------------------------------------
+!
+! Some keywords for automatic output
+! ----------------------------------
+CAMPAIGN 1  "${P}/IGSRAPID"
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+SESSION_TABLE 1  "${P}/IGSRAPID/STA/SESSIONS.SES"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO 1  "2003"
+  ## widget = comment
+  # $Y+0
+
+SES_INFO 1  "1390"
+  ## widget = comment
+  # $S+0
+
+USR_INFO 1  "${USER}"
+  ## widget = comment
+
+! Environment variables
+! ---------------------
+ENVIRONMENT 8
+  "P" "/aiub"
+  "Q" "/aiub2"
+  "K" "/aiub_u_camp"
+  "X" "/aiub_sw/BERN50/GPS"
+  "U" "/u/aiub/hugentob/GPSUSER"
+  "S" "/aiub_savedisk"
+  "T" "/scratch/hugentob"
+  "USER" "hugentob"
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+!---------------------------------------------------------------------
+! INPUTFILES                                                         |
+!---------------------------------------------------------------------
+! Show general files
+! ------------------
+SHOWGEN 1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+! General constants
+! -----------------
+CONST 1  "${X}/GEN/CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  # CONST.
+
+DESCR_CONST 1  "General constants"
+
+! Abbreviation table
+! ------------------
+ABBREV 1  "${P}/IGSRAPID/STA/ABBREV.ABB"
+  ## widget = selwin; path = DIR_ABB; ext = EXT_ABB; maxfiles = 1
+  # ABBREV
+
+DESCR_ABBREV 1  "Abbreviation table"
+
+! STAINFO with information requested in the RINEX files
+! -----------------------------------------------------
+RNXINFO 1  "${P}/IGSRAPID/STA/ITRFCODE.STA"
+  ## widget = selwin; path = DIR_STA; ext = EXT_STA; maxfiles = 1
+  # ITRFCODE
+
+DESCR_RNXINFO 1  "Station information"
+
+! Summary of a previous AR step
+! -----------------------------
+ARSUM 31
+  "${P}/IGSRAPID/OUT/MWW03109.SUM"
+  "${P}/IGSRAPID/OUT/MWW03110.SUM"
+  "${P}/IGSRAPID/OUT/MWW03111.SUM"
+  "${P}/IGSRAPID/OUT/MWW03112.SUM"
+  "${P}/IGSRAPID/OUT/MWW03113.SUM"
+  "${P}/IGSRAPID/OUT/MWW03114.SUM"
+  "${P}/IGSRAPID/OUT/MWW03115.SUM"
+  "${P}/IGSRAPID/OUT/MWW03116.SUM"
+  "${P}/IGSRAPID/OUT/MWW03117.SUM"
+  "${P}/IGSRAPID/OUT/MWW03118.SUM"
+  "${P}/IGSRAPID/OUT/MWW03119.SUM"
+  "${P}/IGSRAPID/OUT/MWW03120.SUM"
+  "${P}/IGSRAPID/OUT/MWW03121.SUM"
+  "${P}/IGSRAPID/OUT/MWW03122.SUM"
+  "${P}/IGSRAPID/OUT/MWW03123.SUM"
+  "${P}/IGSRAPID/OUT/MWW03124.SUM"
+  "${P}/IGSRAPID/OUT/MWW03125.SUM"
+  "${P}/IGSRAPID/OUT/MWW03126.SUM"
+  "${P}/IGSRAPID/OUT/MWW03127.SUM"
+  "${P}/IGSRAPID/OUT/MWW03128.SUM"
+  "${P}/IGSRAPID/OUT/MWW03129.SUM"
+  "${P}/IGSRAPID/OUT/MWW03130.SUM"
+  "${P}/IGSRAPID/OUT/MWW03131.SUM"
+  "${P}/IGSRAPID/OUT/MWW03132.SUM"
+  "${P}/IGSRAPID/OUT/MWW03133.SUM"
+  "${P}/IGSRAPID/OUT/MWW03134.SUM"
+  "${P}/IGSRAPID/OUT/MWW03135.SUM"
+  "${P}/IGSRAPID/OUT/MWW03136.SUM"
+  "${P}/IGSRAPID/OUT/MWW03137.SUM"
+  "${P}/IGSRAPID/OUT/MWW03138.SUM"
+  "${P}/IGSRAPID/OUT/MWW03139.SUM"
+  ## widget = selwin; path = DIR_SUM; ext = EXT_SUM; maxfiles = 999
+  ## emptyallowed = true
+  # MWW03*
+
+ARSUM_TXT_COL_1 1  "AR Summaries"
+
+MSG_ARSUM 1  "Ambiguity resolution summaries"
+
+!---------------------------------------------------------------------
+! OUTPUTFILES                                                        |
+!---------------------------------------------------------------------
+! Residuals
+! ---------
+RESID 0
+  ## widget = lineedit; path = DIR_RES; ext = EXT_RES
+  # 
+
+DESCR_RESID 1  "Residuals"
+
+! Program output file
+! -------------------
+SYSODEF 1  "0"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT 1  "${P}/IGSRAPID/OUT/RCVTST1.OUT"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+  # RCVTST1
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error message file
+! ------------------
+ERRMRG 1  "1"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR 0
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+  # 
+
+DESCR_SYSERR 1  "Error message"
+
+!---------------------------------------------------------------------
+! OPTIONS                                                             |
+!---------------------------------------------------------------------
+! Title
+! -----
+TITLE 1  "TITLE"
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+ORDER 1  "1"
+  ## widget = checkbox
+
+MSG_ORDER 1  "Order results"
+
+NITER 1  "3"
+  ## widget = spinbox; range = 0 25 1
+
+MSG_NITER 1  "Number of iterations"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# TEST OF RECEIVER PERFORMANCE - RCVTST 1: Filenames                           #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files            > % <                                    # SHOWGEN
+#                                                                              #
+# INPUT FILE                                                                   #
+#   Ambiguity resolution summaries    > %%%%%%%% <                             # ARSUM
+#                                                                              #
+# OUTPUT FILE                                                                  #
+#   Residuals                         > %%%%%%%% <                             # RESID
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output           > % < use RXOBV3.Lnn            or > %%%%%%%% <   # SYSODEF SYSOUT
+#   Error messages           > % < merged to program output  or > %%%%%%%% <   # ERRMRG SYSERR
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# RCVTST 1.1: General Files                                                    #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants     > %%%%%%%%%%%% <                                     # CONST
+#   Abbreviation table    > %%%%%%%% <                                         # ABBREV
+#   Station information   > %%%%%%%% <                                         # RNXINFO
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign     > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <     # CAMPAIGN
+#   Selected session        year> %%%% <  session> %%%% <                      # YR4_INFO SES_INFO
+#   Session table         > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <     # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# RCVTST 2: Input Options                                                      #
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <      # TITLE
+#                                                                              #
+# OPTIONS                                                                      #
+#   Order results             > % <                                            # ORDER
+#   Number of iterations      > %% <                                           # NITER
+#                                                                              #
+# END_PANEL ####################################################################  

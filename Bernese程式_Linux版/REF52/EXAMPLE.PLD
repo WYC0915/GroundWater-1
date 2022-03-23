@@ -1,0 +1,20 @@
+Example plate assignement                                        14-SEP-11 21:46
+--------------------------------------------------------------------------------
+LOCAL GEODETIC DATUM: IGS08           
+
+NUM  STATION NAME           VX (M/Y)       VY (M/Y)       VZ (M/Y)  FLAG   PLATE
+
+  1  GANP 11515M001                                                        EURA
+  2  HERT 13212M010                                                        EURA
+  3  JOZ2 12204M002                                                        EURA
+  4  LAMA 12209M001                                                        EURA
+  5  MATE 12734M008                                                        EURA
+  6  ONSA 10402M004                                                        EURA
+  7  PTBB 14234M001                                                        EURA
+  8  TLSE 10003M009                                                        EURA
+  9  WSRT 13506M005                                                        EURA
+ 10  WTZR 14201M010                                                        EURA
+ 11  WTZZ 14201M014                                                        EURA
+ 12  ZIM2 14001M008                                                        EURA
+ 13  ZIMM 14001M004                                                        EURA
+

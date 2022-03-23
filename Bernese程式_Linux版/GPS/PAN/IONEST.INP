@@ -1,0 +1,337 @@
+! Environment Variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! SOME KEYWORDS FOR AUTOMATIC OUTPUT
+! ----------------------------------
+CAMPAIGN     0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+! Show general files
+! ------------------
+SHOWGEN     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+! General Constants
+! -----------------
+CONST     1  "CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_CONST 1  "General constants"
+
+! Local Geodetic Datum
+! --------------------
+DATUM     1  "DATUM."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_DATUM 1  "Geodetic datum"
+
+! Satellite Information
+! ---------------------
+SATELL     1  "SATELLIT.I08"
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+
+DESCR_SATELL 1  "Satellite information"
+
+! Satellite Problems
+! ------------------
+SATCRUX     1  "SAT_$Y+0"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_CRX; maxfiles = 1
+
+DESCR_SATCRUX 1  "Satellite problems"
+
+! Pole File
+! ---------
+POLE     0
+  ## widget = selwin; path = DIR_ERP; ext = EXT_ERP; maxfiles = 1
+
+DESCR_POLE 1  "Earth rotation parameters"
+
+! Subdaily Pole Model
+! -------------------
+SUBMOD     1  "IERS2010XY"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_SUB; maxfiles = 1
+
+DESCR_SUBMOD 1  "Subdaily pole model"
+
+! Nutation Model
+! -------------------
+NUTMOD     1  "IAU2000R06"
+  ## widget = selwin; path = PTH_GEN; ext = EXT_NUT; maxfiles = 1
+
+DESCR_NUTMOD 1  "Nutation model"
+
+! Measurement Type
+! ----------------
+MEATYP     1  "PHASE"
+  ## widget = combobox; editable = false; cards = CODE PHASE
+
+MSG_MEATYP 1  "Type of observations"
+
+! Obs. Header Files
+! -----------------
+PHASFIL     1  "????$S+0"
+  ## widget = selwin; activeif = MEATYP = PHASE; path = DIR_PZH
+  ## ext = EXT_PZH; maxfiles = 999; emptyallowed = true
+
+MSG_PHASFIL 1  "Phase observations"
+
+CODEFIL     1  "????$S+0"
+  ## widget = selwin; activeif = MEATYP = CODE; path = DIR_CZH
+  ## ext = EXT_CZH; maxfiles = 999; emptyallowed = true
+
+MSG_CODEFIL 1  "Code observations"
+
+! File Extentions
+! ---------------
+PHASFIL_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_PZO
+
+PHASFIL_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_PZO
+
+CODEFIL_EXT_COL_2     0
+  ## widget = initmenu; pointer = EXT_CZO
+
+CODEFIL_PTH_COL_2     0
+  ## widget = initmenu; pointer = DIR_CZO
+
+! Ionosphere Model
+! ----------------
+IONOSRS     0
+  ## widget = lineedit; path = DIR_ION; ext = EXT_ION
+
+DESCR_IONOSRS 1  "Ionosphere model"
+
+! Residual File
+! -------------
+RESIDRS     0
+  ## widget = lineedit; path = DIR_RES; ext = EXT_RES
+
+DESCR_RESIDRS 1  "Residuals"
+
+! A priori Coordinates
+! --------------------
+COORD     0
+  ## widget = selwin; path = DIR_CRD; ext = EXT_CRD; maxfiles = 1
+
+DESCR_COORD 1  "Station coordinates"
+
+! Station Eccentricities
+! ----------------------
+ECCENT     0
+  ## widget = selwin; path = DIR_ECC; ext = EXT_ECC; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_ECCENT 1  "Station eccentricities"
+
+! Standard Orbits
+! ---------------
+STDORB     0
+  ## widget = selwin; path = DIR_STD; ext = EXT_STD; maxfiles = 1
+
+DESCR_STDORB 1  "Standard orbits"
+
+! Program Output File
+! -------------------
+SYSODEF     1  "1"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "IONEST"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG     1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR     1  "ERROR"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+
+MSG_SYSERR 1  "Error message"
+
+! Title Line
+! ----------
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+! Print Preprocessing Message
+! ---------------------------
+PRINTMES     1  "0"
+  ## widget = checkbox
+
+MSG_PRINTMES 1  "Print messages"
+
+! Carrier for Break Detection
+! ---------------------------
+CARRIER     1  "L4"
+  ## widget = combobox; editable = false; cards = L3 L4
+
+MSG_CARRIER 1  "Linear combination for break detection"
+
+! Polynomial Degree
+! -----------------
+POLYNOM     1  "1"
+  ## widget = combobox; editable = false; cards = 0 1 2 3
+
+MSG_POLYNOM 1  "Polynomial degree"
+
+! Max. Interval Length for Test
+! -----------------------------
+TESTINT     1  "4"
+  ## widget = lineedit
+
+MSG_TESTINT 1  "Maximum interval for testing"
+
+! RMS of one Observation
+! ----------------------
+RMSOBS     1  "0.01"
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_RMSOBS 1  "A priori sigma of a single observation"
+
+! Type of Ionosphere Modeling
+! ---------------------------
+IONTYP     1  "1"
+
+! iontyp = 1: single layer
+! iontyp = 2: satellite specific (not available)
+
+MSG_IONTYP 1  "Type of ionosphere modeling"
+
+! Print Residuals
+! ---------------
+PRINTRES     1  "0"
+  ## widget = checkbox
+
+MSG_PRINTRES 1  "Print residuals"
+
+! Min. Elevation
+! --------------
+MINEL     1  "15"
+  ## widget = lineedit
+
+MSG_MINEL 1  "Elevation cutoff angle"
+
+! Height of the Layer
+! -------------------
+HEIGHT     1  "450"
+  ## widget = lineedit
+
+MSG_HEIGHT 1  "Height of the single layer"
+
+! Degree of Development in Latitude
+! ---------------------------------
+DEGLAT     1  "1"
+  ## widget = lineedit
+
+MSG_DEGLAT 1  "Degree of development in latitude"
+
+! Degree of Development in Hour Angle
+! -----------------------------------
+DEGHOUR     1  "2"
+  ## widget = lineedit
+
+MSG_DEGHOUR 1  "Degree of development in hour angle"
+
+! Maximum Degree in mixed Coefficients
+! ------------------------------------
+DEGMIXED     1  "2"
+  ## widget = lineedit
+
+MSG_DEGMIXED 1  "Maximum degree in mixed coefficients"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# LOCAL IONOSPHERE MODEL ESTIMATION - IONEST 1: Filenames                      #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files    > % <                                            # SHOWGEN
+#                                                                              #
+# INPUT FILES                                                                  #
+#   Station coordinates       > %%%%%%%% <                                     # COORD
+#   Station eccentricities    > %%%%%%%% <                                     # ECCENT
+#   Standard orbits           > %%%%%%%% <                                     # STDORB
+#   Earth rotation parameters > %%%%%%%% <                                     # POLE
+#   Type of observations      > %%%%%% <                                       # MEATYP
+#   Phase observations        > %%%%%%%% <                                     # PHASFIL
+#   Code@ observations        > %%%%%%%% <                                     # CODEFIL
+#                                                                              #
+# RESULT FILES                                                                 #
+#   Ionosphere model          > %%%%%%%% <                                     # IONOSRS
+#   Residuals                 > %%%%%%%% <                                     # RESIDRS
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output            > % < use IONEST.Lnn            or  > %%%%%%%% < # SYSODEF SYSOUT
+#   Error messages            > % < merged to program output  or  > %%%%%%%% < # ERRMRG SYSERR
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# IONEST 1.1: General Files                                                    #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants       > %%%%%%%%%%%% <                                   # CONST
+#   Subdaily pole model     > %%%%%%%%%%%% <                                   # SUBMOD
+#   Nutation model          > %%%%%%%%%%%% <                                   # NUTMOD
+#   Geodetic datum          > %%%%%%%%%%%% <                                   # DATUM
+#   Satellite information   > %%%%%%%%%%%% <                                   # SATELL
+#   Satellite problems      > %%%%%%%%%%%% <                                   # SATCRUX
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# IONEST 2: Options                                                            #
+#                                                                              #
+#  TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <  # TITLE
+#                                                                              #
+#  PREPROCESSING                                                               #
+#    Print messages                          > % <                             # PRINTMES
+#    Linear combination for break detection  > %%% <                           # CARRIER
+#    Polynomial degree                       > %% <                            # POLYNOM
+#    Maximum interval for testing            > %%% <   minutes                 # TESTINT
+#    A priori sigma of a single observation  > %%%%% < meters                  # RMSOBS
+#                                                                              #
+#  PROCESSING OPTIONS                                                          #
+#    Print residuals                         > % <                             # PRINTRES
+#    Elevation cutoff angle                  > %%% <   degrees                 # MINEL
+#    Height of the single layer              > %%% <   kilometers              # HEIGHT
+#    Degree of development in latitude       > %%% <                           # DEGLAT
+#    Degree of development in hour angle     > %%% <                           # DEGHOUR
+#    Maximum degree in mixed coefficients    > %%% <                           # DEGMIXED
+#                                                                              #
+# END_PANEL ####################################################################

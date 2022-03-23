@@ -1,0 +1,344 @@
+      MODULE s_CHKBAS
+      CONTAINS
+
+
+      SUBROUTINE CHKBAS(ISNGDF,NFIL,STALST,AB4LST,AB2LST,SESSIO,
+     1                  STATUS,BSLGTH,NUMOBS,NFLDEL,TYPDEL,DELFIL,
+     2                  NFLNEW,AB4NEW,AB2NEW,IRCODE)
+CC
+CC NAME       :  CHKBAS
+CC
+CC PURPOSE    :  CHECK BASELINES FROM MAUPRP TO DETECT BAD SITES
+CC               AND FILES TO BE DELETED. MAKE A LIST OF SINGLE
+CC               DIFF. FILES TO BE CREATED TO RESTORE A LINEARLY
+CC               INDEPENDENT SET OF BASELINES
+CC
+CC PARAMETERS :
+CC         IN :  ISNGDF : SINGLE DIFF. FILE FLAG              I*4
+CC                        =1: ONLY SINGLE DIFF. TO BE DELETED
+CC                        =2: ZERO- AND SINGLE DIFF.FILES
+CC               NFIL   : NUMBER OF SINGLE DIFF. FILES        I*4
+CC               STALST(2,I),I=1,..,NFIL: NAMES OF STATIONS  CH*32(2,*)
+CC                        IN THE SNG.DIFF. FILES
+CC               AB4LST(2,I),I=1,..,NFIL: 4-CHAR. ABBREV.    CH*4(2,*)
+CC               AB2LST(2,I),I=1,..,NFIL: 2-CHAR. ABBREV.    CH*2(2,*)
+CC               SESSIO(I),I=1,..,NFIL: SESSION IDENTIFIERS  CH*4
+CC               STATUS(I),I=1,..,NFIL: STATUS OF THE PREP.  CH*4(*)
+CC               BSLGTH(I),I=1,..,NFIL: BASELINE LENGTH (KM)  R*8(*)
+CC        OUT :  NFLDEL : # OF FILES TO BE DELETED            I*4
+CC               TYPDEL(I),I=1,..,NFLDEL: TYPE OF FILE TO    CH*8(*)
+CC                        BE DELETED ("PZERO" OR "PSING")
+CC               DELFIL(I),I=1,..,NFLDEL: NAMES OF FILES TO  CH*8(*)
+CC                        BE DELETED
+CC               NFLNEW : NUMBER OF NEW FILES TO BE CREATED   I*4
+CC               AB4NEW(2,I),I=1,..,NFLNEW: 4-CHAR. ABBREV.  CH*4(2,*)
+CC                        OF NEW SNG.DIF FILES TO BE CREATED
+CC               AB2NEW(2,I),I=1,..,NFLNEW: 2-CHAR. ABBREV.  CH*2(2,*)
+CC                        OF NEW SNG.DIF FILES TO BE CREATED
+CC               IRCODE : RETURN CODE                         I*4
+CC                        =0 : OK
+CC                        =1 : WARNING
+CC                        =2 : ERROR
+CC
+CC REMARKS    :  ---
+CC
+CC AUTHOR     :  M.ROTHACHER
+CC
+CC VERSION    :  3.6
+CC
+CC CREATED    :  07-FEB-95
+CC
+CC CHANGES    :  06-OCT-95 : MR: ONLY ONE DELETION LIST WITH
+CC                               FILE TYPE INFORMATION
+CC                           MR: IMPROVE ZERO DIFFERENCE STATION DELETION
+CC                           JJ/MR: BETTER SELECTION OF BAD SITE
+CC                               ADD "NUMOBS" TO PARAMETER LIST
+CC               24-JAN-97 : SS: MAXFIL TO 500
+CC               08-JUL-02 : RD: HANDLE ZERO DIFF. CASE
+CC               28-JUN-04 : RD: USE MAXCRD FROM M_MAXDIM FOR MAXSTA
+CC               21-JUN-05 : MM: COMLFNUM.inc REMOVED, m_bern ADDED
+CC               23-JUN-05 : MM: IMPLICIT NONE AND DECLARATIONS ADDED
+CC
+CC COPYRIGHT  :  ASTRONOMICAL INSTITUTE
+CC      1995     UNIVERSITY OF BERN
+CC               SWITZERLAND
+CC
+C*
+      USE m_bern
+      USE M_MAXDIM, ONLY: maxsta => maxcrd
+C
+      USE s_iordup
+      USE s_maxtst
+      USE s_exitrc
+      IMPLICIT NONE
+C
+C DECLARATIONS INSTEAD OF IMPLICIT
+C --------------------------------
+      INTEGER*4 IDEL  , IFIL  , IFIL1 , INDFL1, INDST1, IRC   , IRCODE,
+     1          ISNGDF, IST   , ISTA  , ISTDEL, ISTIND, ISTMAX, ISTMIN,
+     2          ITER  , IZEROD, MAXFIL, MXCFIL, NBDMAX, NBDMIN, NDLFIL,
+     3          NFIL  , NFLDEL, NFLNEW, NSTA
+C
+CCC       IMPLICIT REAL*8 (A-H,O-Z)
+C
+      PARAMETER (MAXFIL=500)
+C
+      CHARACTER*16 STALST(2,*),STANAM(MAXSTA)
+      CHARACTER*8  DELFIL(*),TYPDEL(*)
+      CHARACTER*6  MXNFIL
+      CHARACTER*4  AB4LST(2,*),AB4NAM(MAXSTA),AB4NEW(2,*)
+      CHARACTER*4  STATUS(*),SESSIO(*)
+      CHARACTER*2  AB2LST(2,*),AB2NAM(MAXSTA),AB2NEW(2,*)
+C
+      REAL*8       BSLGTH(*)
+C
+      INTEGER*4    NOK(MAXSTA),NDIFF(MAXSTA),NBAD(MAXSTA)
+      INTEGER*4    NOCCUR(MAXSTA)
+      INTEGER*4    ISTBAD(MAXSTA),ISTATS(MAXFIL),INDEXO(MAXFIL)
+      INTEGER*4    NUMOBS(*)
+C
+      COMMON/MCMFIL/MXCFIL,MXNFIL
+C
+C CHECK LOCAL DIMENSION
+C ---------------------
+      CALL MAXTST(1,'CHKBAS',MXNFIL,MAXFIL,MXCFIL,IRC)
+      IF (IRC.NE.0) CALL EXITRC(2)
+C
+C CHECK CONSISTENCY OF SESSIONS
+C -----------------------------
+      DO 5 IFIL=2,NFIL
+        IF (SESSIO(IFIL).NE.SESSIO(1)) THEN
+          WRITE(LFNERR,903) 1,SESSIO(1),IFIL,SESSIO(IFIL)
+903       FORMAT(/,' *** SR CHKBAS: INVALID SESSION IDENTIFIERS',
+     1           /,16X,'ALL SESSION HAVE TO BE EQUAL',
+     2           /,16X,'FILE:',I4,'   SESSION: ',A4,
+     3           /,16X,'FILE:',I4,'   SESSION: ',A4,
+     4           /,'NO FILES ARE DELETED',/)
+          NFLDEL=0
+          NFLNEW=0
+          IRCODE=1
+          GOTO 999
+        ENDIF
+5     CONTINUE
+C
+C
+C GET LIST OF STATIONS INVOLVED AND THEIR STATUS
+C ----------------------------------------------
+      IZEROD=0
+      NSTA=0
+      NFLDEL=0
+      DO 30 IFIL=1,NFIL
+        ISTATS(IFIL)=0
+C
+C LIOST OF BAD SNG.DIFF FILES TO BE DELETED
+        IF (STATUS(IFIL).NE.'OK') THEN
+          NFLDEL=NFLDEL+1
+C
+C CHECK MAXIMUM NUMBER OF FILES TO BE DELETED
+          IF (NFLDEL.GT.MAXFIL) THEN
+            WRITE(LFNERR,901) NFLDEL,MAXFIL
+901         FORMAT(/,' *** SR CHKBAS: TOO MANY FILES TO BE DELETED',
+     &             /,16X,'NUMBER OF FILES            >=',I4,
+     &             /,16X,'MAX. NUMBER OF FILES ALLOWED:',I4,
+     &             /,16X,'INCREASE MAXFIL IN MAIN PROGRAM',/)
+            IRCODE=2
+            GOTO 999
+          ENDIF
+C
+C SINGLE DIFF CASE
+C ----------------
+          IF (LEN_TRIM(STALST(2,IFIL)).GT.0) THEN
+            TYPDEL(NFLDEL)='PSING'
+            DELFIL(NFLDEL)=AB2LST(1,IFIL)//AB2LST(2,IFIL)//SESSIO(IFIL)
+          ELSE
+            TYPDEL(NFLDEL)='PZERO'
+            DELFIL(NFLDEL)=AB4LST(1,IFIL)//SESSIO(IFIL)
+            IZEROD=1
+            GOTO 30
+          ENDIF
+        ENDIF
+        IF (ISNGDF.EQ.1) GOTO 30
+        DO 20 IST=1,2
+          DO 10 ISTA=1,NSTA
+            IF (STANAM(ISTA).EQ.STALST(IST,IFIL)) GOTO 15
+10        CONTINUE
+C
+C NEW STATION
+          NSTA=NSTA+1
+          IF (NSTA.GT.MAXSTA) THEN
+            WRITE(LFNERR,902) MAXSTA
+902         FORMAT(/,' *** SR CHKBAS: TOO MANY STATIONS INVOLVED',
+     1             /,16X,'MAX. NUMBER OF STATIONS ALLOWED:',I4,
+     2             /,16X,'INCREASE "MAXSTA" IN THIS SUBROUTINE',/)
+            CALL EXITRC(2)
+          ENDIF
+          STANAM(NSTA)=STALST(IST,IFIL)
+          AB4NAM(NSTA)=AB4LST(IST,IFIL)
+          AB2NAM(NSTA)=AB2LST(IST,IFIL)
+          ISTA=NSTA
+C
+C ADD NUMBER OF OCCURENCES, BAD, AND OK STATUS
+15        CONTINUE
+          NOCCUR(ISTA)=NOCCUR(ISTA)+1
+          IF (STATUS(IFIL).EQ.'OK  ') THEN
+            NOK(ISTA)=NOK(ISTA)+1
+            NDIFF(ISTA)=NDIFF(ISTA)+1
+          ELSE
+            NBAD(ISTA)=NBAD(ISTA)+1
+            NDIFF(ISTA)=NDIFF(ISTA)-1
+          ENDIF
+          ISTBAD(ISTA)=0
+C
+20      CONTINUE
+30    CONTINUE
+C
+C FIND BAD STATIONS
+C -----------------
+      IF (ISNGDF.EQ.1) GOTO 999
+C
+C ZERO DIFFERENCE CASE
+C --------------------
+      IF (IZEROD.EQ.1) THEN
+        DO ISTA=1,NFIL
+          IF (LEN_TRIM(STALST(2,ISTA)) > 0) THEN
+            WRITE(LFNERR,'(/,A,/,16X,A,/)')
+     1            ' ### SR CHKBAS: MIXED PROCESSING OF ZERO AND SI' //
+     2                            'NGLE DIFFERENCE FILES.',
+     3                            'NO RE-BUILD OF THE BASELINE NET' //
+     4                            'WORK IS POSSIBLE.'
+            GOTO 999
+          ENDIF
+        ENDDO
+        GOTO 999
+      ENDIF
+C
+C ORDER BASELINES ACCORDING TO "NUMOBS"
+C -------------------------------------
+      CALL IORDUP(NUMOBS,NFIL,INDEXO)
+C
+      DO 100 ITER=1,10000
+C
+        NBDMIN=9999
+        NBDMAX=-9999
+        DO 40 ISTA=1,NSTA
+          IF (NBAD(ISTA).EQ.0) GOTO 40
+          IF (ISTBAD(ISTA).EQ.1) GOTO 40
+          IF (NDIFF(ISTA).LT.NBDMIN) THEN
+            ISTMIN=ISTA
+            NBDMIN=NDIFF(ISTA)
+          ENDIF
+          IF (NBAD(ISTA).GT.NBDMAX) THEN
+            ISTMAX=ISTA
+            NBDMAX=NBAD(ISTA)
+          ENDIF
+40      CONTINUE
+C
+C STATION TO BE DELETED (WORST NDIFF)
+        IF (NBDMIN.LT.9999) THEN
+          ISTDEL=ISTMIN
+C
+C STATION TO BE DELETED (WORST NBAD)
+        ELSEIF (NBDMAX.GT.0) THEN
+          ISTDEL=ISTMAX
+        ELSE
+          GOTO 110
+        ENDIF
+C
+        ISTBAD(ISTDEL)=1
+C
+C BASELINES TO BE DELETED
+        NDLFIL=0
+        DO 50 IFIL1=1,NFIL
+          IFIL=INDEXO(IFIL1)
+          IF (ISTATS(IFIL).EQ.1) GOTO 50
+          IDEL=0
+          IF (STALST(1,IFIL).EQ.STANAM(ISTDEL)) THEN
+            IDEL=1
+            ISTIND=2
+          ENDIF
+          IF (STALST(2,IFIL).EQ.STANAM(ISTDEL)) THEN
+            IDEL=1
+            ISTIND=1
+          ENDIF
+          IF (IDEL.EQ.1) THEN
+C
+            DO 45 ISTA=1,NSTA
+              IF (STANAM(ISTA).EQ.STALST(ISTIND,IFIL)) GOTO 48
+45          CONTINUE
+48          IF (STATUS(IFIL).EQ.'OK  ') THEN
+              NOK(ISTDEL)=NOK(ISTDEL)-1
+              NDIFF(ISTDEL)=NDIFF(ISTDEL)-1
+              NOK(ISTA)=NOK(ISTA)-1
+              NDIFF(ISTA)=NDIFF(ISTA)-1
+            ELSE
+              NBAD(ISTDEL)=NBAD(ISTDEL)-1
+              NDIFF(ISTDEL)=NDIFF(ISTDEL)+1
+              NBAD(ISTA)=NBAD(ISTA)-1
+              NDIFF(ISTA)=NDIFF(ISTA)+1
+            ENDIF
+            ISTATS(IFIL)=1
+C
+C NEW BASELINE TO REPLACE THE OLD ONE (IF POSSIBLE)
+            NDLFIL=NDLFIL+1
+            IF (NDLFIL.EQ.1) THEN
+              INDFL1=IFIL
+              INDST1=ISTIND
+            ELSEIF (NDLFIL.GT.1) THEN
+              NFLNEW=NFLNEW+1
+              AB4NEW(1,NFLNEW)=AB4LST(INDST1,INDFL1)
+              AB4NEW(2,NFLNEW)=AB4LST(ISTIND,IFIL)
+              AB2NEW(1,NFLNEW)=AB2LST(INDST1,INDFL1)
+              AB2NEW(2,NFLNEW)=AB2LST(ISTIND,IFIL)
+C
+C UPDATE ARRAYS NOK,NBAD,NDIFF
+              ISTATS(IFIL)=0
+              STALST(2,IFIL)=STALST(ISTIND,IFIL)
+              STALST(1,IFIL)=STALST(INDST1,INDFL1)
+              AB4LST(1,IFIL)=AB4NEW(1,NFLNEW)
+              AB4LST(2,IFIL)=AB4NEW(2,NFLNEW)
+              AB2LST(1,IFIL)=AB2NEW(1,NFLNEW)
+              AB2LST(2,IFIL)=AB2NEW(2,NFLNEW)
+C
+              DO 60 ISTA=1,NSTA
+                IF (STANAM(ISTA).EQ.STALST(1,IFIL)) GOTO 70
+60            CONTINUE
+70            NOK(ISTA)=NOK(ISTA)+1
+              NDIFF(ISTA)=NDIFF(ISTA)+1
+C
+              DO 80 ISTA=1,NSTA
+                IF (STANAM(ISTA).EQ.STALST(2,IFIL)) GOTO 90
+80            CONTINUE
+90            NOK(ISTA)=NOK(ISTA)+1
+              NDIFF(ISTA)=NDIFF(ISTA)+1
+            ENDIF
+          ENDIF
+50      CONTINUE
+C
+C NEXT ITERATION
+100   CONTINUE
+C
+C NO STATIONS TO BE MARKED ANY MORE
+110   CONTINUE
+C
+C SUMMARY OF ZERO DIFF. FILES TO BE DELETED
+      DO 120 ISTA=1,NSTA
+        IF (ISTBAD(ISTA).EQ.1) THEN
+          NFLDEL=NFLDEL+1
+C
+C CHECK MAXIMUM NUMBER OF FILES TO BE DELETED
+          IF (NFLDEL.GT.MAXFIL) THEN
+            WRITE(LFNERR,901) NFLDEL,MAXFIL
+            IRCODE=2
+            GOTO 999
+          ENDIF
+          TYPDEL(NFLDEL)='PZERO'
+          DELFIL(NFLDEL)=AB4NAM(ISTA)//SESSIO(1)
+        ENDIF
+120   CONTINUE
+C
+999   CONTINUE
+C
+      RETURN
+      END SUBROUTINE
+
+      END MODULE

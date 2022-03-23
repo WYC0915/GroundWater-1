@@ -1,0 +1,291 @@
+<html>
+<body>
+
+<center>
+<b>CREATE/UPDATE STATION INFORMATION FILE</b>
+<p>Editor: EDITSTA
+</center>
+<hr width="100%">
+
+<a name="ENVIRONMENT" default="%% %%"></a>
+<a name="DATUM"       default="DATUM."></a>
+<a name="NEWFILE"     default=""></a>
+<a name="TYPE001HLP"  default="%% %% %% %% %% %%"></a>
+<a name="TYPE002HLP"  default="%% %% %% %% %% %% %% %% %% %% %% %% %% %% %%"></a>
+<a name="TYPE003HLP"  default="%% %% %% %% %%"></a>
+<a name="TYPE004HLP"  default="%% %% %% %% %% %% %% %%"></a>
+<a name="TYPE005HLP"  default="%% %% %% %% %% %%"></a>
+<a name="STALST"      default=""></a>
+<a name="COORD"       default=""></a>
+
+<p><b>GENERAL DESCRIPTION </b>
+<p>
+The station information file is used to change different types of station
+information:
+<ul>
+<li><b>TYPE&nbsp;001:</b> Renaming of stations
+<li><b>TYPE&nbsp;002:</b> Station information
+<li><b>TYPE&nbsp;003:</b> Handling of station problems
+<li><b>TYPE&nbsp;004:</b> Station coordinates and velocities constraints
+<li><b>TYPE&nbsp;005:</b> Marker type
+</ul>
+These input panels help you to create or to edit this type of files.
+<br>
+To create a new station information file specify a new filename in the file
+selection dialogue. In this case you will be asked to select an existing
+coordinate file. Select a subset of the stations in
+this file to generate a template for the new station information file.
+
+<p><i>Remark:</i>
+The station information file consists of five sections.
+The beginning of each section is indicated by <tt>TYPE&nbsp;001</tt> to
+<tt>TYPE&nbsp;005</tt> at the beginning of a line. The end of a section is
+indicated by a blank line.  Lines below the last section are ignored.
+If you use this input mask to edit a station information file
+these additional lines will be lost. If you want to keep them in the file
+you have to use an external text file editor.
+
+<p><a href="/$X/DOC/EXAMPLE.STA">Example for GNSS stations</a>,
+   <a href="/$X/DOC/EXAMP_SLR.STA">Example for SLR stations</a>,
+   <a href="/$X/DOC/EXAMP_LEO.STA">Example for Low Earth Orbiter (LEO)</a>
+
+<p><hr>
+
+<a name="NEW001"     default="0"></a>
+<a name="NEW002"     default="0"></a>
+<a name="NEW005"     default="0"></a>
+<a name="NEW001STA"  default=""></a>
+<a name="NEW002STA"  default=""></a>
+<a name="NEW005STA"  default=""></a>
+<a name="NEW001FLG"  default=""></a>
+<a name="NEW001BEG"  default=""></a>
+<a name="NEW001END"  default=""></a>
+<a name="NEW002FLG"  default=""></a>
+<a name="NEW002BEG"  default=""></a>
+<a name="NEW002END"  default=""></a>
+<a name="NEW005FLG"  default=""></a>
+<a name="NEW005BEG"  default=""></a>
+<a name="NEW005END"  default=""></a>
+<p><b>CREATE A NEW STATION INFORMATION FILE</b>
+<p>
+For the following types of station information you may define some default
+values:
+<ul>
+<li><b>TYPE 001:</b> Renaming of stations
+<li><b>TYPE 002:</b> Station information
+<li><b>TYPE 005:</b> Marker type
+</ul>
+<br>
+The default values selected here will be used to automatically generate
+a template for the following panels.
+
+<p><b>List of stations for TYPE&nbsp;001</b>, <b>002</b> and <b>005:</b>
+Select all stations from the station list (taken from the coordinate file
+specified before) you want to add to the station information file for
+TYPE&nbsp;00x.
+
+<p><b>Flag:</b>
+Enter an arbitrary <nobr>3-digit</nobr> integer value.
+This flag is currently not used.
+It is prepared for future software developments.
+
+<p><b>YYYY MM DD HH MM SS:</b>
+The data record is valid for the time window specified here. An empty
+input field indicates an open boundary of the time window.
+
+<p><hr>
+
+<p><b>EDIT STATION INFORMATION FILE:</b>
+
+<a name="STACRXRS" default=""></a>
+<a name="TITLE" default=""></a>
+<a name="TYPE001" default="%% %% %% %% %% %%"></a>
+<p><b>Renaming of Stations (TYPE&nbsp;001)</b>
+<p>
+TYPE&nbsp;001: You may rename station names within a specific time window.
+
+<p><b>Title:</b>
+The title line is saved in the file. It should describe the origin of the
+station information. The current date will be appended automatically.
+
+<p><b>Station name:</b>
+Enter the new station name for the renaming of the "Old station name".
+
+<p><b>Flag:</b>
+Enter an arbitrary <nobr>3-digit</nobr> integer value.
+This flag is currently not used.
+
+<p><b>from</b> - <b>to:</b>
+The "Old station name" is changed into the "Station name" for epochs in
+the time window specified here.
+An empty input field indicates an open boundary of the time window.
+
+<p><b>Old station name:</b>
+Enter the old station name you want to rename into the "Station name".
+
+<p><b>Remark:</b>
+You may enter a remark. It will be saved in the file but is not used
+by any program.
+
+<p><hr>
+
+<a name="TYPE002" default="%% %% %% %% %% %% %% %% %% %% %% %% %% %% %%"></a>
+<p><b>Station Information (TYPE&nbsp;002)</b>
+<p>
+TYPE 002: You may specify the station information concerning antenna
+eccentricity and the receiver and/or antenna type resp. receiver and/or
+antenna serial number for a time window.
+
+<a name="PHASECC" default="PCV.I08"></a>
+<p><b>Antenna phase center file to check the entries:</b>
+You may enter an antenna phase center eccentricity file
+to check that all antennas you have specified in the station
+information record have valid entries. To skip this check leave the
+input field empty.
+<br>
+If the "Antenna type" and the "Ant #" (antenna serial number)
+are not found in the phase center eccentricity file, the menu
+system will provide a warning message when saving the station information
+file. The check is only performed if both, "Antenna type"
+and antenna number ("Ant #") are specified in this panel.
+
+<p>Example:<a href="/$X/GEN/PCV.I08">PCV.I08</a>.
+
+<p><b>Station name:</b>
+Enter the station name.
+
+<p><b>Flag:</b>
+Enter an arbitrary <nobr>3-digit</nobr> integer value.
+This flag is currently not used.
+
+<p><b>from</b> - <b>to:</b>
+The station information record is valid for the time window specified here.
+An empty input field indicates an open boundary of the time window.
+
+<p><b>Receiver type:</b>
+Enter the receiver type for the station specified.
+In case of a SLR station, the receiver type has to be <tt>SLR</tt>.
+
+<p><b>Receiver serial nbr:</b>
+Enter the receiver serial number.
+
+<p><b>Rec #:</b>
+Enter the receiver number for the station specified.
+
+<p><i>Remark:</i>
+Only integer values within the range of 0 to 999999 are supported by the
+Bernese GNSS Software.
+
+<p><b>Antenna type:</b>
+Enter the antenna type for the station specified.
+In case of a SLR station, the antenna type has to be <tt>SLR</tt>.
+
+<p><b>Antenna serial nbr:</b>
+Enter the antenna serial number.
+
+<p><b>Ant #:</b>
+Enter the antenna number for the station specified.
+<br><i>Remark:</i> Only integer values within the range of 0 to 999999 are
+supported by the Bernese GNSS Software.
+
+<p><b>Antenna eccentricity:</b>
+Enter the antenna eccentricity in meters for all three components (north,
+east, up).
+
+<p><b>Description:</b>
+Enter the station description, e.g., <tt>Zimmerwald, CH</tt>. When
+writing a SINEX file this information will appear in the corresponding field
+in the <tt>SITE/ID</tt> section.
+
+<p><b>Remark:</b>
+You may enter a remark (e.g., <tt>IGSSTATION-4338</tt>, to trace the source of
+the information on the equipment change). It will be saved in the file but
+is not used by any program.
+
+<p><hr>
+
+<a name="TYPE003" default="%% %% %% %% %%"></a>
+<p><b>Handling of Station Problems (TYPE&nbsp;003)</b>
+<p>
+TYPE 003: You may indicate data problems of a
+station within a specific time window, e.g., if the antenna was changed
+within a session. The station will be excluded from the processing by
+pre-eliminating the station dependent parameters in the program
+<a href="PGMLST.HLP#ADDNEQ2">ADDNEQ2</a> and by removing the Bernese
+observation files during the import from RINEX format in the program
+<a href="PGMLST.HLP#RXOBV3">RXOBV3</a>.
+
+<p><b>Station name:</b>
+Enter the station name.
+
+<p><b>Flag:</b>
+Enter an arbitrary <nobr>3-digit</nobr> integer value.
+This flag is currently not used.
+
+<p><b>from</b> - <b>to:</b>
+The station will be excluded from the processing for the time window specified
+here. An empty input field indicates an open boundary of the time window.
+
+<p><b>Remark:</b>
+You may enter a remark  (e.g., <tt>earthquake</tt> to trace the cause of
+the station problem). It will be saved in the file but
+is not used by any program.
+
+<p><hr>
+
+<a name="TYPE004" default="%% %% %% %% %% %% %% %%"></a>
+<p><b>Station Coordinate and Velocity Constraints (TYPE&nbsp;004)</b>
+<p>
+TYPE 004: You may apply relative constraints to a set of coordinates
+and/or velocities. The adjusted coordinates/velocities of station&nbsp;2 will be
+constrained to the adjusted coordinates/velocities of station&nbsp;1. Therefore,
+to constrain, e.g., the estimated velocities of two stations to the same values
+you have to make sure that the a priori values of the two station velocities
+are equal. Enter <tt>99.99999</tt> to indicate unconstrained components.
+
+<p><b>Station name 1:</b>
+Enter the first station name.
+
+<p><b>Station name 2:</b>
+Enter the second station name.
+
+<p><b>Relative constr position:</b>
+Enter the relative constrain for the coordinates.
+
+<p><b>Relative constr velocity:</b>
+Enter the relative constrain for the velocities.
+
+<p><hr>
+
+<a name="TYPE005" default="%% %% %% %% %% %%"></a>
+<p><b>Marker Type (TYPE&nbsp;005)</b>
+<p>
+TYPE 005: You may set the marker type of your GPS receiver here. If you
+have a LEO satellite with a GPS receiver on board you have to specify
+stringently the marker type as <tt>SPACEBORNE</tt> here. Otherwise the
+processing programs will not recognize that it is a LEO. All stations which
+are not listed here are assumed to be terrestrial stations.
+
+<p><b>Station name:</b>
+Enter the station name.
+
+<p><b>Flag:</b>
+Enter an arbitrary <nobr>3-digit</nobr> integer value.
+This flag is currently not used.
+
+<p><b>from</b> - <b>to:</b>
+The marker type is valid for the time window specified here. An empty
+input field indicates an open boundary of the time window.
+
+<p><b>Marker type:</b>
+Enter the marker type. Currently the Bernese GNSS Software only supports
+<tt>SPACEBORNE</tt> to indicate LEO-satellites with a GPS receiver on board.
+
+<p><b>Remark:</b>
+You may enter a remark. It will be saved in the file but
+is not used by any program.
+
+<p><hr>
+
+</body>
+</html>

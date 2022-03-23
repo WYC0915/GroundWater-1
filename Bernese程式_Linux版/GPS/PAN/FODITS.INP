@@ -1,0 +1,885 @@
+
+! Some keywords for automatic output
+! ----------------------------------
+CAMPAIGN     0
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+SESSION_TABLE     1  "SESSIONS"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO     1  "$Y+0"
+  ## widget = comment
+
+SES_INFO     1  "$S+0"
+  ## widget = comment
+
+USR_INFO     1  "${USER}"
+  ## widget = comment
+
+! Environment variables
+! ---------------------
+ENVIRONMENT     1  "" ""
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! =========================================================================
+! FODITS 1: Input Files
+! =========================================================================
+! GENERAL FILES
+! -------------
+SHOWGEN     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+SHOWVAR     1  "1"
+  ## widget = checkbox
+
+MSG_SHOWVAR 1  "Show all general variables"
+
+! INPUT FILENAMES
+! ---------------
+SEL_INP_TS_TYPE     1  "RESIDUALS"
+  ## widget = combobox; editable = false; cards = RESIDUALS COORDINATES
+
+MSG_SEL_INP_TS_TYPE 1  "Select the input format of the coordinate time series"
+
+IN_PLT_FILE     0
+  ## widget = selwin; path = DIR_OUT; ext = EXT_PLT; maxfiles = 1
+  ## activeif = SEL_INP_TS_TYPE == RESIDUALS; emptyallowed = true
+
+DESCR_IN_PLT_FILE 1  "Output ADDNEQ2 PLT file"
+
+IN_PLT_FILE_VCI_ENA     1  "NONE"
+  ## widget = combobox; editable = false
+  ## cards = NONE STDDEV_ONLY SPACE_VARCOV
+  ## activeif = SEL_INP_TS_TYPE == RESIDUALS
+
+MSG_IN_PLT_FILE_VCI_ENA 1  "Covariance information"
+
+IN_PLT_FILE_VI_M0     1  "0.001"
+  ## widget = lineedit; check_type = real; check_min = 0
+  ## emptyallowed = true
+
+MSG_IN_PLT_FILE_VI_M0 1  "A priori sigma of unit weight"
+
+IN_CRD_FILE     0
+  ## widget = selwin; path = DIR_CRD; ext = EXT_CRD; maxfiles = 1
+  ## activeif = SEL_INP_TS_TYPE == RESIDUALS; emptyallowed = true
+
+DESCR_IN_CRD_FILE 1  "Output ADDNEQ2 CRD file"
+
+IN_CRD_FILE_ADD_PLT     1  "1"
+  ## widget = checkbox
+
+MSG_IN_CRD_FILE_ADD_PLT 1  "Apply coordinates to the residuals"
+
+IN_VEL_FILE     0
+  ## widget = selwin; path = DIR_STA; ext = EXT_VEL; maxfiles = 1
+  ## activeif = SEL_INP_TS_TYPE == RESIDUALS; emptyallowed = true
+
+DESCR_IN_VEL_FILE 1  "Output ADDNEQ2 VEL file"
+
+IN_VEL_FILE_ADD_PLT     1  "1"
+  ## widget = checkbox
+
+MSG_IN_VEL_FILE_ADD_PLT 1  "Add velocities to the residuals"
+
+IN_CRD_FILES     0
+  ## widget = selwin; path = DIR_CRD; ext = EXT_CRD
+  ## activeif = SEL_INP_TS_TYPE == COORDINATES
+
+DESCR_IN_CRD_FILES 1  "Input CRD files"
+
+! PREDEFINED EVENTS
+! -----------------
+IN_EVL_FILE     0
+  ## widget = selwin; path = DIR_STA; ext = EXT_EVL; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_IN_EVL_FILE 1  "Input EVL file"
+
+IN_STA_FILE     0
+  ## widget = selwin; path = DIR_STA; ext = EXT_STA; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_IN_STA_FILE 1  "Input STA file"
+
+IN_ERQ_FILE     1  "LIST.ERQ"
+  ## widget = selwin; path = DIR_STA; ext = NO_EXT; maxfiles = 1
+  ## activeif = IN_CRD_FILE /= _; emptyallowed = true
+
+DESCR_IN_ERQ_FILE 1  "Earthquakes info file"
+
+! =========================================================================
+! FODITS 1.1: General Files
+! =========================================================================
+! GENERAL INPUT FILES
+! -------------------
+CONST     1  "CONST."
+  ## widget = selwin; path = PTH_GEN; maxfiles = 1
+
+DESCR_CONST 1  "General constants"
+
+DATUM     1  "DATUM."
+  ## widget = selwin; path = PTH_GEN; maxfiles = 1
+
+DESCR_DATUM 1  "Geodetic datum"
+
+AUXFIL     1  "FODITS$J"
+  ## widget = lineedit; path = PTH_SCR; ext = EXT_SCR; emptyallowed = false
+
+DESCR_AUXFIL 1  "Scratch file"
+
+! =========================================================================
+! FODITS 1.2: General Variables
+! =========================================================================
+! VARIABLES FOR A PRIORI EVENTS
+! -----------------------------
+GVAR_ERQ_FACT_A     1  "-5.60"
+  ## widget = lineedit; check_type = real
+
+MSG_GVAR_ERQ_FACT_A 1  "Earthquake factor A"
+
+GVAR_ERQ_FACT_B     1  "+2.17"
+  ## widget = lineedit; check_type = real
+
+MSG_GVAR_ERQ_FACT_B 1  "Earthquake factor B"
+
+GVAR_ERQ_MIN_DIST     1  "60"
+  ## widget = lineedit; check_type = real
+
+MSG_GVAR_ERQ_MIN_DIST 1  "Minimal distance between quakes"
+
+! ALGORITHM VARIABLES
+! ------------------
+GVAR_MAX_NR_ITER     1  "20"
+  ## widget = lineedit; check_type = integer; check_min = 0
+
+MSG_GVAR_MAX_NR_ITER 1  "Maximal number of iteration steps"
+
+GVAR_MAX_NR_SCRN     1  "50"
+  ## widget = lineedit; check_type = integer; check_min = 0
+
+MSG_GVAR_MAX_NR_SCRN 1  "Maximal number of screening steps"
+
+! NEW IDENTIFIED ELEMENTS
+! -----------------------
+MOD_N_NEW_OUTL     1  "20"
+  ## widget = lineedit; check_type = integer; check_min = 0
+
+MSG_MOD_N_NEW_OUTL 1  "Number of outliers to propose"
+
+MOD_N_OUTL_RMS     1  "100"
+  ## widget = lineedit; check_type = real
+
+MSG_MOD_N_OUTL_RMS 1  "Overall threshold for outliers"
+
+! =========================================================================
+! FODITS 2: Output Files
+! =========================================================================
+! RESULT FILES
+! ------------
+OUT_EVL_FILE     0
+  ## widget = lineedit; path = DIR_STA; ext = EXT_EVL; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_OUT_EVL_FILE 1  "Output EVL file"
+
+OUT_STA_FILE_FOR_ADDNEQ2     0
+  ## widget = lineedit; path = DIR_STA; ext = EXT_STA; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_OUT_STA_FILE_FOR_ADDNEQ2 1  "Output STA file"
+
+! OUTPUT FILES
+! ------------
+OUT_PLT_FILE     0
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_PLT; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_OUT_PLT_FILE 1  "Output PLT file"
+
+! GENERAL OUTPUT FILES
+! --------------------
+SYSODEF     1  "1"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT     1  "FODITS"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+
+DESCR_SYSOUT 1  "Program output"
+
+ERRMRG     1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error messages"
+
+SYSERR     1  "ERROR"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+
+DESCR_SYSERR 1  "Error messages"
+
+OUT_FILE_VERBOSE     1  "0"
+  ## widget = checkbox
+
+! =========================================================================
+! Debugging options (T=1,TT=0 or T=0,TT=1), Zeros otherwiese.
+! =========================================================================
+OUT_FILE_VERBOSET     1  "0"
+  ## widget = checkbox
+
+OUT_FILE_VERBOSETT     1  "0"
+  ## widget = checkbox
+
+! =========================================================================
+! FODITS 3: Handling of information coming from the input files
+! =========================================================================
+TITLE     0
+  ## widget = lineedit
+
+MSG_TITLE 1  "Title line"
+
+! INPUT STATION NAMES
+! -------------------
+IN_TRUNC_STA_NAME     1  "YES"
+  ## widget = combobox; cards = NO YES; editable = true
+
+MSG_IN_TRUNC_STA_NAME 1  "Truncate all station names after position 14"
+
+IN_MAN_STA     0
+  ## widget = selwin; pointer = STALST
+
+MSG_IN_MAN_STA 1  "Manual selection"
+
+IN_MIN_NR_OBS     1  "20"
+  ## widget = lineedit; check_type = integer; check_min = 0
+
+MSG_IN_MIN_NR_OBS 1  "Minimal number of observations"
+
+! TEST EVENTS READ IN INPUT FILES
+! -------------------------------
+TST_EVL_TST     1  "TEST"
+  ## widget = combobox; cards = NONE TEST INSR; editable = false
+  ## activeif = IN_EVL_FILE /= _
+
+MSG_TST_EVL_TST 1  "Station renaming"
+
+TST_STA_RENAMINGS     1  "INSR"
+  ## widget = combobox; cards = NONE TEST INSR; editable = false
+  ## activeif = IN_STA_FILE /= _
+
+MSG_TST_STA_RENAMINGS 1  "Station renaming"
+
+TST_REC_TYPE_CHANGES     1  "TEST"
+  ## widget = combobox; cards = NONE TEST INSR; editable = false
+  ## activeif = IN_STA_FILE /= _
+
+MSG_TST_REC_TYPE_CHANGES 1  "Rec Type"
+
+TST_REC_NUMBER_CHANGES     1  "TEST"
+  ## widget = combobox; cards = NONE TEST INSR; editable = false
+  ## activeif = IN_STA_FILE /= _
+
+MSG_TST_REC_NUMBER_CHANGES 1  "Rec Num"
+
+TST_ANT_NAME_CHANGES     1  "TEST"
+  ## widget = combobox; cards = NONE TEST INSR; editable = false
+  ## activeif = IN_STA_FILE /= _
+
+MSG_TST_ANT_NAME_CHANGES 1  "Ant Name"
+
+TST_ANT_TYPE_CHANGES     1  "TEST"
+  ## widget = combobox; cards = NONE TEST INSR; editable = false
+  ## activeif = IN_STA_FILE /= _
+
+MSG_TST_ANT_TYPE_CHANGES 1  "Ant Type"
+
+TST_ECC_CHANGES     1  "TEST"
+  ## widget = combobox; cards = NONE TEST INSR; editable = false
+  ## activeif = IN_STA_FILE /= _
+
+MSG_TST_ECC_CHANGES 1  "Eccentricity"
+
+! =========================================================================
+! FODITS 4: Model definition
+! =========================================================================
+! PRE-ANALYSIS STEP
+! -----------------
+MOD_PRE_DAT_TEST     1  "0"
+  ## widget = checkbox
+  ## activeif = SEL_INP_TS_TYPE == RESIDUALS AND IN_CRD_FILE /= _ AND IN_VEL_FILE /= _ AND IN_CRD_FILE_ADD_PLT == 1 AND IN_VEL_FILE_ADD_PLT == 1 OR SEL_INP_TS_TYPE == COORDINATES
+
+MSG_MOD_PRE_DAT_TEST 1  "Test datum definition"
+
+! VELOCITY CHANGES
+! ----------------
+MIN_TIME_INT_VEL     1  "2.5"
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MIN_TIME_INT_VEL 1  "Minimal interval length for all rate intervals"
+
+! PERIODIC FUNCTIONS
+! ------------------
+MOD_PER_ANN     1  "1"
+  ## widget = checkbox
+
+MSG_MOD_PER_ANN 1  "Propose seasonal signals"
+
+MOD_ADD_ENA     1  "0"
+  ## widget = checkbox
+
+MSG_MOD_ADD_ENA 1  "Propose additional periods"
+
+MOD_ADD_PER_PARAM     1  ""
+  ## widget = uniline; numlines = 4; check_type = real; check_min = 0
+  ## activeif = MOD_ADD_ENA == 1
+
+MSG_MOD_ADD_PER_PARAM 1  "Other periods"
+
+! =========================================================================
+! FODITS 4.1: Test datum definition by Helmert transformation
+! =========================================================================
+! REFERENCE DATUM
+! ---------------
+IN_DATUM_CRD_FILE     0
+  ## widget = selwin; path = DIR_STA; ext = EXT_CRD; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_IN_DATUM_CRD_FILE 1  "Ref ADDNEQ2 coordinates file"
+
+IN_DATUM_VEL_FILE     0
+  ## widget = selwin; path = DIR_STA; ext = EXT_VEL; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_IN_DATUM_VEL_FILE 1  "Ref ADDNEQ2 velocities file"
+
+IN_DATUM_FIX_FILE     0
+  ## widget = selwin; path = DIR_STA; ext = EXT_FIX; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_IN_DATUM_FIX_FILE 1  "ADDNEQ2 fiducial sites file"
+
+! HELMERT TRANSFORMATION
+! ----------------------
+HLM_1     1  "1"
+  ## widget = checkbox
+
+MSG_HLM_1 1  "Parameters to be computed: shift 1"
+
+HLM_2     1  "1"
+  ## widget = checkbox
+
+MSG_HLM_2 1  "Parameters to be computed: shift 2"
+
+HLM_3     1  "1"
+  ## widget = checkbox
+
+MSG_HLM_3 1  "Parameters to be computed: shift 3"
+
+HLM_4     1  "0"
+  ## widget = checkbox
+
+MSG_HLM_4 1  "Parameters to be computed: rot 1"
+
+HLM_5     1  "0"
+  ## widget = checkbox
+
+MSG_HLM_5 1  "Parameters to be computed: rot 2"
+
+HLM_6     1  "0"
+  ## widget = checkbox
+
+MSG_HLM_6 1  "Parameters to be computed: rot 3"
+
+HLM_7     1  "1"
+  ## widget = checkbox
+
+MSG_HLM_7 1  "Parameters to be computed: scale"
+
+! OUTLIER REJECTION FOR STATION COORDINATES
+! -----------------------------------------
+DAT_REJECT_CRD     1  "0"
+  ## widget = checkbox
+
+MSG_DAT_REJECT_CRD 1  "Enable outlier rejection"
+
+DAT_NLIMIT_CRD     1  "50"
+  ## widget = lineedit; activeif = DAT_REJECT_CRD = 1; check_type = real
+  ## check_min = 0
+
+MSG_DAT_NLIMIT_CRD 1  "Outlier criteria north component"
+
+DAT_ELIMIT_CRD     1  "50"
+  ## widget = lineedit; activeif = DAT_REJECT_CRD = 1; check_type = real
+  ## check_min = 0
+
+MSG_DAT_ELIMIT_CRD 1  "Outlier criteria east component"
+
+DAT_ULIMIT_CRD     1  "50"
+  ## widget = lineedit; activeif = DAT_REJECT_CRD = 1; check_type = real
+  ## check_min = 0
+
+MSG_DAT_ULIMIT_CRD 1  "Outlier criteria up component"
+
+DAT_REJECT_OUTL_CRD     1  "TEST"
+  ## widget = combobox; cards = NONE TEST INSR; editable = false
+  ## activeif = DAT_REJECT_CRD == 1
+
+MSG_DAT_REJECT_OUTL_CRD 1  "Propose outliers as predefined elements"
+
+! =========================================================================
+! FODITS 5: Statistical tests
+! =========================================================================
+! STATISTICAL TESTS
+! -----------------
+MOD_TEST_VALUE     1  "0.1"
+  ## widget = combobox; editable = true
+  ## cards = 0.1 0.01 0.001 0.0001 0.00001 0.000001 0.0000001 0.0
+
+MSG_MOD_TEST_VALUE 1  "Minimal relative improvement (abort criterion)"
+
+MOD_OUTL_TEST_VALUE     1  "50.0"
+  ## widget = combobox; editable = true
+  ## cards = 0.0 0.5 1.0 2.0 3.0 4.0 5.0 7.5 10.0 15.0 20.0 30.0 40.0 50.0
+
+MSG_MOD_OUTL_TEST_VALUE 1  "Independent statistical test for outliers"
+
+! MINIMAL ADDITIONAL CRITERIA TO TEST PARAMETERS
+! ----------------------------------------------
+MOD_JUMP_SPAC     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MOD_JUMP_SPAC 1  "Amplitude space jump"
+
+MOD_JUMP_SING     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MOD_JUMP_SING 1  "Amplitude single jump"
+
+MOD_JUMP_HORI     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MOD_JUMP_HORI 1  "Amplitude horizontal jump"
+
+MOD_JUMP_VERT     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MOD_JUMP_VERT 1  "Amplitude vertical jump"
+
+! ----------------------------------------------
+MOD_VELO_SPAC     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MOD_VELO_SPAC 1  "Amplitude space velo"
+
+MOD_VELO_SING     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MOD_VELO_SING 1  "Amplitude single velo"
+
+MOD_VELO_HORI     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MOD_VELO_HORI 1  "Amplitude horizontal velo"
+
+MOD_VELO_VERT     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MOD_VELO_VERT 1  "Amplitude vertical velo"
+
+! ----------------------------------------------
+MOD_OUTL_SPAC     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MOD_OUTL_SPAC 1  "Amplitude space outl"
+
+MOD_OUTL_SING     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MOD_OUTL_SING 1  "Amplitude single outl"
+
+MOD_OUTL_HORI     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MOD_OUTL_HORI 1  "Amplitude horizontal outl"
+
+MOD_OUTL_VERT     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MOD_OUTL_VERT 1  "Amplitude vertical outl"
+
+! ----------------------------------------------
+MOD_PERI_SPAC     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MOD_PERI_SPAC 1  "Amplitude space peri"
+
+MOD_PERI_SING     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MOD_PERI_SING 1  "Amplitude single peri"
+
+MOD_PERI_HORI     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MOD_PERI_HORI 1  "Amplitude horizontal peri"
+
+MOD_PERI_VERT     0
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MOD_PERI_VERT 1  "Amplitude vertical peri"
+
+! =========================================================================
+! FODITS 6: Identification step
+! =========================================================================
+! IDENTIFICATION STEP
+! -------------------
+MOD_NEW_JUMP_IDENTIF     1  "1"
+  ## widget = checkbox
+
+MSG_MOD_NEW_JUMP_IDENTIF 1  "Identify new jump"
+
+MOD_NEW_VELO_IDENTIF     1  "1"
+  ## widget = checkbox
+
+MSG_MOD_NEW_VELO_IDENTIF 1  "Identify new velo"
+
+MOD_NEW_OUTL_IDENTIF     1  "1"
+  ## widget = checkbox
+
+MSG_MOD_NEW_OUTL_IDENTIF 1  "Identify new outl"
+
+MOD_NEW_PERI_IDENTIF     1  "0"
+  ## widget = checkbox
+
+MSG_MOD_NEW_PERI_IDENTIF 1  "Identify new peri"
+
+! NEW IDENTIFIED ELEMENTS
+! -----------------------
+MOD_ADD_VELO_A_J     1  "1"
+  ## widget = checkbox
+
+MSG_MOD_ADD_VELO_A_J 1  "Propose a velocity change after a new jump"
+
+! SEARCH FOR PERIODIC FUNCTIONS
+! -----------------------------
+SAN_NLINES     1  "200"
+  ## widget = lineedit; check_type = integer; check_min = 0
+  ## activeif = MOD_NEW_PERI_IDENTIF == 1
+
+MSG_SAN_NLINES 1  "Number of spectral lines"
+
+SAN_MIN_PER     1  "50"
+  ## widget = lineedit; check_type = real; check_min = 0.0
+  ## activeif = MOD_NEW_PERI_IDENTIF == 1
+
+MSG_SAN_MIN_PER 1  "Minimal period"
+
+SAN_MAX_PER     1  "5000"
+  ## widget = lineedit; check_type = real; check_min = 0.0
+  ## activeif = MOD_NEW_PERI_IDENTIF == 1
+
+MSG_SAN_MAX_PER 1  "Maximal period"
+
+! =========================================================================
+! FODITS 7: Options to generate files for ADDNEQ2
+! =========================================================================
+! GENERAL OPTIONS
+! ---------------
+OUT_TIMREF     0
+  ## widget = lineedit; activeif = CRD_NINT == 1 AND NOINV = 0
+  ## check_type = date
+
+MSG_OUT_TIMREF 1  "Reference epoch for station coordinates"
+
+! REFERENCE SITES
+! ---------------
+MIN_TIME_INT_FIX     1  "3.0"
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MIN_TIME_INT_FIX 1  "Minimal group-interval length"
+
+MIN_PERC_DATA_FIX     1  "70.0"
+  ## widget = lineedit; check_type = real; check_min = 0.0
+
+MSG_MIN_PERC_DATA_FIX 1  "Minimal group-percent of data"
+
+! UPDATE ADDNEQ2 INPUT FILES
+! --------------------------
+IN_CRD_FILE_FOR_ADDNEQ2     0
+  ## widget = selwin; path = DIR_CRD; ext = EXT_CRD; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_IN_CRD_FILE_FOR_ADDNEQ2 1  "Input ADDNEQ2 CRD file"
+
+IN_VEL_FILE_FOR_ADDNEQ2     0
+  ## widget = selwin; path = DIR_STA; ext = EXT_VEL; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_IN_VEL_FILE_FOR_ADDNEQ2 1  "Input ADDNEQ2 VEL file"
+
+IN_FIX_FILE_FOR_ADDNEQ2     0
+  ## widget = selwin; path = DIR_STA; ext = EXT_FIX; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_IN_FIX_FILE_FOR_ADDNEQ2 1  "Input ADDNEQ2 FIX file"
+
+IN_SIG_FILE_FOR_ADDNEQ2     0
+  ## widget = selwin; path = DIR_SIG; ext = EXT_SIG; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_IN_SIG_FILE_FOR_ADDNEQ2 1  "Input ADDNEQ2 SIG file"
+
+OUT_CRD_FILE_FOR_ADDNEQ2     0
+  ## widget = lineedit; path = DIR_CRD; ext = EXT_CRD; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_OUT_CRD_FILE_FOR_ADDNEQ2 1  "Output FODITS CRD file"
+
+OUT_VEL_FILE_FOR_ADDNEQ2     0
+  ## widget = lineedit; path = DIR_STA; ext = EXT_VEL; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_OUT_VEL_FILE_FOR_ADDNEQ2 1  "Output FODITS VEL file"
+
+OUT_FIX_FILE_FOR_ADDNEQ2     0
+  ## widget = lineedit; path = DIR_STA; ext = EXT_FIX; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_OUT_FIX_FILE_FOR_ADDNEQ2 1  "Output FODITS FIX file"
+
+OUT_SIG_FILE_FOR_ADDNEQ2     0
+  ## widget = lineedit; path = DIR_SIG; ext = EXT_SIG; maxfiles = 1
+  ## emptyallowed = true
+
+DESCR_OUT_SIG_FILE_FOR_ADDNEQ2 1  "Output FODITS SIG file"
+
+! UPDATE STATION INFORMATION
+! --------------------------
+UPD_STA_NDAYS     1  "1"
+  ## widget = combobox; cards = 1 3 7; editable = false
+
+MSG_UPD_STA_NDAYS 1  "Number of days of combined NEQs to stack"
+
+! --------------------------------------------------------------------
+! Some additional things
+! --------------------------------------------------------------------
+! Stations (fixed)
+! ----------------
+STALST     0
+  ## widget = selwin; menuaux = MENUAUX; action = FST
+  ## menuauxkeys = IN_TRUNC_STA_NAME SEL_INP_TS_TYPE IN_PLT_FILE IN_CRD_FILES
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# ANALYSIS OF TIME SERIES - FODITS 1: Input Files                              #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files     > % <                                           # SHOWGEN
+#   Show all general variables > % <                                           # SHOWVAR
+#                                                                              #
+# INPUT FILES                                                                  #
+#   Select input format for the time series  > %%%%%%%%%%%% <                  # SEL_INP_TS_TYPE
+#                                                                              #
+#   ADDNEQ2 plot file with residuals         > %%%%%%%% <                      # IN_PLT_FILE
+#     Variance-covariance information        > %%%%%%%%%%%% <                  # IN_PLT_FILE_VCI_ENA
+#     A priori sigma of unit weight          > %%%%%%%% <                      # IN_PLT_FILE_VI_M0
+#   ADDNEQ2 coordinates file                 > %%%%%%%% <                      # IN_CRD_FILE
+#   ADDNEQ2 velocities file                  > %%%%%%%% <                      # IN_VEL_FILE
+#                                                                              #
+#   Coordinate files                         > %%%%%%%% <                      # IN_CRD_FILES
+#                                                                              #
+# PREDEFINED EVENTS                                                            #
+#   Time series event list                   > %%%%%%%% <                      # IN_EVL_FILE
+#   Station information file                 > %%%%%%%% <                      # IN_STA_FILE
+#   Earthquakes information file             > %%%%%%%%%%%% <                  # IN_ERQ_FILE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# FODITS 1.1: General Files                                                    #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants         > %%%%%%%%%%%% <                                 # CONST
+#   Geodetic datum            > %%%%%%%%%%%% <                                 # DATUM
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign         > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <  # CAMPAIGN
+#   Selected session            Year> %%%% <  Session> %%%% <                  # YR4_INFO SES_INFO
+#   Session table             > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <  # SESSION_TABLE
+#                                                                              #
+# TEMPORARY FILES                                                              #
+#   Scratch files             > %%%%%%%%%%%% <                                 # AUXFIL
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWVAR = 1 ######################################################
+# FODITS 1.2: General Variables                                                #
+#                                                                              #
+# PARAMETERS FOR THE SELECTION OF RELEVANT EARTHQUAKES                         #
+#   Earthquake factor A                      > %%%%%%%%%% <                    # GVAR_ERQ_FACT_A
+#   Earthquake factor B                      > %%%%%%%%%% <                    # GVAR_ERQ_FACT_B
+#   Minimal time span between quakes (days)  > %%%%%%%%%% <                    # GVAR_ERQ_MIN_DIST
+#                                                                              #
+# TIME SERIES OF STATION COORDINATES                                           #
+#   Add coordinates                          > % <                             # IN_CRD_FILE_ADD_PLT
+#   Add velocities                           > % <                             # IN_VEL_FILE_ADD_PLT
+#                                                                              #
+# ALGORITHM PARAMETERS                                                         #
+#   Maximal number of iteration steps        > %%%%%%%%%% <                    # GVAR_MAX_NR_ITER
+#   Maximal number of screening steps        > %%%%%%%%%% <                    # GVAR_MAX_NR_SCRN
+#                                                                              #
+# NEW ELEMENTS                                                                 #
+#   Maximal number of outliers per iteration > %%%%%%%%%% <                    # MOD_N_NEW_OUTL
+#   Overall threshold for outlier detection  > %%%%%%%%%% <                    # MOD_N_OUTL_RMS
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# FODITS 2: Output Files                                                       #
+#                                                                              #
+# RESULT FILES                                                                 #
+#   Time series event list        > %%%%%%%% <                                 # OUT_EVL_FILE
+#   Station information file      > %%%%%%%% <   (enable metadata update step) # OUT_STA_FILE_FOR_ADDNEQ2
+#                                                                              #
+# OUTPUT FILES                                                                 #
+#   Plot file with residuals      > %%%%%%%% <                                 # OUT_PLT_FILE
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Verbose mode         > % <                                                 # OUT_FILE_VERBOSE
+#   Program output       > % < use FODITS.Lnn               or  > %%%%%%%% <   # SYSODEF SYSOUT
+#   Error messages       > % < merged to program output     or  > %%%%%%%% <   # ERRMRG SYSERR
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# FODITS 3: Handling of information coming from the input files                #
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE
+#                                                                              #
+# INPUT STATION NAMES                                                          #
+#   Truncate all station names after position 14    > %%%%%%% <                # IN_TRUNC_STA_NAME
+#   Manual station selection (blank=all)   > %%%%%%%%%%%%%%%%%%%% <            # IN_MAN_STA
+#   Minimal number of observations per station      > %%%%%%%%%% <             # IN_MIN_NR_OBS
+#                                                                              #
+# SELECTION AND HANDLING OF EVENTS                                             #
+#   Events from event list:                                                    #
+#     Previously tested events                      > %%%% <                   # TST_EVL_TST
+#   Events from station information file:                                      #
+#     Station renaming@@@@@@@@ (TYPE 001)           > %%%% <                   # TST_STA_RENAMINGS
+#     Receiver type changes@@@ (TYPE 002)           > %%%% <                   # TST_REC_TYPE_CHANGES
+#     Receiver number changes@ (TYPE 002)           > %%%% <                   # TST_REC_NUMBER_CHANGES
+#     Antenna type changes@@@@ (TYPE 002)           > %%%% <                   # TST_ANT_NAME_CHANGES
+#     Antenna number changes@@ (TYPE 002)           > %%%% <                   # TST_ANT_TYPE_CHANGES
+#     Antenna eccentricities@@ (TYPE 002)           > %%%% <                   # TST_ECC_CHANGES
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# FODITS 4: Model definition                                                   #
+#                                                                              #
+# PRE-ANALYSIS STEP                                                            #
+#   Test datum definition                    > % <                             # MOD_PRE_DAT_TEST
+#                                                                              #
+# VELOCITY CHANGES                                                             #
+#   Minimal interval length for all rate intervals   > %%%%%%%% < years        # MIN_TIME_INT_VEL
+#                                                                              #
+# PERIODIC FUNCTIONS                                                           #
+#   Propose seasonal signals                 > % <                             # MOD_PER_ANN
+#                                                                              #
+#   Propose additional periods               > % <   > Period_in_days        < # MOD_ADD_ENA MOD_ADD_PER_PARAM
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL MOD_PRE_DAT_TEST == 1 AND IN_CRD_FILE /= _ AND IN_VEL_FILE /= _ AND IN_CRD_FILE_ADD_PLT == 1 AND IN_VEL_FILE_ADD_PLT == 1 #################################################
+# FODITS 4.1: Test datum definition by Helmert transformation                       #
+#                                                                                   #
+# REFERENCE DATUM                                                                   #
+#   Reference ADDNEQ2 coordinates file   > %%%%%%%% <                               # IN_DATUM_CRD_FILE
+#   Reference ADDNEQ2 velocities file    > %%%%%%%% <                               # IN_DATUM_VEL_FILE
+#   ADDNEQ2 fiducial stations file       > %%%%%%%% <   (blank: all stations)       # IN_DATUM_FIX_FILE
+#                                                                                   #
+# HELMERT TRANSFORMATION                                                            #
+#   Parameters to be estimated  shift 1 > % < rot 1 > % < scale > % <               # HLM_1  HLM_4  HLM_7
+#                               shift 2 > % < rot 2 > % <                           # HLM_2  HLM_5
+#                               shift 3 > % < rot 3 > % <                           # HLM_3  HLM_6
+#                                                                                   #
+# OUTLIER REJECTION FOR STATION COORDINATES                                         #
+#   Enable outlier rejection         > % <                                          # DAT_REJECT_CRD
+#   Threshold for rejection    North > %%%%%% <millimeters                          # DAT_NLIMIT_CRD
+#                              East  > %%%%%% <millimeters                          # DAT_ELIMIT_CRD
+#                              Up    > %%%%%% <millimeters                          # DAT_ULIMIT_CRD
+#   Introduce outliers as predefined elements > %%%% <                              # DAT_REJECT_OUTL_CRD
+#                                                                                   #
+# END_PANEL #########################################################################
+
+
+# BEGIN_PANEL NO_CONDITION ##################################################################
+# FODITS 5: Statistical tests                                                               #
+#                                                                                           #
+# SIGNIFICANCE TEST                                                                         #
+#   Threshold for relative improvement      > %%%%%%%%%%%%% <                               # MOD_TEST_VALUE
+#   N*sigma criterion for outliers          > %%%%%%%%%%%%% <                               # MOD_OUTL_TEST_VALUE
+#                                                                                           #
+# MINIMAL DISPLACEMENT                                                                      #
+#                                  Horizontal  Vertical     3D          Coordinate          #
+#   Discontinuities (meter)       > %%%%%%% < > %%%%%%% <  > %%%%%%% < > %%%%%%% <          # MOD_JUMP_HORI MOD_JUMP_VERT MOD_JUMP_SPAC MOD_JUMP_SING
+#   Velocity changes (meter/year) > %%%%%%% < > %%%%%%% <  > %%%%%%% < > %%%%%%% <          # MOD_VELO_HORI MOD_VELO_VERT MOD_VELO_SPAC MOD_VELO_SING
+#   Outliers (meter)              > %%%%%%% < > %%%%%%% <  > %%%%%%% < > %%%%%%% <          # MOD_OUTL_HORI MOD_OUTL_VERT MOD_OUTL_SPAC MOD_OUTL_SING
+#   Periodic functions (meter)    > %%%%%%% < > %%%%%%% <  > %%%%%%% < > %%%%%%% <          # MOD_PERI_HORI MOD_PERI_VERT MOD_PERI_SPAC MOD_PERI_SING
+#                                                                                           #
+# END_PANEL #################################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# FODITS 6: Identification step                                                #
+#                                                                              #
+# SELECTION OF NEW ELEMENTS                                                    #
+#   Discontinuities              > % <                                         # MOD_NEW_JUMP_IDENTIF
+#   Velocity changes             > % <                                         # MOD_NEW_VELO_IDENTIF
+#   Outliers                     > % <                                         # MOD_NEW_OUTL_IDENTIF
+#   Periodic functions           > % <                                         # MOD_NEW_PERI_IDENTIF
+#                                                                              #
+# ADDITIONAL ELEMENTS                                                          #
+#   Propose a velocity change after each discontinuity > % <                   # MOD_ADD_VELO_A_J
+#                                                                              #
+# SEARCH FOR NEW PERIODIC FUNCTIONS                                            #
+#   Number of spectral lines     > %%%%%%%%%% <                                # SAN_NLINES
+#   Minimal period               > %%%%%%%%%% <days                            # SAN_MIN_PER
+#   Maximal period               > %%%%%%%%%% <days                            # SAN_MAX_PER
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL OUT_STA_FILE_FOR_ADDNEQ2 /= _ ####################################
+# FODITS 7: Options to generate files for ADDNEQ2                              #
+#                                                                              #
+# GENERAL OPTIONS                                                              #
+#   Reference epoch for station coordinates > %%%%%%%%%% < (yyyy mm dd)        # OUT_TIMREF
+#                                                                              #
+# REFERENCE SITES                                                              #
+#   Minimal interval length per group       > %%%%%%%% < years                 # MIN_TIME_INT_FIX
+#   Minimal percent of data per group       > %%%%%%%% <                       # MIN_PERC_DATA_FIX
+#                                                                              #
+# UPDATE ADDNEQ2 INPUT FILES             Input:             Output:            #
+#   Coordinates file                   > %%%%%%%% <       > %%%%%%%% <         # IN_CRD_FILE_FOR_ADDNEQ2 OUT_CRD_FILE_FOR_ADDNEQ2
+#   Velocities file                    > %%%%%%%% <       > %%%%%%%% <         # IN_VEL_FILE_FOR_ADDNEQ2 OUT_VEL_FILE_FOR_ADDNEQ2
+#   Station selection file             > %%%%%%%% <       > %%%%%%%% <         # IN_FIX_FILE_FOR_ADDNEQ2 OUT_FIX_FILE_FOR_ADDNEQ2
+#   Station sigmas file                > %%%%%%%% <       > %%%%%%%% <         # IN_SIG_FILE_FOR_ADDNEQ2 OUT_SIG_FILE_FOR_ADDNEQ2
+#                                                                              #
+# UPDATE STATION INFORMATION                                                   #
+#   Number of days stacked in consecutive solution > %%% <                     # UPD_STA_NDAYS
+#                                                                              #
+# END_PANEL ####################################################################

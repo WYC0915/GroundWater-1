@@ -1,0 +1,141 @@
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT 1  "" "${}"
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! Some keywords for automatic output
+! ----------------------------------
+CAMPAIGN 1  "./DUMMY"
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+SESSION_TABLE 1  "${X}/SKL/SESSIONS.SES"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO 1  "1980"
+  ## widget = comment
+  # $Y+0
+
+SES_INFO 1  "0060"
+  ## widget = comment
+  # $S+0
+
+USR_INFO 1  "${USER}"
+  ## widget = comment
+
+! Coordinate File Names (input)
+! -----------------------------
+CRDINP 1  "./DUMMY/STA/$C800060.CRD"
+  ## widget = selwin; path = DIR_CRD; ext = EXT_CRD; maxfiles = 1
+  # $C$YSS+0
+
+DESCR_CRDINP 1  "Input coordinate file"
+
+! Epoch of Ref. Coord. (output)
+! -----------------------------
+CRDOUT 1  "./DUMMY/STA/$E800060.CRD"
+  ## widget = lineedit; path = DIR_CRD; ext = EXT_CRD; maxfiles = 1
+  # $E$YSS+0
+
+DESCR_CRDOUT 1  "Output coordinate file"
+
+! Velocity according to Ref.Coo.
+! ------------------------------
+VELOCI 1  "./DUMMY/STA/$A800060.VEL"
+  ## widget = selwin; path = DIR_VEL; ext = EXT_VEL; maxfiles = 1
+  # $A$YSS+0
+
+DESCR_VELOCI 1  "Input velocity file"
+
+! Reference Epoch
+! ---------------
+REFDAT 1  "$(REFEPO)"
+  ## widget = lineedit; check_type = date
+
+MSG_REFDAT 1  "Reference epoch: date"
+
+! Reference Epoch
+! ---------------
+REFTIM 1  "00 00 00"
+  ## widget = lineedit; check_type = time
+
+MSG_REFTIM 1  "Reference epoch: time"
+
+! Program Output File
+! -------------------
+SYSODEF 1  "0"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT 1  "./DUMMY/OUT/COO800060.OUT"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+  # COO$YSS+0
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG 1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR 1  "${U}/WORK/ERROR.MSG"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+  # ERROR
+
+DESCR_SYSERR 1  "Error message"
+
+! Title: new entry
+! ----------------
+TITLE 1  "PPP_800060: Extrapolate coordinates"
+  ## widget = lineedit
+  # PPP_$YSS+0: Extrapolate coordinates
+
+MSG_TITLE 1  "Title line"
+
+SHOWGEN 1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# EXTRAPOLATE COORDINATES - COOVEL 1: Filenames                                #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files  > % <                                              # SHOWGEN
+#                                                                              #
+# INPUT FILES                                                                  #
+#   Input coordinate file   > %%%%%%%% <                                       # CRDINP
+#   Input velocity file     > %%%%%%%% <                                       # VELOCI
+#                                                                              #
+# REFERENCE EPOCH             yyyy mm dd      hh mm ss                         #
+#                           > %%%%%%%%%% <  > %%%%%%%% <                       # REFDAT REFTIM
+#                                                                              #
+# RESULT FILE                                                                  #
+#   Output coordinate file  > %%%%%%%% <                                       # CRDOUT
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output          > % < use COOVEL.Lnn            or    > %%%%%%%% < # SYSODEF SYSOUT
+#   Error messages          > % < merged to program output  or    > %%%%%%%% < # ERRMRG SYSERR
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# COOVEL 1.1: General Files                                                    #
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################

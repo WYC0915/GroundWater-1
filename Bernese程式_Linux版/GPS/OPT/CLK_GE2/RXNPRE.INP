@@ -1,0 +1,359 @@
+
+! Environment Variables
+! ---------------------
+ENVIRONMENT 1  "" "${}"
+  ## widget = initmenu; pointer = ENVIR_LIST
+
+! Some title information
+! ----------------------
+USR_INFO 1  "${USER}"
+  ## widget = comment
+
+SESSION_TABLE 1  "${X}/SKL/SESSIONS.SES"
+  ## widget = initmenu; pointer = SESSION_TABLE
+
+DESCR_SESSION_TABLE 1  "Session table"
+
+YR4_INFO 1  "1980"
+  ## widget = comment
+  # $Y+0
+
+SES_INFO 1  "0060"
+  ## widget = comment
+  # $S+0
+
+! Active Campaign
+! ---------------
+CAMPAIGN 1  "./DUMMY"
+  ## widget = initmenu; pointer = ACTIVE_CAMPAIGN
+
+! Show general files
+! ------------------
+SHOWGEN 1  "1"
+  ## widget = checkbox
+
+MSG_SHOWGEN 1  "Show all general files"
+
+! General Constants
+! -----------------
+CONST 1  "${X}/GEN/CONST."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  # CONST.
+
+DESCR_CONST 1  "General constants"
+
+! Local Geodetic Datum
+! --------------------
+DATUM 1  "${X}/GEN/DATUM."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  # DATUM.
+
+DESCR_DATUM 1  "Geodetic datum"
+
+! Leap Seconds
+! ------------
+GPSUTC 1  "${X}/GEN/GPSUTC."
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  # GPSUTC.
+
+DESCR_GPSUTC 1  "GPS-UTC seconds"
+
+! Satellite Information
+! ---------------------
+SATELL 1  "${X}/GEN/$(SATINF).$(PCV)"
+  ## widget = selwin; path = PTH_GEN; ext = NO_EXT; maxfiles = 1
+  ## emptyallowed = true
+  # $(SATINF).$(PCV)
+
+DESCR_SATELL 1  "Satellite information"
+
+! GPS RINEX File
+! --------------
+RNXGPS 1  "./DUMMY/RAW/HELP0060.80N"
+  ## widget = selwin; path = DIR_RXN; ext = EXT_RXN; maxfiles = 99
+  ## emptyallowed = true
+  # HELP$S+0
+
+MSG_RNXGPS 1  "GPS navigation file"
+
+RNXGPS_EXT_COL_2 1  "PRE"
+  ## widget = initmenu; pointer = EXT_PRE
+
+RNXGPS_PTH_COL_2 1  "./DUMMY/ORB/"
+  ## widget = initmenu; pointer = DIR_PRE
+
+! Galileo RINEX File
+! ------------------
+RNXGAL 0
+  ## widget = selwin; path = DIR_RGA; ext = EXT_RGA; maxfiles = 99
+  ## emptyallowed = true
+  # 
+
+MSG_RNXGAL 1  "Galileo navigation file"
+
+RNXGAL_EXT_COL_2 1  "PRE"
+  ## widget = initmenu; pointer = EXT_PRE
+
+RNXGAL_PTH_COL_2 1  "./DUMMY/ORB/"
+  ## widget = initmenu; pointer = DIR_PRE
+
+! GLONASS RINEX File
+! ------------------
+RNXGLO 1  "./DUMMY/RAW/HELP0060.80G"
+  ## widget = selwin; path = DIR_RXG; ext = EXT_RXG; maxfiles = 99
+  ## emptyallowed = true
+  # HELP$S+0
+
+MSG_RNXGLO 1  "GLONASS navigation file"
+
+RNXGLO_EXT_COL_2 1  "PRE"
+  ## widget = initmenu; pointer = EXT_PRE
+
+RNXGLO_PTH_COL_2 1  "./DUMMY/ORB/"
+  ## widget = initmenu; pointer = DIR_PRE
+
+! Exclude shifted GLONASS satellites
+! ----------------------------------
+EXSHFT 1  "0"
+  ## widget = checkbox; activeif = RNXGLO / _
+
+MSG_EXSHFT 1  "Exclude sat. with shifts"
+
+! Precise Orbit File
+! ------------------
+PREFIL 1  "./DUMMY/ORB/BRD800060.PRE"
+  ## widget = lineedit; path = DIR_PRE; ext = EXT_PRE; maxfiles = 1
+  # BRD$YSS+0
+
+MSG_PREFIL 1  "Precise orbit file"
+
+! Program Output File
+! -------------------
+SYSODEF 1  "0"
+  ## widget = checkbox
+
+MSG_SYSODEF 1  "Program output"
+
+SYSOUT 1  "./DUMMY/OUT/BRD800060.OUT"
+  ## widget = lineedit; path = DIR_OUT; ext = EXT_OUT
+  ## activeif = SYSODEF == 0; emptyallowed = false
+  # BRD$YSS+0
+
+DESCR_SYSOUT 1  "Program output"
+
+! Error Message File
+! ------------------
+ERRMRG 1  "0"
+  ## widget = checkbox
+
+MSG_ERRMRG 1  "Error message"
+
+SYSERR 1  "${U}/WORK/ERROR.MSG"
+  ## widget = lineedit; path = PTH_ERR; ext = EXT_ERR
+  ## activeif = ERRMRG == 0; emptyallowed = false
+  # ERROR
+
+DESCR_SYSERR 1  "Error messages"
+
+! Format Type of Precise Ephemerides File
+! ---------------------------------------
+FORMAT 1  "SP3C"
+  ## widget = combobox; editable = false; cards = SP3 SP3C
+
+MSG_FORMAT 1  "Format type"
+
+! Tabular Interval
+! ----------------
+TABINT 1  "900"
+  ## widget = lineedit
+
+MSG_TABINT 1  "Tabular interval"
+
+! Observation Window
+! ------------------
+RADIO_1 1  "0"
+  ## widget = radiobutton; group = DUMMY
+  ## radiokeys = STADAT STATIM ENDDAT ENDTIM
+
+MSG_RADIO_1 1  "Select obs. window defined by start and end times"
+
+RADIO_2 1  "1"
+  ## widget = radiobutton; group = DUMMY
+  ## radiokeys = SESSION_STRG SESSION_YEAR
+
+MSG_RADIO_2 1  "Select obs. window defined by session identifier, year"
+
+STADAT 1  "1980 01 06"
+  ## widget = lineedit; emptyallowed = false; check_type = date
+  # $YMD_STR+0
+
+MSG_STADAT 1  "Start of time window (year month day)"
+
+STATIM 1  "00 00 00"
+  ## widget = lineedit; emptyallowed = false; check_type = time
+
+MSG_STATIM 1  "Start of time window (hour min. sec.)"
+
+ENDDAT 1  "1980 01 06"
+  ## widget = lineedit; emptyallowed = false; check_type = date
+  # $YMD_STR+0
+
+MSG_ENDDAT 1  "End of time window (year month day)"
+
+ENDTIM 1  "23 59 59"
+  ## widget = lineedit; emptyallowed = false; check_type = time
+
+MSG_ENDTIM 1  "End of time window (hour min. sec.)"
+
+SESSION_STRG 1  "0060"
+  ## widget = lineedit; multilineallowed = true; emptyallowed = false
+  # $S+0
+
+MSG_SESSION_STRG 1  "Sessions defining the time window"
+
+SESSION_YEAR 1  "1980"
+  ## widget = lineedit; multilineallowed = true; emptyallowed = false
+  # $Y+0
+
+MSG_SESSION_YEAR 1  "Year for sessions def. the time window"
+
+! Title
+! -----
+TITLE1 1  "CLKDET_800060: Merge GPS/GLONASS nav. RINEX files"
+  ## widget = lineedit
+  # CLKDET_$YSS+0: Merge GPS/GLONASS nav. RINEX files
+
+MSG_TITLE1 1  "Title 1"
+
+TITLE2 1  "Concatenated RINEX GLONASS navigation files"
+  ## widget = lineedit
+
+MSG_TITLE2 1  "Title 2"
+
+TITLE3 0
+  ## widget = lineedit
+  # 
+
+MSG_TITLE3 1  "Title 3"
+
+TITLE4 0
+  ## widget = lineedit
+  # 
+
+MSG_TITLE4 1  "Title 4"
+
+! Reference System
+! ----------------
+SYSTEM 1  "WGS84"
+  ## widget = combobox; editable = true
+  ## cards = ITR94 ITR96 ITR97 ITR00 ITR05 ITR08 IGS00 IGb00 IGS05 IGS08 WGS84
+
+MSG_SYSTEM 1  "Reference system"
+
+! Agency
+! ------
+AGENCY 1  "XYZ"
+  ## widget = lineedit
+
+MSG_AGENCY 1  "Agency"
+
+! Title: new entry
+! ----------------
+TITLE 1  "Convert NAV-RINEX to precise orbit format: 800060"
+  ## widget = lineedit
+  # Convert NAV-RINEX to precise orbit format: $YSS+0
+
+MSG_TITLE 1  "Title line"
+
+! Header for program output
+! -------------------------
+PRT_RNXINP 0
+
+MSG_PRT_RNXINP 1  "Used for file table in program output"
+
+PRT_RNXINP_TXT_COL_1 1  "BROADCAST FORMAT GPS FILES"
+  ## widget = comment
+
+PRT_RNXINP_TXT_COL_2 1  "BROADCAST FORMAT GLONASS FILES"
+  ## widget = comment
+
+PRT_RNXINP_TXT_COL_3 1  "BROADCAST FORMAT GALILEO FILES"
+  ## widget = comment
+
+PRT_RNXINP_TXT_COL_4 1  "PRECISE FORMAT ORBIT FILES"
+  ## widget = comment
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# TRANSFER RINEX NAVIGATION FILES TO PRECISE ORBITS - RXNPRE 1: Filenames      #
+#                                                                              #
+# GENERAL FILES                                                                #
+#   Show all general files    > % <                                            # SHOWGEN
+#                                                                              #
+# INPUT FILES                                                                  #
+#   GPS navigation file       > %%%%%%%% <                                     # RNXGPS
+#   GLONASS navigation file   > %%%%%%%% <       Exclude sat. with shifts > % <# RNXGLO EXSHFT
+#   Galileo navigation file   > %%%%%%%% <                                     # RNXGAL
+#                                                                              #
+# RESULT FILE                                                                  #
+#   Precise orbit file        > %%%%%%%% <       (blank: same as input)        # PREFIL
+#                                                                              #
+# GENERAL OUTPUT FILES                                                         #
+#   Program output            > % < use RXNPRE.Lnn            or > %%%%%%%% <  # SYSODEF SYSOUT
+#   Error messages            > % < merged to program output  or > %%%%%%%% <  # ERRMRG SYSERR
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL SHOWGEN = 1 ######################################################
+# RXNPRE 1.1: General Files                                                    #
+#                                                                              #
+# GENERAL INPUT FILES                                                          #
+#   General constants       > %%%%%%%%%%%% <                                   # CONST
+#   Geodetic datum          > %%%%%%%%%%%% <                                   # DATUM
+#   GPS-UTC seconds         > %%%%%%%%%%%% <                                   # GPSUTC
+#   Satellite information   > %%%%%%%%%%%% <                                   # SATELL
+#                                                                              #
+# MENU SETTINGS                                                                #
+#   Selected campaign       > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # CAMPAIGN
+#   Selected session          year> %%%% <  session> %%%% <                    # YR4_INFO SES_INFO
+#   Session table           > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # SESSION_TABLE
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# RXNPRE 2.1: Input Options                                                    #
+#                                                                              #
+# TITLE > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE
+#                                                                              #
+# PRECISE ORBIT FILE                                                           #
+#   Format type                       > %%%%% <    (SP3: New format)           # FORMAT
+#   Tabular interval                  > %%%%% <    seconds                     # TABINT
+#                                                                              #
+# TIME WINDOW FOR PRECISE ORBIT FILE                                           #
+#                                                                              #
+#   > % < Defined by Year and Session identifier                               # RADIO_2
+#         Year  > %%%% <     Session > %%%% <                                  # SESSION_YEAR SESSION_STRG
+#                                                                              #
+#   > % < Defined by Start and End times                                       # RADIO_1
+#                 yyyy mm dd     hh mm ss           yyyy mm dd     hh mm ss    #
+#         Start > %%%%%%%%%% < > %%%%%%%% <   End > %%%%%%%%%% < > %%%%%%%% <  # STADAT STATIM ENDDAT ENDTIM
+#                                                                              #
+# END_PANEL ####################################################################
+
+
+# BEGIN_PANEL NO_CONDITION #####################################################
+# RXNPRE 2.2: Input Options                                                    #
+#                                                                              #
+# COMMENT LINES                                                                #
+#   Title 1    > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE1
+#   Title 2    > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE2
+#   Title 3    > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE3
+#   Title 4    > %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% <   # TITLE4
+#                                                                              #
+# AUXILIARY INFORMATION                                                        #
+#   Reference system    > %%%%%% <        (e.g. WGS84, ITRFxx)                 # SYSTEM
+#   Agency              > %%%% <                                               # AGENCY
+#                                                                              #
+# END_PANEL ####################################################################
